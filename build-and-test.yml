@@ -1,0 +1,199 @@
+name: Build and Test Common C++
+
+pr:
+- master
+- develop
+
+trigger: none
+
+stages:
+
+- stage: Windows
+  dependsOn: []
+  pool:
+    name: Hosted VS2017
+    demands:
+    - msbuild
+    - vstest
+
+  jobs:
+  - job: Build_And_Test_VisualStudio
+
+    steps:
+
+    - checkout: self
+      persistCredentials: true
+
+    - task: NuGetCommand@2
+      inputs:
+        command: 'restore'
+        restoreSolution: 'VisualStudio/FiftyOne.Common.sln'
+        feedsToUse: 'select'
+        vstsFeed: 'd2431f86-c1e6-4d8b-8d27-311cf3614847'
+
+    - task: MSBuild@1
+      displayName: 'Build Visual Studio Solution x64'
+      inputs:
+        solution: 'VisualStudio/FiftyOne.Common.sln'
+        msbuildArchitecture: x64
+        platform: x64
+        configuration: Release
+        clean: true
+
+    - bash: './FiftyOne.Common.Tests.exe --gtest_catch_exceptions=1 --gtest_break_on_failure=0 --gtest_output=xml:testoutput.xml'
+      workingDirectory: VisualStudio/x64/Release
+      failOnStderr: true
+      displayName: 'Run Tests'
+
+    - task: PublishTestResults@2
+      condition: true
+      inputs:
+        testResultsFormat: 'JUnit'
+        testRunTitle: 'Visual Studio x64'
+        testResultsFiles: 'VisualStudio\x64\Release\testoutput.xml'
+
+    - task: MSBuild@1
+      displayName: 'Build Visual Studio Solution x86'
+      inputs:
+        solution: 'VisualStudio/FiftyOne.Common.sln'
+        msbuildArchitecture: x64
+        platform: x86
+        configuration: Release
+        clean: true
+
+    - bash: './FiftyOne.Common.Tests.exe --gtest_catch_exceptions=1 --gtest_break_on_failure=0 --gtest_output=xml:testoutput.xml'
+      workingDirectory: VisualStudio/Release
+      failOnStderr: true
+      displayName: 'Run Tests'
+
+    - task: PublishTestResults@2
+      condition: true
+      inputs:
+        testResultsFormat: 'JUnit'
+        testRunTitle: 'Visual Studio x86'
+        testResultsFiles: 'VisualStudio\Release\testoutput.xml'
+
+  - job: Build_And_Test
+    steps:
+
+    - checkout: self
+      submodules: recursive
+      lfs: true
+
+    - task: Bash@3
+      displayName: 'Create Build Directory'
+      inputs:
+        targetType: 'inline'
+        script: 'mkdir build'
+
+
+    - task: CMake@1
+      displayName: 'CMake Configure'
+      inputs:
+        workingDirectory: build
+        cmakeArgs: '.. -A x64'
+
+    - task: CMake@1
+      displayName: 'CMake Build'
+      inputs:
+        workingDirectory: build
+        cmakeArgs: '--build . --config Release'
+
+    - bash: 'ctest -T test --no-compress-output'
+      workingDirectory: build
+      failOnStderr: true
+      displayName: 'Run Tests'
+
+    - task: PublishTestResults@2
+      condition: true
+      inputs:
+        testResultsFormat: 'CTest'
+        testRunTitle: 'Windows CTest'
+        testResultsFiles: '**/Test.xml'
+
+- stage: Mac
+  dependsOn: []
+  jobs:
+  - job: Build_And_Test
+    pool:
+      name: Azure Pipelines
+      vmImage: 'macOS-10.14'
+
+    steps:
+
+    - checkout: self
+      submodules: recursive
+      lfs: true
+
+    - task: Bash@3
+      displayName: 'Create Build Directory'
+      inputs:
+        targetType: 'inline'
+        script: 'mkdir build'
+
+    - task: CMake@1
+      displayName: 'CMake Configure'
+      inputs:
+        workingDirectory: build
+        cmakeArgs: '..'
+
+    - task: CMake@1
+      displayName: 'CMake Build'
+      inputs:
+        workingDirectory: build
+        cmakeArgs: '--build .'
+
+    - bash: 'ctest -T test --no-compress-output'
+      workingDirectory: build
+      failOnStderr: true
+      displayName: 'Run Tests'
+
+    - task: PublishTestResults@2
+      condition: true
+      inputs:
+        testResultsFormat: 'CTest'
+        testRunTitle: 'Mac CTest'
+        testResultsFiles: '**/Test.xml'
+        
+- stage: Linux
+  dependsOn: []
+  jobs:
+  - job: Build_And_Test
+    pool:
+      name: Hosted Ubuntu 1604
+
+    steps:
+
+    - checkout: self
+      submodules: recursive
+      lfs: true
+
+    - task: Bash@3
+      displayName: 'Create Build Directory'
+      inputs:
+        targetType: 'inline'
+        script: 'mkdir build'
+
+    - task: CMake@1
+      displayName: 'CMake Configure'
+      inputs:
+        workingDirectory: build
+        cmakeArgs: '..'
+
+    - task: CMake@1
+      displayName: 'CMake Build'
+      inputs:
+        workingDirectory: build
+        cmakeArgs: '--build .'
+
+    - bash: 'ctest -T test --no-compress-output'
+      workingDirectory: build
+      failOnStderr: true
+      displayName: 'Run Tests'
+
+    - task: PublishTestResults@2
+      condition: true
+      inputs:
+        testResultsFormat: 'CTest'
+        testRunTitle: 'Linux CTest'
+        testResultsFiles: '**/Test.xml'

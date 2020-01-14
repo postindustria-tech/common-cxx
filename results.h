@@ -86,6 +86,10 @@ typedef enum e_fiftyone_degrees_results_no_value_reason {
 															  many values to be
 															  expressed as the
 															  requested type */
+	FIFTYONE_DEGREES_RESULTS_NO_VALUE_REASON_NULL_PROFILE, /**< The results
+														   contain a null
+														   profile for the
+														   required component */
 	FIFTYONE_DEGREES_RESULTS_NO_VALUE_REASON_UNKNOWN /**< None of the above */
 } fiftyoneDegreesResultsNoValueReason;
 

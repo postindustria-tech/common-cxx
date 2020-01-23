@@ -330,6 +330,29 @@ EXTERNAL bool fiftyoneDegreesFileGetExistingTempFile(
 	const char *destination);
 
 /**
+ * Finds all the temporary files which is an exact copy of the master file
+ * if any exist. If any are found, the method attempts to delete them. The
+ * number of successfully deleted temp files is returned. If any files found
+ * have the same name as the master file, then false is returned to avoid the
+ * same file being treated as if it were a copy by external code.
+ * If no paths are provided, then the working directory is searched. Note that
+ * this should not be used on Apple systems, as the checks for whether or not
+ * a file is in use are not implemented (all files will be deleted regardless
+ * of whether they are being used).
+ * @param masterFile path to the master file to find a temp version of
+ * @param paths list of paths to search in order of preference
+ * @param count number of paths in the array
+ * @param bytesToCompare number of from the start of the file to compare for
+ * equality with the master file, or -1 to compare the whole file
+ * @return the number of matching files which have been successfully deleted
+ */
+EXTERNAL int fiftyoneDegreesFileDeleteUnusedTempFiles(
+	const char *masterFileName,
+	const char **paths,
+	int count,
+	long bytesToCompare);
+
+/**
  * Create a temporary file containing a copy of the master file using the first
  * writable path in the list of paths provided. The path which is written to
  * (including file name) is written to the destination parameter which must

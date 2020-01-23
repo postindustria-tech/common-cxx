@@ -24,13 +24,18 @@
 
 #include "fiftyone.h"
 
+#ifdef __APPLE__
+#include <libproc.h>
+#include <sys/proc_info.h>
+#endif
+
 #define TEMP_FILENAME_LENGTH 20
 
  /* Compare method passed to the iterate method. */
 typedef bool(*fileCompare)(const char*, void*);
 
 /* Match method called by the iterate method if the compare method returns true. */
-typedef void(*fileMatch)(const char*, void*);
+typedef bool(*fileMatch)(const char*, void*);
 
 /* State passed to the iterator methods. */
 typedef struct fileIteratorState_t {
@@ -112,7 +117,7 @@ static StatusCode fileOpen(
 		case EROFS:
 			return FILE_PERMISSION_DENIED;
 		case EEXIST:
-			return FILE_WRITE_ERROR;
+			return FILE_EXISTS_ERROR;
 		case ENOENT:
 		default:
 			return FILE_NOT_FOUND;
@@ -343,9 +348,10 @@ static bool iterateFiles(
 			}
 			// Call match and return if the file is a match.
 			if (compare(tempPath, state)) {
-				match(tempPath, state);
-				FindClose(searchHandle);
-				return true;
+				if (match(tempPath, state) == true) {
+					FindClose(searchHandle);
+					return true;
+				}
 			}
 		} while (FindNextFile(searchHandle, &file) != 0);
 		FindClose(searchHandle);
@@ -361,9 +367,10 @@ static bool iterateFiles(
 			strcpy(tempPath + nameStart, ent->d_name);
 			// Call match and return if the file is a match.
 			if (compare(tempPath, state)) {
-				match(tempPath, state);
-				closedir(dir);
-				return true;
+				if (match(tempPath, state) == true) {
+					closedir(dir);
+					return true;
+				}
 			}
 		}
 		closedir(dir);
@@ -397,10 +404,143 @@ static bool iteratorFileCompare(const char *fileName, void *state) {
  * state structure.
  * @param fileName path to the matching file
  * @param state pointer to the file iterator state with the destination pointer
+ * @return true to indicate that the search should end
  */
-static void iteratorFileMatch(const char *fileName, void *state) {
+static bool iteratorFileMatch(const char *fileName, void *state) {
 	fileIteratorState *fileState = (fileIteratorState*)state;
 	strcpy((char*)fileState->destination, fileName);
+	return true;
+}
+
+
+/**
+ * Returns true if the file is in use. Note that this is only functional on
+ * Linux systems. Windows does not need this for the usage in this file.
+ * The Apple implementation is currently unstable (so is not used). Also note
+ * that the file MUST exist. If it does not, then this method will result in
+ * undefined behaviour.
+ * @param pathName path to the file to check
+ * @return true if the file is in use
+ */
+bool isFileInUse(const char *pathName) {
+#ifdef __APPLE__
+	int i, j, pid, fdCount, bufferSize, pidCount;
+	struct vnode_fdinfowithpath vnodeInfo;
+	pid_t *pids = calloc(0x1000, 1);
+	pidCount = proc_listallpids(pids, 0x1000);
+	struct proc_fdinfo *procInfo = (struct proc_fdinfo *)Malloc(bufferSize);
+	for (i = 0; i < pidCount; i++) {
+		pid = pids[i];
+		bufferSize = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, 0, 0);
+		fdCount = bufferSize / PROC_PIDLISTFD_SIZE;
+		proc_pidinfo(pid, PROC_PIDLISTFDS, 0, procInfo, bufferSize);
+
+		for (j = 0; j < fdCount; j++) {
+			if (procInfo[j].proc_fdtype == PROX_FDTYPE_VNODE) {
+				// A file is open
+				int bytesUsed = proc_pidfdinfo(
+					pid,
+					procInfo[j].proc_fd,
+					PROC_PIDFDVNODEPATHINFO,
+					&vnodeInfo,
+					PROC_PIDFDVNODEPATHINFO_SIZE);
+				if (proc_pidfdinfo(
+					pid,
+					procInfo[j].proc_fd,
+					PROC_PIDFDVNODEPATHINFO,
+					&vnodeInfo,
+					PROC_PIDFDVNODEPATHINFO_SIZE) ==
+					PROC_PIDFDVNODEPATHINFO_SIZE) {
+					size_t linkPathLen = strlen(vnodeInfo.pvip.vip_path);
+					size_t pathNameLen = strlen(pathName);
+					if (pathNameLen <= linkPathLen &&
+						strncmp(
+							vnodeInfo.pvip.vip_path + linkPathLen - pathNameLen,
+							pathName,
+							pathNameLen) == 0) {
+						Free(procInfo);
+						return true;
+					}
+				}
+			}
+		}
+	}
+	Free(procInfo);
+	return false;
+#elif defined(_MSC_VER)
+	
+#else
+
+	fiftyoneDegreesStatusCode status = SUCCESS;
+    DIR *procDir;
+	struct dirent *ent1, *ent2;
+    char fdPath[FILE_MAX_PATH];
+    char linkFile[FILE_MAX_PATH];
+    char linkPath[FILE_MAX_PATH];
+	procDir = opendir("/proc");
+	if (procDir != NULL) {
+		// Iterate over all directories in /proc
+		while ((ent1 = readdir(procDir)) != NULL) {
+            // Get the path to the file descriptor directory for a PID
+            sprintf(fdPath, "/proc/%s/fd", ent1->d_name);
+            DIR *fdDir = opendir(fdPath);
+            if (fdDir != NULL) {
+                while((ent2 = readdir(fdDir)) != NULL) {
+                    // Check that the file is not '.' or '..'
+                    if (strcmp(ent2->d_name, ".") != 0 &&
+                        strcmp(ent2->d_name, "..") != 0) {
+                        // Get the path which the symlink is pointing to
+                        sprintf(linkFile, "%s/%s", fdPath, ent2->d_name);
+                        size_t written =
+							readlink(linkFile, linkPath, FILE_MAX_PATH);
+                        if (written >= 0) {
+                            linkPath[written] = '\0';
+							size_t linkPathLen = strlen(linkPath);
+							size_t pathNameLen = strlen(pathName);
+							if (pathNameLen <= linkPathLen &&
+								strncmp(linkPath + linkPathLen - pathNameLen,
+									pathName,
+									pathNameLen) == 0) {
+                                closedir(fdDir);
+                                closedir(procDir);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            closedir(fdDir);
+		}
+		closedir(procDir);
+	}
+	else {
+		// This method cannot be used to determine whether the file is in use.
+		// So to be safe, lets report true so it is not deleted.
+		return true;
+	}
+    return false;
+#endif
+}
+
+/**
+ * Deletes the file is it is not in use. The first byte of state->destination
+ * is used as a counter to indicate how many files were successfully deleted.
+ * @param fileName path to matching file
+ * @param state pointer to the file iterator state with the destination pointer
+ * @return false to indicate that the search should continue
+ */
+static bool iteratorFileDelete(const char *fileName, void *state) {
+	fileIteratorState *fileState = (fileIteratorState*)state;
+#if !defined(_MSC_VER) && !defined(__APPLE__)
+	if (isFileInUse(fileName) == false) {
+#endif
+		if (fiftyoneDegreesFileDelete(fileName) == SUCCESS) {
+			((byte*)fileState->destination)[0]++;
+		}
+#if !defined(_MSC_VER) && !defined(__APPLE__)
+	}
+#endif
+	return false;
 }
 
 fiftyoneDegreesStatusCode fiftyoneDegreesFileOpen(
@@ -436,19 +576,52 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileCreateDirectory(
 #endif
 #endif
 	if (error != 0) {
-		switch (error) {
+		switch (errno) {
 		case 0:
 		case EACCES:
 		case EROFS:
 			return FILE_PERMISSION_DENIED;
 		case EEXIST:
-			return FILE_WRITE_ERROR;
+			return FILE_EXISTS_ERROR;
 		case ENOENT:
 		default:
 			return FILE_NOT_FOUND;
 		}
 	}
 	return SUCCESS;
+}
+
+int fiftyoneDegreesFileDeleteUnusedTempFiles(
+	const char *masterFileName,
+	const char **paths,
+	int count,
+	long bytesToCompare) {
+	int i;
+	byte deleted = 0;
+	fileIteratorState state;
+	state.masterFileName = masterFileName;
+	// The iteratorFileDelete method will use the first byte of
+	// state.destination to keep track of the number of files deleted. This is
+	// a slight misuse of the structure, but we'll allow it as the structure
+	// is internal only.
+	state.destination = (const char*)&deleted;
+	state.bytesToCompare = bytesToCompare;
+
+	if (paths == NULL || count == 0) {
+		// Look in the working directory.
+		iterateFiles("", &state, iteratorFileCompare, iteratorFileDelete);
+	}
+	else {
+		// Look in the directories provided.
+		for (i = 0; i < count; i++) {
+			iterateFiles(
+				paths[0],
+				&state,
+				iteratorFileCompare,
+				iteratorFileDelete);
+		}
+	}
+	return (int)deleted;
 }
 
 bool fiftyoneDegreesFileGetExistingTempFile(

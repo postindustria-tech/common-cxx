@@ -105,9 +105,12 @@ protected:
 	 * @param dir directory path to create
 	 */
 	static void createDir(const char *dir) {
-		EXPECT_EQ(
-			FIFTYONE_DEGREES_STATUS_SUCCESS,
-			fiftyoneDegreesFileCreateDirectory(dir)) <<
+		fiftyoneDegreesStatusCode status =
+			fiftyoneDegreesFileCreateDirectory(dir);
+
+		EXPECT_TRUE(
+			status == FIFTYONE_DEGREES_STATUS_SUCCESS ||
+			status == FIFTYONE_DEGREES_STATUS_FILE_EXISTS_ERROR) <<
 			"The directory could not be created";
 	}
 
@@ -270,6 +273,105 @@ TEST_F(File, TempExists) {
 	removeFile(tempFileName);
 	removeDir(tempPath);
 }
+
+/**
+ * Check that an existing temporary file can be found and deleted by the
+ * delete existing temp file method, and that the number of deleted files
+ * returned is correct.
+ */
+TEST_F(File, TempExists_Delete) {
+	const char *paths[] = { tempPath };
+	char tempFileName1[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	char tempFileName2[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	char foundFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	tempFileName1[0] = '\0';
+	tempFileName2[0] = '\0';
+	// Make the temp directory to use.
+	createDir(tempPath);
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
+		fiftyoneDegreesFileCreateTempFile(fileName, paths, 1, tempFileName1)) <<
+		"A temporary file was not created.";
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
+		fiftyoneDegreesFileCreateTempFile(fileName, paths, 1, tempFileName2)) <<
+		"A temporary file was not created.";
+
+	EXPECT_TRUE(fiftyoneDegreesFileGetExistingTempFile(
+		fileName,
+		paths,
+		1,
+		-1,
+		foundFileName)) <<
+		"The existing temporary file was not found.";
+
+	EXPECT_EQ(2,
+		fiftyoneDegreesFileDeleteUnusedTempFiles(fileName, paths, 1, -1)) <<
+		"2 temporary files should have been deleted.";
+
+	EXPECT_FALSE(fiftyoneDegreesFileGetExistingTempFile(
+		fileName,
+		paths,
+		1,
+		-1,
+		foundFileName)) <<
+		"The existing temporary file was not deleted.";
+
+	removeDir(tempPath);
+}
+
+#ifndef __APPLE__
+
+/**
+ * Check that an existing temporary file (which is in use) can be found and is
+ * not deleted by the delete existing temp file method, and that the number of
+ * deleted files returned is correct.
+ */
+TEST_F(File, TempExists_DeleteInUse) {
+	const char *paths[] = { tempPath };
+	char tempFileName1[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	char tempFileName2[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	char foundFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	tempFileName1[0] = '\0';
+	tempFileName2[0] = '\0';
+	// Make the temp directory to use.
+	createDir(tempPath);
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
+		fiftyoneDegreesFileCreateTempFile(fileName, paths, 1, tempFileName1)) <<
+		"A temporary file was not created.";
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
+		fiftyoneDegreesFileCreateTempFile(fileName, paths, 1, tempFileName2)) <<
+		"A temporary file was not created.";
+
+	EXPECT_TRUE(fiftyoneDegreesFileGetExistingTempFile(
+		fileName,
+		paths,
+		1,
+		-1,
+		foundFileName)) <<
+		"The existing temporary file was not found.";
+
+	FILE *handle;
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
+		fiftyoneDegreesFileOpen(foundFileName, &handle)) <<
+		"The temp file could not be opened.";
+
+	EXPECT_EQ(1,
+		fiftyoneDegreesFileDeleteUnusedTempFiles(fileName, paths, 1, -1)) <<
+		"1 temporary file should have been deleted.";
+
+	EXPECT_TRUE(fiftyoneDegreesFileGetExistingTempFile(
+		fileName,
+		paths,
+		1,
+		-1,
+		foundFileName)) <<
+		"The existing temporary file was deleted even though it was in use.";
+
+	fclose(handle);
+	removeFile(foundFileName);
+	removeDir(tempPath);
+}
+
+#endif
 
 /**
  * Check that an existing temporary file can be found by the get existing temp

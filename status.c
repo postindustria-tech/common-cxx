@@ -67,9 +67,11 @@ static StatusMessage messages[] = {
 		"operations. Increase the concurrency option in the collection "
 		"configuration to allow more threads to access the collection "
 		"simultaneously." },
-	{ FILE_COPY_ERROR , 
+	{ FILE_COPY_ERROR,
 		"There was an error copying the source file to the destination. "
 		"Verify sufficient space is available at the destination." },
+	{ FILE_EXISTS_ERROR,
+		"The file or directory already exists so could not be created." },
 	{ FILE_WRITE_ERROR,
 		"Could not create the file with write permissions." },
 	{ FILE_PERMISSION_DENIED,

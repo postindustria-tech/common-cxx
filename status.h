@@ -106,6 +106,9 @@ typedef enum e_fiftyone_degrees_status_code {
 	                                                operations */
 	FIFTYONE_DEGREES_STATUS_FILE_COPY_ERROR, /**< The data file could not be 
 	                                             copied */
+	FIFTYONE_DEGREES_STATUS_FILE_EXISTS_ERROR, /**< The file or directory
+											   already exists, so could not be
+											   created */
 	FIFTYONE_DEGREES_STATUS_FILE_WRITE_ERROR, /**< The data file could not be 
 	                                              created */
 	FIFTYONE_DEGREES_STATUS_FILE_PERMISSION_DENIED, /**< File permission denied */

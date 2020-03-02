@@ -141,6 +141,7 @@ MAP_TYPE(DataSetInitFromFileMethod)
 MAP_TYPE(String)
 MAP_TYPE(Property)
 MAP_TYPE(Component)
+MAP_TYPE(ComponentKeyValuePair)
 MAP_TYPE(Value)
 MAP_TYPE(Profile)
 MAP_TYPE(OverrideProperty)
@@ -283,7 +284,7 @@ MAP_TYPE(ProfileIterateMethod)
 #define PropertyGetName fiftyoneDegreesPropertyGetName /**< Synonym for #fiftyoneDegreesPropertyGetName function. */
 #define CollectionReadFileVariable fiftyoneDegreesCollectionReadFileVariable /**< Synonym for #fiftyoneDegreesCollectionReadFileVariable function. */
 #define PropertyGetByName fiftyoneDegreesPropertyGetByName /**< Synonym for #fiftyoneDegreesPropertyGetByName function. */
-#define ComponentGetHttpHeader fiftyoneDegreesComponentGetHttpHeader /**< Synonym for #fiftyoneDegreesComponentGetHttpHeader function. */
+#define ComponentGetKeyValuePair fiftyoneDegreesComponentGetKeyValuePair /**< Synonym for #fiftyoneDegreesComponentGetKeyValuePair function., */
 #define PropertyGetValueType fiftyoneDegreesPropertyGetValueType /**< Synonym for #fiftyoneDegreesPropertyGetValueType function. */
 
 /* <-- only one asterisk to avoid inclusion in documentation

@@ -35,7 +35,6 @@ public:
 	void setUseTempFile(bool use);
 	void setReuseTempFile(bool reuse);
 	void setTempDirectories(std::vector<std::string> tempDirs);
-	void setFreeData(bool shouldFree);
 	bool getUseUpperPrefixHeaders();
 	bool getUseTempFile();
 	bool getReuseTempFile();

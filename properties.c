@@ -458,7 +458,7 @@ int fiftyoneDegreesPropertiesGetPropertyIndexFromName(
 	return -1;
 }
 
-String* fiftyoneDegreesPropertiesGetNameFromRequiredIndex(
+fiftyoneDegreesString* fiftyoneDegreesPropertiesGetNameFromRequiredIndex(
 	fiftyoneDegreesPropertiesAvailable *available,
 	int requiredPropertyIndex) {
 	return (String*)available->items[requiredPropertyIndex].name.data.ptr;

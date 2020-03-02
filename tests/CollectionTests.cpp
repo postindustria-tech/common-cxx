@@ -57,6 +57,7 @@ public:
 #pragma warning (default: 4100) 
 #endif
 	virtual uint32_t outOfRange() { return 0; }
+	fiftyoneDegreesCollectionItemComparer itemComparer;
 	uint32_t count;
 	byte *data;
 	size_t size;
@@ -76,12 +77,20 @@ public:
 			values[i] = i;
 			map[i] = i;
 		}
+		itemComparer = itemComparerInt;
 	}
 	void verify(fiftyoneDegreesData *itemData, int index) {
 		EXPECT_EQ(index, *(int*)itemData->ptr);
 	}
 	uint32_t outOfRange() {
 		return map[count - 1] + 1;
+	}
+
+	static int itemComparerInt(
+		void *state,
+		fiftyoneDegreesCollectionItem *item,
+		fiftyoneDegreesException *exception) {
+		return *((int*)item->data.ptr) - *(int*)state;
 	}
 };
 
@@ -101,12 +110,22 @@ public:
 			current++;
 		}
 		elementSize = 0;
+		itemComparer = itemComparerString;
 	}
 	void verify(fiftyoneDegreesData *itemData, int index) {
 		EXPECT_EQ(strcmp(TEST_STRINGS[index], (const char*)itemData->ptr), 0);
 	}
 	uint32_t outOfRange() {
 		return (uint32_t)(size + 1);
+	}
+
+	static int itemComparerString(
+		void *state,
+		fiftyoneDegreesCollectionItem *item,
+		fiftyoneDegreesException *exception) {
+		const char *itemString = FIFTYONE_DEGREES_STRING(item->data.ptr);
+		const char *targetString = (const char *)state;
+		return strcmp(itemString, targetString);
 	}
 };
 
@@ -173,6 +192,43 @@ public:
 			data->verify(&item.data, i);
 			if (fiftyoneDegreesCollectionGetIsMemoryOnly() == false) {
 				FIFTYONE_DEGREES_COLLECTION_RELEASE(collection, &item);
+			}
+		}
+	}
+
+	void binarySearch() {
+		
+		if (this->data->isCount == false) {
+			cout << "Skipping binary search test for as the collection "
+				<< "contains variable size elements.\n";
+		}
+		else {
+			FIFTYONE_DEGREES_EXCEPTION_CREATE;
+			fiftyoneDegreesCollectionItem resultItem, targetItem;
+			fiftyoneDegreesDataReset(&resultItem.data);
+			fiftyoneDegreesDataReset(&targetItem.data);
+
+			for (uint32_t i = 0; i < data->count; i++) {
+				collection->get(
+					collection,
+					data->map[i],
+					&targetItem,
+					exception);
+				FIFTYONE_DEGREES_EXCEPTION_THROW;
+				EXPECT_TRUE(fiftyoneDegreesCollectionBinarySearch(
+					collection,
+					&resultItem,
+					0,
+					data->count - 1,
+					targetItem.data.ptr,
+					data->itemComparer,
+					exception) >= 0);
+				EXPECT_FALSE(FIFTYONE_DEGREES_EXCEPTION_FAILED);
+				data->verify(&resultItem.data, i);
+				if (fiftyoneDegreesCollectionGetIsMemoryOnly() == false) {
+					FIFTYONE_DEGREES_COLLECTION_RELEASE(collection, &resultItem);
+					FIFTYONE_DEGREES_COLLECTION_RELEASE(collection, &targetItem);
+				}
 			}
 		}
 	}
@@ -607,7 +663,8 @@ TEST_F(CollectionTest##s##w##e##o, OutOfRange) { outOfRange(); } \
 TEST_F(CollectionTest##s##w##e##o, Random) { random(); } \
 TEST_F(CollectionTest##s##w##e##o, RandomOutOfRange) { random(); outOfRange(); } \
 TEST_F(CollectionTest##s##w##e##o, RandomMultiThreaded) { randomMultiThreaded(); } \
-TEST_F(CollectionTest##s##w##e##o, List) { list(0.1); }
+TEST_F(CollectionTest##s##w##e##o, List) { list(0.1); } \
+TEST_F(CollectionTest##s##w##e##o, BinarySearch) { binarySearch(); }
 
 /* Configs to test. */
 #define COLLECTION_TEST_THREADS 4

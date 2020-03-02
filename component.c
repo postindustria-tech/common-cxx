@@ -26,7 +26,7 @@
 
 static uint32_t getFinalSize(void *initial) {
 	Component *component = (Component*)initial;
-	size_t trailing = (component->httpHeaderCount - 1) * sizeof(uint32_t);
+	size_t trailing = (component->keyValuesCount - 1) * sizeof(fiftyoneDegreesComponentKeyValuePair);
 	return (uint32_t)(sizeof(Component) + trailing);
 }
 
@@ -62,22 +62,17 @@ fiftyoneDegreesString* fiftyoneDegreesComponentGetName(
 		exception);
 }
 
-uint32_t fiftyoneDegreesComponentGetHttpHeader(
+const fiftyoneDegreesComponentKeyValuePair* fiftyoneDegreesComponentGetKeyValuePair(
 	fiftyoneDegreesComponent *component,
 	uint16_t index,
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception) {
 #ifndef FIFTYONE_DEGREES_EXCEPTIONS_DISABLED
-	if (index > component->httpHeaderCount) {
+	if (index > component->keyValuesCount) {
 		EXCEPTION_SET(COLLECTION_INDEX_OUT_OF_RANGE);
-		return 0;
+		return NULL;
 	}
 #endif
-	uint32_t stringOffset = (&component->httpHeaderFirstOffset)[index];
-	item->collection = NULL;
-	strings->get(strings, stringOffset, item, exception);
-	return stringOffset;
+	return &(&component->firstKeyValuePair)[index];
 }
 
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY

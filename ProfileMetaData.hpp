@@ -59,14 +59,10 @@ namespace FiftyoneDegrees {
 			 * Create a new instance of ProfileMetaData. This should only be
 			 * used internally by the Collection class.
 			 * @param profileId the unique id of the profile
-			 * @param signatureCount the number of signatures in the profile
 			 * @param componentId the unique id of the component the profile
 			 * relates to
 			 */
-			ProfileMetaData(
-				uint32_t profileId,
-				uint32_t signatureCount,
-				byte componentId);
+			ProfileMetaData(uint32_t profileId, byte componentId);
 
 			/**
 			 * @}
@@ -81,12 +77,6 @@ namespace FiftyoneDegrees {
 			uint32_t getProfileId();
 
 			/**
-			 * Get the number of signatures in the profile.
-			 * @return the number of signatures
-			 */
-			uint32_t getSignatureCount();
-
-			/**
 			 * Get the unique id of the component the profile relates to.
 			 * @return unique component id
 			 */
@@ -96,8 +86,6 @@ namespace FiftyoneDegrees {
 			 * @}
 			 */
 		private:
-			/** The number of signatures contained in the profile */
-			uint32_t signatureCount;
 			
 			/** The unique id of the component which the profile relates to */
 			byte componentId;

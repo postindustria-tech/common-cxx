@@ -114,14 +114,6 @@ namespace FiftyoneDegrees {
 			void setTempDirectories(vector<string> tempDirs);
 			
 			/**
-			 * Set whether or not the memory allocated for the data should be
-			 * freed. This only applies when constructing an Engine from memory
-			 * (when the pre allocated memory containing the data is passed in).
-			 * @param shouldFree should free the data
-			 */
-			 void setFreeData(bool shouldFree);
-			
-			/**
 			 * @}
 			 * @name Getters
 			 * @{

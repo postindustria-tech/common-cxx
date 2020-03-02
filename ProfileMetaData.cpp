@@ -27,25 +27,18 @@ using namespace FiftyoneDegrees::Common;
 
 ProfileMetaData::ProfileMetaData(
 	uint32_t profileId,
-	uint32_t signatureCount,
 	byte componentId) : EntityMetaData(profileId) {
-	this->signatureCount = signatureCount;
 	this->componentId = componentId;
 }
 
 ProfileMetaData::ProfileMetaData(ProfileMetaData *profile)
 	: ProfileMetaData(
 		profile->getProfileId(),
-		profile->getSignatureCount(),
 		profile->getComponentId()) {
 }
 
 uint32_t ProfileMetaData::getProfileId() {
 	return getKey();
-}
-
-uint32_t ProfileMetaData::getSignatureCount() {
-	return signatureCount;
 }
 
 byte ProfileMetaData::getComponentId() {

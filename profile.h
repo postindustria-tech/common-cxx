@@ -91,8 +91,6 @@ typedef struct fiftyoneDegrees_profile_t {
 	                               relates to */
 	const uint32_t profileId; /**< Unique id of the profile */
 	const uint32_t valueCount; /**< The number of values within the profile */
-	const uint32_t signatureCount; /**< The number of signatures containing
-								   this profile */
 } fiftyoneDegreesProfile;
 #pragma pack(pop)
 

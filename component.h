@@ -63,6 +63,16 @@
 #endif
 
 /**
+ * Key value pair contained in each component. This can point to anything. For
+ * example, in the Hash device detection API, the key is the unique id of an
+ * HTTP header, and the value is the index of the set of root nodes to use.
+ */
+typedef struct fiftyoneDegrees_component_keyvaluepair_t {
+	uint32_t key; /**< Integer key */
+	uint32_t value; /** Integer value */
+} fiftyoneDegreesComponentKeyValuePair;
+
+/**
  * A component of a data set. For example a hardware component contains
  * profiles relating to the hardware properties of a device.
  */
@@ -73,10 +83,11 @@ typedef struct fiftyoneDegrees_component_t {
 	                               name */
 	const int32_t defaultProfileOffset; /**< Offset in the profiles data
 	                                         structure to the default profile */
-	const uint16_t httpHeaderCount; /**< The number of HTTP header offsets at
-	                                     httpHeaderFirstOffset */
-	const uint32_t httpHeaderFirstOffset; /**< The first HTTP header string
-	                                           offset */
+	const uint16_t keyValuesCount; /**< The number of key value pairs at
+								   firstKeyValuePair */
+	const fiftyoneDegreesComponentKeyValuePair firstKeyValuePair; /**< The
+																  first key
+																  value pair */
 } fiftyoneDegreesComponent;
 #pragma pack(pop)
 
@@ -98,21 +109,18 @@ EXTERNAL fiftyoneDegreesString* fiftyoneDegreesComponentGetName(
 	fiftyoneDegreesException *exception);
 
 /**
- * Get the offset in the strings collection for the name of the HTTP header at
- * the specified index within the component's important header list.
- * @param component to get the header from
- * @param index of the header within the component
- * @param strings collection containing the header names
- * @param item used to store the resulting string in
+ * Get a pointer to the key value pair at the specified index within the
+ * component's key value pairs list.
+ * This pointer does not need to be freed by the caller.
+ * @param component to get the pair from
+ * @param index of the pair within the component
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h
- * @return the offset of the header name in the strings collection
+ * @return pointer to a key value pair
  */
-uint32_t fiftyoneDegreesComponentGetHttpHeader(
+const fiftyoneDegreesComponentKeyValuePair* fiftyoneDegreesComponentGetKeyValuePair(
 	fiftyoneDegreesComponent *component,
 	uint16_t index,
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
 
 /**

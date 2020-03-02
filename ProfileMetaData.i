@@ -30,5 +30,4 @@ class ProfileMetaData
 {
 public:
 	uint32_t getProfileId();
-	uint32_t getSignatureCount();
 };

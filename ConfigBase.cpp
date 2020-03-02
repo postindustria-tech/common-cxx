@@ -52,10 +52,6 @@ void ConfigBase::setTempDirectories(
 	mapTempDirectories();
 }
 
-void ConfigBase::setFreeData(bool shouldFree) {
-    this->config->freeData = shouldFree;
-}
-
 bool ConfigBase::getUseUpperPrefixHeaders() {
 	return config->usesUpperPrefixedHeaders;
 }

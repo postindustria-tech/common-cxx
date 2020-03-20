@@ -45,7 +45,7 @@ EngineBase::~EngineBase() {
 	delete metaData;
 	
 	// Release the resource used by the engine.
-	if (manager->active != NULL) {
+	if (manager->active != nullptr) {
 		ResourceManagerFree(manager.get());
 	}
 }

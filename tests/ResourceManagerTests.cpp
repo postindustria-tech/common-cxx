@@ -102,11 +102,11 @@ TEST_F(ResourceManager, Init) {
 TEST_F(ResourceManager, Handle_Inc) {
 	fiftyoneDegreesResourceHandle *handle =
 		fiftyoneDegreesResourceHandleIncUse(&manager);
-	ASSERT_NE((void*)NULL, (void*)&handle) <<
+	ASSERT_NE((void*)NULL, (void*)handle) <<
 		"A null handle was returned.";
 	ASSERT_EQ((void*)&resource, (void*)handle->resource) <<
 		"The handle does not contain the correct resource.";
-	ASSERT_EQ(1, handle->inUse) <<
+	ASSERT_EQ(1, handle->counter.inUse) <<
 		"The in use counter was not incremented correctly.";
 	ASSERT_EQ(&manager, handle->manager) <<
 		"The handle is not linked to the manager.";
@@ -119,10 +119,10 @@ TEST_F(ResourceManager, Handle_Inc) {
 TEST_F(ResourceManager, Handle_IncDec) {
 	fiftyoneDegreesResourceHandle *handle =
 		fiftyoneDegreesResourceHandleIncUse(&manager);
-	ASSERT_EQ(1, handle->inUse) <<
+	ASSERT_EQ(1, handle->counter.inUse) <<
 		"The in use counter was not incremented correctly.";
 	fiftyoneDegreesResourceHandleDecUse(handle);
-	ASSERT_EQ(0, handle->inUse) <<
+	ASSERT_EQ(0, handle->counter.inUse) <<
 		"The in use counter was not decremented correctly.";
 }
 
@@ -168,7 +168,8 @@ TEST_F(ResourceManager, Free_HandleInUse) {
  * is released.
  */
 TEST_F(ResourceManager, ResourceReplace_HandleInUse) {
-	fiftyoneDegreesResourceHandle *oldHandle, *newHandle;
+	fiftyoneDegreesResourceHandle *oldHandle;
+	fiftyoneDegreesResourceHandle *newHandle;
 	bool newResource = false;
 	oldHandle = fiftyoneDegreesResourceHandleIncUse(&manager);
 	fiftyoneDegreesResourceReplace(&manager, (void*)&newResource, &newHandle);

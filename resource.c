@@ -25,13 +25,13 @@
 #include "fiftyone.h"
 
 /**
- * Returns the handle to the resource that has been set for the manager, or
- * NULL if the handle was not successfully created.
+ * Returns the handle to the resource that is ready to be set for the manager,
+ * or NULL if the handle was not successfully created.
  * @param manager of the resource
  * @param resource to be assigned to the manager
  * @parma resourceHandle reference to the handle within the resource
  */
-static void setResource(
+static void setupResource(
 	ResourceManager *manager, 
 	void *resource, 
 	ResourceHandle **resourceHandle,
@@ -41,7 +41,8 @@ static void setResource(
 	ResourceHandle *handle = (ResourceHandle*)Malloc(sizeof(ResourceHandle));
 
 	// Set the number of users of the resource to zero.
-	handle->inUse = 0;
+	handle->self = handle;
+	handle->counter.padding = NULL;
 
 	// Set a link between the new active resource and the manager. Used to
 	// check if the resource can be freed when the last thread has finished
@@ -58,9 +59,6 @@ static void setResource(
 	// Ensure the resource's handle is set before assigning the handle
 	// as the active handle.
 	*resourceHandle = handle;
-
-	// Switch the active handle for the manager to the newly created one.
-	manager->active = handle;
 }
 
 static void freeHandle(ResourceHandle *handle) {
@@ -76,67 +74,126 @@ void fiftyoneDegreesResourceManagerInit(
 
 	// Initialise the manager with the resource ensuring that the resources
 	// handle is set before it's made the active resource.
-	setResource(manager, resource, resourceHandle, freeResource);
+	setupResource(manager, resource, resourceHandle, freeResource);
+	manager->active = *resourceHandle;
 }
 
 void fiftyoneDegreesResourceManagerFree(
 	fiftyoneDegreesResourceManager *manager) {
-	fiftyoneDegreesResourceHandle *resource;
-	assert(manager->active->inUse >= 0);
+	assert(manager->active->counter.inUse >= 0);
 	if (manager->active != NULL) {
-		resource = ResourceHandleIncUse(manager);
-		manager->active = NULL;
-		ResourceHandleDecUse(resource);
+
+		ResourceHandle* newHandlePointer;
+		fiftyoneDegreesResourceReplace(
+			manager,
+			NULL,
+			&newHandlePointer);
+		Free(newHandlePointer);
 	}
 }
 
 void fiftyoneDegreesResourceHandleDecUse(
 	fiftyoneDegreesResourceHandle *handle) {
-	assert(handle->inUse > 0);
-	int inUse = 0;
+	// When modifying this method, it is important to note the reason for using
+	// two separate compareand swaps. The first compare and swap ensures that
+	// we are certain the handle is ready to be released i.e. the inUse counter
+	// is zero, and the handle is no longer active in the manager. The second
+	// compare and swap ensures that we are certain the handle can be freed by
+	// THIS thread. See below for an example of when this can happen.
+
+	assert(handle->counter.inUse > 0);
+	ResourceHandle decremented;
 #ifndef FIFTYONE_DEGREES_NO_THREADING
-	inUse = FIFTYONE_DEGREES_INTERLOCK_DEC(&handle->inUse);
+	ResourceHandle tempHandle;
+	do {
+		tempHandle = *handle;
+		decremented = tempHandle;
+
+		decremented.counter.inUse--;
+
+	} while (FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(
+		handle,
+		decremented,
+		tempHandle) == false);
 #else
-	handle->inUse--;
-	inUse = handle->inUse;
+	handle->counter.inUse--;
+	decremented = *handle;
 #endif
-	if (inUse == 0 &&  // Am I the last user of the handle?
-		handle->manager->active != handle) { // Is the handle still active?
-		freeHandle(handle);
+	if (decremented.counter.inUse == 0 &&  // Am I the last user of the handle?
+		decremented.manager->active != decremented.self) { // Is the handle still active?
+#ifndef FIFTYONE_DEGREES_NO_THREADING
+		// Atomically set the handle's self pointer to null to ensure only
+		// one thread can get into the freeHandle method.
+		// Consider the scenario where between the decrement this if statement:
+		// 1. another thread increments and decrements the counter, then
+		// 2. the active handle is replaced.
+		// In this case, both threads will make it into here, so access to
+		// the freeHandle method must be limted to one by atomically nulling
+		// the self pointer. We will still have access to the pointer for
+		// freeing through the decremented copy.
+		ResourceHandle nulled = decremented;
+		nulled.self = NULL;
+		if (FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(
+			decremented.self,
+			nulled,
+			decremented)) {
+			freeHandle(decremented.self);
+		}
+#else
+		freeHandle(decremented.self);
+#endif
 	}
 }
 
 fiftyoneDegreesResourceHandle* fiftyoneDegreesResourceHandleIncUse(
 	fiftyoneDegreesResourceManager *manager) {
-	ResourceHandle *handle = NULL;
+	ResourceHandle incremented;
 #ifndef FIFTYONE_DEGREES_NO_THREADING
+	ResourceHandle tempHandle;
 	do {
-		if (handle != NULL) {
-			ResourceHandleDecUse(handle);
-		}
-		handle = (ResourceHandle*)manager->active;
-	} while (FIFTYONE_DEGREES_INTERLOCK_INC(&handle->inUse) == 0 ||
-			 manager->active != handle);
+		tempHandle = *manager->active;
+		incremented = tempHandle;
+
+		incremented.counter.inUse++;
+	} while (FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(
+		manager->active,
+		incremented,
+		tempHandle) == false);
 #else
-	handle = manager->active;
-	handle->inUse++;
+	manager->active->inUse++;
+	incremented = *manager->active;
 #endif
-	return handle;
+	return incremented.self;
 }
 
 void fiftyoneDegreesResourceReplace(
 	fiftyoneDegreesResourceManager *manager,
 	void *newResource,
 	fiftyoneDegreesResourceHandle **newResourceHandle) {
-	ResourceHandle *oldHandle = ResourceHandleIncUse(manager);
+
+	ResourceHandle* oldHandle  = NULL;
 	
 	// Add the new resource to the manager replacing the existing one.
-	setResource(
+	setupResource(
 		manager,
 		newResource,
-		newResourceHandle, 
-		oldHandle->freeResource);
-
+		newResourceHandle,
+		manager->active->freeResource);
+#ifndef FIFTYONE_DEGREES_NO_THREADING
+	// Switch the active handle for the manager to the newly created one.
+	do {
+		if (oldHandle != NULL) {
+			ResourceHandleDecUse(oldHandle);
+		}
+		oldHandle = ResourceHandleIncUse(manager);
+	} while (FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(
+		manager->active,
+		*newResourceHandle,
+		oldHandle) == false);
+#else
+	oldHandle = ResourceHandleIncUse(manager);
+	manager->active = *newResourceHandle;
+#endif
 	// Release the existing resource can be freed. If nothing else is
 	// holding onto a reference to it then free it will be freed.
 	ResourceHandleDecUse(oldHandle);

@@ -150,18 +150,36 @@
 /** @cond FORWARD_DECLARATIONS */
 typedef struct fiftyone_degrees_resource_manager_t
 	fiftyoneDegreesResourceManager;
+
+typedef struct fiftyone_degrees_resource_handle_t
+    fiftyoneDegreesResourceHandle;
 /** @endcond */
 
 /**
+ * Contains the number of active uses of the resource. This is a union
+ * to enforce the size of a pointer as we need this to be the same size
+ * as the `self` pointer in ResourceHandle.
+ */
+typedef union fiftyone_degrees_resource_handle_counter_t {
+    int32_t inUse; /**< Active use count of the resource. */
+    void *padding; /**< Pads the union to the size of a pointer. Should be set
+                   to null at initialization. */
+} fiftyoneDegreesResourceHandleCounter;
+
+/**
  * Tracks the number of active uses of the resource within the manager.
+ * Note: it is important that `self` and `counter` are consecutive
+ * elements in order to be used as a double width pointer.
  */
 typedef struct fiftyone_degrees_resource_handle_t {
-	const void *resource; /**< Pointer to the resource being managed. */
-	const fiftyoneDegreesResourceManager *manager; /**< Pointer to the manager
-	                                                   the handle relates to. */
-	void(*freeResource)(void*); /**< Pointer to the method used to free the
-								   resource. */
-	volatile long inUse; /**< Tracks active use count of the resource. */
+    fiftyoneDegreesResourceHandle* self; /**< Pointer to this handle. */
+    fiftyoneDegreesResourceHandleCounter counter; /**< Tracks active use count
+                                                  of the resource. */
+    const void* resource; /**< Pointer to the resource being managed. */
+    const fiftyoneDegreesResourceManager* manager; /**< Pointer to the manager
+                                                       the handle relates to. */
+    void(*freeResource)(void*); /**< Pointer to the method used to free the
+                                   resource. */
 } fiftyoneDegreesResourceHandle;
 
 /**
@@ -169,9 +187,9 @@ typedef struct fiftyone_degrees_resource_handle_t {
  */
 typedef struct fiftyone_degrees_resource_manager_t {
 #ifndef FIFTYONE_DEGREES_NO_THREADING
-	fiftyoneDegreesResourceHandle volatile *active; /**< Current handle 
-	                                                    for resource used 
-	                                                    by the manager. */
+    fiftyoneDegreesResourceHandle volatile *active; /**< Current handle 
+                                                    for resource used 
+                                                    by the manager. */
 #else
 	fiftyoneDegreesResourceHandle *active; /**< Non volatile current handle for
 										   the resource used by the manager. */

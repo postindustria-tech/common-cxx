@@ -37,8 +37,11 @@ static void setupResource(
 	ResourceHandle **resourceHandle,
 	void(*freeResource)(void*)) {
 
-	// Create a new active handle for the manager.
-	ResourceHandle *handle = (ResourceHandle*)Malloc(sizeof(ResourceHandle));
+	// Create a new active handle for the manager. Align this to double
+	// arcitecture's bus size to enable double width atomic operations.
+	ResourceHandle *handle = (ResourceHandle*)MallocAligned(
+		sizeof(void*) * 2,
+		sizeof(ResourceHandle));
 
 	// Set the number of users of the resource to zero.
 	handle->self = handle;
@@ -111,7 +114,7 @@ void fiftyoneDegreesResourceHandleDecUse(
 
 		decremented.counter.inUse--;
 
-	} while (FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(
+	} while (INTERLOCK_EXCHANGE_PTR_DW(
 		handle,
 		decremented,
 		tempHandle) == false);
@@ -133,7 +136,7 @@ void fiftyoneDegreesResourceHandleDecUse(
 		// freeing through the decremented copy.
 		ResourceHandle nulled = decremented;
 		nulled.self = NULL;
-		if (FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(
+		if (INTERLOCK_EXCHANGE_PTR_DW(
 			decremented.self,
 			nulled,
 			decremented)) {
@@ -155,7 +158,7 @@ fiftyoneDegreesResourceHandle* fiftyoneDegreesResourceHandleIncUse(
 		incremented = tempHandle;
 
 		incremented.counter.inUse++;
-	} while (FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(
+	} while (INTERLOCK_EXCHANGE_PTR_DW(
 		manager->active,
 		incremented,
 		tempHandle) == false);
@@ -186,7 +189,7 @@ void fiftyoneDegreesResourceReplace(
 			ResourceHandleDecUse(oldHandle);
 		}
 		oldHandle = ResourceHandleIncUse(manager);
-	} while (FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(
+	} while (INTERLOCK_EXCHANGE_PTR(
 		manager->active,
 		*newResourceHandle,
 		oldHandle) == false);

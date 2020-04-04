@@ -74,6 +74,7 @@ bool fiftyoneDegreesMemoryAdvance(
 
 /**
  * Allocates memory using the standard malloc method.
+ * @param __size number of bytes to allocate
  * @return pointer to allocated memory or NULL
  */
 EXTERNAL void* fiftyoneDegreesMemoryStandardMalloc(size_t __size);
@@ -85,6 +86,29 @@ EXTERNAL void* fiftyoneDegreesMemoryStandardMalloc(size_t __size);
  * @return pointer to allocated memory or NULL
  */
 EXTERNAL void* fiftyoneDegreesMemoryTrackingMalloc(size_t __size);
+
+/**
+ * Allocated aligned memory using the standard malloc method.
+ * @param alignment byte boundary to align the allocation to e.g. 16
+ * @param __size number of bytes to allocate
+ * @return pointer to allocation memory or NULL
+ */
+EXTERNAL void* fiftyoneDegreesMemoryStandardMallocAligned(
+    int alignment,
+    size_t size);
+
+
+/**
+ * Allocates aligned memory while keeping track of the memory which has been
+ * allocated using this method since calling
+ * #fiftyoneDegreesMemoryTrackingReset.
+ * @param alignment byte boundary to align the allocation to e.g. 16
+ * @param __size number of bytes to allocate
+ * @return pointer to allocation memory or NULL
+ */
+EXTERNAL void* fiftyoneDegreesMemoryTrackingMallocAligned(
+    int alignment,
+    size_t size);
 
 /**
  * Frees memory allocated using the #fiftyoneDegreesMemoryTrackingMalloc method,
@@ -130,6 +154,19 @@ EXTERNAL void fiftyoneDegreesMemoryTrackingReset();
  * @return pointer to allocated memory or NULL
  */
 EXTERNAL void *(FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesMalloc)(size_t __size);
+
+/**
+ * Pointer to the method used to allocate aligned memory. By default this maps
+ * to #fiftyoneDegreesMemoryStandardMallocAligned which calls the standard
+ * library malloc, allocating slightly more that requested, then ensures the
+ * pointer is aligned to a boundary.
+ * @param alignment byte boundary to align the allocation to e.g. 16
+ * @param __size to allocate
+ * @return pointer to allocated memory or NULL
+ */
+EXTERNAL void* (FIFTYONE_DEGREES_CALL_CONV* fiftyoneDegreesMallocAligned)(
+    int alignment,
+    size_t __size);
 
 /**
  * Pointer to the method used to free memory. By default this maps to

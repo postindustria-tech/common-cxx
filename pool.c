@@ -94,7 +94,7 @@ fiftyoneDegreesPoolItem* fiftyoneDegreesPoolItemGet(
 #ifndef FIFTYONE_DEGREES_NO_THREADING
 		next.values.aba = orig.values.aba + 1;
 		next.values.index = pool->stack[orig.values.index].next;
-	} while (FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(
+	} while (INTERLOCK_EXCHANGE(
 		pool->head.exchange,
 		next.exchange,
 		orig.exchange) != orig.exchange);
@@ -112,7 +112,7 @@ void fiftyoneDegreesPoolItemRelease(fiftyoneDegreesPoolItem *item) {
 		item->next = orig.values.index;
 		next.values.aba = orig.values.aba + 1;
 		next.values.index = (uint16_t)(item - item->pool->stack);
-	} while (FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(
+	} while (INTERLOCK_EXCHANGE(
 		item->pool->head.exchange,
 		next.exchange,
 		orig.exchange) != orig.exchange);

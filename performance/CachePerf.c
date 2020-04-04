@@ -341,6 +341,7 @@ int main(int argc, char* argv[]) {
 	printf("\t#############################################################\n");
 
 	Malloc = MemoryStandardMalloc;
+	MallocAligned = MemoryStandardMallocAligned;
 	Free = MemoryStandardFree;
 
 	// Run the performance tests.

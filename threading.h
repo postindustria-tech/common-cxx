@@ -324,9 +324,22 @@ void fiftyoneDegreesSignalWait(fiftyoneDegreesSignal *signal);
 #ifdef _MSC_VER
 #define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(d,e,c) \
 	InterlockedCompareExchange(&d, e, c)
+#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_64(d,e,c) \
+	InterlockedCompareExchange64((volatile __int64*)&d, (__int64)e, (__int64)c)
+#ifdef _WIN64
+#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR(d,e,c) \
+    FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_64(d,e,c)
+#else
+#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR(d,e,c) \
+    FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(d,e,c)
+#endif
 #else
 #define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(d,e,c) \
 	__sync_val_compare_and_swap(&d,c,e)
+#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_64(d,e,c) \
+    FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_64(d,e,c)
+#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR(d,e,c) \
+    FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(d,e,c)
 #endif
 
 /**
@@ -339,10 +352,13 @@ void fiftyoneDegreesSignalWait(fiftyoneDegreesSignal *signal);
  * @param c the comparand
  */
 #ifdef _MSC_VER
-#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(d,e,c) \
-    (sizeof(void*) == 8 ? \
-    InterlockedCompareExchange128((__int64*)d, *((__int64*)&e + 1), *(((__int64*)&e)), (__int64*)&c) : \
-    InterlockedCompareExchange64((__int64*)d, *((__int64*)&e), *(__int64*)&c))
+#ifdef _WIN64
+#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR_DW(d,e,c) \
+    InterlockedCompareExchange128((__int64*)d, *(((__int64*)&e) + 1), *(((__int64*)&e)), (__int64*)&c)
+#else
+#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR_DW(d,e,c) \
+    InterlockedCompareExchange64((__int64*)d, *((__int64*)&e), *(__int64*)&c)
+#endif
 #else
 /**
  * Implements the __sync_bool_compare_and_swap_16 function which is often not
@@ -382,7 +398,7 @@ __fod_sync_bool_compare_and_swap_16(
         : "memory", "cc");
     return (result);
 }
-#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(d,e,c) \
+#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR_DW(d,e,c) \
     (sizeof(void*) == 8 ? \
     __fod_sync_bool_compare_and_swap_16((void*)d, (void*)&e, (void*)&c) : \
     __sync_bool_compare_and_swap((long*)d, *((long*)&c), *((long*)&e)))

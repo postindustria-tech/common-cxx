@@ -71,21 +71,28 @@ void* fiftyoneDegreesMemoryStandardMalloc(size_t size) {
 	return malloc(size);
 }
 
+void* fiftyoneDegreesMemoryStandardMallocAligned(int alignment, size_t size) {
+	void* ptr = malloc(size + alignment - 1);
+	if ((((uint64_t)ptr) % alignment) != 0) {
+		unsigned char* boundary = (unsigned char*)ptr;
+		boundary += alignment - (((uint64_t)ptr) % alignment);
+		ptr = (void*)boundary;
+	}
+	return ptr;
+}
+
 static int getShardFromPointer(void *pointer) {
 	return (((uint64_t)pointer) / shardDivider) %
 		FIFTYONE_DEGREES_MEMORY_TRACKER_SHARDS;
 }
 
-void* fiftyoneDegreesMemoryTrackingMalloc(size_t size) {
-
-	// Check that the tracker is initialised.
+static void tryInit() {
 	if (initialised == false) {
 		MemoryTrackingReset();
 	}
+}
 
-	// Allocate the memory.
-	void* pointer = fiftyoneDegreesMemoryStandardMalloc(size);
-
+static void trackAllocation(void* pointer, size_t size) {
 	// Create a new tree node to record the allocation.
 	allocation* record = (allocation*)malloc(sizeof(allocation));
 	int shard = getShardFromPointer(pointer);
@@ -116,6 +123,34 @@ void* fiftyoneDegreesMemoryTrackingMalloc(size_t size) {
 	FIFTYONE_DEGREES_MUTEX_UNLOCK(&state.lock);
 #endif
 
+}
+
+void* fiftyoneDegreesMemoryTrackingMallocAligned(
+	int alignment,
+	size_t size) {
+	// Check that the tracker is initialised.
+	tryInit();
+
+	// Allocate the memory.
+	void* pointer = MemoryStandardMallocAligned(
+		alignment,
+		size);
+
+	// Track the allocation.
+	trackAllocation(pointer, size + alignment - 1);
+	return pointer;
+}
+
+void* fiftyoneDegreesMemoryTrackingMalloc(size_t size) {
+
+	// Check that the tracker is initialised.
+	tryInit();
+
+	// Allocate the memory.
+	void* pointer = MemoryStandardMalloc(size);
+
+	// Track the allocation.
+	trackAllocation(pointer, size);
 	return pointer;
 }
 
@@ -198,8 +233,12 @@ fiftyoneDegreesMemoryTrackingFree;
  * Disable memory tracking.
  */
 
-void *(FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesMalloc)(size_t size) =
+void* (FIFTYONE_DEGREES_CALL_CONV* fiftyoneDegreesMalloc)(size_t size) =
 fiftyoneDegreesMemoryStandardMalloc;
+
+void* (FIFTYONE_DEGREES_CALL_CONV* fiftyoneDegreesMallocAligned)(
+	int alignment,
+	size_t size) = fiftyoneDegreesMemoryStandardMallocAligned;
 
 void (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesFree)(void *pointer) =
 fiftyoneDegreesMemoryStandardFree;

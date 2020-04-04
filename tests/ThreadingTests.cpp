@@ -65,7 +65,7 @@ TEST_F(Threading, DoubleWidthExchange_Matching) {
     newItem.ptr = (void*)&val2;
     newItem.count.count++;
 
-    bool changed = FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(&item, newItem, compare);
+    bool changed = FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR_DW(&item, newItem, compare);
     
     ASSERT_TRUE(changed);
     ASSERT_EQ(newItem.count.count, item.count.count);
@@ -89,7 +89,7 @@ TEST_F(Threading, DoubleWidthExchange_NonMatching) {
 
     item.count.count++;
 
-    bool changed = FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(&item, newItem, compare);
+    bool changed = FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR_DW(&item, newItem, compare);
     ASSERT_FALSE(changed);
     ASSERT_NE(newItem.ptr, item.ptr);
     ASSERT_NE(*(int*)newItem.ptr, *(int*)item.ptr);

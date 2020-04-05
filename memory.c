@@ -72,13 +72,21 @@ void* fiftyoneDegreesMemoryStandardMalloc(size_t size) {
 }
 
 void* fiftyoneDegreesMemoryStandardMallocAligned(int alignment, size_t size) {
-	void* ptr = malloc(size + alignment - 1);
-	if ((((uint64_t)ptr) % alignment) != 0) {
-		unsigned char* boundary = (unsigned char*)ptr;
-		boundary += alignment - (((uint64_t)ptr) % alignment);
-		ptr = (void*)boundary;
+	size += size % alignment;
+#ifdef _MSC_VER
+	return _aligned_malloc(size, alignment);
+#elif defined (__APPLE__)
+	void *pointer;
+	if (posix_memalign(&pointer, alignment, size) == 0) {
+		return pointer;
 	}
-	return ptr;
+	else {
+		return NULL;
+	}
+
+#else
+	return aligned_alloc(alignment, size);
+#endif
 }
 
 static int getShardFromPointer(void *pointer) {
@@ -125,6 +133,34 @@ static void trackAllocation(void* pointer, size_t size) {
 
 }
 
+void untrackAllocation(void *pointer) {
+	uint32_t size;
+	int shard = getShardFromPointer(pointer);
+
+	// Get the size of the memory being freed and free the tracking memory.
+#ifndef FIFTYONE_DEGREES_NO_THREADING
+	FIFTYONE_DEGREES_MUTEX_LOCK(&state.locks[shard]);
+#endif
+	allocation* record = (allocation*)fiftyoneDegreesTreeFind(
+		&state.roots[shard],
+		(int64_t)pointer);
+	assert(record != NULL);
+	size = record->size;
+	fiftyoneDegreesTreeDelete(&record->tree);
+#ifndef FIFTYONE_DEGREES_NO_THREADING
+	FIFTYONE_DEGREES_MUTEX_UNLOCK(&state.locks[shard]);
+#endif
+	free(record);
+
+#ifndef FIFTYONE_DEGREES_NO_THREADING
+	FIFTYONE_DEGREES_MUTEX_LOCK(&state.lock);
+#endif
+	state.allocated -= size;
+#ifndef FIFTYONE_DEGREES_NO_THREADING
+	FIFTYONE_DEGREES_MUTEX_UNLOCK(&state.lock);
+#endif
+
+}
 void* fiftyoneDegreesMemoryTrackingMallocAligned(
 	int alignment,
 	size_t size) {
@@ -137,7 +173,7 @@ void* fiftyoneDegreesMemoryTrackingMallocAligned(
 		size);
 
 	// Track the allocation.
-	trackAllocation(pointer, size + alignment - 1);
+	trackAllocation(pointer, size + size % alignment);
 	return pointer;
 }
 
@@ -158,35 +194,24 @@ void fiftyoneDegreesMemoryStandardFree(void *pointer) {
 	free(pointer);
 }
 
+void fiftyoneDegreesMemoryStandardFreeAligned(void* pointer) {
+#ifdef _MSC_VER
+	_aligned_free(pointer);
+#else
+	free(pointer);
+#endif
+}
+
 void fiftyoneDegreesMemoryTrackingFree(void *pointer) {
-	uint32_t size;
-	int shard = getShardFromPointer(pointer);
-
-	// Get the size of the memory being freed and free the tracking memory.
-#ifndef FIFTYONE_DEGREES_NO_THREADING
-	FIFTYONE_DEGREES_MUTEX_LOCK(&state.locks[shard]);
-#endif
-	allocation *record = (allocation*)fiftyoneDegreesTreeFind(
-		&state.roots[shard],
-		(int64_t)pointer);
-	assert(record != NULL);
-	size = record->size;
-	fiftyoneDegreesTreeDelete(&record->tree);
-#ifndef FIFTYONE_DEGREES_NO_THREADING
-	FIFTYONE_DEGREES_MUTEX_UNLOCK(&state.locks[shard]);
-#endif
-	free(record);
-
-#ifndef FIFTYONE_DEGREES_NO_THREADING
-	FIFTYONE_DEGREES_MUTEX_LOCK(&state.lock);
-#endif
-	state.allocated -= size;
-#ifndef FIFTYONE_DEGREES_NO_THREADING
-	FIFTYONE_DEGREES_MUTEX_UNLOCK(&state.lock);
-#endif
-
+	untrackAllocation(pointer);
 	// Finally free the pointer.
-	fiftyoneDegreesMemoryStandardFree(pointer);
+	MemoryStandardFree(pointer);
+}
+
+void fiftyoneDegreesMemoryTrackingFreeAligned(void* pointer) {
+	untrackAllocation(pointer);
+	// Finally free the pointer.
+	MemoryStandardFreeAligned(pointer);
 }
 
 size_t fiftyoneDegreesMemoryTrackingGetMax() {
@@ -224,8 +249,15 @@ void fiftyoneDegreesMemoryTrackingReset() {
 void *(FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesMalloc)(size_t size) =
 fiftyoneDegreesMemoryTrackingMalloc;
 
-void (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesFree)(void *pointer) =
+void* (FIFTYONE_DEGREES_CALL_CONV* fiftyoneDegreessMallocAligned)(
+	int alignment,
+	size_t size) = fiftyoneDegreesMemoryTrackingMallocAligned;
+
+void (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesFree)(void* pointer) =
 fiftyoneDegreesMemoryTrackingFree;
+
+void (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesFreeAligned)(void* pointer) =
+fiftyoneDegreesMemoryTrackingFreeAligned;
 
 #else
 
@@ -242,5 +274,8 @@ void* (FIFTYONE_DEGREES_CALL_CONV* fiftyoneDegreesMallocAligned)(
 
 void (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesFree)(void *pointer) =
 fiftyoneDegreesMemoryStandardFree;
+
+void (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesFreeAligned)(void* pointer) =
+fiftyoneDegreesMemoryStandardFreeAligned;
 
 #endif

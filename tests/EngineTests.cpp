@@ -44,8 +44,11 @@ EngineTests::~EngineTests() {
 
 void EngineTests::SetUp() {
 	Base::SetUp();
-	fiftyoneDegreesMalloc = malloc;
-	fiftyoneDegreesFree = free;
+	fiftyoneDegreesMalloc = fiftyoneDegreesMemoryStandardMalloc;
+	fiftyoneDegreesMallocAligned = fiftyoneDegreesMemoryStandardMallocAligned;
+	fiftyoneDegreesFree = fiftyoneDegreesMemoryStandardFree;
+	fiftyoneDegreesFreeAligned = fiftyoneDegreesMemoryStandardFreeAligned;
+
 	fiftyoneDegreesStatusCode status = fiftyoneDegreesFileGetPath(
 		directory,
 		fileName,

@@ -343,6 +343,7 @@ int main(int argc, char* argv[]) {
 	Malloc = MemoryStandardMalloc;
 	MallocAligned = MemoryStandardMallocAligned;
 	Free = MemoryStandardFree;
+	FreeAligned = MemoryStandardFreeAligned;
 
 	// Run the performance tests.
 	performance(PASSES);

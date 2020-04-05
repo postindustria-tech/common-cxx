@@ -66,7 +66,7 @@ static void setupResource(
 
 static void freeHandle(ResourceHandle *handle) {
 	handle->freeResource((void*)handle->resource);
-	Free((void*)handle);
+	FreeAligned((void*)handle);
 }
 
 void fiftyoneDegreesResourceManagerInit(
@@ -91,7 +91,7 @@ void fiftyoneDegreesResourceManagerFree(
 			manager,
 			NULL,
 			&newHandlePointer);
-		Free(newHandlePointer);
+		FreeAligned(newHandlePointer);
 	}
 }
 

@@ -119,10 +119,24 @@ EXTERNAL void* fiftyoneDegreesMemoryTrackingMallocAligned(
 EXTERNAL void fiftyoneDegreesMemoryTrackingFree(void *__ptr);
 
 /**
+ * Frees memory allocated using the #fiftyoneDegreesMemoryTrackingMallocAligned
+ *  method, noting that it has now been freed and does not contribute to the
+ * current total.
+ * @param __ptr data to free
+ */
+EXTERNAL void fiftyoneDegreesMemoryTrackingFreeAligned(void* __ptr);
+
+/**
  * Frees memory using the standard free method.
  * @param __ptr data to free
  */
 EXTERNAL void fiftyoneDegreesMemoryStandardFree(void *__ptr);
+
+/**
+ * Frees memory using the standard aligned free method.
+ * @param __ptr data to free
+ */
+EXTERNAL void fiftyoneDegreesMemoryStandardFreeAligned(void* pointer);
 
 /**
  * Gets the maximum total number of bytes that have been allocated using the
@@ -164,7 +178,7 @@ EXTERNAL void *(FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesMalloc)(size_t __size
  * @param __size to allocate
  * @return pointer to allocated memory or NULL
  */
-EXTERNAL void* (FIFTYONE_DEGREES_CALL_CONV* fiftyoneDegreesMallocAligned)(
+EXTERNAL void* (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesMallocAligned)(
     int alignment,
     size_t __size);
 
@@ -174,6 +188,13 @@ EXTERNAL void* (FIFTYONE_DEGREES_CALL_CONV* fiftyoneDegreesMallocAligned)(
  * @param __ptr pointer to free
  */
 EXTERNAL void (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesFree)(void *__ptr);
+
+/**
+ * Pointer to the method used to free memory. By default this maps to
+ * #fiftyoneDegreesMemoryStandardFreeAligned which calls the standard library free.
+ * @param __ptr pointer to free
+ */
+EXTERNAL void (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesFreeAligned)(void* __ptr);
 
 /**
  * @}

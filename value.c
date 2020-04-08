@@ -134,7 +134,9 @@ fiftyoneDegreesValue* fiftyoneDegreesValueGetByName(
 	Value *value = NULL;
 	search.valueName = valueName;
 	search.strings = strings;
-	if (CollectionBinarySearch(
+	if (
+		(int)property->firstValueIndex != -1 &&
+		CollectionBinarySearch(
 			values,
 			item,
 			property->firstValueIndex,

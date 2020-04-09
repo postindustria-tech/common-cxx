@@ -357,7 +357,7 @@ void fiftyoneDegreesSignalWait(fiftyoneDegreesSignal *signal);
     InterlockedCompareExchange128((__int64*)d, *(((__int64*)&e) + 1), *(((__int64*)&e)), (__int64*)&c)
 #else
 #define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR_DW(d,e,c) \
-    InterlockedCompareExchange64((__int64*)d, *((__int64*)&e), *(__int64*)&c)
+    (InterlockedCompareExchange64((__int64*)d, *((__int64*)&e), *(__int64*)&c) != *((__int64*)d))
 #endif
 #else
 /**

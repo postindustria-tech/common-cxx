@@ -24,11 +24,18 @@
 
 using namespace FiftyoneDegrees::Common;
 
+ComponentMetaData::ComponentMetaData()
+    : ComponentMetaData(
+        -1, // component id
+        "invalid", // name
+        0 // default profile id
+    ) { }
+
 ComponentMetaData::ComponentMetaData(ComponentMetaData *component)
 	: ComponentMetaData(
 		component->getComponentId(),
 		component->name, 
-		component->getDefaultProfileId()) {}
+		component->getDefaultProfileId()) { }
 
 ComponentMetaData::ComponentMetaData(
 	byte componentId,

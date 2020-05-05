@@ -33,7 +33,7 @@
 #else 
 #endif
 
-static int shardDivider = sizeof(void*) * sizeof(void*) * sizeof(void*);
+static int shardDivider = sizeof(void*) * 3;
 
 static bool initialised = false;
 

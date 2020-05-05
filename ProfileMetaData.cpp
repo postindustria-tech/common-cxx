@@ -25,6 +25,12 @@
 
 using namespace FiftyoneDegrees::Common;
 
+ProfileMetaData::ProfileMetaData()
+    : ProfileMetaData(
+        0, // profile id
+        -1 // component id
+    ) { }
+
 ProfileMetaData::ProfileMetaData(
 	uint32_t profileId,
 	byte componentId) : EntityMetaData(profileId) {

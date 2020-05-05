@@ -339,7 +339,7 @@ EXTERNAL bool fiftyoneDegreesFileGetExistingTempFile(
  * this should not be used on Apple systems, as the checks for whether or not
  * a file is in use are not implemented (all files will be deleted regardless
  * of whether they are being used).
- * @param masterFile path to the master file to find a temp version of
+ * @param masterFileName path to the master file to find a temp version of
  * @param paths list of paths to search in order of preference
  * @param count number of paths in the array
  * @param bytesToCompare number of from the start of the file to compare for

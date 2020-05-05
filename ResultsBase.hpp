@@ -141,7 +141,7 @@ namespace FiftyoneDegrees {
 			 * Get the name of the property at the require property index, or
 			 * an empty string if the required property index is invalid.
 			 * @param requiredPropertyIndex of the property name required
-			 * @return the name of the property, or an empty string is not
+			 * @return the name of the property, or an empty string if not
 			 * valid
 			 */
 			string getPropertyName(int requiredPropertyIndex);

@@ -45,7 +45,7 @@ namespace FiftyoneDegrees {
 			 * Default constructor, should not be used externally as it
 			 * produces an invalid instance
 			 */
-			ProfileMetaData() : EntityMetaData() {}
+			ProfileMetaData();
 
 			/**
 			 * Construct a new instance of ProfileMetaData from an existing

@@ -45,7 +45,7 @@ namespace FiftyoneDegrees {
 			 * Default constructor, should not be used externally as it
 			 * produces an invalid instance
 			 */
-			ComponentMetaData() : EntityMetaData() {}
+			ComponentMetaData();
 
 			/**
 			 * Construct a new instance of ComponentMetaData from an existing

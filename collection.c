@@ -207,7 +207,7 @@ static void* getMemoryFixed(
 	Exception *exception) {
 	CollectionMemory *memory = (CollectionMemory*)collection->state;
 	if (index < collection->count) {
-		item->data.ptr = memory->firstByte + (index * collection->elementSize);
+		item->data.ptr = memory->firstByte + ((uint64_t)index * collection->elementSize);
 		assert(item->data.ptr < memory->lastByte);
 		item->collection = collection;
 	}
@@ -253,7 +253,7 @@ static void* getPartialFixed(
 	Exception *exception) {
 	CollectionMemory *memory = (CollectionMemory*)collection->state;
 	if (index < collection->count) {
-		item->data.ptr = memory->firstByte + (index * collection->elementSize);
+		item->data.ptr = memory->firstByte + ((uint64_t)index * collection->elementSize);
 		assert(item->data.ptr < memory->lastByte);
 		item->data.allocated = 0;
 		item->data.used = collection->elementSize;
@@ -877,7 +877,9 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromFile(
 			// If the secondary collection could not be generated then free
 			// the primary one and return NULL to indicate that the collection
 			// could not be created.
-			result->freeCollection(result);
+			if (result != NULL) {
+				 result->freeCollection(result);
+			}
 			result = NULL;
 		}
 	}

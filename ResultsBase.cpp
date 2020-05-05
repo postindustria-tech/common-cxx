@@ -59,11 +59,15 @@ vector<string> ResultsBase::getProperties() {
 string ResultsBase::getPropertyName(
 	int requiredPropertyIndex) {
 	string name;
+	const char *cName;
 	if (requiredPropertyIndex >= 0 &&
 		requiredPropertyIndex < (int)available->count) {
-		name.assign(STRING(PropertiesGetNameFromRequiredIndex(
+		cName = STRING(PropertiesGetNameFromRequiredIndex(
 			available,
-			requiredPropertyIndex)));
+			requiredPropertyIndex));
+		if (cName != nullptr) {
+			name.assign(cName);
+		}
 	}
 	return name;
 }

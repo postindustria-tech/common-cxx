@@ -50,12 +50,6 @@ namespace FiftyoneDegrees {
 			 */
 
 			/**
-			 * Default constructor, should not be used externally as it
-			 * produces an invalid instance
-			 */
-			EntityMetaData() {}
-
-			/**
 			 * Construct a new instance with the key provided.
 			 * @param key of type K
 			 */

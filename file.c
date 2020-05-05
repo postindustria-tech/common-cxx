@@ -468,7 +468,9 @@ bool isFileInUse(const char *pathName) {
 	Free(procInfo);
 	return false;
 #elif defined(_MSC_VER)
-	
+	// No need to implement this in MSVC as it is already handled when
+	// accessing files, making this method irrelevant.
+	return false;
 #else
 
 	fiftyoneDegreesStatusCode status = SUCCESS;
@@ -674,28 +676,28 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileCreateTempFile(
 			return status;
 		}
 	}
-
-	for (i = 0; i < count; i++) {
-		strcpy(tempPath, paths[i]);
-		nameStart = strlen(paths[i]);
-		if (nameStart != 0 &&
-			tempPath[nameStart - 1] != '/' &&
-			tempPath[nameStart - 1] != '\\') {
-			tempPath[nameStart++] = '/';
-		}
-		if (nameStart + TEMP_FILENAME_LENGTH < FIFTYONE_DEGREES_FILE_MAX_PATH) {
-			getUniqueName(TEMP_FILENAME_LENGTH, tempPath, (int)nameStart);
-			status = FileCopy(masterFile, tempPath);
-			if (status == SUCCESS) {
-				strcpy((char*)destination, tempPath);
-				return status;
+	else if (paths != NULL) {
+		for (i = 0; i < count; i++) {
+			strcpy(tempPath, paths[i]);
+			nameStart = strlen(paths[i]);
+			if (nameStart != 0 &&
+				tempPath[nameStart - 1] != '/' &&
+				tempPath[nameStart - 1] != '\\') {
+				tempPath[nameStart++] = '/';
+			}
+			if (nameStart + TEMP_FILENAME_LENGTH < FIFTYONE_DEGREES_FILE_MAX_PATH) {
+				getUniqueName(TEMP_FILENAME_LENGTH, tempPath, (int)nameStart);
+				status = FileCopy(masterFile, tempPath);
+				if (status == SUCCESS) {
+					strcpy((char*)destination, tempPath);
+					return status;
+				}
+			}
+			else {
+				status = FILE_PATH_TOO_LONG;
 			}
 		}
-		else {
-			status = FIFTYONE_DEGREES_STATUS_FILE_PATH_TOO_LONG;
-		}
 	}
-
 	assert(status != NOT_SET);
 	return status;
 }

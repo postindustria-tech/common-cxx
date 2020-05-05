@@ -83,6 +83,7 @@ namespace FiftyoneDegrees {
 			 * Default constructor.
 			 */
 			Value() {
+				this->value = T();
 				this->hasValueInternal = false;
 			}
 

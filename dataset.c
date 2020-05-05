@@ -166,6 +166,7 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitFromFile(
 	fiftyoneDegreesDataSetBase *dataSet,
 	const char *fileName,
 	long bytesToCompare) {
+	char *copiedString;
 	size_t fileNameLength = strlen(fileName);
 
 	// Check there is sufficient space to store the filename provided.
@@ -175,10 +176,11 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitFromFile(
 	}
 
 	// Use the file name provided as the master data file for the data set.
-	if (strncpy(
+	copiedString = strncpy(
 		(char*)dataSet->masterFileName,
 		fileName,
-		fileNameLength) != dataSet->masterFileName) {
+		fileNameLength);
+	if (strncmp(fileName, copiedString, fileNameLength) != 0) {
 		return CORRUPT_DATA;
 	}
 
@@ -191,10 +193,11 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitFromFile(
 
 	// Temporary files are not requested so use the master file name
 	// as the working file name.
-	if (strncpy(
+	copiedString = strncpy(
 		(char*)dataSet->fileName,
 		dataSet->masterFileName,
-		fileNameLength) != dataSet->fileName) {
+		fileNameLength);
+	if (strncmp(dataSet->masterFileName, copiedString, fileNameLength) != 0) {
 		return CORRUPT_DATA;
 	}
 

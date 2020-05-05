@@ -49,7 +49,7 @@ namespace FiftyoneDegrees {
 			 * Default constructor. This should not be used externally as it
 			 * returns an invalid instance.
 			 */
-			ValueMetaDataKey() {};
+			ValueMetaDataKey();
 
 			/**
 			 * Construct a new instance of ValueMetaDataKey from the unique
@@ -125,7 +125,7 @@ namespace FiftyoneDegrees {
 			 * Default constructor, should not be used externally as it
 			 * produces an invalid instance
 			 */
-			ValueMetaData() : EntityMetaData() {}
+			ValueMetaData();
 
 			/**
 			 * Construct a new instance of ValueMetaData from an existing

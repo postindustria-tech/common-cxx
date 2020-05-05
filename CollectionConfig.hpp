@@ -56,7 +56,9 @@ namespace FiftyoneDegrees {
 
 			/**
 			 * Construct a new instance of CollectionConfig with the default
-			 * configuration.
+			 * configuration. This method does not set the internal config
+			 * structure, so an extending class must do this if calling this
+			 * constructor.
 			 */
 			CollectionConfig();
 

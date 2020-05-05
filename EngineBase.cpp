@@ -59,22 +59,35 @@ void EngineBase::addKey(string key) {
 void EngineBase::initOverrideKeys(
 	fiftyoneDegreesOverridePropertyArray *overrideProperties) {
 	uint32_t i;
-	if (overrideProperties != NULL) {
+	const char *tempKey;
+	if (overrideProperties != nullptr) {
 		for (i = 0; i < overrideProperties->count; i++) {
 			string key = string("cookie.");
 			if (overrideProperties->prefix == true) {
 				key.append("51D_");
 			}
-			key.append(STRING(
-				overrideProperties->items[i].available->name.data.ptr));
-			addKey(key);
+			tempKey = STRING(
+				overrideProperties->items[i].available->name.data.ptr);
+			if (tempKey != nullptr) {
+				key.append(tempKey);
+				addKey(key);
+			}
+			else {
+				throw invalid_argument("Override evidence key was null.");
+			}
 			key = string("query.");
 			if (overrideProperties->prefix == true) {
 				key.append("51D_");
 			}
-			key.append(STRING(
-				overrideProperties->items[i].available->name.data.ptr));
-			addKey(key);
+			tempKey = STRING(
+				overrideProperties->items[i].available->name.data.ptr);
+			if (tempKey != nullptr) {
+				key.append(tempKey);
+				addKey(key);
+			}
+			else {
+				throw invalid_argument("Override evidence key was null.");
+			}
 		}
 	}
 }

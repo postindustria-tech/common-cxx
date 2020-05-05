@@ -26,6 +26,12 @@
 
 using namespace FiftyoneDegrees::Common;
 
+ValueMetaDataKey::ValueMetaDataKey()
+    : ValueMetaDataKey::ValueMetaDataKey(
+        "invalid", // property
+        "invalid" // value
+    ) { }
+
 ValueMetaDataKey::ValueMetaDataKey(string propertyName, string valueName) {
 	this->propertyName = propertyName;
 	this->valueName = valueName;
@@ -71,6 +77,13 @@ const bool ValueMetaDataKey::operator== (ValueMetaDataKey other) const {
 	return (other.getPropertyName() == getPropertyName()) &&
 		(other.getValueName() == getValueName());
 }
+
+ValueMetaData::ValueMetaData()
+    : ValueMetaData(
+        ValueMetaDataKey("invalid", "invalid"), // key
+        "invalid", // description
+        "invalid" // url
+    ) { }
 
 ValueMetaData::ValueMetaData(ValueMetaData *value)
 	: ValueMetaData(

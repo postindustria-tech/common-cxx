@@ -68,6 +68,7 @@ static void addUniqueHeaders(
 			headers->count++;
 		}
 		else {
+			assert(nameItem->collection != NULL);
 			COLLECTION_RELEASE(nameItem->collection, nameItem);
 		}
 	}
@@ -122,7 +123,7 @@ int fiftyoneDegreesHeaderGetIndex(
 	// Perform a case insensitive compare of the remaining characters.
 	for (i = 0; i < headers->count; i++) {
 		compare = (String*)headers->items[i].name.data.ptr;
-		if ((size_t)(compare->size - 1) == length &&
+		if ((size_t)((size_t)compare->size - 1) == length &&
 			compare != NULL &&
 			StringCompareLength(
 				httpHeaderName, 

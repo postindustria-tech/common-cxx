@@ -321,6 +321,7 @@ static int comparePropertyNamesAscending(const void *a, const void *b) {
 	PropertyAvailable *bi = (PropertyAvailable*)b;
 	const char *as = STRING(ai->name.data.ptr);
 	const char *bs = STRING(bi->name.data.ptr);
+	assert(as != NULL && bs != NULL);
 	return _stricmp(as, bs);
 }
 

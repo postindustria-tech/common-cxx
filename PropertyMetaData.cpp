@@ -24,6 +24,25 @@
 
 using namespace FiftyoneDegrees::Common;
 
+PropertyMetaData::PropertyMetaData()
+	: PropertyMetaData::PropertyMetaData(
+		"invalid", // name
+		vector<string>(), // data files
+		"invalid", // type
+		"invalid", // category
+		"invalid", // url
+		false, // available
+		-1, // display order
+		false, // mandatory
+		false, // list
+		false, // obsolete
+		false, // show
+		false, // show values
+		"invalid", // description
+		"invalid", // default value,
+		-1 // component id
+	) { }
+
 PropertyMetaData::PropertyMetaData(PropertyMetaData *property)
 	: PropertyMetaData::PropertyMetaData(
 		property->getName(),

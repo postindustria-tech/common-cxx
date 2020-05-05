@@ -69,7 +69,7 @@
  */
 typedef struct fiftyoneDegrees_component_keyvaluepair_t {
 	uint32_t key; /**< Integer key */
-	uint32_t value; /** Integer value */
+	uint32_t value; /**< Integer value */
 } fiftyoneDegreesComponentKeyValuePair;
 
 /**

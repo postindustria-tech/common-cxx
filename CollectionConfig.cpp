@@ -24,7 +24,16 @@
 
 using namespace FiftyoneDegrees::Common;
 
-CollectionConfig::CollectionConfig() {}
+#ifdef _MSC_VER
+// A default constructor is needed for the SWIG interface. This is only
+// used for forward declarations `CollectionConfig config` where a default
+// constructor will be called, but it will actually be initialised later.
+#pragma warning (disable:26495)  
+#endif
+CollectionConfig::CollectionConfig() { }
+#ifdef _MSC_VER
+#pragma warning (default:26495)  
+#endif
 
 CollectionConfig::CollectionConfig(
 	fiftyoneDegreesCollectionConfig *config) {

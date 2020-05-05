@@ -46,7 +46,7 @@ namespace FiftyoneDegrees {
 			 * Default constructor, should not be used externally as it
 			 * produces an invalid instance
 			 */
-			PropertyMetaData() : EntityMetaData() {}
+			PropertyMetaData();
 
 			/**
 			 * Construct a new instance of PropertyMetaData from an existing

@@ -39,7 +39,7 @@ void fiftyoneDegreesTextFileIterate(
 
 				// Check that the buffer has not been exceeded considering
 				// the need for a null terminator on the string.
-				if (current - buffer < length - 1) {
+				if ((int)(current - buffer) < length - 1) {
 					*current = (char)c;
 					current++;
 				}

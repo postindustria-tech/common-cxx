@@ -95,7 +95,7 @@ EXTERNAL void* fiftyoneDegreesMemoryTrackingMalloc(size_t __size);
  */
 EXTERNAL void* fiftyoneDegreesMemoryStandardMallocAligned(
     int alignment,
-    size_t size);
+    size_t __size);
 
 
 /**
@@ -108,7 +108,7 @@ EXTERNAL void* fiftyoneDegreesMemoryStandardMallocAligned(
  */
 EXTERNAL void* fiftyoneDegreesMemoryTrackingMallocAligned(
     int alignment,
-    size_t size);
+    size_t __size);
 
 /**
  * Frees memory allocated using the #fiftyoneDegreesMemoryTrackingMalloc method,
@@ -136,7 +136,7 @@ EXTERNAL void fiftyoneDegreesMemoryStandardFree(void *__ptr);
  * Frees memory using the standard aligned free method.
  * @param __ptr data to free
  */
-EXTERNAL void fiftyoneDegreesMemoryStandardFreeAligned(void* pointer);
+EXTERNAL void fiftyoneDegreesMemoryStandardFreeAligned(void *__ptr);
 
 /**
  * Gets the maximum total number of bytes that have been allocated using the

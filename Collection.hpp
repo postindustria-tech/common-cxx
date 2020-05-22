@@ -25,6 +25,7 @@
 
 #include "Exceptions.hpp"
 #include "collection.h"
+#include "resource.h"
 #include <memory>
 
 using namespace std;

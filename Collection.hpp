@@ -25,8 +25,6 @@
 
 #include "Exceptions.hpp"
 #include "collection.h"
-#include "resource.h"
-#include <memory>
 
 using namespace std;
 
@@ -82,16 +80,6 @@ namespace FiftyoneDegrees {
 		public:
 
 			/**
-			 * @name Constructor
-			 * @{
-			 */
-
-			Collection(shared_ptr<fiftyoneDegreesResourceManager> manager) {
-				this->manager = manager;
-			}
-
-			/**
-			 * @}
 			 * @name Destructor
 			 * @{
 			 */
@@ -137,17 +125,6 @@ namespace FiftyoneDegrees {
 			 * A collection can't be constructed without an inheriting class.
 			 */
 			Collection<K, V>() { }
-
-		private:
-			/** A shared pointer to the manager is passed around and referenced
-			by all instances that hold open a resource handle. This acts as a
-			counter to ensure that the pointer to the manager remains valid
-			until the last handle is freed. The shared pointer also handles
-			freeing the pointer once no references remain.
-			**IMPORTANT** : Although this pointer is not used, the shared
-			pointer reference is required by the resource manager logic. See
-			resource.h for more information. */
-			shared_ptr<fiftyoneDegreesResourceManager> manager;
 		};
 	}
 }

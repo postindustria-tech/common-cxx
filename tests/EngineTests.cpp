@@ -30,10 +30,12 @@
 EngineTests::EngineTests(
 	RequiredPropertiesConfig *requiredProperties,
 	const char *directory,
-	const char *fileName) : Base() {
+	const char **fileNames,
+	int fileNamesLength) : Base() {
 	this->requiredProperties = requiredProperties;
 	this->directory = directory;
-	this->fileName = fileName;
+	this->fileNames = fileNames;
+	this->fileNamesLength = fileNamesLength;
 }
 
 EngineTests::~EngineTests() {
@@ -49,11 +51,20 @@ void EngineTests::SetUp() {
 	fiftyoneDegreesFree = fiftyoneDegreesMemoryStandardFree;
 	fiftyoneDegreesFreeAligned = fiftyoneDegreesMemoryStandardFreeAligned;
 
-	fiftyoneDegreesStatusCode status = fiftyoneDegreesFileGetPath(
-		directory,
-		fileName,
-		fullName,
-		sizeof(fullName));
+	fiftyoneDegreesStatusCode status = FIFTYONE_DEGREES_STATUS_NOT_SET;
+	for (int i = 0;
+		i < fileNamesLength && status != FIFTYONE_DEGREES_STATUS_SUCCESS;
+		i++) {
+		status = fiftyoneDegreesFileGetPath(
+			directory,
+			fileNames[i],
+			fullName,
+			sizeof(fullName));
+		if (status == FIFTYONE_DEGREES_STATUS_SUCCESS) {
+			fileName = fileNames[i];
+		}
+	}
+	 
 	ASSERT_EQ(status, FIFTYONE_DEGREES_STATUS_SUCCESS) << "File '" << 
 		fileName << "' could not be found in directory '" << 
 		directory << "'";
@@ -137,37 +148,36 @@ void EngineTests::validateName(ResultsBase *results, string *name) {
 			"missing and should throw exception";
 	}
 	else {
-		
 		// If the name is available so the values should be retrieved with
 		// out an exception.
 		Value<vector<string>> values = results->getValues(name);
 
-		if (values.hasValue()) {
+		if (values.hasValue() && values.getValue().size() > 0) {
+			EXPECT_NO_THROW(*results->getValueAsString(name)) << "String value "
+				"for property '" << *name << "' can't throw exception";
 			if ((*values).size() == 1) {
 
 				// One value is available. Check all the typed value methods return
 				// a value and do not throw an error.
-				EXPECT_NO_THROW(results->getValueAsString(name)) << "String value "
-					"for property '" << *name << "' can't throw exception";
-				EXPECT_NO_THROW(results->getValueAsBool(name)) << "Bool value for "
+				EXPECT_NO_THROW(*results->getValueAsBool(name)) << "Bool value for "
 					"property '" << *name << "' can't throw exception";
-				EXPECT_NO_THROW(results->getValueAsInteger(name)) << "Integer "
+				EXPECT_NO_THROW(*results->getValueAsInteger(name)) << "Integer "
 					"value for property '" << *name << "' can't throw exception";
-				EXPECT_NO_THROW(results->getValueAsDouble(name)) << "Double value "
+				EXPECT_NO_THROW(*results->getValueAsDouble(name)) << "Double value "
 					"for property '" << *name << "' can't throw exception";
 			}
 			else if ((*values).size() > 1) {
-
 				// There are multiple values available so verify that the single 
 				// value methods generate an exception.
-				EXPECT_THROW(results->getValueAsString(name),
-					TooManyValuesException);
-				EXPECT_THROW(results->getValueAsBool(name),
-					TooManyValuesException);
-				EXPECT_THROW(results->getValueAsInteger(name),
-					TooManyValuesException);
-				EXPECT_THROW(results->getValueAsDouble(name),
-					TooManyValuesException);
+				EXPECT_THROW(*results->getValueAsBool(name),
+					TooManyValuesException) << "Bool value for property '"
+					<< *name << "'should throw an exception";
+				EXPECT_THROW(*results->getValueAsInteger(name),
+					TooManyValuesException) << "Integer value for property '"
+					<< *name << "'should throw an exception";
+				EXPECT_THROW(*results->getValueAsDouble(name),
+					TooManyValuesException) << "Double value for property '"
+					<< *name << "'should throw an exception";
 			}
 		}
 		else {
@@ -206,10 +216,12 @@ void EngineTests::validateIndex(ResultsBase *results, int index) {
 				"index '" << index << "' can't throw exception";;
 		}
 		else if ((*values).size() > 1) {
-			EXPECT_THROW(results->getValueAsString(index), TooManyValuesException);
-			EXPECT_THROW(results->getValueAsBool(index), TooManyValuesException);
-			EXPECT_THROW(results->getValueAsInteger(index), TooManyValuesException);
-			EXPECT_THROW(results->getValueAsDouble(index), TooManyValuesException);
+			EXPECT_NO_THROW(*results->getValueAsString(index)) << "String value "
+				"for property '" << results->getPropertyName(index) << "' at "
+				"index '" << index << "' can't throw exception";
+			EXPECT_THROW(*results->getValueAsBool(index), TooManyValuesException);
+			EXPECT_THROW(*results->getValueAsInteger(index), TooManyValuesException);
+			EXPECT_THROW(*results->getValueAsDouble(index), TooManyValuesException);
 		}
 	}
 }

@@ -46,7 +46,8 @@ public:
 	EngineTests(
 		RequiredPropertiesConfig *requiredProperties, 
 		const char *directory, 
-		const char *fileName);
+		const char **fileNames,
+		int fileNamesLength);
 	virtual ~EngineTests();
 	virtual void SetUp();
 	virtual void TearDown();
@@ -63,6 +64,8 @@ protected:
 	RequiredPropertiesConfig *requiredProperties;
 	const char *directory;
 	const char *fileName;
+	const char** fileNames;
+	int fileNamesLength;
 	char fullName[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	void validateIndex(ResultsBase *results, int index);
 	void validateName(ResultsBase *results, string *name);

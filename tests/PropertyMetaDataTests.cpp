@@ -46,6 +46,7 @@ bool testShowValues = false;
 string testDescription = "description";
 string testValue = "value";
 byte testComponentId = 0;
+vector<uint32_t> testEvidenceProperties = { 0 };
 ComponentMetaData *testComponent = nullptr;
 vector<ValueMetaData*> *testValues = nullptr;
 ValueMetaData *testDefaultValue = nullptr;
@@ -86,7 +87,8 @@ TEST(PropertyMetaData, CreateWithValues) {
 			testShowValues,
 			testDescription,
 			testValue,
-			testComponentId);
+			testComponentId,
+			testEvidenceProperties);
 	ASSERT_STREQ(meta->getName().c_str(), testName.c_str()) <<
 		L"Property name was not set correctly.";
 	vector<string> returnedFiles = meta->getDataFilesWherePresent();
@@ -117,7 +119,8 @@ TEST(PropertyMetaData, VectorIsCopied) {
 			testShowValues,
 			testDescription,
 			testValue,
-			testComponentId);
+			testComponentId,
+			testEvidenceProperties);
 	// Check the pointer returned does not point to 
 	vector<string> returnedFiles = meta->getDataFilesWherePresent();
 	ASSERT_NE(&returnedFiles, &testFiles);
@@ -152,7 +155,8 @@ TEST(PropertyMetaData, ValuesAreCopied) {
 			testShowValues,
 			description,
 			testValue,
-			testComponentId);
+			testComponentId,
+			testEvidenceProperties);
 	name = "non";
 	files = { "non" };
 	type = "non";

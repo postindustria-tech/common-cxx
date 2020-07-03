@@ -213,7 +213,7 @@ typedef fiftyoneDegreesString*(*fiftyoneDegreesPropertiesGetMethod)(
 typedef uint32_t(*fiftyoneDegreesEvidencePropertiesGetMethod)(
     void* state,
     fiftyoneDegreesPropertyAvailable* property,
-    fiftyoneDegreesEvidencePropertyIndexArray* evidenceProperties);
+    fiftyoneDegreesEvidenceProperties* evidenceProperties);
 
 /**
  * The default properties required to make all possible properties available.

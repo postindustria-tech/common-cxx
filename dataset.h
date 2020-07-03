@@ -183,7 +183,7 @@ typedef fiftyoneDegreesStatusCode(*fiftyoneDegreesDataSetInitFromFileMethod)(
  * @param state pointer to data which is needed by getPropertymethod
  * @param getPropertyMethod method used to retrieve the name of a property at
  * a specified index from the data set
- * @param getEvidencePropertiesIndex method used to populate the list of
+ * @param getEvidencePropertiesMethod method used to populate the list of
  * evidence required for a property in the data set
  * @return the status associated with the property initialisation. Any value
  * other than #FIFTYONE_DEGREES_STATUS_SUCCESS  means the properties were not

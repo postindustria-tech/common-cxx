@@ -39,8 +39,8 @@ typedef struct properties_source_t {
 	PropertiesGetMethod getName; /* Gets a property as a string from the
 								 source, setting the collection item
 								 containing the string */
-	fiftyoneDegreesEvidencePropertiesGetMethod getEvidence; /* Populates the
-															evidence properties */
+	EvidencePropertiesGetMethod getEvidence; /* Populates the evidence
+											 properties */
 } propertiesSource;
 
 typedef void(*matchedPropertyMethod)(PropertiesAvailable*, uint32_t);

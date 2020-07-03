@@ -82,6 +82,8 @@ namespace FiftyoneDegrees {
 			 * value from the value meta data collection.
 			 * @param componentId the unique id of the component which the
 			 * property belongs to
+			 * @param evidenceProperties list of indexes in the properties
+			 * collection for this property's evidence properties
 			 */
 			PropertyMetaData(
 				string name,
@@ -98,7 +100,8 @@ namespace FiftyoneDegrees {
 				bool showValues,
 				string description,
 				string defaultValue,
-				byte componentId);
+				byte componentId,
+				vector<uint32_t> evidenceProperties);
 
 			/**
 			 * @}
@@ -206,6 +209,12 @@ namespace FiftyoneDegrees {
 			byte getComponentId();
 
 			/**
+			 * Get the evidence property indexes for the property.
+			 * @return indexes for evidence properties
+			 */
+			vector<uint32_t> getEvidenceProperties();
+
+			/**
 			 * @}
 			 */
 		private:
@@ -250,6 +259,10 @@ namespace FiftyoneDegrees {
 
 			/** Unique id of the component the property relates to */
 			byte componentId;
+
+			/** Indexes in the properties collection for this property's evidence
+			properties */
+			vector<uint32_t> evidenceProperties;
 		};
 	}
 }

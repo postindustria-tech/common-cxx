@@ -125,7 +125,7 @@ typedef struct fiftyone_degrees_dataset_base_t {
 	fiftyoneDegreesOverridePropertyArray *overridable; /**< Array of properties
 													   that can be 
 													   overridden */
-	const void *config; /**< Pointer to the config used to create the dataset */
+    const void *config; /**< Pointer to the config used to create the dataset */
 } fiftyoneDegreesDataSetBase;
 
 /**
@@ -183,6 +183,8 @@ typedef fiftyoneDegreesStatusCode(*fiftyoneDegreesDataSetInitFromFileMethod)(
  * @param state pointer to data which is needed by getPropertymethod
  * @param getPropertyMethod method used to retrieve the name of a property at
  * a specified index from the data set
+ * @param getEvidencePropertiesIndex method used to populate the list of
+ * evidence required for a property in the data set
  * @return the status associated with the property initialisation. Any value
  * other than #FIFTYONE_DEGREES_STATUS_SUCCESS  means the properties were not
  * initialised correctly
@@ -191,7 +193,8 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitProperties(
 	fiftyoneDegreesDataSetBase *dataSet,
 	fiftyoneDegreesPropertiesRequired *properties,
 	void *state,
-	fiftyoneDegreesPropertiesGetMethod getPropertyMethod);
+	fiftyoneDegreesPropertiesGetMethod getPropertyMethod,
+    fiftyoneDegreesEvidencePropertiesGetMethod getEvidencePropertiesMethod);
 
 /**
  * Initialises the HTTP headers in the data set. Usually this means

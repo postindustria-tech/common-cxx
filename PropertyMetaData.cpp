@@ -40,7 +40,8 @@ PropertyMetaData::PropertyMetaData()
 		false, // show values
 		"invalid", // description
 		"invalid", // default value,
-		-1 // component id
+		-1, // component id
+		vector<uint32_t>()
 	) { }
 
 PropertyMetaData::PropertyMetaData(PropertyMetaData *property)
@@ -59,7 +60,8 @@ PropertyMetaData::PropertyMetaData(PropertyMetaData *property)
 		property->showValues,
 		property->description,
 		property->defaultValue,
-		property->componentId) {
+		property->componentId,
+		property->evidenceProperties) {
 }
 
 PropertyMetaData::PropertyMetaData(
@@ -77,7 +79,8 @@ PropertyMetaData::PropertyMetaData(
 	bool showValues,
 	string description,
 	string defaultValue,
-	byte componentId) : EntityMetaData(name) {
+	byte componentId,
+	vector<uint32_t> evidenceProperties) : EntityMetaData(name) {
 	this->dataFilesWherePresent = dataFilesWherePresent;
 	this->type = type;
 	this->category = category;
@@ -92,6 +95,7 @@ PropertyMetaData::PropertyMetaData(
 	this->description = description;
 	this->defaultValue = defaultValue;
 	this->componentId = componentId;
+	this->evidenceProperties = evidenceProperties;
 }
 
 string PropertyMetaData::getName() {
@@ -152,4 +156,8 @@ byte PropertyMetaData::getComponentId() {
 
 string PropertyMetaData::getDefaultValue() {
 	return defaultValue;
+}
+
+vector<uint32_t> PropertyMetaData::getEvidenceProperties() {
+	return evidenceProperties;
 }

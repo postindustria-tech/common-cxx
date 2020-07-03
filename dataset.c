@@ -113,14 +113,16 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitProperties(
 	fiftyoneDegreesDataSetBase *dataSet,
 	fiftyoneDegreesPropertiesRequired *properties,
 	void *state,
-	fiftyoneDegreesPropertiesGetMethod getPropertyMethod) {
+	fiftyoneDegreesPropertiesGetMethod getPropertyMethod,
+	fiftyoneDegreesEvidencePropertiesGetMethod getEvidencePropertiesMethod) {
 	uint32_t i;
 
 	// Initialise the available properties.
 	dataSet->available = PropertiesCreate(
 		properties,
 		state,
-		getPropertyMethod);
+		getPropertyMethod,
+		getEvidencePropertiesMethod);
 
 	// Check the properties were initialised.
 	if (dataSet->available == NULL) {

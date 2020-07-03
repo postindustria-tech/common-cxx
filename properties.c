@@ -36,9 +36,11 @@ PropertiesRequired PropertiesDefault = {
 
 typedef struct properties_source_t {
 	void *state; /* State for the get method. Usually a data set */
-	PropertiesGetMethod get; /* Gets a property as a string from the
-	                            source, setting the collection item
-								containing the string */
+	PropertiesGetMethod getName; /* Gets a property as a string from the
+								 source, setting the collection item
+								 containing the string */
+	fiftyoneDegreesEvidencePropertiesGetMethod getEvidence; /* Populates the
+															evidence properties */
 } propertiesSource;
 
 typedef void(*matchedPropertyMethod)(PropertiesAvailable*, uint32_t);
@@ -51,7 +53,7 @@ static uint32_t countAvailableProperties(propertiesSource *source) {
 	Item stringItem;
 	uint32_t i = 0;
 	DataReset(&stringItem.data);
-	while (source->get(source->state, i, &stringItem) != NULL) {
+	while (source->getName(source->state, i, &stringItem) != NULL) {
 		if (stringItem.collection != NULL) {
 			COLLECTION_RELEASE(stringItem.collection, &stringItem);
 		}
@@ -61,12 +63,18 @@ static uint32_t countAvailableProperties(propertiesSource *source) {
 }
 
 static PropertiesAvailable* initRequiredPropertiesMemory(uint32_t count) {
+	uint32_t i;
 	PropertiesAvailable *available = (PropertiesAvailable*)Malloc(
 		getMemorySize(count));
 	if (available != NULL) {
 		available->count = 0;
 		available->capacity = count;
 		available->items = (PropertyAvailable*)(available + 1);
+		// Initialize the evidence properties to prevent them from being
+		// freed in the case that they are never allocated.
+		for (i = 0; i < available->capacity; i++) {
+			available->items[i].evidenceProperties = NULL;
+		}
 	}
 	return available;
 }
@@ -112,7 +120,7 @@ static int getPropertyIndex(
 	Item stringItem;
 	uint32_t i = 0;
 	DataReset(&stringItem.data);
-	test = source->get(source->state, i, &stringItem);
+	test = source->getName(source->state, i, &stringItem);
 	while (test != NULL) {
 		if (test->size - 1 == requiredPropertyLength &&
 			test != NULL &&
@@ -127,7 +135,7 @@ static int getPropertyIndex(
 		if (stringItem.collection != NULL) {
 			COLLECTION_RELEASE(stringItem.collection, &stringItem);
 		}
-		test = source->get(source->state, ++i, &stringItem);
+		test = source->getName(source->state, ++i, &stringItem);
 	}
 	return -1;
 }
@@ -304,15 +312,42 @@ static PropertiesAvailable* initAllProperties(
 }
 
 static void setPropertyNames(
-	propertiesSource *source,
-	PropertiesAvailable *available) {
+	propertiesSource* source,
+	PropertiesAvailable* available) {
 	uint32_t i;
 	for (i = 0; i < available->count; i++) {
 		DataReset(&available->items[i].name.data);
-		source->get(
-			source->state, 
+		source->getName(
+			source->state,
 			available->items[i].propertyIndex,
 			&available->items[i].name);
+	}
+}
+
+static void setEvidenceProperties(
+	propertiesSource* source,
+	PropertiesAvailable* available) {
+	uint32_t i, count;
+	for (i = 0; i < available->count; i++) {
+		// Get the count before populating.
+		count = source->getEvidence(
+			source->state,
+			&available->items[i],
+			NULL);
+		// Allocate an array big enough to be
+		// populated.
+		FIFTYONE_DEGREES_ARRAY_CREATE(
+			fiftyoneDegreesEvidencePropertyIndex,
+			available->items[i].evidenceProperties,
+			count);
+		if (available->items[i].evidenceProperties != NULL) {
+			// Now populate the array and set the counjt.
+			count = source->getEvidence(
+				source->state,
+				&available->items[i],
+				available->items[i].evidenceProperties);
+			available->items[i].evidenceProperties->count = count;
+		}
 	}
 }
 
@@ -334,7 +369,7 @@ static void sortRequiredProperties(
 		comparePropertyNamesAscending);
 }
 
-static void initRequiredPropertyNames(
+static void initRequiredProperties(
 	propertiesSource *source,
 	PropertiesAvailable *available) {
 	uint32_t i;
@@ -342,6 +377,9 @@ static void initRequiredPropertyNames(
 
 	// Set the names for each of the properties.
 	setPropertyNames(source, available);
+
+	// Set the evidence properties for each of the properties.
+	setEvidenceProperties(source, available);
 
 	// Sort these names in ascending order.
 	sortRequiredProperties(available);
@@ -367,10 +405,12 @@ static int comparePropertyNamesAscendingSearch(const void *a, const void *b) {
 fiftyoneDegreesPropertiesAvailable* fiftyoneDegreesPropertiesCreate(
 	fiftyoneDegreesPropertiesRequired *properties,
 	void *state,
-	fiftyoneDegreesPropertiesGetMethod getPropertyMethod) {
+	fiftyoneDegreesPropertiesGetMethod getPropertyMethod,
+	fiftyoneDegreesEvidencePropertiesGetMethod getEvidencePropertiesMethod) {
 	propertiesSource source;
 	source.state = state;
-	source.get = getPropertyMethod;
+	source.getName = getPropertyMethod;
+	source.getEvidence = getEvidencePropertiesMethod;
 	PropertiesAvailable *available = NULL;
 	if (properties != NULL) {
 		if (properties->existing != NULL) {
@@ -406,7 +446,7 @@ fiftyoneDegreesPropertiesAvailable* fiftyoneDegreesPropertiesCreate(
 	// Set the require property name strings to match the require property
 	// index.
 	if (available != NULL) {
-		initRequiredPropertyNames(&source, available);
+		initRequiredProperties(&source, available);
 	}
 
 	return available;
@@ -473,6 +513,9 @@ void fiftyoneDegreesPropertiesFree(
 			if (available->items[i].name.data.ptr != NULL) {
 				COLLECTION_RELEASE(available->items[i].name.collection,
 					&available->items[i].name);
+			}
+			if (available->items[i].evidenceProperties != NULL) {
+				Free(available->items[i].evidenceProperties);
 			}
 		}
 		Free(available);

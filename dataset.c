@@ -142,6 +142,18 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitProperties(
 		}
 	}
 
+	// Check that all the evidence properties were successfully retrived from
+	// the data source.
+	for (i = 0; i < dataSet->available->count; i++) {
+		if (dataSet->available->items[i].evidenceProperties == NULL) {
+			return INSUFFICIENT_MEMORY;
+		}
+		if (dataSet->available->items[i].evidenceProperties->capacity !=
+			dataSet->available->items[i].evidenceProperties->count) {
+			return COLLECTION_FAILURE;
+		}
+	}
+	
 	return SUCCESS;
 }
 

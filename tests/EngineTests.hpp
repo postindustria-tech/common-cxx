@@ -39,6 +39,10 @@
 #define ENGINE_CONFIG(e,c) fiftyoneDegreesConfig##e \
 *ENGINE_CLASS_NAME_CONFIG_POINTER(e,c) = &ENGINE_CLASS_NAME_CONFIG_SOURCE(e,c);
 
+#define PROPERTY_SAMPLE_SIZE 10
+#define PROFILE_SAMPLE_SIZE 10
+#define VALUE_SAMPLE_SIZE 10
+
 using namespace FiftyoneDegrees::Common;
 
 class EngineTests : public Base {

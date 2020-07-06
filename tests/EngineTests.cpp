@@ -315,7 +315,7 @@ void EngineTests::verifyComponentMetaData(MetaData *metaData) {
 		properties = metaData->getPropertiesForComponent(component);
 		for (propertyIndex = 0;
 			propertyIndex < properties->getSize();
-			propertyIndex += 10) {
+			propertyIndex++) {
 			property = properties->getByIndex(propertyIndex);
 			otherComponent = metaData->getComponentForProperty(property);
 			ASSERT_EQ(*component, *otherComponent) <<
@@ -344,7 +344,7 @@ void EngineTests::verifyPropertyMetaData(MetaData *metaData) {
 	uint32_t propertyIndex, valueIndex, componentPropertyIndex;
 	for (propertyIndex = 0;
 		propertyIndex < properties->getSize();
-		propertyIndex += 10) {
+		propertyIndex += properties->getSize() / PROPERTY_SAMPLE_SIZE) {
 		property = properties->getByIndex(propertyIndex);
 		value = metaData->getDefaultValueForProperty(property);
 		if (value != nullptr) {
@@ -357,7 +357,7 @@ void EngineTests::verifyPropertyMetaData(MetaData *metaData) {
 		values = metaData->getValuesForProperty(property);
 		for (valueIndex = 0;
 			valueIndex < values->getSize();
-			valueIndex += 10) {
+			valueIndex++) {
 			value = values->getByIndex(valueIndex);
 			otherProperty = metaData->getPropertyForValue(value);
 			ASSERT_EQ(*property, *otherProperty) <<
@@ -405,7 +405,7 @@ void EngineTests::verifyProfileMetaData(MetaData *metaData) {
 	uint32_t profileIndex, valueIndex;
 	for (profileIndex = 0;
 		profileIndex < profiles->getSize();
-		profileIndex += 100) {
+		profileIndex += profiles->getSize() / PROFILE_SAMPLE_SIZE) {
 		profile = profiles->getByIndex(profileIndex);
 		component = metaData->getComponentForProfile(profile);
 		ASSERT_NE(nullptr, component) <<
@@ -413,7 +413,7 @@ void EngineTests::verifyProfileMetaData(MetaData *metaData) {
 		values = metaData->getValuesForProfile(profile);
 		for (valueIndex = 0;
 			valueIndex < values->getSize();
-			valueIndex += 10) {
+			valueIndex++) {
 			value = values->getByIndex(valueIndex);
 			property = metaData->getPropertyForValue(value);
 			otherComponent = metaData->getComponentForProperty(property);
@@ -443,7 +443,7 @@ void EngineTests::verifyValueMetaData(MetaData *metaData) {
 	uint32_t valueIndex, propertyValueIndex;
 	for (valueIndex = 0;
 		valueIndex < values->getSize();
-		valueIndex += 100) {
+		valueIndex += values->getSize() / VALUE_SAMPLE_SIZE) {
 		value = values->getByIndex(valueIndex);
 		bool found = false;
 		property = metaData->getPropertyForValue(value);

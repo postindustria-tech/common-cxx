@@ -113,14 +113,16 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitProperties(
 	fiftyoneDegreesDataSetBase *dataSet,
 	fiftyoneDegreesPropertiesRequired *properties,
 	void *state,
-	fiftyoneDegreesPropertiesGetMethod getPropertyMethod) {
+	fiftyoneDegreesPropertiesGetMethod getPropertyMethod,
+	fiftyoneDegreesEvidencePropertiesGetMethod getEvidencePropertiesMethod) {
 	uint32_t i;
 
 	// Initialise the available properties.
 	dataSet->available = PropertiesCreate(
 		properties,
 		state,
-		getPropertyMethod);
+		getPropertyMethod,
+		getEvidencePropertiesMethod);
 
 	// Check the properties were initialised.
 	if (dataSet->available == NULL) {
@@ -140,6 +142,18 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitProperties(
 		}
 	}
 
+	// Check that all the evidence properties were successfully retrived from
+	// the data source.
+	for (i = 0; i < dataSet->available->count; i++) {
+		if (dataSet->available->items[i].evidenceProperties == NULL) {
+			return INSUFFICIENT_MEMORY;
+		}
+		if (dataSet->available->items[i].evidenceProperties->capacity !=
+			dataSet->available->items[i].evidenceProperties->count) {
+			return COLLECTION_FAILURE;
+		}
+	}
+	
 	return SUCCESS;
 }
 

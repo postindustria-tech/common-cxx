@@ -33,7 +33,8 @@ static const char* testValues[] = {
 	"Blue",
 	"Brown",
 	"Black",
-	"White"
+	"White",
+	"Yellowjs"
 };
 
 /**
@@ -81,8 +82,43 @@ protected:
 		properties = fiftyoneDegreesPropertiesCreate(
 			required,
 			strings->getState(),
-			getStringValue);
+			getStringValue,
+			getEvidenceProperties);
 	}
+
+	static uint32_t getEvidenceProperties(
+		void* state,
+		fiftyoneDegreesPropertyAvailable* property,
+		fiftyoneDegreesEvidenceProperties* evidenceProperties) {
+		int count = 0;
+		FIFTYONE_DEGREES_EXCEPTION_CREATE;
+		fiftyoneDegreesCollectionItem item;
+		fiftyoneDegreesDataReset(&item.data);
+		stringCollectionState *stringState = (stringCollectionState*)state;
+		fiftyoneDegreesString* name = (fiftyoneDegreesString*)property->name.data.ptr;
+		char* jsName = (char*)malloc(name->size + (sizeof(char) * strlen("js")));
+		strcpy(jsName, &name->value);
+		strcpy(jsName + name->size - 1, "js");
+		
+		for (uint32_t i = 0; i < stringState->count; i++) {
+			fiftyoneDegreesString* currentName = (fiftyoneDegreesString*)
+				stringState->collection->get(
+					stringState->collection,
+					stringState->offsets[i],
+					&item,
+					exception);
+			if (strcmp(&currentName->value, jsName) == 0) {
+				if (evidenceProperties != NULL) {
+					evidenceProperties->items[count] = i;
+				}
+				count++;
+			}
+		}
+		free(jsName);
+		FIFTYONE_DEGREES_COLLECTION_RELEASE(stringState->collection, &item);
+		return count;
+	}
+
 };
 
 /**
@@ -301,4 +337,95 @@ TEST_F(Properties, CaseInsensitiveGetIndex) {
 		fiftyoneDegreesPropertiesGetRequiredPropertyIndexFromName(
 			this->properties,
 			"yellow"));
+}
+
+/**
+ * Check that an evidence property for a required property
+ * is correctly set in the property's evidence property array.
+ */
+TEST_F(Properties, EvidenceProperties) {
+	const char* tests[]{ "yellow", "yellowjs" };
+	fiftyoneDegreesPropertiesRequired required;
+	required.string = NULL;
+	required.array = tests;
+	required.count = sizeof(tests) / sizeof(const char*);
+	required.existing = NULL;
+	CreateProperties(&required);
+	int yellowIndex =
+		fiftyoneDegreesPropertiesGetRequiredPropertyIndexFromName(
+			this->properties,
+			"yellow");
+	int yellowJsIndex =
+		fiftyoneDegreesPropertiesGetPropertyIndexFromName(
+			this->properties,
+			"yellowjs");
+	ASSERT_NE(-1, yellowIndex);
+	ASSERT_NE(-1, yellowJsIndex);
+
+	ASSERT_EQ(
+		1,
+		this->properties->items[yellowIndex].evidenceProperties->count);
+	ASSERT_EQ(
+		yellowJsIndex,
+		this->properties->items[yellowIndex].evidenceProperties->items[0]);
+}
+
+/**
+ * Check that no evidence properties are added to a required property
+ * which has no evidence properties.
+ */
+TEST_F(Properties, EvidenceProperties_None) {
+	const char* tests[]{ "red", "yellowjs" };
+	fiftyoneDegreesPropertiesRequired required;
+	required.string = NULL;
+	required.array = tests;
+	required.count = sizeof(tests) / sizeof(const char*);
+	required.existing = NULL;
+	CreateProperties(&required);
+	int redIndex =
+		fiftyoneDegreesPropertiesGetRequiredPropertyIndexFromName(
+			this->properties,
+			"red");
+	int yellowJsIndex =
+		fiftyoneDegreesPropertiesGetPropertyIndexFromName(
+			this->properties,
+			"yellowjs");
+	ASSERT_NE(-1, redIndex);
+	ASSERT_NE(-1, yellowJsIndex);
+
+	ASSERT_EQ(
+		0,
+		this->properties->items[redIndex].evidenceProperties->count);
+}
+
+/**
+ * Check that an evidence property for a required property
+ * is correctly set in the property's evidence property array when the
+ * evidence property is not in the required properties.
+ */
+TEST_F(Properties, EvidenceProperties_NotRequired) {
+	const char* tests[]{ "yellow" };
+	fiftyoneDegreesPropertiesRequired required;
+	required.string = NULL;
+	required.array = tests;
+	required.count = sizeof(tests) / sizeof(const char*);
+	required.existing = NULL;
+	CreateProperties(&required);
+	int yellowIndex =
+		fiftyoneDegreesPropertiesGetRequiredPropertyIndexFromName(
+			this->properties,
+			"yellow");
+	int yellowJsIndex =
+		fiftyoneDegreesPropertiesGetPropertyIndexFromName(
+			this->properties,
+			"yellowjs");
+	ASSERT_NE(-1, yellowIndex);
+	ASSERT_EQ(-1, yellowJsIndex);
+
+	ASSERT_EQ(
+		1,
+		this->properties->items[yellowIndex].evidenceProperties->count);
+	ASSERT_NE(
+		-1,
+		this->properties->items[yellowIndex].evidenceProperties->items[0]);
 }

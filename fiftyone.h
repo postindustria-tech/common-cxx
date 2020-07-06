@@ -152,6 +152,8 @@ MAP_TYPE(EvidenceKeyValuePair)
 MAP_TYPE(EvidenceKeyValuePairArray)
 MAP_TYPE(PropertyAvailable)
 MAP_TYPE(PropertiesAvailable)
+MAP_TYPE(EvidencePropertyIndex)
+MAP_TYPE(EvidenceProperties)
 MAP_TYPE(Header)
 MAP_TYPE(OverridesFilterMethod)
 MAP_TYPE(Mutex)
@@ -292,6 +294,7 @@ MAP_TYPE(ProfileIterateMethod)
 #define PropertyGetByName fiftyoneDegreesPropertyGetByName /**< Synonym for #fiftyoneDegreesPropertyGetByName function. */
 #define ComponentGetKeyValuePair fiftyoneDegreesComponentGetKeyValuePair /**< Synonym for #fiftyoneDegreesComponentGetKeyValuePair function., */
 #define PropertyGetValueType fiftyoneDegreesPropertyGetValueType /**< Synonym for #fiftyoneDegreesPropertyGetValueType function. */
+#define EvidencePropertiesGetMethod fiftyoneDegreesEvidencePropertiesGetMethod /**< Synonym for #fiftyoneDegreesEvidencePropertiesGetMethod function. */
 
 /* <-- only one asterisk to avoid inclusion in documentation
  * Shortened macros.

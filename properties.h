@@ -137,11 +137,29 @@
 #define EXTERNAL
 #endif
 
+/**
+ * Index in the properties collection to a property which is required to get
+ * evidence for another property.
+ */
+typedef uint32_t fiftyoneDegreesEvidencePropertyIndex;
+
+FIFTYONE_DEGREES_ARRAY_TYPE(fiftyoneDegreesEvidencePropertyIndex, )
+
+/**
+ * Array of properties which are required to fetch additional evidence for
+ * a specific property.
+ */
+typedef fiftyoneDegreesEvidencePropertyIndexArray fiftyoneDegreesEvidenceProperties;
+
 /** Used to access the property item quickly without the need to search. */
 typedef struct fiftyone_degrees_property_available_t {
 	uint32_t propertyIndex; /**< Index of the property in the collection of all 
 	                           properties*/
 	fiftyoneDegreesCollectionItem name; /**< Name of the property from strings */
+    fiftyoneDegreesEvidenceProperties *evidenceProperties; /**< Evidence
+                                                           properties which are
+                                                           required by this
+                                                           property */
 } fiftyoneDegreesPropertyAvailable;
 
 FIFTYONE_DEGREES_ARRAY_TYPE(fiftyoneDegreesPropertyAvailable,)
@@ -180,6 +198,24 @@ typedef fiftyoneDegreesString*(*fiftyoneDegreesPropertiesGetMethod)(
 	fiftyoneDegreesCollectionItem *item);
 
 /**
+ * Populates the evidence properties structure with the indexes of the
+ * properties required by the property provided, and returns the number
+ * of property indexes which were added. If the evidence properties structure
+ * is null, then this method returns the count but does not populate the
+ * structure.
+ * @param state pointer to data which the method may need to use
+ * @param property pointer to the property to get the evidence properties for
+ * @param evidenceProperties pointer to the pre-allocated structure to populate
+ * with the evidence property indexes
+ * @return the number of property indexes added to the structure. Or the number
+ * which would have been added were it not null
+ */
+typedef uint32_t(*fiftyoneDegreesEvidencePropertiesGetMethod)(
+    void* state,
+    fiftyoneDegreesPropertyAvailable* property,
+    fiftyoneDegreesEvidenceProperties* evidenceProperties);
+
+/**
  * The default properties required to make all possible properties available.
  * Should be used to initialise a new instance of 
  * #fiftyoneDegreesPropertiesRequired.
@@ -198,13 +234,16 @@ EXTERNAL fiftyoneDegreesPropertiesRequired fiftyoneDegreesPropertiesDefault;
  * @param state pointer to state used with the get method
  * @param getPropertyMethod method used to return the property name from a 
  * string collection
+ * @param getEvidencePropertiesMethod method used to populate the evidence
+ * properties for a property
  * @return instance of a properties result for use with future properties
  * methods
  */
 EXTERNAL fiftyoneDegreesPropertiesAvailable* fiftyoneDegreesPropertiesCreate(
 	fiftyoneDegreesPropertiesRequired *properties,
 	void *state,
-	fiftyoneDegreesPropertiesGetMethod getPropertyMethod);
+	fiftyoneDegreesPropertiesGetMethod getPropertyMethod,
+    fiftyoneDegreesEvidencePropertiesGetMethod getEvidencePropertiesMethod);
 
 /**
  * Gets the index of the property in the source data structure from the name.

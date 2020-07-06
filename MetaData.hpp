@@ -200,6 +200,17 @@ namespace FiftyoneDegrees {
 				ValueMetaData *value) = 0;
 
 			/**
+			 * Get the properties which are required to fetch extra evidence for
+			 * a specified property. If a property is not available (i.e. not set
+			 * as a required property on engine construction) this will always be
+			 * empty.
+			 * @param property to get the evidence properties for
+			 * @return evidence properties for the property
+			 */
+			virtual Collection<string, PropertyMetaData>*
+				getEvidencePropertiesForProperty(PropertyMetaData *property) = 0;
+
+			/**
 			 * @}
 			 */
 		protected:

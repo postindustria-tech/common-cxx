@@ -389,3 +389,30 @@ TEST_F(Properties, EvidenceProperties_None) {
 		0,
 		this->properties->items[redIndex].evidenceProperties->count);
 }
+
+TEST_F(Properties, EvidenceProperties_NotRequired) {
+	const char* tests[]{ "yellow" };
+	fiftyoneDegreesPropertiesRequired required;
+	required.string = NULL;
+	required.array = tests;
+	required.count = sizeof(tests) / sizeof(const char*);
+	required.existing = NULL;
+	CreateProperties(&required);
+	int yellowIndex =
+		fiftyoneDegreesPropertiesGetRequiredPropertyIndexFromName(
+			this->properties,
+			"yellow");
+	int yellowJsIndex =
+		fiftyoneDegreesPropertiesGetPropertyIndexFromName(
+			this->properties,
+			"yellowjs");
+	ASSERT_NE(-1, yellowIndex);
+	ASSERT_EQ(-1, yellowJsIndex);
+
+	ASSERT_EQ(
+		1,
+		this->properties->items[yellowIndex].evidenceProperties->count);
+	ASSERT_NE(
+		-1,
+		this->properties->items[yellowIndex].evidenceProperties->items[0]);
+}

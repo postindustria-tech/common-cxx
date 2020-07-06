@@ -70,10 +70,12 @@ static PropertiesAvailable* initRequiredPropertiesMemory(uint32_t count) {
 		available->count = 0;
 		available->capacity = count;
 		available->items = (PropertyAvailable*)(available + 1);
-		// Initialize the evidence properties to prevent them from being
-		// freed in the case that they are never allocated.
 		for (i = 0; i < available->capacity; i++) {
+			// Initialize the evidence properties to prevent them from being
+			// freed in the case that they are never allocated.
 			available->items[i].evidenceProperties = NULL;
+			// Initialize the delay execution.
+			available->items[i].delayExecution = false;
 		}
 	}
 	return available;

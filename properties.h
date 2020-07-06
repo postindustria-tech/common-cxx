@@ -160,9 +160,11 @@ typedef struct fiftyone_degrees_property_available_t {
                                                            properties which are
                                                            required by this
                                                            property */
-    bool delayExecution; /**< True if the execution of logic to get this property
-                         should be delayed. This is always initialized to false,
-                         so should be set by the calling function */
+    bool delayExecution; /**< True if the execution any JavaScript returned as
+                         a value of this property should be deleayed. False if
+                         it should be run immediately. This is always
+                         initialized to false, so should be set by the calling
+                         function */
 } fiftyoneDegreesPropertyAvailable;
 
 FIFTYONE_DEGREES_ARRAY_TYPE(fiftyoneDegreesPropertyAvailable,)

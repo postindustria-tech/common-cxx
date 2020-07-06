@@ -339,6 +339,10 @@ TEST_F(Properties, CaseInsensitiveGetIndex) {
 			"yellow"));
 }
 
+/**
+ * Check that an evidence property for a required property
+ * is correctly set in the property's evidence property array.
+ */
 TEST_F(Properties, EvidenceProperties) {
 	const char* tests[]{ "yellow", "yellowjs" };
 	fiftyoneDegreesPropertiesRequired required;
@@ -366,6 +370,10 @@ TEST_F(Properties, EvidenceProperties) {
 		this->properties->items[yellowIndex].evidenceProperties->items[0]);
 }
 
+/**
+ * Check that no evidence properties are added to a required property
+ * which has no evidence properties.
+ */
 TEST_F(Properties, EvidenceProperties_None) {
 	const char* tests[]{ "red", "yellowjs" };
 	fiftyoneDegreesPropertiesRequired required;
@@ -390,6 +398,11 @@ TEST_F(Properties, EvidenceProperties_None) {
 		this->properties->items[redIndex].evidenceProperties->count);
 }
 
+/**
+ * Check that an evidence property for a required property
+ * is correctly set in the property's evidence property array when the
+ * evidence property is not in the required properties.
+ */
 TEST_F(Properties, EvidenceProperties_NotRequired) {
 	const char* tests[]{ "yellow" };
 	fiftyoneDegreesPropertiesRequired required;

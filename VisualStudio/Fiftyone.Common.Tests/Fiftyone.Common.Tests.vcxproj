@@ -56,6 +56,7 @@
     <ClCompile Include="..\..\tests\ExampleTests.cpp" />
     <ClCompile Include="..\..\tests\FileHandle.cpp" />
     <ClCompile Include="..\..\tests\FileTests.cpp" />
+    <ClCompile Include="..\..\tests\FloatTests.cpp" />
     <ClCompile Include="..\..\tests\HeadersTests.cpp" />
     <ClCompile Include="..\..\tests\IpHeaderParserTests.cpp" />
     <ClCompile Include="..\..\tests\IpParserTests.cpp" />

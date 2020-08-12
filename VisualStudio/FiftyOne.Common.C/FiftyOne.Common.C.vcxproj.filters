@@ -102,6 +102,9 @@
     <ClInclude Include="..\..\evidence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\float.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\cache.c">
@@ -177,6 +180,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\evidence.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\float.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

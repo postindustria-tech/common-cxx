@@ -63,6 +63,7 @@
     <ClInclude Include="..\..\exceptions.h" />
     <ClInclude Include="..\..\fiftyone.h" />
     <ClInclude Include="..\..\file.h" />
+    <ClInclude Include="..\..\float.h" />
     <ClInclude Include="..\..\headers.h" />
     <ClInclude Include="..\..\ip.h" />
     <ClInclude Include="..\..\list.h" />
@@ -90,6 +91,7 @@
     <ClCompile Include="..\..\evidence.c" />
     <ClCompile Include="..\..\exceptionsc.c" />
     <ClCompile Include="..\..\file.c" />
+    <ClCompile Include="..\..\float.c" />
     <ClCompile Include="..\..\headers.c" />
     <ClCompile Include="..\..\ip.c" />
     <ClCompile Include="..\..\list.c" />

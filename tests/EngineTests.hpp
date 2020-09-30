@@ -39,6 +39,9 @@
 #define ENGINE_CONFIG(e,c) fiftyoneDegreesConfig##e \
 *ENGINE_CLASS_NAME_CONFIG_POINTER(e,c) = &ENGINE_CLASS_NAME_CONFIG_SOURCE(e,c);
 
+#define EXTERN_ENGINE_CONFIG(e,c) extern fiftyoneDegreesConfig##e \
+*ENGINE_CLASS_NAME_CONFIG_POINTER(e,c);
+
 #define PROPERTY_SAMPLE_SIZE 10
 #define PROFILE_SAMPLE_SIZE 10
 #define VALUE_SAMPLE_SIZE 10
@@ -71,8 +74,8 @@ protected:
 	const char** fileNames;
 	int fileNamesLength;
 	char fullName[FIFTYONE_DEGREES_FILE_MAX_PATH];
-	void validateIndex(ResultsBase *results, int index);
-	void validateName(ResultsBase *results, string *name);
+	virtual void validateIndex(ResultsBase *results, int index);
+	virtual void validateName(ResultsBase *results, string *name);
 	void validateByBoth(ResultsBase *results);
 	void validateByIndex(ResultsBase *results);
 	virtual void validateByName(ResultsBase *results);
@@ -81,6 +84,9 @@ protected:
 	bool isNameAvailable(ResultsBase *results, string *name);
 	bool isNameJavaScript(string *name);
 	void verifyMetaData(EngineBase *engine);
+	virtual void verifyComponentMetaDataDefaultProfile(
+		MetaData *metaData,
+		ComponentMetaData *component);
 	virtual void verifyComponentMetaData(MetaData *metaData);
 	virtual void verifyPropertyMetaData(MetaData *metaData);
 	virtual void verifyProfileMetaData(MetaData *metaData);

@@ -163,7 +163,7 @@ EXTERNAL int fiftyoneDegreesFloatIsEqual(fiftyoneDegreesFloatInternal f1, fiftyo
  * the IEEE single precision standard is supported, default the type
  * to the native float type.
  */
-#if (FLT_RADIX == 2 && FLT_MANT_DIG == 24 && FLT_MAX_EXP == 128 && FLT_MIN_EXP == -125)
+#if _MSC_VER || (FLT_RADIX == 2 && FLT_MANT_DIG == 24 && FLT_MAX_EXP == 128 && FLT_MIN_EXP == -125)
 /**
  * Define 51Degrees float implementation as native float.
  */

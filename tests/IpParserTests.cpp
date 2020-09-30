@@ -24,9 +24,9 @@
 #include "../ip.h"
 
 
-bool CheckResult(byte* result, byte* expected) {
+bool CheckResult(byte* result, byte* expected, uint16_t size) {
 	bool match = true;
-	for (int i = 0; i < (int)sizeof(expected); i++) {
+	for (uint16_t i = 0; i < size; i++) {
 		match = match && *result == *expected;
 		result++;
 		expected++;
@@ -98,6 +98,30 @@ bool CheckResult(byte* result, byte* expected) {
 //	EXPECT_TRUE(CheckResult(result, expected),
 //		L"Expected result to be '0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255'");
 //}
+TEST(ParseIp, ParseIp_Ipv6_AbbreviatedStart)
+{
+	const char *ipv6AbbreviatedStart = "::FFFF:FFFF:FFFF:FFFF";
+	byte expected[FIFTYONE_DEGREES_IPV6_LENGTH] = 
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255 };
+
+	fiftyoneDegreesEvidenceIpAddress* result = 
+		fiftyoneDegreesIpParseAddress(
+			malloc,
+			ipv6AbbreviatedStart,
+			ipv6AbbreviatedStart + strlen(ipv6AbbreviatedStart));
+
+	EXPECT_TRUE(result != NULL) << "Abbreviated start IPv6 address "
+		"should be successfull parsed, where the address is " <<
+		ipv6AbbreviatedStart << ".";
+
+	EXPECT_TRUE(result->type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) <<
+		"IP address version was not identified correctly where where the " <<
+		"IP address is " << ipv6AbbreviatedStart << ".";
+
+	EXPECT_TRUE(
+		CheckResult(result->address, expected, FIFTYONE_DEGREES_IPV6_LENGTH)) << 
+		"The value of the abbreivated start IPv6 address is not correctly parsed.";
+}
 //TEST(ParseIp, ParseIp_Ipv6_AbbreviatedMiddle)
 //{
 //	byte* result = fiftyoneDegreesParseIp("FFFF:FFFF::FFFF:FFFF");
@@ -135,6 +159,31 @@ bool CheckResult(byte* result, byte* expected) {
 //	byte* result = fiftyoneDegreesParseIp("256.256.256.256");
 //	Assert::IsNull(result);
 //}
+TEST(ParseIp, ParseIp_Invalid_ipv4OutOfRange)
+{
+	const char *ipv4OutOfRange = "256.256.256.256";
+	byte expected[FIFTYONE_DEGREES_IPV4_LENGTH] = 
+		{255, 255, 255, 255};
+
+	fiftyoneDegreesEvidenceIpAddress* result = 
+		fiftyoneDegreesIpParseAddress(
+			malloc,
+			ipv4OutOfRange,
+			ipv4OutOfRange + strlen(ipv4OutOfRange));
+
+	EXPECT_TRUE(result != NULL) << "Out of range IPv4 address "
+		"should be successfull parsed, where the address is " <<
+		ipv4OutOfRange << ".";
+
+	EXPECT_TRUE(result->type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) <<
+		"IP address version was not identified correctly where where the " <<
+		"IP address is " << ipv4OutOfRange << ".";
+
+	EXPECT_TRUE(
+		CheckResult(result->address, expected, FIFTYONE_DEGREES_IPV4_LENGTH)) <<
+		"The value of the out of range IPv4 address is not correctly restricted "
+		"at 255.";
+}
 //TEST(ParseIp, ParseIp_Invalid_ipv4TooMany)
 //{
 //	byte* result = fiftyoneDegreesParseIp("1.2.3.4.5");

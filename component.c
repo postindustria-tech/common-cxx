@@ -26,7 +26,7 @@
 
 static uint32_t getFinalSize(void *initial) {
 	Component *component = (Component*)initial;
-	size_t trailing = (component->keyValuesCount - 1) * sizeof(fiftyoneDegreesComponentKeyValuePair);
+	int32_t trailing = (component->keyValuesCount - 1) * sizeof(fiftyoneDegreesComponentKeyValuePair);
 	return (uint32_t)(sizeof(Component) + trailing);
 }
 
@@ -88,7 +88,7 @@ void* fiftyoneDegreesComponentReadFromFile(
 		data,
 		offset,
 		&component,
-		sizeof(Component),
+		sizeof(Component) - sizeof(fiftyoneDegreesComponentKeyValuePair),
 		getFinalSize,
 		exception);
 }

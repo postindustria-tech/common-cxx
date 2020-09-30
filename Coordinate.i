@@ -1,6 +1,6 @@
 /* *********************************************************************
  * This Original Work is copyright of 51 Degrees Mobile Experts Limited.
- * Copyright 2019 51 Degrees Mobile Experts Limited, 5 Charlotte Close,
+ * Copyright 2020 51 Degrees Mobile Experts Limited, 5 Charlotte Close,
  * Caversham, Reading, Berkshire, United Kingdom RG4 7BY.
  *
  * This Original Work is licensed under the European Union Public Licence (EUPL) 
@@ -20,14 +20,9 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-%typemap(csclassmodifiers) SWIGTYPE "internal class"
+%rename (CoordinateSwig) fiftyone_degrees_ipi_coordinate_t;
 
-/* Byte Array Mapping */
-%include "arrays_csharp.i"
-%typemap(ctype) (unsigned char *UCHAR) "unsigned char*"
-%typemap(imtype) (unsigned char *UCHAR) "byte[]"
-%typemap(cstype) (unsigned char *UCHAR) "byte[]"
-%typemap(csin) (unsigned char *UCHAR) "$csinput"
-%apply unsigned char *UCHAR {unsigned char data[]}
-%apply unsigned char *UCHAR {unsigned char ipAddress[]}
-%apply unsigned char *UCHAR {unsigned char copy[]}
+typedef struct fiftyone_degrees_ipi_coordinate_t {
+	float lat;
+	float lon;
+} fiftyoneDegreesCoordinate;

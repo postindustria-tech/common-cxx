@@ -1,6 +1,6 @@
 /* *********************************************************************
  * This Original Work is copyright of 51 Degrees Mobile Experts Limited.
- * Copyright 2019 51 Degrees Mobile Experts Limited, 5 Charlotte Close,
+ * Copyright 2020 51 Degrees Mobile Experts Limited, 5 Charlotte Close,
  * Caversham, Reading, Berkshire, United Kingdom RG4 7BY.
  *
  * This Original Work is licensed under the European Union Public Licence (EUPL) 
@@ -20,14 +20,22 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-%typemap(csclassmodifiers) SWIGTYPE "internal class"
+#include "float.h"
+#include "string.h"
+#include "status.h"
+#include "coordinate.h"
 
-/* Byte Array Mapping */
-%include "arrays_csharp.i"
-%typemap(ctype) (unsigned char *UCHAR) "unsigned char*"
-%typemap(imtype) (unsigned char *UCHAR) "byte[]"
-%typemap(cstype) (unsigned char *UCHAR) "byte[]"
-%typemap(csin) (unsigned char *UCHAR) "$csinput"
-%apply unsigned char *UCHAR {unsigned char data[]}
-%apply unsigned char *UCHAR {unsigned char ipAddress[]}
-%apply unsigned char *UCHAR {unsigned char copy[]}
+fiftyoneDegreesCoordinate fiftyoneDegreesIpiGetCoordinate(
+	fiftyoneDegreesCollectionItem *item,
+	fiftyoneDegreesException *exception) {
+	fiftyoneDegreesString *value = (fiftyoneDegreesString *)item->data.ptr;
+	fiftyoneDegreesCoordinate coordinate = { 0, 0 };
+	if (value->value == FIFTYONE_DEGREES_STRING_COORDINATE) {
+		coordinate.lat = FIFTYONE_DEGREES_FLOAT_TO_NATIVE(value->trail.coordinate.lat);
+		coordinate.lon = FIFTYONE_DEGREES_FLOAT_TO_NATIVE(value->trail.coordinate.lon);
+	}
+	else {
+		FIFTYONE_DEGREES_EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+	}
+	return coordinate;
+}

@@ -56,6 +56,7 @@
     <ClInclude Include="..\..\collection.h" />
     <ClInclude Include="..\..\component.h" />
     <ClInclude Include="..\..\config.h" />
+    <ClInclude Include="..\..\coordinate.h" />
     <ClInclude Include="..\..\data.h" />
     <ClInclude Include="..\..\dataset.h" />
     <ClInclude Include="..\..\date.h" />
@@ -86,6 +87,7 @@
     <ClCompile Include="..\..\cache.c" />
     <ClCompile Include="..\..\collection.c" />
     <ClCompile Include="..\..\component.c" />
+    <ClCompile Include="..\..\coordinate.c" />
     <ClCompile Include="..\..\data.c" />
     <ClCompile Include="..\..\dataset.c" />
     <ClCompile Include="..\..\evidence.c" />

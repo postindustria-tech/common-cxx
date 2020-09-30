@@ -370,6 +370,7 @@ typedef void* (*fiftyoneDegreesCollectionFileRead)(
 typedef int(*fiftyoneDegreesCollectionItemComparer)(
 	void *state,
 	fiftyoneDegreesCollectionItem *item,
+	long curIndex,
 	fiftyoneDegreesException *exception);
 
 /**

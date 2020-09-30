@@ -89,6 +89,7 @@ public:
 	static int itemComparerInt(
 		void *state,
 		fiftyoneDegreesCollectionItem *item,
+		long curIndex,
 		fiftyoneDegreesException *exception) {
 		return *((int*)item->data.ptr) - *(int*)state;
 	}
@@ -122,6 +123,7 @@ public:
 	static int itemComparerString(
 		void *state,
 		fiftyoneDegreesCollectionItem *item,
+		long curIndex,
 		fiftyoneDegreesException *exception) {
 		const char *itemString = FIFTYONE_DEGREES_STRING(item->data.ptr);
 		const char *targetString = (const char *)state;

@@ -49,6 +49,16 @@
 #endif
 
 /**
+ * The number of bytes in an Ipv4 Address
+ */
+#define FIFTYONE_DEGREES_IPV4_LENGTH 4
+
+/**
+ * The number of bytes in an Ipv6 Address
+ */
+#define FIFTYONE_DEGREES_IPV6_LENGTH 16
+
+/**
  * Enum indicating the type of IP address.
  */
 typedef enum e_fiftyone_degrees_evidence_ip_type {

@@ -67,12 +67,25 @@
 #include <ctype.h>
 #include "exceptions.h"
 #include "collection.h"
+#include "float.h"
 
 #ifdef __cplusplus
 #define EXTERNAL extern "C"
 #else
 #define EXTERNAL
 #endif
+
+/**
+ * Enumeration to indicate what format is held in a string item
+ * These are the values that can be held at the first byte of
+ * the #fiftyoneDegreeString value.
+ */
+typedef enum fiftyone_degrees_string_format {
+	FIFTYONE_DEGREES_STRING_COORDINATE = 1, /**< Format is a pair of floats for latitude
+											and longitude values*/
+	FIFTYONE_DEGREES_STRING_IP_ADDRESS /**< Format is a byte array representation of an
+									   IP address*/
+} fiftyoneDegreesStringFormat;
 
 /**
  * Macro used to check for NULL before returning the string as a const char *.
@@ -82,11 +95,32 @@
 #define FIFTYONE_DEGREES_STRING(s) \
 	(const char*)(s == NULL ? NULL : &((fiftyoneDegreesString*)s)->value)
 
+/**
+ * Macro used to check for NULL before returning the IP address byte array 
+ * as a const char *.
+ * @param s pointer to the #fiftyoneDegreesString
+ * @return const char * string or NULL. NULL if the pointer is NULL or
+ * the type stored at the pointer is not an IP address
+ */
+#define FIFTYONE_DEGREES_IP_ADDRESS(s) \
+	(const char*)(s == NULL \
+		|| ((fiftyoneDegreesString*)s)->value \
+			!= FIFTYONE_DEGREES_STRING_IP_ADDRESS ? \
+		NULL : \
+		&((fiftyoneDegreesString*)s)->trail.secondValue)
+
 /** String structure containing its value and size. */
-#pragma pack(push, 2)
+#pragma pack(push, 1)
 typedef struct fiftyone_degrees_string_t {
 	int16_t size; /**< Size of the string in memory */
 	char value; /**< The first character of the string */
+	union {
+		char secondValue; /**< If the string is an IP address, this will be the start byte */
+		struct {
+			fiftyoneDegreesFloat lat;
+			fiftyoneDegreesFloat lon;
+		} coordinate; /**< If the string is a coordinate, this will hold the value */
+	} trail;
 } fiftyoneDegreesString;
 #pragma pack(pop)
 
@@ -143,7 +177,16 @@ EXTERNAL int fiftyoneDegreesStringCompareLength(
  * @param b other string to compare
  * @return 0 if same
  */
-EXTERNAL int fiftyoneDegreesStringCompare(char *a, char *b);
+EXTERNAL int fiftyoneDegreesStringCompare(const char *a, const char *b);
+
+/**
+ * Case insensitively searching a first occurence of a
+ * substring.
+ * @param a string to search
+ * @param b substring to be searched for
+ * @return pointer to the first occurence or NULL if not found
+ */
+EXTERNAL char *fiftyoneDegreesStringSubString(const char *a, const char *b);
 
 /**
  * @}

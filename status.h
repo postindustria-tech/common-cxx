@@ -132,7 +132,9 @@ typedef enum e_fiftyone_degrees_status_code {
 	FIFTYONE_DEGREES_STATUS_COLLECTION_OFFSET_OUT_OF_RANGE, /**< Offset out of
 															range */
 	FIFTYONE_DEGREES_STATUS_COLLECTION_FILE_SEEK_FAIL, /**< Seek failure */
-	FIFTYONE_DEGREES_STATUS_COLLECTION_FILE_READ_FAIL /**< Read failure */
+	FIFTYONE_DEGREES_STATUS_COLLECTION_FILE_READ_FAIL, /**< Read failure */
+	FIFTYONE_DEGREES_STATUS_INCORRECT_IP_ADDRESS_FORMAT /**< IP address 
+														format is incorrect */
 } fiftyoneDegreesStatusCode;
 
 /**

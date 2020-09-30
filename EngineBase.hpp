@@ -293,7 +293,7 @@ namespace FiftyoneDegrees {
 			 * available.
 			 * @param uniqueHeaders to get the keys from
 			 */
-			void initHttpHeaderKeys(fiftyoneDegreesHeaders *uniqueHeaders);
+			virtual void initHttpHeaderKeys(fiftyoneDegreesHeaders *uniqueHeaders);
 
 			/**
 			 * Initialise the override keys which are used by this engine.

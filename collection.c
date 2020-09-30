@@ -1183,7 +1183,7 @@ long fiftyoneDegreesCollectionBinarySearch(
 		
 		// Perform the binary search using the comparer provided with the item
 		// just returned.
-		comparisonResult = comparer(state, item, exception);
+		comparisonResult = comparer(state, item, middle, exception);
 		if (EXCEPTION_OKAY == false) {
 			return 0;
 		}

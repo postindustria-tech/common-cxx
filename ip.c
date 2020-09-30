@@ -38,7 +38,7 @@ static void callbackIpAddressCount(
 	EvidenceIpType type,
 	const char *start,
 	const char *end) {
-	if (start < end) {
+	if (start <= end) {
 		if (type != FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID) {
 			(*(int*)state)++;
 			if (type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) {
@@ -46,6 +46,24 @@ static void callbackIpAddressCount(
 			}
 		}
 	}
+}
+
+/*
+ * Make sure each byte in the Ipv4 or Ipv6 address
+ * stays within the bound 0,255
+ * @parsedValue The value parsed from string
+ * @return the adjusted value
+ * if the value is out of the range then return
+ * the closest boundary value (0 or 255)
+ */
+static byte getIpByte(int parsedValue) {
+	if (parsedValue < 0) {
+		parsedValue = 0;
+	}
+	else if (parsedValue > UINT8_MAX) {
+		parsedValue = UINT8_MAX;
+	}
+	return (byte)parsedValue;
 }
 
 static void parseIpV6Segment(
@@ -72,9 +90,9 @@ static void parseIpV6Segment(
 			if (i < 2) second[1 - i] = val;
 			else first[3 - i] = val;
 		}
-		*address->current = (byte)strtol(first, NULL, 16);
+		*address->current = getIpByte((int)strtol(first, NULL, 16));
 		address->current++;
-		*address->current = (byte)strtol(second, NULL, 16);
+		*address->current = getIpByte((int)strtol(second, NULL, 16));
 		address->current++;
 	}
 }
@@ -86,7 +104,7 @@ static void callbackIpAddressBuild(
 	const char *end) {
 	EvidenceIpAddress *address = (EvidenceIpAddress*)state;
 	if (type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) {
-		*address->current = (byte)atoi(start);
+		*address->current = getIpByte(atoi(start));
 		address->current++;
 	}
 	else if (type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) {
@@ -126,7 +144,10 @@ static EvidenceIpType iterateIpAddress(
 			if (type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID) {
 				type = getIpTypeFromSeparator(*current);
 			}
-			foundSegment(state, type, nextSegment, current - 1);
+			// Check if it is leading abbreviation
+			if (current - 1 >= start) {
+				foundSegment(state, type, nextSegment, current - 1);
+			}
 			nextSegment = current + 1;
 		}
 		current++;
@@ -184,6 +205,7 @@ fiftyoneDegreesEvidenceIpAddress* fiftyoneDegreesIpParseAddress(
 		// Set the next byte to be added during the parse operation.
 		address->current = (byte*)(address + 1);
 		address->bytesPresent = (byte)count;
+		address->type = type;
 		// Add the bytes from the source value and get the type of address.
 		iterateIpAddress(
 			start,

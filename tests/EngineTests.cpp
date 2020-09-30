@@ -283,6 +283,23 @@ void EngineTests::verifyWithEvidence(EvidenceBase *evidence) {
 	delete results;
 }
 
+void EngineTests::verifyComponentMetaDataDefaultProfile(
+	MetaData *metaData, 
+	ComponentMetaData *component) {
+	ProfileMetaData *defaultProfile =
+		metaData->getDefaultProfileForComponent(component);
+	ComponentMetaData *otherComponent =
+		metaData->getComponentForProfile(defaultProfile);
+	ASSERT_EQ(*component, *otherComponent) <<
+		L"The component and its default profile are not linked." <<
+		L"\nComponent Id = " << (int)component->getComponentId() <<
+		L"\nOther Component Id = " << (int)otherComponent->getComponentId() <<
+		L"\nProfile Id = " << defaultProfile->getProfileId();
+
+	delete otherComponent;
+	delete defaultProfile;
+}
+
 void EngineTests::verifyComponentMetaData(MetaData *metaData) {
 	Collection<byte, ComponentMetaData> *components =
 		metaData->getComponents();
@@ -302,16 +319,7 @@ void EngineTests::verifyComponentMetaData(MetaData *metaData) {
 		ASSERT_NE(component, otherComponent) <<
 			L"The component should be a unique instance.";
 		delete otherComponent;
-		defaultProfile = metaData->getDefaultProfileForComponent(component);
-		otherComponent = metaData->getComponentForProfile(defaultProfile);
-		ASSERT_EQ(*component, *otherComponent) <<
-			L"The component and its default profile are not linked." <<
-			L"\nComponent Id = " << (int)component->getComponentId() <<
-			L"\nOther Component Id = " << (int)otherComponent->getComponentId() <<
-			L"\nProfile Id = " << defaultProfile->getProfileId();
-
-			delete otherComponent;
-		delete defaultProfile;
+		verifyComponentMetaDataDefaultProfile(metaData, component);
 		properties = metaData->getPropertiesForComponent(component);
 		for (propertyIndex = 0;
 			propertyIndex < properties->getSize();
@@ -344,7 +352,10 @@ void EngineTests::verifyPropertyMetaData(MetaData *metaData) {
 	uint32_t propertyIndex, valueIndex, componentPropertyIndex;
 	for (propertyIndex = 0;
 		propertyIndex < properties->getSize();
-		propertyIndex += properties->getSize() / PROPERTY_SAMPLE_SIZE) {
+		propertyIndex += 
+			properties->getSize() > PROPERTY_SAMPLE_SIZE ?
+			properties->getSize() / PROPERTY_SAMPLE_SIZE :
+			1) {
 		property = properties->getByIndex(propertyIndex);
 		value = metaData->getDefaultValueForProperty(property);
 		if (value != nullptr) {
@@ -405,7 +416,10 @@ void EngineTests::verifyProfileMetaData(MetaData *metaData) {
 	uint32_t profileIndex, valueIndex;
 	for (profileIndex = 0;
 		profileIndex < profiles->getSize();
-		profileIndex += profiles->getSize() / PROFILE_SAMPLE_SIZE) {
+		profileIndex +=
+			profiles->getSize() > PROFILE_SAMPLE_SIZE ?
+			profiles->getSize() / PROFILE_SAMPLE_SIZE :
+			1) {
 		profile = profiles->getByIndex(profileIndex);
 		component = metaData->getComponentForProfile(profile);
 		ASSERT_NE(nullptr, component) <<
@@ -443,7 +457,10 @@ void EngineTests::verifyValueMetaData(MetaData *metaData) {
 	uint32_t valueIndex, propertyValueIndex;
 	for (valueIndex = 0;
 		valueIndex < values->getSize();
-		valueIndex += values->getSize() / VALUE_SAMPLE_SIZE) {
+		valueIndex += 
+			values->getSize() > VALUE_SAMPLE_SIZE ?
+			values->getSize() / VALUE_SAMPLE_SIZE :
+			1) {
 		value = values->getByIndex(valueIndex);
 		bool found = false;
 		property = metaData->getPropertyForValue(value);

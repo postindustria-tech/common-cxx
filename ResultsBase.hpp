@@ -230,7 +230,7 @@ namespace FiftyoneDegrees {
 			 * @return a string representation of the value for the property or
 			 * an empty string
 			 */
-			Value<string> getValueAsString(int requiredPropertyIndex);
+			virtual Value<string> getValueAsString(int requiredPropertyIndex);
 
 			/**
 			 * Get a boolean representation of the value associated with the
@@ -266,7 +266,7 @@ namespace FiftyoneDegrees {
 			 * @param requiredPropertyIndex in the required properties
 			 * @return a boolean representation of the value for the property
 			 */
-			Value<bool> getValueAsBool(int requiredPropertyIndex);
+			virtual Value<bool> getValueAsBool(int requiredPropertyIndex);
 
 			/**
 			 * Get an integer representation of the value associated with the
@@ -306,7 +306,7 @@ namespace FiftyoneDegrees {
 			 * @param requiredPropertyIndex in the required properties
 			 * @return an integer representation of the value for the property
 			 */
-			Value<int> getValueAsInteger(int requiredPropertyIndex);
+			virtual Value<int> getValueAsInteger(int requiredPropertyIndex);
 
 			/**
 			 * Get a double representation of the value associated with the
@@ -346,7 +346,7 @@ namespace FiftyoneDegrees {
 			 * @param requiredPropertyIndex in the required properties
 			 * @return a double representation of the value for the property
 			 */
-			Value<double> getValueAsDouble(int requiredPropertyIndex);
+			virtual Value<double> getValueAsDouble(int requiredPropertyIndex);
 
 			/**
 			 * @}

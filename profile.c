@@ -50,6 +50,7 @@ static Profile* getProfileByOffset(
 static int compareProfileId(
 	void *profileId, 
 	Item *item,
+	long curIndex,
 	Exception *exception) {
 	return ((ProfileOffset*)item->data.ptr)->profileId - *(uint32_t*)profileId;
 }

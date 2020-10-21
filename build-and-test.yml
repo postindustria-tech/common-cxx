@@ -62,9 +62,11 @@ stages:
         buildConfiguration: '$(BuildConfiguration)'
 
 - stage: Mac
+  dependsOn: []
   jobs:
   - template: ci/job-mac-test.yml
         
 - stage: Linux
+  dependsOn: []
   jobs:
   - template: ci/job-linux-test.yml

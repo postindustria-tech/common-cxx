@@ -1,0 +1,35 @@
+parameters:
+- name: buildPlatform
+- name: buildConfiguration
+
+steps:
+- checkout: self
+  lfs: true
+
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    restoreSolution: 'VisualStudio/DeviceDetection.sln'
+    feedsToUse: 'select'
+    vstsFeed: 'd2431f86-c1e6-4d8b-8d27-311cf3614847'
+
+- task: MSBuild@1
+  displayName: 'Build Visual Studio Solution'
+  inputs:
+    solution: 'VisualStudio/DeviceDetection.sln'
+    msbuildArchitecture: x64
+    platform: '${{ parameters.buildPlatform }}'
+    configuration: '${{ parameters.buildConfiguration }}'
+    clean: true
+
+- bash: './FiftyOne.Common.Tests.exe --gtest_catch_exceptions=1 --gtest_break_on_failure=0 --gtest_output=xml:testoutput.xml'
+  workingDirectory: 'VisualStudio/${{ parameters.buildPlatform }}/${{ parameters.buildConfiguration }}'
+  failOnStderr: true
+  displayName: 'Run Tests'
+
+- task: PublishTestResults@2
+  condition: true
+  inputs:
+    testResultsFormat: 'JUnit'
+    testRunTitle: 'Visual Studio ${{ parameters.buildPlatform }} ${{ parameters.buildConfiguration }}'
+    testResultsFiles: 'VisualStudio\${{ parameters.buildPlatform }}\${{ parameters.buildConfiguration }}\testoutput.xml'

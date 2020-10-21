@@ -18,10 +18,28 @@ stages:
 
   jobs:
   - job: Build_And_Test_VisualStudio
+    strategy:
+      maxParallel: 1
+      matrix:
+        debug x86:
+          BuildConfiguration: Debug
+          BuildPlatform: x86
+        release x86:
+          BuildConfiguration: Release 
+          BuildPlatform: x86
+        debug x64:
+          BuildConfiguration: Debug
+          BuildPlatform: x64
+        release x64:
+          BuildConfiguration: Release  
+          BuildPlatform: x64  
+    steps:
+    - template: ci/steps-windows-test-vs.yml
+      parameters:
+        buildPlatform: '$(BuildPlatform)'
+        buildConfiguration: '$(BuildConfiguration)'
 
-    # Configure this to run for both Debug and Release configurations
-    # We only run one configuration at once as each one takes ages
-    # and we don't want to block tasks for other repos.
+  - job: Build_And_Test_CMake  
     strategy:
       maxParallel: 1
       matrix:
@@ -37,178 +55,16 @@ stages:
         release x64:
           BuildConfiguration: Release  
           BuildPlatform: x64   
-          
     steps:
-
-    - checkout: self
-      persistCredentials: true
-
-    - task: NuGetCommand@2
-      inputs:
-        command: 'restore'
-        restoreSolution: 'VisualStudio/FiftyOne.Common.sln'
-        feedsToUse: 'select'
-        vstsFeed: 'd2431f86-c1e6-4d8b-8d27-311cf3614847'
-
-    - task: MSBuild@1
-      displayName: 'Build Visual Studio Solution'
-      inputs:
-        solution: 'VisualStudio/FiftyOne.Common.sln'
-        msbuildArchitecture: x64
-        platform: '$(BuildPlatform)'
-        configuration: '$(BuildConfiguration)'
-        clean: true
-
-    - bash: './FiftyOne.Common.Tests.exe --gtest_catch_exceptions=1 --gtest_break_on_failure=0 --gtest_output=xml:testoutput.xml'
-      workingDirectory: 'VisualStudio/$(BuildPlatform)/$(BuildConfiguration)'
-      failOnStderr: true
-      displayName: 'Run Tests'
-
-    - task: PublishTestResults@2
-      condition: true
-      inputs:
-        testResultsFormat: 'JUnit'
-        testRunTitle: 'Visual Studio $(BuildPlatform) $(BuildConfiguration)'
-        testResultsFiles: 'VisualStudio\x64\$(BuildConfiguration)\testoutput.xml'
-
-  - job: Build_And_Test
-  
-    strategy:
-      maxParallel: 1
-      matrix:
-        debug x86:
-          BuildConfiguration: Debug
-          BuildPlatform: x86
-        release x86:
-          BuildConfiguration: Release 
-          BuildPlatform: x86
-        debug x64:
-          BuildConfiguration: Debug
-          BuildPlatform: x64
-        release x64:
-          BuildConfiguration: Release  
-          BuildPlatform: x64   
-
-    steps:
-
-    - checkout: self
-      submodules: recursive
-      lfs: true
-
-    - task: Bash@3
-      displayName: 'Create Build Directory'
-      inputs:
-        targetType: 'inline'
-        script: 'mkdir build'
-
-
-    - task: CMake@1
-      displayName: 'CMake Configure'
-      inputs:
-        workingDirectory: build
-        cmakeArgs: '.. -A $(BuildPlatform)'
-
-    - task: CMake@1
-      displayName: 'CMake Build'
-      inputs:
-        workingDirectory: build
-        cmakeArgs: '--build . --config $(BuildConfiguration)'
-
-    - bash: 'ctest -T test --no-compress-output'
-      workingDirectory: build
-      failOnStderr: true
-      displayName: 'Run Tests'
-
-    - task: PublishTestResults@2
-      condition: true
-      inputs:
-        testResultsFormat: 'CTest'
-        testRunTitle: 'Windows CTest $(BuildPlatform) $(BuildConfiguration)'
-        testResultsFiles: '**/Test.xml'
+    - template: ci/steps-windows-test-cmake.yml
+      parameters:
+        buildPlatform: '$(BuildPlatform)'
+        buildConfiguration: '$(BuildConfiguration)'
 
 - stage: Mac
-  dependsOn: []
   jobs:
-  - job: Build_And_Test
-    pool:
-      name: Azure Pipelines
-      vmImage: 'macOS-10.14'
-
-    steps:
-
-    - checkout: self
-      submodules: recursive
-      lfs: true
-
-    - task: Bash@3
-      displayName: 'Create Build Directory'
-      inputs:
-        targetType: 'inline'
-        script: 'mkdir build'
-
-    - task: CMake@1
-      displayName: 'CMake Configure'
-      inputs:
-        workingDirectory: build
-        cmakeArgs: '..'
-
-    - task: CMake@1
-      displayName: 'CMake Build'
-      inputs:
-        workingDirectory: build
-        cmakeArgs: '--build .'
-
-    - bash: 'ctest -T test --no-compress-output'
-      workingDirectory: build
-      failOnStderr: true
-      displayName: 'Run Tests'
-
-    - task: PublishTestResults@2
-      condition: true
-      inputs:
-        testResultsFormat: 'CTest'
-        testRunTitle: 'Mac CTest'
-        testResultsFiles: '**/Test.xml'
+  - template: ci/job-mac-test.yml
         
 - stage: Linux
-  dependsOn: []
   jobs:
-  - job: Build_And_Test
-    pool:
-      name: Hosted Ubuntu 1604
-
-    steps:
-
-    - checkout: self
-      submodules: recursive
-      lfs: true
-
-    - task: Bash@3
-      displayName: 'Create Build Directory'
-      inputs:
-        targetType: 'inline'
-        script: 'mkdir build'
-
-    - task: CMake@1
-      displayName: 'CMake Configure'
-      inputs:
-        workingDirectory: build
-        cmakeArgs: '..'
-
-    - task: CMake@1
-      displayName: 'CMake Build'
-      inputs:
-        workingDirectory: build
-        cmakeArgs: '--build .'
-
-    - bash: 'ctest -T test --no-compress-output'
-      workingDirectory: build
-      failOnStderr: true
-      displayName: 'Run Tests'
-
-    - task: PublishTestResults@2
-      condition: true
-      inputs:
-        testResultsFormat: 'CTest'
-        testRunTitle: 'Linux CTest'
-        testResultsFiles: '**/Test.xml'
+  - template: ci/job-linux-test.yml

@@ -9,14 +9,14 @@ steps:
 - task: NuGetCommand@2
   inputs:
     command: 'restore'
-    restoreSolution: 'VisualStudio/DeviceDetection.sln'
+    restoreSolution: 'VisualStudio/FiftyOne.Common.sln'
     feedsToUse: 'select'
     vstsFeed: 'd2431f86-c1e6-4d8b-8d27-311cf3614847'
 
 - task: MSBuild@1
   displayName: 'Build Visual Studio Solution'
   inputs:
-    solution: 'VisualStudio/DeviceDetection.sln'
+    solution: 'VisualStudio/FiftyOne.Common.sln'
     msbuildArchitecture: x64
     platform: '${{ parameters.buildPlatform }}'
     configuration: '${{ parameters.buildConfiguration }}'

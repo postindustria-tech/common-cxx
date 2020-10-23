@@ -67,9 +67,22 @@ stages:
 - stage: Mac
   dependsOn: []
   jobs:
-  - template: ci/job-mac-test.yml
+  - job: Build_And_Test_Mac
+    pool:
+      name: Azure Pipelines
+      vmImage: 'macOS-10.14'
+    steps:
+    - template: ci/steps-test-cmake.yml
+      parameters:
+        platformName: 'Mac'    
         
 - stage: Linux
   dependsOn: []
   jobs:
-  - template: ci/job-linux-test.yml
+  - job: Build_And_Test_Ubuntu
+    pool:
+      name: Hosted Ubuntu 1604
+    steps:
+    - template: ci/steps-test-cmake.yml
+      parameters:
+        platformName: 'Ubuntu'  

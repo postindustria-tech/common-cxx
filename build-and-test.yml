@@ -23,10 +23,10 @@ stages:
       matrix:
         debug x86:
           BuildConfiguration: Debug
-          BuildPlatform: x86
+          BuildPlatform: Win32
         release x86:
           BuildConfiguration: Release 
-          BuildPlatform: x86
+          BuildPlatform: Win32
         debug x64:
           BuildConfiguration: Debug
           BuildPlatform: x64
@@ -45,10 +45,10 @@ stages:
       matrix:
         debug x86:
           BuildConfiguration: Debug
-          BuildPlatform: x86
+          BuildPlatform: Win32
         release x86:
           BuildConfiguration: Release 
-          BuildPlatform: x86
+          BuildPlatform: Win32
         debug x64:
           BuildConfiguration: Debug
           BuildPlatform: x64

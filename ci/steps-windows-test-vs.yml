@@ -1,6 +1,6 @@
 parameters:
 - name: buildPlatform
-- name: platformDirectory
+- name: buildDirectory
 - name: buildConfiguration
 
 steps:
@@ -24,7 +24,7 @@ steps:
     clean: true
 
 - bash: './FiftyOne.Common.Tests.exe --gtest_catch_exceptions=1 --gtest_break_on_failure=0 --gtest_output=xml:testoutput.xml'
-  workingDirectory: 'VisualStudio/${{ parameters.platformDirectory }}/${{ parameters.buildConfiguration }}'
+  workingDirectory: 'VisualStudio/${{ parameters.buildDirectory }}'
   failOnStderr: true
   displayName: 'Run Tests'
 
@@ -33,4 +33,4 @@ steps:
   inputs:
     testResultsFormat: 'JUnit'
     testRunTitle: 'Visual Studio ${{ parameters.buildPlatform }} ${{ parameters.buildConfiguration }}'
-    testResultsFiles: 'VisualStudio\${{ parameters.platformDirectory }}\${{ parameters.buildConfiguration }}\testoutput.xml'
+    testResultsFiles: 'VisualStudio\${{ parameters.buildDirectory }}\testoutput.xml'

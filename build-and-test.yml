@@ -24,25 +24,25 @@ stages:
         debug x86:
           BuildConfiguration: Debug
           BuildPlatform: x86
-          PlatformDirectory: Win32
+          BuildDirectory: Debug
         release x86:
           BuildConfiguration: Release 
           BuildPlatform: x86
-          PlatformDirectory: Win32
+          BuildDirectory: Release
         debug x64:
           BuildConfiguration: Debug
           BuildPlatform: x64
-          PlatformDirectory: x64
+          BuildDirectory: x64/Debug
         release x64:
           BuildConfiguration: Release  
           BuildPlatform: x64  
-          PlatformDirectory: x64
+          BuildDirectory: x64/Release
     steps:
     - template: ci/steps-windows-test-vs.yml
       parameters:
         buildPlatform: '$(BuildPlatform)'
         buildConfiguration: '$(BuildConfiguration)'
-        platformDirectory: '$(PlatformDirectory)'
+        buildDirectory: '$(BuildDirectory)'
 
   - job: Build_And_Test_CMake  
     strategy:

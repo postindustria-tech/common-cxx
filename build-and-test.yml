@@ -19,7 +19,6 @@ stages:
   jobs:
   - job: Build_And_Test_VisualStudio
     strategy:
-      maxParallel: 1
       matrix:
         debug x86:
           BuildConfiguration: Debug
@@ -46,7 +45,6 @@ stages:
 
   - job: Build_And_Test_CMake  
     strategy:
-      maxParallel: 1
       matrix:
         debug x86:
           BuildConfiguration: Debug

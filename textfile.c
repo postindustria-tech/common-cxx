@@ -24,44 +24,95 @@
 
 #include "fiftyone.h"
 
+static char* returnNextLine(
+	char* buffer, 
+	char* end, 
+	char* current, 
+	void* state, 
+	void(*callback)(const char*, void*)) {
+
+	while (current < end && *current != '\r' && *current != '\n') {
+		current++;
+	}
+
+	// If there is an end of line character change it to a null and
+	// call the callback.
+	if (current < end) {
+		*current = '\0';
+		callback(buffer, state);
+		// Move to the next character
+		current++;
+	}
+
+	// Move to the next printable character.
+	while (current < end && (*current == '\r' || *current == '\n')) {
+		current++;
+	}
+	return current;
+}
+
+void fiftyoneDegreesTextFileIterateWithLimit(
+	const char *fileName,
+	char *buffer,
+	int length,
+	int limit,
+	void *state,
+	void(*callback)(const char*, void *)) {
+	char* end = buffer + length;
+	char* current = buffer;
+	size_t bufferRead = 0;
+	int counter = 0;
+	FILE *handle;
+	if (FileOpen(fileName, &handle) == SUCCESS) {
+		while ((limit < 0 || counter < limit) &&
+			(bufferRead = fread(current, sizeof(char), end - current, handle))
+			== (size_t)(end - current)) {
+
+			// Return the next line.
+			current = returnNextLine(buffer, end, buffer, state, callback);
+			counter++;
+
+			// Shift the buffer to the left and load the next characters.
+			size_t shift = end - current;
+			memcpy(buffer, current, shift);
+			current = buffer + shift;
+		}
+		// Update end to the last line read
+		end = current + bufferRead;
+		if ((limit < 0 || counter < limit) && 
+			(*(end - 1) != '\r' && *(end - 1) != '\n')) {
+			// If there isn't a new line or carriage return at the end
+			// we won't be able to determine the end of last line, so
+			// set the end byte to '\n' and increase the end by 1.
+			// This is safe as the buffer read at this point is always
+			// smaller than the allocated size.
+			*end = '\n';
+			end++;
+		}
+		fclose(handle);
+
+		// Return any final lines held in the buffer.
+		while (current < end && 
+			(limit < 0 || counter < limit)) {
+			current = returnNextLine(buffer, end, buffer, state, callback);
+			buffer = current;
+			counter++;
+		}
+	}
+}
+
+
 void fiftyoneDegreesTextFileIterate(
 	const char *fileName,
-	const char *buffer,
+	char *buffer,
 	int length,
 	void *state,
 	void(*callback)(const char*, void *)) {
-	int c = 0;
-	char *current = (char*)buffer;
-	FILE *handle;
-	if (FileOpen(fileName, &handle) == SUCCESS) {
-		while (fread(&c, sizeof(char), 1, handle) == 1) {
-			if (isprint(c)) {
-
-				// Check that the buffer has not been exceeded considering
-				// the need for a null terminator on the string.
-				if ((int)(current - buffer) < length - 1) {
-					*current = (char)c;
-					current++;
-				}
-			}
-
-			if (c == '\r' || c == '\n') {
-				
-				// If the end of line is reached add a null terminator and 
-				// call the callback with the buffer and state.
-				if (current != buffer) {
-					*current = '\0';
-					callback(buffer, state);
-					current = (char*)buffer;
-				}
-			}
-		}
-
-		// If there is a final line without an end of line process this.
-		if (current != buffer) {
-			*current = '\0';
-			callback(buffer, state);
-		}
-		fclose(handle);
-	}
+	fiftyoneDegreesTextFileIterateWithLimit(
+		fileName,
+		buffer,
+		length,
+		-1,
+		state,
+		callback);
 }

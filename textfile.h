@@ -45,17 +45,37 @@
 #endif
 
 /**
+ * Iterates over all the lines in a text file up to the given limit number of
+ * line to read, calling the callback method with each line.
+ * @param fileName name of the file to iterate over
+ * @param buffer to use for reading lines into. The buffer needs
+ * to be big enough to hold the biggest record, including its line ending.
+ * @param length of the buffer
+ * @param limit number of lines to read. -1 for read all.
+ * @param state pointer to pass to the callback method
+ * @param callback method to call with each line
+ */
+EXTERNAL void fiftyoneDegreesTextFileIterateWithLimit(
+	const char *fileName, 
+	char *buffer, 
+	int length, 
+	int limit,
+	void *state,
+	void(*callback)(const char*, void*));
+
+/**
  * Iterates over all the lines in a text file calling the callback method with
  * each line.
  * @param fileName name of the file to iterate over
- * @param buffer to use for reading lines into
+ * @param buffer to use for reading lines into. The buffer needs
+ * to be big enough to hold the biggest record, including its line ending.
  * @param length of the buffer
  * @param state pointer to pass to the callback method
  * @param callback method to call with each line
  */
 EXTERNAL void fiftyoneDegreesTextFileIterate(
 	const char *fileName, 
-	const char *buffer, 
+	char *buffer, 
 	int length, 
 	void *state,
 	void(*callback)(const char*, void*));

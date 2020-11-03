@@ -177,12 +177,12 @@
  * Platform specific method pointer to return the current working directory.
  */
 #ifdef _MSC_FULL_VER
-#define GetCurrentDir _getcwd
+#define GET_CURRENT_DIR _getcwd
 #include <windows.h>
 #include <direct.h>
 #include <tchar.h>
 #else
-#define GetCurrentDir getcwd
+#define GET_CURRENT_DIR getcwd
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>

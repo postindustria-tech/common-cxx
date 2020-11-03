@@ -493,7 +493,7 @@ TEST_F(File, GetPath) {
 			sizeof(foundPath))) <<
 		"The file was not found.";
 	
-	GetCurrentDir(absolutePath, sizeof(absolutePath));
+	GET_CURRENT_DIR(absolutePath, sizeof(absolutePath));
 	sprintf(absolutePath + strlen(absolutePath), "/%s", relativePath);
 	
 	EXPECT_STREQ(absolutePath, foundPath) <<
@@ -518,7 +518,7 @@ TEST_F(File, GetPath_NoFile) {
 		fiftyoneDegreesFileGetPath(tempPath, fileName, NULL, 0)) <<
 		"File not found was not reported.";
 
-	GetCurrentDir(absolutePath, sizeof(absolutePath));
+	GET_CURRENT_DIR(absolutePath, sizeof(absolutePath));
 	sprintf(absolutePath + strlen(absolutePath), "/%s", relativePath);
 
 	removeDir(tempPath);
@@ -538,7 +538,7 @@ TEST_F(File, GetPath_NoDirectory) {
 		fiftyoneDegreesFileGetPath(tempPath, fileName, NULL, 0)) <<
 		"File not found was not reported.";
 
-	GetCurrentDir(absolutePath, sizeof(absolutePath));
+	GET_CURRENT_DIR(absolutePath, sizeof(absolutePath));
 	sprintf(absolutePath + strlen(absolutePath), "/%s", relativePath);
 }
 

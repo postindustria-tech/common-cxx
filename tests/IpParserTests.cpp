@@ -234,3 +234,97 @@ TEST(ParseIp, ParseIp_Invalid_ipv4OutOfRange)
 //	byte* result = fiftyoneDegreesParseIp("1:1:1:1:1:1:1");
 //	Assert::IsNull(result);
 //}
+//// ------------------------------------------------------------------------------
+//// Comparison
+//// ------------------------------------------------------------------------------
+TEST(CompareIp, CompareIp_Ipv4_Bigger) {
+	unsigned char ipAddress1[FIFTYONE_DEGREES_IPV4_LENGTH] = {9, 8, 7, 6};
+	unsigned char ipAddress2[FIFTYONE_DEGREES_IPV4_LENGTH] = {9, 8, 6, 6};
+
+	EXPECT_TRUE(
+		fiftyoneDegreesCompareIpAddresses(
+			ipAddress1, 
+			ipAddress2, 
+			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) > 0) << "Result should be positive "
+		"where IP address 1 is bigger than IP address 2\n";
+}
+
+TEST(CompareIp, CompareIp_Ipv4_Smaller) {
+	unsigned char ipAddress1[FIFTYONE_DEGREES_IPV4_LENGTH] = {3, 4, 5, 6};
+	unsigned char ipAddress2[FIFTYONE_DEGREES_IPV4_LENGTH] = {3, 4, 6, 6};
+
+	EXPECT_TRUE(
+		fiftyoneDegreesCompareIpAddresses(
+			ipAddress1, 
+			ipAddress2, 
+			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) < 0) << "Result should be negative "
+		"where IP address 1 is bigger than IP address 2\n";
+}
+
+TEST(CompareIp, CompareIp_Ipv4_Equal) {
+	unsigned char ipAddress1[FIFTYONE_DEGREES_IPV4_LENGTH] = {3, 4, 5, 6};
+	unsigned char ipAddress2[FIFTYONE_DEGREES_IPV4_LENGTH] = {3, 4, 5, 6};
+
+	EXPECT_TRUE(
+		fiftyoneDegreesCompareIpAddresses(
+			ipAddress1, 
+			ipAddress2, 
+			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) == 0) << "Result should be 0 "
+		"where IP address 1 is bigger than IP address 2\n";
+}
+
+TEST(CompareIp, CompareIp_Ipv6_Bigger) {
+	unsigned char ipAddress1[FIFTYONE_DEGREES_IPV6_LENGTH] = 
+		{16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+	unsigned char ipAddress2[FIFTYONE_DEGREES_IPV6_LENGTH] = 
+		{16, 15, 14, 13, 12, 11, 9, 9, 8, 7, 6, 5, 4, 2, 2, 1};
+
+	EXPECT_TRUE(
+		fiftyoneDegreesCompareIpAddresses(
+			ipAddress1, 
+			ipAddress2, 
+			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) > 0) << "Result should be positive "
+		"where IP address 1 is bigger than IP address 2\n";
+}
+
+TEST(CompareIp, CompareIp_Ipv6_Smaller) {
+	unsigned char ipAddress1[FIFTYONE_DEGREES_IPV6_LENGTH] = 
+		{16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+	unsigned char ipAddress2[FIFTYONE_DEGREES_IPV6_LENGTH] = 
+		{16, 15, 14, 13, 12, 12, 9, 9, 8, 7, 6, 5, 4, 4, 2, 1};
+
+	EXPECT_TRUE(
+		fiftyoneDegreesCompareIpAddresses(
+			ipAddress1, 
+			ipAddress2, 
+			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) < 0) << "Result should be negative "
+		"where IP address 1 is bigger than IP address 2\n";
+}
+
+TEST(CompareIp, CompareIp_Ipv6_Equal) {
+	unsigned char ipAddress1[FIFTYONE_DEGREES_IPV6_LENGTH] = 
+		{16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+	unsigned char ipAddress2[FIFTYONE_DEGREES_IPV6_LENGTH] = 
+		{16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+
+	EXPECT_TRUE(
+		fiftyoneDegreesCompareIpAddresses(
+			ipAddress1, 
+			ipAddress2, 
+			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) == 0) << "Result should be 0 "
+		"where IP address 1 is bigger than IP address 2\n";
+}
+
+TEST(CompareIp, CompareIp_Ip_Invalid) {
+	unsigned char ipAddress1[FIFTYONE_DEGREES_IPV6_LENGTH] = 
+		{16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+	unsigned char ipAddress2[FIFTYONE_DEGREES_IPV6_LENGTH] = 
+		{16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+
+	EXPECT_TRUE(
+		fiftyoneDegreesCompareIpAddresses(
+			ipAddress1, 
+			ipAddress2, 
+			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID) == 0) << "Result should be 0 "
+		"where type is invalid\n";
+}

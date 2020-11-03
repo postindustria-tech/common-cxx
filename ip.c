@@ -250,3 +250,29 @@ fiftyoneDegreesEvidenceIpAddress* fiftyoneDegreesIpParseAddresses(
 	}
 	return head;
 }
+
+int fiftyoneDegreesCompareIpAddresses(
+	const unsigned char *ipAddress1,
+	const unsigned char *ipAddress2,
+	fiftyoneDegreesEvidenceIpType type) {
+	uint16_t compareSize = 0;
+	int result = 0;
+	switch(type) {
+	case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4:
+		compareSize = FIFTYONE_DEGREES_IPV4_LENGTH;
+		break;
+	case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6:
+		compareSize = FIFTYONE_DEGREES_IPV6_LENGTH;
+		break;
+	case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID:
+	default:
+		compareSize = 0;
+		break;
+	}
+
+	for (uint16_t i = 0; i < compareSize; i++) {
+		result = ipAddress1[i] - ipAddress2[i];
+		if (result != 0) return result;
+	}
+	return result;
+}

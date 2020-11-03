@@ -306,7 +306,6 @@ void EngineTests::verifyComponentMetaData(MetaData *metaData) {
 	ASSERT_NE(nullptr, components) << L"Components should not be null.";
 	uint32_t componentIndex, propertyIndex;
 	ComponentMetaData *component, *otherComponent;
-	ProfileMetaData *defaultProfile;
 	Collection<string, PropertyMetaData> *properties;
 	PropertyMetaData *property;
 	for (componentIndex = 0;

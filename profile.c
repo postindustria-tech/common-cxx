@@ -170,18 +170,6 @@ uint32_t* fiftyoneDegreesProfileGetOffsetForProfileId(
 	return NULL;
 }
 
-fiftyoneDegreesComponent* fiftyoneDegreesProfileGetComponent(
-	fiftyoneDegreesCollection *components,
-	fiftyoneDegreesProfile *profile,
-	fiftyoneDegreesCollectionItem *item,
-	fiftyoneDegreesException *exception) {
-	return (Component*)components->get(
-		components, 
-		profile->componentIndex,
-		item,
-		exception);
-}
-
 fiftyoneDegreesProfile* fiftyoneDegreesProfileGetByProfileId(
 	fiftyoneDegreesCollection *profileOffsets, 
 	fiftyoneDegreesCollection *profiles,

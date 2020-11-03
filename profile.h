@@ -119,21 +119,6 @@ typedef bool(*fiftyoneDegreesProfileIterateMethod)(
 	fiftyoneDegreesCollectionItem *item);
 
 /**
- * Gets the Component associated with the property.
- * @param components collection all components are held in
- * @param profile whose component is required
- * @param item to set as the handle to the component returned
- * @param exception pointer to an exception data structure to be used if an
- * exception occurs. See exceptions.h
- * @return pointer to the profile's component
- */
-EXTERNAL fiftyoneDegreesComponent* fiftyoneDegreesProfileGetComponent(
-	fiftyoneDegreesCollection *components,
-	fiftyoneDegreesProfile *profile,
-	fiftyoneDegreesCollectionItem *item,
-	fiftyoneDegreesException *exception);
-
-/**
  * Gets the profile associated with the profileId or NULL if there is no
  * corresponding profile.
  * @param profileOffsets collection containing the profile offsets

@@ -122,6 +122,23 @@ EXTERNAL fiftyoneDegreesEvidenceIpAddress* fiftyoneDegreesIpParseAddresses(
 	const char *start);
 
 /**
+ * Compare two IP addresses in its binary form
+ * @param ipAddress1 the first IP address
+ * @param ipAddress2 the second IP address
+ * @param type the type of IP address. This determine
+ * the number of bytes to compare. IPv4 require 4 bytes
+ * and IPv6 require 16 bytes
+ * @return a value indicate the result:
+ * 0 for equals
+ * > 0 for ipAddress1 comes after ipAddress2
+ * < 0 for ipAddress1 comes before ipAddress2
+ */
+EXTERNAL int fiftyoneDegreesCompareIpAddresses(
+	const unsigned char *ipAddress1,
+	const unsigned char *ipAddress2,
+	fiftyoneDegreesEvidenceIpType type);
+
+/**
  * @}
  */
 

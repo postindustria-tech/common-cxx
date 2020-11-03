@@ -711,7 +711,9 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileGetPath(
 	FILE *handle;
 	int charsWritten;
 	char testPath[FIFTYONE_DEGREES_FILE_MAX_PATH];
-	if (GetCurrentDir(testPath, FIFTYONE_DEGREES_FILE_MAX_PATH) == testPath) {
+	if (GET_CURRENT_DIR(
+		testPath, 
+		FIFTYONE_DEGREES_FILE_MAX_PATH) == testPath) {
 		for (i = strlen(testPath); i > 0; i--) {
 			if (testPath[i] == '\\' || testPath[i] == '/' ||
 				testPath[i] == '\0') {

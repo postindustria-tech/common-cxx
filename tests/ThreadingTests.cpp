@@ -24,20 +24,53 @@
 #include "../threading.h"
 #include "Base.hpp"
 
-typedef union singleWidthUnion_t {
-    int count;
-    void *padding;
-} singleWidthUnion;
+/**
+ * Macro used to ensure that local variables are aligned to memory boundaries
+ * to support interlocked operations that require double width data structures
+ * and pointers to be aligned.
+ */
+#ifndef FIFTYONE_DEGREES_NO_THREADING
+#if ((defined(_MSC_VER) && defined(_WIN64)) \
+    || ((defined(__GNUC__) || defined(__clang__)) \
+        && (defined(__x86_64__) || defined(__aarch64__))))
+#define ALIGN_SIZE 16
+typedef struct testDoubleWidth_t {
+	void* ptr;
+	int32_t count;
+	int32_t padding;
+} testDoubleWidth;
+#else
+#define ALIGN_SIZE 8
+typedef struct testDoubleWidth_t {
+	void* ptr;
+	int32_t count;
+} testDoubleWidth;
+#endif
 
-typedef struct doubleWidth_t {
-    void *ptr;
-    singleWidthUnion count;
+typedef union doubleWidth_u {
+    fiftyoneDegreesInterlockDoubleWidth fodDW;
+    testDoubleWidth testDW;
 } doubleWidth;
+
+#ifdef _MSC_VER
+#define INTERLOCK_DOUBLE_WIDTH \
+    __declspec(align(ALIGN_SIZE)) doubleWidth
+#else
+typedef doubleWidth alignedDoubleWidth __attribute__ ((aligned (ALIGN_SIZE)));
+#define INTERLOCK_DOUBLE_WIDTH alignedDoubleWidth
+#endif
+#else
+typedef struct doubleWidth_t {
+	void* ptr;
+	int32_t inUse;
+} doubleWidth;
+#define INTERLOCK_DOUBLE_WIDTH InterlockDoubleWidth
+#endif
 
 class Threading : public Base
 {
 public:
-    doubleWidth item;
+    INTERLOCK_DOUBLE_WIDTH item;
 
 protected:
 
@@ -54,43 +87,54 @@ TEST_F(Threading, DoubleWidthExchange_Matching) {
     int val1 = 122;
     int val2 = 123;
 
+    memset(&item, 0, sizeof(item));
+    item.testDW.ptr = (void*)&val1;
 
-    item.count.padding = nullptr;
-    item.ptr = (void*)&val1;
-
-    doubleWidth newItem;
+    INTERLOCK_DOUBLE_WIDTH newItem;
     newItem = item;
-    doubleWidth compare;
+    INTERLOCK_DOUBLE_WIDTH compare;
     compare = newItem;
-    newItem.ptr = (void*)&val2;
-    newItem.count.count++;
+    newItem.testDW.ptr = (void*)&val2;
+    newItem.testDW.count++;
 
-    bool changed = FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR_DW(&item, newItem, compare);
+    bool changed = 
+        FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(
+            item.fodDW, 
+            newItem.fodDW, 
+            compare.fodDW);
     
     ASSERT_TRUE(changed);
-    ASSERT_EQ(newItem.count.count, item.count.count);
-    ASSERT_EQ(newItem.ptr, item.ptr);
-    ASSERT_EQ(*(int*)newItem.ptr, *(int*)item.ptr);
+    ASSERT_EQ(newItem.testDW.count, item.testDW.count);
+    ASSERT_EQ(newItem.testDW.ptr, item.testDW.ptr);
+    ASSERT_EQ(
+        *(int*)newItem.testDW.ptr, 
+        *(int*)item.testDW.ptr);
 }
 TEST_F(Threading, DoubleWidthExchange_NonMatching) {
 
     int val1 = 122;
     int val2 = 123;
 
-    item.count.padding = nullptr;
-    item.ptr = (void*)&val1;
+    memset(&item, 0, sizeof(item));
+    item.testDW.ptr = (void*)&val1;
 
-    doubleWidth newItem;
+    INTERLOCK_DOUBLE_WIDTH newItem;
     newItem = item;
-    doubleWidth compare;
+    INTERLOCK_DOUBLE_WIDTH compare;
     compare = newItem;
-    newItem.ptr = (void*)&val2;
-    newItem.count.count++;
+    newItem.testDW.ptr = (void*)&val2;
+    newItem.testDW.count++;
 
-    item.count.count++;
+    item.testDW.count++;
 
-    bool changed = FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR_DW(&item, newItem, compare);
+    bool changed = 
+        FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(
+            item.fodDW, 
+            newItem.fodDW, 
+            compare.fodDW);
     ASSERT_FALSE(changed);
-    ASSERT_NE(newItem.ptr, item.ptr);
-    ASSERT_NE(*(int*)newItem.ptr, *(int*)item.ptr);
+    ASSERT_NE(newItem.testDW.ptr, item.testDW.ptr);
+    ASSERT_NE(
+        *(int*)newItem.testDW.ptr, 
+        *(int*)item.testDW.ptr);
 }

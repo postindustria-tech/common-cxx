@@ -20,20 +20,36 @@ stages:
   - job: Build_And_Test_VisualStudio
     strategy:
       matrix:
-        debug x86:
+        debug x86 multi threads:
           BuildConfiguration: Debug
           BuildPlatform: x86
           BuildDirectory: Debug
-        release x86:
+        release x86 multi threads:
           BuildConfiguration: Release 
           BuildPlatform: x86
           BuildDirectory: Release
-        debug x64:
+        debug x64 multi threads:
           BuildConfiguration: Debug
           BuildPlatform: x64
           BuildDirectory: x64/Debug
-        release x64:
+        release x64 multi threads:
           BuildConfiguration: Release  
+          BuildPlatform: x64  
+          BuildDirectory: x64/Release
+        debug x86 single thread:
+          BuildConfiguration: Debug-Single
+          BuildPlatform: x86
+          BuildDirectory: Debug
+        release x86 single thread:
+          BuildConfiguration: Release-Single
+          BuildPlatform: x86
+          BuildDirectory: Release
+        debug x64 single thread:
+          BuildConfiguration: Debug-Single
+          BuildPlatform: x64
+          BuildDirectory: x64/Debug
+        release x64 single thread:
+          BuildConfiguration: Release-Single
           BuildPlatform: x64  
           BuildDirectory: x64/Release
     steps:
@@ -46,23 +62,44 @@ stages:
   - job: Build_And_Test_CMake  
     strategy:
       matrix:
-        debug x86:
+        debug x86 multi threads:
           BuildConfiguration: Debug
           BuildPlatform: Win32
-        release x86:
+          BuildArguments: -DNoThreading=OFF
+        release x86 multi threads:
           BuildConfiguration: Release 
           BuildPlatform: Win32
-        debug x64:
+          BuildArguments: -DNoThreading=OFF
+        debug x64 multi threads:
           BuildConfiguration: Debug
           BuildPlatform: x64
-        release x64:
+          BuildArguments: -DNoThreading=OFF
+        release x64 multi threads:
           BuildConfiguration: Release  
-          BuildPlatform: x64   
+          BuildPlatform: x64
+          BuildArguments: -DNoThreading=OFF
+        debug x86 single thread:
+          BuildConfiguration: Debug
+          BuildPlatform: Win32
+          BuildArguments: -DNoThreading=ON
+        release x86 single thread:
+          BuildConfiguration: Release 
+          BuildPlatform: Win32
+          BuildArguments: -DNoThreading=ON
+        debug x64 single thread:
+          BuildConfiguration: Debug
+          BuildPlatform: x64
+          BuildArguments: -DNoThreading=ON
+        release x64 single thread:
+          BuildConfiguration: Release  
+          BuildPlatform: x64
+          BuildArguments: -DNoThreading=ON
     steps:
     - template: ci/steps-windows-test-cmake.yml
       parameters:
         buildPlatform: '$(BuildPlatform)'
         buildConfiguration: '$(BuildConfiguration)'
+        buildArguments: '$(BuildArguments)'
 
 - stage: Mac
   dependsOn: []
@@ -71,10 +108,38 @@ stages:
     pool:
       name: Azure Pipelines
       vmImage: 'macOS-10.14'
+    strategy:
+      matrix:
+        debug x86 multi threads:
+          BuildConfiguration: Debug
+          BuildArguments: -DWin32=ON -DNoThreading=OFF
+        release x86 multi threads:
+          BuildConfiguration: Release 
+          BuildArguments: -DWin32=ON -DNoThreading=OFF
+        debug x64 multi threads:
+          BuildConfiguration: Debug
+          BuildArguments: -DNoThreading=OFF
+        release x64 multi threads:
+          BuildConfiguration: Release 
+          BuildArguments: -DNoThreading=OFF
+        debug x86 single thread:
+          BuildConfiguration: Debug
+          BuildArguments: -DWin32=ON -DNoThreading=ON
+        release x86 single thread:
+          BuildConfiguration: Release  
+          BuildArguments: -DWin32=ON -DNoThreading=ON
+        debug x64 single thread:
+          BuildConfiguration: Debug
+          BuildArguments: -DNoThreading=ON
+        release x64 single thread:
+          BuildConfiguration: Release  
+          BuildArguments: -DNoThreading=ON
     steps:
     - template: ci/steps-cmake-test.yml
       parameters:
-        platformName: 'Mac'    
+        platformName: 'Mac'
+        buildConfiguration: '$(BuildConfiguration)'
+        buildArguments: '$(BuildArguments)'
         
 - stage: Linux
   dependsOn: []
@@ -82,7 +147,35 @@ stages:
   - job: Build_And_Test_Ubuntu
     pool:
       name: Hosted Ubuntu 1604
+    strategy:
+      matrix:
+        debug x86 multi threads:
+          BuildConfiguration: Debug
+          BuildArguments: -DWin32=ON -DNoThreading=OFF
+        release x86 multi threads:
+          BuildConfiguration: Release 
+          BuildArguments: -DWin32=ON -DNoThreading=OFF
+        debug x64 multi threads:
+          BuildConfiguration: Debug
+          BuildArguments: -DNoThreading=OFF
+        release x64 multi threads:
+          BuildConfiguration: Release 
+          BuildArguments: -DNoThreading=OFF
+        debug x86 single thread:
+          BuildConfiguration: Debug
+          BuildArguments: -DWin32=ON -DNoThreading=ON
+        release x86 single thread:
+          BuildConfiguration: Release  
+          BuildArguments: -DWin32=ON -DNoThreading=ON
+        debug x64 single thread:
+          BuildConfiguration: Debug
+          BuildArguments: -DNoThreading=ON
+        release x64 single thread:
+          BuildConfiguration: Release  
+          BuildArguments: -DNoThreading=ON
     steps:
     - template: ci/steps-cmake-test.yml
       parameters:
         platformName: 'Ubuntu'  
+        buildConfiguration: '$(BuildConfiguration)'
+        buildArguments: '$(BuildArguments)'

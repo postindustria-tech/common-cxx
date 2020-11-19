@@ -221,7 +221,7 @@ typedef struct fiftyone_degrees_pool_t {
  * exception occurs. See exceptions.h.
  * @return a pointer to the pool if successful, otherwise NULL.
  */
-fiftyoneDegreesPool* fiftyoneDegreesPoolInit(
+EXTERNAL fiftyoneDegreesPool* fiftyoneDegreesPoolInit(
 	fiftyoneDegreesPool *pool,
 	uint16_t concurrency,
 	void *state,
@@ -238,7 +238,7 @@ fiftyoneDegreesPool* fiftyoneDegreesPoolInit(
  * exception occurs. See exceptions.h.
  * @return the next free item, or NULL if no items are available.
  */
-fiftyoneDegreesPoolItem* fiftyoneDegreesPoolItemGet(
+EXTERNAL fiftyoneDegreesPoolItem* fiftyoneDegreesPoolItemGet(
 	fiftyoneDegreesPool *pool,
 	fiftyoneDegreesException *exception);
 
@@ -247,20 +247,20 @@ fiftyoneDegreesPoolItem* fiftyoneDegreesPoolItemGet(
  * operation.
  * @param item to be released back to the pool
  */
-void fiftyoneDegreesPoolItemRelease(fiftyoneDegreesPoolItem* item);
+EXTERNAL void fiftyoneDegreesPoolItemRelease(fiftyoneDegreesPoolItem* item);
 
 /**
  * Releases the items used by the pool freeing the resources used by each
  * item by calling the resourceFree method provided when the pool was created.
  * @param pool to be freed
  */
-void fiftyoneDegreesPoolFree(fiftyoneDegreesPool* pool);
+EXTERNAL void fiftyoneDegreesPoolFree(fiftyoneDegreesPool* pool);
 
 /**
  * Resets the pool without releasing any resources.
  * @param pool to be reset
  */
-void fiftyoneDegreesPoolReset(fiftyoneDegreesPool *pool);
+EXTERNAL void fiftyoneDegreesPoolReset(fiftyoneDegreesPool *pool);
 
 /**
  * @}

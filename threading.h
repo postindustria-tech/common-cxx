@@ -34,6 +34,7 @@
 #define FIFTYONE_DEGREES_THREADING_INCLUDED
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 #define EXTERNAL extern "C"
@@ -354,13 +355,8 @@ void fiftyoneDegreesSignalWait(fiftyoneDegreesSignal *signal);
  * @param c the comparand
  */
 #ifdef _MSC_VER
-#ifdef _WIN64
 #define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR(d,e,c) \
-    FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_64(d,e,c)
-#else
-#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR(d,e,c) \
-    FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(d,e,c)
-#endif
+    InterlockedCompareExchangePointer((volatile PVOID*)&d,e,c)
 #else
 #define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR(d,e,c) \
     FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(d,e,c)
@@ -418,17 +414,34 @@ __fod_sync_bool_compare_and_swap_16(
  */
 #ifdef _MSC_VER
 #ifdef _WIN64
-#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR_DW(d,e,c) \
-    InterlockedCompareExchange128((__int64*)d, *(((__int64*)&e) + 1), *(((__int64*)&e)), (__int64*)&c)
+typedef struct fiftyone_degrees_interlock_dw_type_t {
+    LONG64 low;
+    LONG64 high;
+} fiftyoneDegreesInterlockDoubleWidth;
+#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(d,e,c) \
+    InterlockedCompareExchange128(&d.low, e.high, e.low, &c.low)
 #else
-#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR_DW(d,e,c) \
-    (InterlockedCompareExchange64((__int64*)d, *((__int64*)&e), *(__int64*)&c) != *((__int64*)d))
+typedef struct fiftyone_degrees_interlock_dw_type_t {
+    LONG64 value;
+} fiftyoneDegreesInterlockDoubleWidth;
+#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(d,e,c) \
+    InterlockedCompareExchange64(&d.value, e.value, c.value) == c.value
 #endif
 #else
-#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_PTR_DW(d,e,c) \
+#if defined(__x86_64__) || defined(__aarch64__)
+typedef struct fiftyone_degrees_interlock_dw_type_t {
+    int64_t low;
+    int64_t high;
+} fiftyoneDegreesInterlockDoubleWidth;
+#else
+typedef struct fiftyone_degrees_interlock_dw_type_t {
+    int64_t value;
+} fiftyoneDegreesInterlockDoubleWidth;
+#endif
+#define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(d,e,c) \
     (sizeof(void*) == 8 ? \
-    __fod_sync_bool_compare_and_swap_16((void*)d, (void*)&e, (void*)&c) : \
-    __sync_bool_compare_and_swap((long*)d, *((long*)&c), *((long*)&e)))
+    __fod_sync_bool_compare_and_swap_16((void*)&d, (void*)&e, (void*)&c) : \
+    __sync_bool_compare_and_swap((int64_t*)&d, *((int64_t*)&c), *((int64_t*)&e)))
 #endif
 
 /**

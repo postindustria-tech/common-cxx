@@ -12,10 +12,17 @@ if(NOT CMAKE_BUILD_TYPE AND NOT MSVC)
 	message("-- Setting default CMAKE_BUILD_TYPE  to Release")
 	set(CMAKE_BUILD_TYPE "Release")
 endif()
-  
+
+option(32bit "32bit" OFF)
 option(MemoryOnly "MemoryOnly" OFF)
 option(NoThreading "NoThreading" OFF)
 option(ExceptionsDisabled "ExceptionsDisabled" OFF)
+
+if (32bit AND NOT MSVC)
+	message("-- 32 bit compilation")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+endif()
 
 if (MemoryOnly)
 	message("-- Memory only compilation (FIFTYONE_DEGREES_MEMORY_ONLY) is enabled")

@@ -106,7 +106,7 @@ TEST_F(ResourceManager, Handle_Inc) {
 		"A null handle was returned.";
 	ASSERT_EQ((void*)&resource, (void*)handle->resource) <<
 		"The handle does not contain the correct resource.";
-	ASSERT_EQ(1, handle->counter.inUse) <<
+	ASSERT_EQ(1, fiftyoneDegreesResourceHandleGetUse(handle)) <<
 		"The in use counter was not incremented correctly.";
 	ASSERT_EQ(&manager, handle->manager) <<
 		"The handle is not linked to the manager.";
@@ -119,10 +119,10 @@ TEST_F(ResourceManager, Handle_Inc) {
 TEST_F(ResourceManager, Handle_IncDec) {
 	fiftyoneDegreesResourceHandle *handle =
 		fiftyoneDegreesResourceHandleIncUse(&manager);
-	ASSERT_EQ(1, handle->counter.inUse) <<
+	ASSERT_EQ(1, fiftyoneDegreesResourceHandleGetUse(handle)) <<
 		"The in use counter was not incremented correctly.";
 	fiftyoneDegreesResourceHandleDecUse(handle);
-	ASSERT_EQ(0, handle->counter.inUse) <<
+	ASSERT_EQ(0, fiftyoneDegreesResourceHandleGetUse(handle)) <<
 		"The in use counter was not decremented correctly.";
 }
 
@@ -183,4 +183,192 @@ TEST_F(ResourceManager, ResourceReplace_HandleInUse) {
 	disposeManager();
 	ASSERT_TRUE(newResource) <<
 		"The new resource was not closed.";
+}
+
+// Number of threads
+#define THREAD_COUNT 8
+// Number of Inc/Dec per thread
+#define NUMBER_OF_UPDATES 100000
+// Number of reloads
+#define NUMBER_OF_RELOADS 4
+
+/*
+ * Run by each thread to increase resource 
+ * usage counter
+ */
+static void runResourceInc(void *state) {
+	fiftyoneDegreesResourceManager *manager =
+		(fiftyoneDegreesResourceManager *)state;
+	fiftyoneDegreesResourceHandle *handle;
+	for (int i = 0; i < NUMBER_OF_UPDATES; i++) {
+		handle = fiftyoneDegreesResourceHandleIncUse(manager);
+	}
+}
+
+/*
+ * Run by each thread to decrease resource 
+ * usage counter
+ */
+static void runResourceDec(void *state) {
+	fiftyoneDegreesResourceHandle *handle =
+		(fiftyoneDegreesResourceHandle *)state;
+	for (int i = 0; i < NUMBER_OF_UPDATES; i++) {
+		fiftyoneDegreesResourceHandleDecUse(handle);
+	}
+}
+
+/*
+ * Start threads
+ */
+static void startThreads(
+	FIFTYONE_DEGREES_THREAD *threads, 
+	FIFTYONE_DEGREES_THREAD_ROUTINE threadRoutine,
+	void *state) {
+	for (int i = 0; i < THREAD_COUNT; i++) {
+		FIFTYONE_DEGREES_THREAD_CREATE(
+			threads[i],
+			threadRoutine,
+			state);
+	}
+}
+
+/*
+ * Wait and join threads
+ */
+static void joinThreads(FIFTYONE_DEGREES_THREAD *threads) {
+	for (int i = 0; i < THREAD_COUNT; i++) {
+		FIFTYONE_DEGREES_THREAD_JOIN(threads[i]);
+		FIFTYONE_DEGREES_THREAD_CLOSE(threads[i]);
+	}
+}
+
+/*
+ * Check that the resource usage counter is as expected
+ * after being modified in a multi-threading environment
+ */
+TEST_F(ResourceManager, MultiThreading_HandleIncDec) {
+	if (fiftyoneDegreesThreadingGetIsThreadSafe()) {
+		FIFTYONE_DEGREES_THREAD threads[THREAD_COUNT];
+
+		// Run an initial Inc/Dec
+		fiftyoneDegreesResourceHandle *handle =
+			fiftyoneDegreesResourceHandleIncUse(&manager);
+		ASSERT_EQ(1, fiftyoneDegreesResourceHandleGetUse(handle)) <<
+			"The in use counter was not incremented correctly.";
+		fiftyoneDegreesResourceHandleDecUse(handle);
+		ASSERT_EQ(0, fiftyoneDegreesResourceHandleGetUse(handle)) <<
+			"The in use counter was not decremented correctly.";
+
+		// Start threads which increase the usage counter
+		startThreads(
+			threads,
+			(FIFTYONE_DEGREES_THREAD_ROUTINE)&runResourceInc,
+			&manager);
+		joinThreads(threads);
+		ASSERT_EQ(
+			THREAD_COUNT * NUMBER_OF_UPDATES, 
+			fiftyoneDegreesResourceHandleGetUse(handle)) <<
+			"The in use counter was not increased correctly.";
+
+		// Start threads which decrease the usage counter
+		startThreads(
+			threads,
+			(FIFTYONE_DEGREES_THREAD_ROUTINE)&runResourceDec,
+			handle);
+		joinThreads(threads);
+		ASSERT_EQ(
+			0, fiftyoneDegreesResourceHandleGetUse(handle)) <<
+			"The in use counter was not decreased correctly.";
+	}
+}
+
+/*
+ * Check that the total usage count of all resouce handles
+ * is equal to the total number of increases done by all
+ * threads while resource under management is being reloaded.
+ * 
+ * NOTE: There is no tests for reloads during decrease of usage
+ * counts under multi-threads environment. The reason for that 
+ * is because the decrease is done directly to the handle and 
+ * reload does not impact the handle once it has been replaced.
+ */
+TEST_F(ResourceManager, MultiThreading_HandleReplace_Inc) {
+	if (fiftyoneDegreesThreadingGetIsThreadSafe()) {
+		FIFTYONE_DEGREES_THREAD threads[THREAD_COUNT];
+		uint32_t i;
+
+		// Run an initual Inc/Dec
+		fiftyoneDegreesResourceHandle *handle =
+			fiftyoneDegreesResourceHandleIncUse(&manager);
+		ASSERT_EQ(1, fiftyoneDegreesResourceHandleGetUse(handle)) <<
+			"The in use counter was not incremented correctly.";
+		fiftyoneDegreesResourceHandleDecUse(handle);
+		ASSERT_EQ(0, fiftyoneDegreesResourceHandleGetUse(handle)) <<
+			"The in use counter was not decremented correctly.";
+
+		// Start threads which increase the usage counter
+		startThreads(
+			threads,
+			(FIFTYONE_DEGREES_THREAD_ROUTINE)&runResourceInc,
+			&manager);
+
+		// Perform reloads
+		fiftyoneDegreesResourceHandle *newHandles[NUMBER_OF_RELOADS];
+		bool newResources[NUMBER_OF_RELOADS];
+		for (i = 0; i < NUMBER_OF_RELOADS; i++) {
+			// Pause between each load for threads
+			// to have time updating the new handle
+#ifdef _MSC_VER
+			Sleep(20); // milliseconds
+#else
+			usleep(20000); // microseconds
+#endif
+			newHandles[i] = NULL;
+			newResources[i] = false;
+			fiftyoneDegreesResourceReplace(
+				&manager,
+				(void*)&newResources[i],
+				&newHandles[i]);
+		}
+
+		// Wait for threads to finish
+		joinThreads(threads);
+
+		// Check that total usage count of all handles is the same
+		// as number of increases performed by all threads
+		uint32_t total = 0;
+		if (resource == false) {
+			total += fiftyoneDegreesResourceHandleGetUse(handle);
+		}
+
+		for (i = 0; i < NUMBER_OF_RELOADS; i++) {
+			if (newResources[i] == false) {
+				total += fiftyoneDegreesResourceHandleGetUse(newHandles[i]);
+			}
+		}
+		ASSERT_EQ(THREAD_COUNT * NUMBER_OF_UPDATES, total) <<
+			"The in use counter was not increased correctly.";
+
+		// Decrease usage counter of all handles to 0 to mark
+		// as no longer used
+		uint32_t usageCount = 0;
+		if (resource == false) {
+			usageCount = fiftyoneDegreesResourceHandleGetUse(handle);
+			for (i = 0; i < usageCount; i++) {
+				fiftyoneDegreesResourceHandleDecUse(handle);
+			}
+		}
+
+		for (i = 0; i < NUMBER_OF_RELOADS; i++) {
+			if (newResources[i] == false) {
+				usageCount = fiftyoneDegreesResourceHandleGetUse(newHandles[i]);
+				for (uint32_t j = 0; j < usageCount; j++) {
+					fiftyoneDegreesResourceHandleDecUse(newHandles[i]);
+				}
+			}
+		}
+		// Manager has to be disposed here because resources
+		// are defined locally.
+		disposeManager();
+	}
 }

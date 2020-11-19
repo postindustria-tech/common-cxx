@@ -1,5 +1,7 @@
 parameters:
 - name: platformName
+- name: buildConfiguration
+- name: buildArguments
 
 steps:
 - checkout: self
@@ -15,7 +17,7 @@ steps:
   displayName: 'CMake Configure'
   inputs:
     workingDirectory: build
-    cmakeArgs: '..'
+    cmakeArgs: '.. ${{ parameters.buildArguments }}'
 
 - task: CMake@1
   displayName: 'CMake Build'
@@ -23,7 +25,7 @@ steps:
     workingDirectory: build
     cmakeArgs: '--build .'
 
-- bash: 'ctest -T test --no-compress-output'
+- bash: 'ctest -C ${{ parameters.buildConfiguration }} -T test --no-compress-output'
   workingDirectory: build
   failOnStderr: true
   displayName: 'Run Tests'
@@ -32,5 +34,5 @@ steps:
   condition: true
   inputs:
     testResultsFormat: 'CTest'
-    testRunTitle: '${{ parameters.platformName }} CTest'
+    testRunTitle: 'CTest ${{ parameters.platformName }} ${{ parameters.buildConfiguration }} ${{ parameters.buildArguments }}'
     testResultsFiles: '**/Test.xml'

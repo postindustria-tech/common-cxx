@@ -20,7 +20,7 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
- %nodefaultctor Date;
+%nodefaultctor Date;
 
 class Date {
 public:

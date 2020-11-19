@@ -137,9 +137,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
-#ifndef FIFTYONE_DEGREES_NO_THREADING
 #include "threading.h"
-#endif
 
 #ifdef __cplusplus
 #define EXTERNAL extern "C"
@@ -156,30 +154,22 @@ typedef struct fiftyone_degrees_resource_handle_t
 /** @endcond */
 
 /**
- * Contains the number of active uses of the resource. This is a union
- * to enforce the size of a pointer as we need this to be the same size
- * as the `self` pointer in ResourceHandle.
- */
-typedef union fiftyone_degrees_resource_handle_counter_t {
-    int32_t inUse; /**< Active use count of the resource. */
-    void *padding; /**< Pads the union to the size of a pointer. Should be set
-                   to null at initialization. */
-} fiftyoneDegreesResourceHandleCounter;
-
-/**
- * Tracks the number of active uses of the resource within the manager.
- * Note: it is important that `self` and `counter` are consecutive
- * elements in order to be used as a double width pointer.
+ * Handle for a shared resource. The first data structure counter tracks use
+ * of the resource and free resources that are not longer active.
+ * Counter must be the first member to ensure correct memory aligned for 
+ * interlocked operations.
  */
 typedef struct fiftyone_degrees_resource_handle_t {
-    fiftyoneDegreesResourceHandle* self; /**< Pointer to this handle. */
-    fiftyoneDegreesResourceHandleCounter counter; /**< Tracks active use count
-                                                  of the resource. */
+#ifndef FIFTYONE_DEGREES_NO_THREADING
+    volatile 
+#endif 
+    fiftyoneDegreesInterlockDoubleWidth counter; /**< Counter for this 
+                                                 handle. */
     const void* resource; /**< Pointer to the resource being managed. */
     const fiftyoneDegreesResourceManager* manager; /**< Pointer to the manager
-                                                       the handle relates to. */
+                                                   the handle relates to. */
     void(*freeResource)(void*); /**< Pointer to the method used to free the
-                                   resource. */
+                                resource. */
 } fiftyoneDegreesResourceHandle;
 
 /**
@@ -187,7 +177,7 @@ typedef struct fiftyone_degrees_resource_handle_t {
  */
 typedef struct fiftyone_degrees_resource_manager_t {
 #ifndef FIFTYONE_DEGREES_NO_THREADING
-    fiftyoneDegreesResourceHandle volatile *active; /**< Current handle 
+    volatile fiftyoneDegreesResourceHandle *active; /**< Current handle
                                                     for resource used 
                                                     by the manager. */
 #else
@@ -203,10 +193,6 @@ typedef struct fiftyone_degrees_resource_manager_t {
  * under management so that the handle can be assigned to the resource before
  * the resource is placed under management.
  *
- * **IMPORTANT** : The pointer to the manager **MUST** remain valid for the
- * duration of any resource's existence i.e. until the last handle has been
- * released and the resource freed.
- *
  * @param manager the resource manager to initialise with the resource
  * @param resource pointer to the resource which the manager should manage
  * access to
@@ -220,16 +206,10 @@ EXTERNAL void fiftyoneDegreesResourceManagerInit(
 	void(*freeResource)(void*));
 
 /**
- * Frees any data associated with the manager and releases the resource making
- * it eligible for freeing.
+ * Frees any data associated with the manager and releases the manager. All 
+ * memory is released after this operation.
  *
- * **IMPORTANT** : The resource itself is not necessarily freed after this
- * operation i.e. if there are still handles pointing to this resource, then
- * the freeing will be left until the last handle is released. For this reason,
- * the manager pointer **MUST** remain valid until the last handle has been
- * released.
- *
- * @param manager the resource manager to initialise with the resource
+ * @param manager the resource manager to be freed
  */
 EXTERNAL void fiftyoneDegreesResourceManagerFree(
 	fiftyoneDegreesResourceManager *manager);
@@ -252,6 +232,16 @@ EXTERNAL fiftyoneDegreesResourceHandle* fiftyoneDegreesResourceHandleIncUse(
  * @param handle to the resource which should be released by the manager
  */
 EXTERNAL void fiftyoneDegreesResourceHandleDecUse(
+	fiftyoneDegreesResourceHandle *handle);
+
+/**
+ * Return the current usage counter.
+ * WARNING: This call is not thread-safe and is suitable for using in
+ * testing only.
+ * @param handle to the resource which should be released by the manager
+ * @return the current usage counter
+ */
+EXTERNAL int32_t fiftyoneDegreesResourceHandleGetUse(
 	fiftyoneDegreesResourceHandle *handle);
 
 /**

@@ -1,6 +1,7 @@
 parameters:
 - name: buildPlatform
 - name: buildConfiguration
+- name: buildArguments
 
 steps:
 - checkout: self
@@ -16,7 +17,7 @@ steps:
   displayName: 'CMake Configure'
   inputs:
     workingDirectory: build
-    cmakeArgs: '.. -A ${{ parameters.buildPlatform }}'
+    cmakeArgs: '.. -A ${{ parameters.buildPlatform }} ${{ parameters.buildArguments }}'
 
 - task: CMake@1
   displayName: 'CMake Build'
@@ -33,5 +34,5 @@ steps:
   condition: true
   inputs:
     testResultsFormat: 'CTest'
-    testRunTitle: 'Windows CTest ${{ parameters.buildPlatform }} ${{ parameters.buildConfiguration }}'
+    testRunTitle: 'Windows CTest ${{ parameters.buildPlatform }} ${{ parameters.buildConfiguration }} ${{ parameters.buildArguments}}'
     testResultsFiles: '**/Test.xml'

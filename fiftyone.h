@@ -125,6 +125,7 @@ MAP_TYPE(EvidencePrefixMap)
 MAP_TYPE(EvidencePrefix)
 MAP_TYPE(Headers)
 MAP_TYPE(ResourceHandle)
+MAP_TYPE(InterlockDoubleWidth)
 MAP_TYPE(Pool)
 MAP_TYPE(PoolResourceCreate)
 MAP_TYPE(PoolResourceFree)
@@ -303,6 +304,10 @@ MAP_TYPE(Coordinate)
 #define PropertyGetValueType fiftyoneDegreesPropertyGetValueType /**< Synonym for #fiftyoneDegreesPropertyGetValueType function. */
 #define EvidencePropertiesGetMethod fiftyoneDegreesEvidencePropertiesGetMethod /**< Synonym for #fiftyoneDegreesEvidencePropertiesGetMethod function. */
 #define IpiGetCoordinate fiftyoneDegreesIpiGetCoordinate /**< Synonym for #fiftyoneDegreesIpiGetCoordinate function. */
+#define SignalCreate fiftyoneDegreesSignalCreate /**< Synonym for #fiftyoneDegreesSignalCreate function. */
+#define SignalClose fiftyoneDegreesSignalClose /**< Synonym for #fiftyoneDegreesSignalClose function. */
+#define SignalSet fiftyoneDegreesSignalSet /**< Synonym for #fiftyoneDegreesSignalSet function. */
+#define SignalWait fiftyoneDegreesSignalWait /**< Synonym for #fiftyoneDegreesSignalWait function. */
 
 /* <-- only one asterisk to avoid inclusion in documentation
  * Shortened macros.

@@ -71,3 +71,49 @@
 
 %apply (unsigned char *UCHAR, long LONG) { (unsigned char data[], long length) };
 
+/* Use byte correctly where methods would otherwise not take a proper type. */
+%typemap(jni) (unsigned char UCHAR) "int"
+%typemap(jtype) (unsigned char UCHAR) "int"
+%typemap(jstype) (unsigned char UCHAR) "byte"
+%typemap(javain) (unsigned char UCHAR) "(int)$javainput"
+%typemap(in) (unsigned char UCHAR) {
+    $1 = (byte)$input;
+  }
+%typemap(out) (unsigned char UCHAR) "$result = (int)$1;"
+%typemap(javaout) (unsigned char UCHAR) {
+    return (byte)$jnicall;
+  }
+/* Prevent default freearg typemap from being used */
+%typemap(freearg) (unsigned char UCHAR) ""
+%apply (unsigned char UCHAR) { (byte) };
+
+%define autocloseable(name)
+%typemap(javainterfaces) name "AutoCloseable";
+%typemap(javacode) name %{
+  @Override
+  public void close() {
+    this.delete();
+  }
+%}
+%enddef
+
+%define nofinalize(name)
+%typemap(javafinalize) name %{%}
+%enddef
+
+
+autocloseable(EvidenceBase);
+autocloseable(Value);
+autocloseable(std::map);
+autocloseable(std::vector);
+%extend std::vector {
+    %typemap(javainterfaces) std::vector "AutoCloseable, java.util.RandomAccess";
+};
+autocloseable(ResultsBase);
+autocloseable(EngineBase);
+
+nofinalize(ResultsBase)
+nofinalize(EvidenceBase);
+nofinalize(Value);
+nofinalize(std::map);
+nofinalize(std::vector);

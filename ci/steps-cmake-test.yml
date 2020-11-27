@@ -17,7 +17,7 @@ steps:
   displayName: 'CMake Configure'
   inputs:
     workingDirectory: build
-    cmakeArgs: '.. ${{ parameters.buildArguments }}'
+    cmakeArgs: '.. -DCMAKE_BUILD_TYPE=${{ parameters.buildConfiguration }} ${{ parameters.buildArguments }}'
 
 - task: CMake@1
   displayName: 'CMake Build'

@@ -135,10 +135,6 @@ stages:
           BuildConfiguration: Release  
           BuildArguments: -DNoThreading=ON
     steps:
-    - script: |
-        brew install dmalloc
-      displayName: 'Install Debug Malloc'
-      
     - template: ci/steps-cmake-test.yml
       parameters:
         platformName: 'Mac'
@@ -178,10 +174,6 @@ stages:
           BuildConfiguration: Release  
           BuildArguments: -DNoThreading=ON
     steps:
-    - script: |
-        sudo apt-get -y install libdmalloc-dev
-      displayName: 'Install Debug Malloc'
-
     - template: ci/steps-cmake-test.yml
       parameters:
         platformName: 'Ubuntu'  

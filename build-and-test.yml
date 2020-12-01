@@ -112,10 +112,10 @@ stages:
       matrix:
         debug x86 multi threads:
           BuildConfiguration: Debug
-          BuildArguments: -DWin32=ON -DNoThreading=OFF
+          BuildArguments: -D32bit=ON -DNoThreading=OFF
         release x86 multi threads:
           BuildConfiguration: Release 
-          BuildArguments: -DWin32=ON -DNoThreading=OFF
+          BuildArguments: -D32bit=ON -DNoThreading=OFF
         debug x64 multi threads:
           BuildConfiguration: Debug
           BuildArguments: -DNoThreading=OFF
@@ -124,10 +124,10 @@ stages:
           BuildArguments: -DNoThreading=OFF
         debug x86 single thread:
           BuildConfiguration: Debug
-          BuildArguments: -DWin32=ON -DNoThreading=ON
+          BuildArguments: -D32bit=ON -DNoThreading=ON
         release x86 single thread:
           BuildConfiguration: Release  
-          BuildArguments: -DWin32=ON -DNoThreading=ON
+          BuildArguments: -D32bit=ON -DNoThreading=ON
         debug x64 single thread:
           BuildConfiguration: Debug
           BuildArguments: -DNoThreading=ON
@@ -151,10 +151,10 @@ stages:
       matrix:
         debug x86 multi threads:
           BuildConfiguration: Debug
-          BuildArguments: -DWin32=ON -DNoThreading=OFF
+          BuildArguments: -D32bit=ON -DNoThreading=OFF
         release x86 multi threads:
           BuildConfiguration: Release 
-          BuildArguments: -DWin32=ON -DNoThreading=OFF
+          BuildArguments: -D32bit=ON -DNoThreading=OFF
         debug x64 multi threads:
           BuildConfiguration: Debug
           BuildArguments: -DNoThreading=OFF
@@ -163,10 +163,10 @@ stages:
           BuildArguments: -DNoThreading=OFF
         debug x86 single thread:
           BuildConfiguration: Debug
-          BuildArguments: -DWin32=ON -DNoThreading=ON
+          BuildArguments: -D32bit=ON -DNoThreading=ON
         release x86 single thread:
           BuildConfiguration: Release  
-          BuildArguments: -DWin32=ON -DNoThreading=ON
+          BuildArguments: -D32bit=ON -DNoThreading=ON
         debug x64 single thread:
           BuildConfiguration: Debug
           BuildArguments: -DNoThreading=ON

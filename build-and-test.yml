@@ -110,24 +110,12 @@ stages:
       vmImage: 'macOS-10.14'
     strategy:
       matrix:
-        debug x86 multi threads:
-          BuildConfiguration: Debug
-          BuildArguments: -D32bit=ON -DNoThreading=OFF
-        release x86 multi threads:
-          BuildConfiguration: Release 
-          BuildArguments: -D32bit=ON -DNoThreading=OFF
         debug x64 multi threads:
           BuildConfiguration: Debug
           BuildArguments: -DNoThreading=OFF
         release x64 multi threads:
           BuildConfiguration: Release 
           BuildArguments: -DNoThreading=OFF
-        debug x86 single thread:
-          BuildConfiguration: Debug
-          BuildArguments: -D32bit=ON -DNoThreading=ON
-        release x86 single thread:
-          BuildConfiguration: Release  
-          BuildArguments: -D32bit=ON -DNoThreading=ON
         debug x64 single thread:
           BuildConfiguration: Debug
           BuildArguments: -DNoThreading=ON
@@ -174,6 +162,12 @@ stages:
           BuildConfiguration: Release  
           BuildArguments: -DNoThreading=ON
     steps:
+    - script: |
+        sudo apt-get -y install \
+          gcc-multilib \
+          g++-multilib        
+      displayName: 'Install Required Software'
+    
     - template: ci/steps-cmake-test.yml
       parameters:
         platformName: 'Ubuntu'  

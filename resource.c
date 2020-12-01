@@ -232,7 +232,8 @@ void fiftyoneDegreesResourceHandleDecUse(
 	add(&handle->counter, -1);
 	decremented = handle->counter;
 #endif
-	if (getInUse(&decremented) <= 0 &&  // Am I the last user of the handle?
+	assert(getInUse(&decremented) >= 0);
+	if (getInUse(&decremented) == 0 &&  // Am I the last user of the handle?
 		handle->manager->active != getHandle(&decremented)) { // Is the handle still active?
 #ifndef FIFTYONE_DEGREES_NO_THREADING
 		// Atomically set the handle's self pointer to null to ensure only
@@ -267,9 +268,6 @@ void fiftyoneDegreesResourceHandleDecUse(
 #else
 		freeHandle(getHandle(&decremented));
 #endif
-	}
-	else {
-		assert(getInUse(&handle->counter) >= 0);
 	}
 }
 

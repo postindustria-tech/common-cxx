@@ -166,7 +166,7 @@ stages:
         sudo apt-get -y install \
           gcc-multilib \
           g++-multilib        
-      displayName: 'Install Required Software'
+      displayName: 'Install Required Packages'
     
     - template: ci/steps-cmake-test.yml
       parameters:

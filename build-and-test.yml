@@ -101,7 +101,7 @@ stages:
         buildConfiguration: '$(BuildConfiguration)'
         buildArguments: '$(BuildArguments)'
 
-- stage: Mac
+- stage: MacOS
   dependsOn: []
   jobs:
   - job: Build_And_Test_Mac

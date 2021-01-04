@@ -596,7 +596,6 @@ static Collection* createFromFilePartial(
 
 	// Position the file reader at the start of the collection.
 	if (fseek(file, header->startPosition, SEEK_SET) != 0) {
-		free(memory->memoryToFree);
 		freeMemoryCollection(collection);
 		source->freeCollection(source);
 		return NULL;
@@ -605,7 +604,6 @@ static Collection* createFromFilePartial(
 	// Read the portion of the file into memory.
 	if (fread(memory->firstByte, 1, memory->collection->size, file) !=
 		memory->collection->size) {
-		free(memory->memoryToFree);
 		freeMemoryCollection(collection);
 		source->freeCollection(source);
 		return NULL;
@@ -613,7 +611,6 @@ static Collection* createFromFilePartial(
 
 	// Move the file position to the byte after the collection.
 	if (fseek(file, source->size - memory->collection->size, SEEK_CUR) != 0) {
-		free(memory->memoryToFree);
 		freeMemoryCollection(collection);
 		source->freeCollection(source);
 		return NULL;
@@ -764,8 +761,10 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromMemory(
 	fiftyoneDegreesCollectionHeader header) {
 
 	// Validate the header and the reader are in sync at the correct position.
-	assert((uint32_t)(reader->current - reader->startByte) ==
-		header.startPosition);
+	if ((uint32_t)(reader->current - reader->startByte) !=
+		header.startPosition) {
+		return NULL;
+	}
 
 	// Allocate the memory for the collection and implementation.
 	Collection *collection = createCollection(
@@ -862,6 +861,11 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromFile(
 			config->loaded,
 			read);
 
+		if (result == NULL) {
+			// The collection could not be created from file.
+			return NULL;
+		
+		}
 		// Point to the next collection to create.
 		next = &result->next;
 	}
@@ -1067,6 +1071,7 @@ static void* readFileVariable(
 						ptr = data->ptr;
 					}
 					else {
+						Free(data->ptr);
 						EXCEPTION_SET(COLLECTION_FILE_READ_FAIL);
 					}
 				}

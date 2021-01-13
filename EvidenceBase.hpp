@@ -76,7 +76,7 @@ namespace FiftyoneDegrees {
 			/**
 			 * Free all the underlying memory containing the evidence.
 			 */
-			~EvidenceBase();
+			virtual ~EvidenceBase();
 
 			/**
 			 * @}

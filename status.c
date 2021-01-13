@@ -112,7 +112,7 @@ static char defaultMessage[] = "Status code %i does not have any message text.";
 const char* fiftyoneDegreesStatusGetMessage(
 	fiftyoneDegreesStatusCode status,
 	const char *fileName) {
-	int i;
+	uint32_t i;
 	size_t messageSize;
 	StatusMessage *current;
 	char *message = NULL;

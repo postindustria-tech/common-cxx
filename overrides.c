@@ -51,7 +51,7 @@ static void collectionRelease(Item *item) {
 /* Prefix to use when comparing property names. */
 #define OVERRIDE_PREFIX "51D_"
 
-const static Collection dummyCollection = { 
+static const Collection dummyCollection = { 
 	NULL, 
 	collectionRelease, 
 	NULL, 

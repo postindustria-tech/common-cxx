@@ -149,7 +149,7 @@ static void iteratePropertiesFromExisting(
 	matchedPropertyMethod match) {
 	uint32_t i;
 	String *propertyName;
-	uint32_t propertyIndex;
+	int propertyIndex;
 	for (i = 0; i < existing->count; i++) {
 		propertyName = (String*)existing->items[i].name.data.ptr;
 		if (propertyName != NULL) {

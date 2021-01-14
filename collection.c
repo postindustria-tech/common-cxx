@@ -871,7 +871,7 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromFile(
 	}
 
 	if (result == NULL || (
-		(int)result->count == config->loaded &&
+		result->count == config->loaded &&
 		(long)result->size < (long)(ftell(file) - header.startPosition))) {
 
 		// Create the next collection if one is needed.

@@ -225,7 +225,7 @@ static bool compareFiles(
 
 	while (ftell(file) < size &&
 		(bytesToCompare < 0 || ftell(file) < bytesToCompare)) {
-		read = bytesToCompare > 0 ? bytesToCompare : sizeof(buffer);
+		read = bytesToCompare > 0 ? bytesToCompare : (long)sizeof(buffer);
 		if (size - ftell(file) < read) {
 			read = size - ftell(file);
 		}
@@ -493,7 +493,7 @@ bool isFileInUse(const char *pathName) {
                         strcmp(ent2->d_name, "..") != 0) {
                         // Get the path which the symlink is pointing to
                         sprintf(linkFile, "%s/%s", fdPath, ent2->d_name);
-                        size_t written =
+                        ssize_t written =
 							readlink(linkFile, linkPath, FILE_MAX_PATH);
                         if (written >= 0) {
                             linkPath[written] = '\0';

@@ -114,7 +114,7 @@ uint32_t fiftyoneDegreesEvidenceIterate(
 
 fiftyoneDegreesEvidencePrefixMap* fiftyoneDegreesEvidenceMapPrefix(
 	const char *key) {
-	int i;
+	uint32_t i;
 	size_t length = strlen(key);
 	EvidencePrefixMap *map;
 	for (i = 0; i < sizeof(_map) / sizeof(EvidencePrefixMap); i++) {

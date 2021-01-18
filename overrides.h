@@ -76,6 +76,12 @@
 #include "evidence.h"
 #include "array.h"
 
+#ifdef __cplusplus
+#define EXTERNAL extern "C"
+#else
+#define EXTERNAL
+#endif
+
 /**
  * Index and pointer to a property which can be overridden.
  */
@@ -257,7 +263,7 @@ void fiftyoneDegreesOverrideValuesFree(
  * @param state pointer to pass to the override method
  * @param override method called to override a profile id
  */
-void fiftyoneDegreesOverrideProfileIds(
+EXTERNAL void fiftyoneDegreesOverrideProfileIds(
 	fiftyoneDegreesEvidenceKeyValuePairArray *evidence, 
 	void *state, 
 	fiftyoneDegreesOverrideProfileIdMethod override);

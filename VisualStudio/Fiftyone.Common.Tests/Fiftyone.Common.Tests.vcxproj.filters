@@ -96,7 +96,7 @@
     <ClCompile Include="..\..\tests\CoordinateTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\tests\TextFileTests.cpp">
+    <ClCompile Include="..\..\tests\OverridesTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

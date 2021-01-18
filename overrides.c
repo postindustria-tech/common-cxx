@@ -408,7 +408,9 @@ static void extractProfileIds(overrideProfileIds *state, char *value) {
 }
 
 static bool iteratorProfileId(void *state, EvidenceKeyValuePair *pair) {
-	if (strcmp(skipPrefix(true, (char*)pair->field), "ProfileIds") == 0) {
+	if (StringCompare(
+		skipPrefix(true, (char*)pair->field),
+		"ProfileIds") == 0) {
 		extractProfileIds((overrideProfileIds*)state, (char*)pair->parsedValue);
 	}
 	return true;

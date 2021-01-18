@@ -62,6 +62,7 @@
     <ClCompile Include="..\..\tests\IpHeaderParserTests.cpp" />
     <ClCompile Include="..\..\tests\IpParserTests.cpp" />
     <ClCompile Include="..\..\tests\main.cpp" />
+    <ClCompile Include="..\..\tests\OverridesTests.cpp" />
     <ClCompile Include="..\..\tests\pch.cpp" />
     <ClCompile Include="..\..\tests\PropertiesTests.cpp" />
     <ClCompile Include="..\..\tests\PropertyMetaDataTests.cpp" />

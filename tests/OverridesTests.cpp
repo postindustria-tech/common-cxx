@@ -54,7 +54,7 @@ TEST(OverrideProfileIdsTests, CaseSensitivity) {
 	fiftyoneDegreesEvidenceAddString(
 		evidence,
 		FIFTYONE_DEGREES_EVIDENCE_QUERY,
-		"51D_profileids",
+		"51d_profileids",
 		"55-66-77-88-99");
 
 	state = 0;

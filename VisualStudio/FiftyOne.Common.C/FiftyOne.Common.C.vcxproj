@@ -74,6 +74,7 @@
     <ClInclude Include="..\..\profile.h" />
     <ClInclude Include="..\..\properties.h" />
     <ClInclude Include="..\..\property.h" />
+    <ClInclude Include="..\..\pseudoheader.h" />
     <ClInclude Include="..\..\resource.h" />
     <ClInclude Include="..\..\results.h" />
     <ClInclude Include="..\..\status.h" />
@@ -103,6 +104,7 @@
     <ClCompile Include="..\..\profile.c" />
     <ClCompile Include="..\..\properties.c" />
     <ClCompile Include="..\..\property.c" />
+    <ClCompile Include="..\..\pseudoheader.c" />
     <ClCompile Include="..\..\resource.c" />
     <ClCompile Include="..\..\results.c" />
     <ClCompile Include="..\..\status.c" />

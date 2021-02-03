@@ -66,6 +66,7 @@ fiftyoneDegreesEvidenceCreate(uint32_t capacity) {
 			evidence->items[i].parsedValue = NULL;
 			evidence->items[i].prefix = FIFTYONE_DEGREES_EVIDENCE_IGNORE;
 		}
+		evidence->pseudoEvidence = NULL;
 	}
 	return evidence;
 }

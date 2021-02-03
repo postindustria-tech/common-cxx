@@ -169,7 +169,13 @@ typedef struct fiftyone_degrees_evidence_key_value_pair_t {
 	const void *parsedValue; /**< The parsed value which may not be a string */
 } fiftyoneDegreesEvidenceKeyValuePair;
 
-FIFTYONE_DEGREES_ARRAY_TYPE(fiftyoneDegreesEvidenceKeyValuePair, )
+#define EVIDENCE_KEY_VALUE_MEMBERS \
+struct fiftyone_degrees_array_fiftyoneDegreesEvidenceKeyValuePair_t* pseudoEvidence; /**< The pseudo evidence. #fiftyoneDegreesEvidenceKeyValuePairArray type */
+
+FIFTYONE_DEGREES_ARRAY_TYPE(
+	fiftyoneDegreesEvidenceKeyValuePair,
+	EVIDENCE_KEY_VALUE_MEMBERS)
+
 
 /**
  * Callback method used to iterate evidence key value pairs.

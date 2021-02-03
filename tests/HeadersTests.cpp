@@ -96,6 +96,8 @@ TEST_F(HeadersTests, Single) {
 		sizeof(testHeaders_Single) / sizeof(const char*),
 		false);
 	ASSERT_EQ(1, headers->count);
+	EXPECT_EQ(0, headers->pseudoHeadersCount);
+	EXPECT_EQ(NULL, headers->pseudoHeaders);
 	fiftyoneDegreesString* str = (fiftyoneDegreesString*)headers->items[0].name.data.ptr;
 	EXPECT_STREQ("Red", FIFTYONE_DEGREES_STRING(str));
 }
@@ -118,6 +120,8 @@ TEST_F(HeadersTests, Multiple) {
 		false);
 
 	ASSERT_EQ(4, headers->count);
+	EXPECT_EQ(0, headers->pseudoHeadersCount);
+	EXPECT_EQ(NULL, headers->pseudoHeaders);
 	EXPECT_STREQ("Red", FIFTYONE_DEGREES_STRING(
 		(fiftyoneDegreesString*)headers->items[0].name.data.ptr));
 	EXPECT_STREQ("Green", FIFTYONE_DEGREES_STRING(
@@ -144,6 +148,8 @@ TEST_F(HeadersTests, SingleDuplicate) {
 		false);
 
 	ASSERT_EQ(1, headers->count);
+	EXPECT_EQ(0, headers->pseudoHeadersCount);
+	EXPECT_EQ(NULL, headers->pseudoHeaders);
 	EXPECT_STREQ("Red", FIFTYONE_DEGREES_STRING(
 		(fiftyoneDegreesString*)headers->items[0].name.data.ptr));
 }
@@ -168,6 +174,8 @@ TEST_F(HeadersTests, MultipleDuplicate) {
 		false);
 
 	ASSERT_EQ(3, headers->count);
+	EXPECT_EQ(0, headers->pseudoHeadersCount);
+	EXPECT_EQ(NULL, headers->pseudoHeaders);
 	EXPECT_STREQ("Green", FIFTYONE_DEGREES_STRING(
 		(fiftyoneDegreesString*)headers->items[0].name.data.ptr));
 	EXPECT_STREQ("Red", FIFTYONE_DEGREES_STRING(
@@ -195,6 +203,8 @@ TEST_F(HeadersTests, EmptyString) {
 		false);
 
 	ASSERT_EQ(2, headers->count);
+	EXPECT_EQ(0, headers->pseudoHeadersCount);
+	EXPECT_EQ(NULL, headers->pseudoHeaders);
 	EXPECT_STREQ("Green", FIFTYONE_DEGREES_STRING(
 		(fiftyoneDegreesString*)headers->items[0].name.data.ptr));
 	EXPECT_STREQ("Black", FIFTYONE_DEGREES_STRING(
@@ -218,6 +228,8 @@ TEST_F(HeadersTests, NullString) {
 		false);
 
 	ASSERT_EQ(2, headers->count);
+	EXPECT_EQ(0, headers->pseudoHeadersCount);
+	EXPECT_EQ(NULL, headers->pseudoHeaders);
 	EXPECT_STREQ("Green", FIFTYONE_DEGREES_STRING(
 		(fiftyoneDegreesString*)headers->items[0].name.data.ptr));
 	EXPECT_STREQ("Black", FIFTYONE_DEGREES_STRING(
@@ -240,6 +252,8 @@ TEST_F(HeadersTests, CheckCase) {
 		sizeof(testHeaders_Case) / sizeof(const char*),
 		false);
 	ASSERT_EQ(2, headers->count);
+	EXPECT_EQ(0, headers->pseudoHeadersCount);
+	EXPECT_EQ(NULL, headers->pseudoHeaders);
 	EXPECT_STREQ("Green", FIFTYONE_DEGREES_STRING(
 		(fiftyoneDegreesString*)headers->items[0].name.data.ptr));
 	EXPECT_STREQ("Black", FIFTYONE_DEGREES_STRING(
@@ -286,4 +300,65 @@ TEST_F(HeadersTests, None) {
 		0,
 		false);
 	ASSERT_EQ(0, headers->count);
+	EXPECT_EQ(0, headers->pseudoHeadersCount);
+	EXPECT_EQ(NULL, headers->pseudoHeaders);
+}
+
+// ----------------------------------------------------------------------
+// Check that header collection creation construct pseudo headers
+// correctly
+// ----------------------------------------------------------------------
+const char* testHeaders_PseudoHeaders[] = {
+	"header1",
+	"header2",
+	"header3",
+	"header1|header2",
+	"header2|header3",
+	"header1|header2|header3"
+};
+
+TEST_F(HeadersTests, PseudoHeaders) {
+	CreateHeaders(
+		testHeaders_PseudoHeaders,
+		sizeof(testHeaders_PseudoHeaders) / sizeof(const char*),
+		false);
+	EXPECT_EQ(6, headers->count);
+	EXPECT_EQ(3, headers->pseudoHeadersCount);
+	EXPECT_TRUE(headers->pseudoHeaders != NULL);
+	EXPECT_STREQ("header1", FIFTYONE_DEGREES_STRING(
+		(fiftyoneDegreesString*)headers->items[0].name.data.ptr));
+	EXPECT_EQ(NULL, headers->items[0].requestHeaders);
+	EXPECT_EQ(0, headers->items[0].requestHeaderCount);
+
+	EXPECT_STREQ("header2", FIFTYONE_DEGREES_STRING(
+		(fiftyoneDegreesString*)headers->items[1].name.data.ptr));
+	EXPECT_EQ(NULL, headers->items[1].requestHeaders);
+	EXPECT_EQ(0, headers->items[1].requestHeaderCount);
+
+	EXPECT_STREQ("header3", FIFTYONE_DEGREES_STRING(
+		(fiftyoneDegreesString*)headers->items[2].name.data.ptr));
+	EXPECT_EQ(NULL, headers->items[2].requestHeaders);
+	EXPECT_EQ(0, headers->items[2].requestHeaderCount);
+
+	EXPECT_STREQ("header1|header2", FIFTYONE_DEGREES_STRING(
+		(fiftyoneDegreesString*)headers->items[3].name.data.ptr));
+	EXPECT_TRUE(headers->items[3].requestHeaders != NULL);
+	EXPECT_EQ(2, headers->items[3].requestHeaderCount);
+	EXPECT_EQ(0, headers->items[3].requestHeaders[0]);
+	EXPECT_EQ(1, headers->items[3].requestHeaders[1]);
+
+	EXPECT_STREQ("header2|header3", FIFTYONE_DEGREES_STRING(
+		(fiftyoneDegreesString*)headers->items[4].name.data.ptr));
+	EXPECT_TRUE(headers->items[4].requestHeaders != NULL);
+	EXPECT_EQ(2, headers->items[4].requestHeaderCount);
+	EXPECT_EQ(1, headers->items[4].requestHeaders[0]);
+	EXPECT_EQ(2, headers->items[4].requestHeaders[1]);
+
+	EXPECT_STREQ("header1|header2|header3", FIFTYONE_DEGREES_STRING(
+		(fiftyoneDegreesString*)headers->items[5].name.data.ptr));
+	EXPECT_TRUE(headers->items[5].requestHeaders != NULL);
+	EXPECT_EQ(3, headers->items[5].requestHeaderCount);
+	EXPECT_EQ(0, headers->items[5].requestHeaders[0]);
+	EXPECT_EQ(1, headers->items[5].requestHeaders[1]);
+	EXPECT_EQ(2, headers->items[5].requestHeaders[2]);
 }

@@ -48,7 +48,7 @@
 #define FIFTYONE_DEGREES_ARRAY_TYPE(t, m) \
 /** Array of items of type t used to easily access and track the
     size of the array. */ \
-typedef struct fiftone_degrees_array_##t##_t { \
+typedef struct fiftyone_degrees_array_##t##_t { \
 	uint32_t count; /**< Number of used items */ \
 	uint32_t capacity; /**< Number of available items */ \
 	t *items; /**< Pointer to the first item */ \

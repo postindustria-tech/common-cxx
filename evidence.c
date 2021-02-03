@@ -92,23 +92,48 @@ fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddString(
 	return pair;
 }
 
-uint32_t fiftyoneDegreesEvidenceIterate(
-	fiftyoneDegreesEvidenceKeyValuePairArray *evidence,
+static uint32_t evidenceIterateSub(
+	fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
 	int prefixes,
-	void *state,
+	void* state,
+	bool* cont,
 	fiftyoneDegreesEvidenceIterateMethod callback) {
 	uint32_t i = 0, count = 0;
-	bool cont = true;
-	EvidenceKeyValuePair *pair;
-	while (cont == true &&  i < evidence->count) {
+	EvidenceKeyValuePair* pair;
+	while (*cont == true && i < evidence->count) {
 		pair = &evidence->items[i++];
 		if ((pair->prefix & prefixes) == pair->prefix) {
 			if (pair->parsedValue == NULL) {
 				parsePair(evidence, pair);
 			}
-			cont = callback(state, pair);
+			*cont = callback(state, pair);
 			count++;
 		}
+	}
+	return count;
+}
+
+uint32_t fiftyoneDegreesEvidenceIterate(
+	fiftyoneDegreesEvidenceKeyValuePairArray *evidence,
+	int prefixes,
+	void *state,
+	fiftyoneDegreesEvidenceIterateMethod callback) {
+	bool cont = true;
+	uint32_t count = evidenceIterateSub(
+		evidence,
+		prefixes,
+		state,
+		&cont,
+		callback);
+
+	// Continue if there is a secondary evidence
+	if (cont == true && evidence->pseudoEvidence != NULL) {
+		count += evidenceIterateSub(
+			evidence->pseudoEvidence,
+			prefixes,
+			state,
+			&cont,
+			callback);
 	}
 	return count;
 }

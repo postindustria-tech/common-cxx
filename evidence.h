@@ -227,7 +227,9 @@ EXTERNAL fiftyoneDegreesEvidencePrefixMap* fiftyoneDegreesEvidenceMapPrefix(
 
 /**
  * Iterates over the evidence calling the callback method for any values that
- * match the prefixes provided.
+ * match the prefixes provided. If there are pseudo evidence, this
+ * will also iterate through them and perform the callback on each.
+ *
  * @param evidence key value pairs including prefixes
  * @param prefixes one or more prefix flags to return values for
  * @param state pointer passed to the callback method

@@ -1,6 +1,5 @@
 #include "pseudoheader.h"
 #include "string.h"
-#include "mempool.h"
 
 /*
  * Return the evidence value from input request header.

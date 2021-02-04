@@ -1,8 +1,13 @@
 #include "PseudoHeaderTests.hpp"
 #include "../pseudoheader.h"
 
+#define PSEUDO_BUFFER_SIZE 100
+#define NO_PSEUDO_HEADERS 3
+#define NO_HEADERS 8
+#define NO_HEADERS_NO_PSEUDO 2
+
 // Fixed set of unique headers
-static testString uniqueHeaders[8] = {
+static testString uniqueHeaders[NO_HEADERS] = {
 	{
 		(uint16_t)strlen("header1"),
 		"header1"
@@ -37,7 +42,7 @@ static testString uniqueHeaders[8] = {
 	}
 };
 
-static testString uniqueHeadersNoPseudoHeader[2] = {
+static testString uniqueHeadersNoPseudoHeader[NO_HEADERS_NO_PSEUDO] = {
 	{
 		(uint16_t)strlen("header1"),
 		"header1"
@@ -48,7 +53,6 @@ static testString uniqueHeadersNoPseudoHeader[2] = {
 	}
 };
 
-char pseudoEvidenceValue[3][100];
 static fiftyoneDegreesCollection stringCollection;
 
 // A dummy collection release method
@@ -74,11 +78,17 @@ static long getUniqueHeader(
 }
 
 PseudoHeaderTests::PseudoHeaderTests() {
-	evidence = fiftyoneDegreesEvidenceCreate(6);
-	evidence->pseudoEvidence = fiftyoneDegreesEvidenceCreate(3);
-	evidence->pseudoEvidence->items[0].originalValue = pseudoEvidenceValue[0];
-	evidence->pseudoEvidence->items[1].originalValue = pseudoEvidenceValue[1];
-	evidence->pseudoEvidence->items[2].originalValue = pseudoEvidenceValue[2];
+	evidence = fiftyoneDegreesEvidenceCreate(NO_HEADERS);
+	evidence->pseudoEvidence = fiftyoneDegreesEvidenceCreate(NO_PSEUDO_HEADERS);
+	for (int i = 0; i < NO_PSEUDO_HEADERS; i++) {
+		evidence->pseudoEvidence->items[i].originalValue =
+			fiftyoneDegreesMalloc(PSEUDO_BUFFER_SIZE);
+		EXPECT_TRUE(evidence->pseudoEvidence->items[i].originalValue != NULL);
+		memset(
+			(void*)evidence->pseudoEvidence->items[i].originalValue,
+			'\0',
+			PSEUDO_BUFFER_SIZE);
+	}
 
 	// Create normal headers
 	testHeaders headers = { 
@@ -102,6 +112,10 @@ PseudoHeaderTests::PseudoHeaderTests() {
 }
 
 PseudoHeaderTests::~PseudoHeaderTests() {
+	for (int i = 0; i < NO_PSEUDO_HEADERS; i++) {
+		fiftyoneDegreesFree(
+			(void *)evidence->pseudoEvidence->items[i].originalValue);
+	}
 	fiftyoneDegreesHeadersFree(acceptedHeaders);
 	fiftyoneDegreesEvidenceFree(evidence->pseudoEvidence);
 	fiftyoneDegreesEvidenceFree(evidence);
@@ -159,21 +173,21 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidInput) {
 		"{header2@value2}{header3@value3}",
 		"{header1@value1}{header2@value2}{header3@value3}"
 	};
-
+	
 	testKeyValuePair evidenceList[3] =
 	{ {"header1", "value1"}, {"header2", "value2"}, {"header3", "value3"} };
 	addEvidence(evidenceList, 3, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
-
+	
 	FIFTYONE_DEGREES_EXCEPTION_CREATE;
 	fiftyoneDegreesPseudoHeadersAddEvidence(
 		evidence,
 		acceptedHeaders,
-		100,
+		PSEUDO_BUFFER_SIZE,
 		exception);
 	FIFTYONE_DEGREES_EXCEPTION_THROW;
-
+	
 	checkResults(expectedEvidence, 3);
-	removePseudoEvidence(100);
+	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidInputReverseOrder) {
@@ -193,12 +207,12 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidInputReverseOrder) {
 	fiftyoneDegreesPseudoHeadersAddEvidence(
 		evidence,
 		acceptedHeaders,
-		100,
+		PSEUDO_BUFFER_SIZE,
 		exception);
 	FIFTYONE_DEGREES_EXCEPTION_THROW;
 
 	checkResults(expectedEvidence, 3);
-	removePseudoEvidence(100);
+	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidPartialInput) {
@@ -218,12 +232,12 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidPartialInput) {
 	fiftyoneDegreesPseudoHeadersAddEvidence(
 		evidence,
 		acceptedHeaders,
-		100,
+		PSEUDO_BUFFER_SIZE,
 		exception);
 	FIFTYONE_DEGREES_EXCEPTION_THROW;
 
 	checkResults(expectedEvidence, 3);
-	removePseudoEvidence(100);
+	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationPositiveQueryInput) {
@@ -246,12 +260,12 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveQueryInput) {
 	fiftyoneDegreesPseudoHeadersAddEvidence(
 		evidence,
 		acceptedHeaders,
-		100,
+		PSEUDO_BUFFER_SIZE,
 		exception);
 	FIFTYONE_DEGREES_EXCEPTION_THROW;
 
 	checkResults(expectedEvidence, 3);
-	removePseudoEvidence(100);
+	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationNoPseudoHeaders) {
@@ -263,13 +277,13 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNoPseudoHeaders) {
 	fiftyoneDegreesPseudoHeadersAddEvidence(
 		evidence,
 		acceptedHeadersNoPseudoHeaders,
-		100,
+		PSEUDO_BUFFER_SIZE,
 		exception);
 	FIFTYONE_DEGREES_EXCEPTION_THROW;
 
 	EXPECT_EQ(0, evidence->pseudoEvidence->count) <<
 		"No pseudo evidence should has been added\n";
-	removePseudoEvidence(100);
+	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationNoRequestHeadersForPseudoHeaders) {
@@ -281,13 +295,13 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNoRequestHeadersForPseudoHeaders) {
 	fiftyoneDegreesPseudoHeadersAddEvidence(
 		evidence,
 		acceptedHeaders,
-		100,
+		PSEUDO_BUFFER_SIZE,
 		exception);
 	FIFTYONE_DEGREES_EXCEPTION_THROW;
 
 	EXPECT_EQ(0, evidence->pseudoEvidence->count) <<
 		"No pseudo evidence should has been added\n";
-	removePseudoEvidence(100);
+	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
@@ -299,13 +313,13 @@ TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
 	fiftyoneDegreesPseudoHeadersAddEvidence(
 		evidence,
 		acceptedHeaders,
-		100,
+		PSEUDO_BUFFER_SIZE,
 		exception);
 	FIFTYONE_DEGREES_EXCEPTION_THROW;
 
 	EXPECT_EQ(0, evidence->pseudoEvidence->count) <<
 		"No pseudo evidence should has been added\n";
-	removePseudoEvidence(100);
+	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationNullPointerInput) {
@@ -314,7 +328,7 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNullPointerInput) {
 	fiftyoneDegreesPseudoHeadersAddEvidence(
 		NULL,
 		acceptedHeaders,
-		100,
+		PSEUDO_BUFFER_SIZE,
 		exception);
 	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_NULL_POINTER, exception->status) <<
 		"Status code should be NULL_POINTER where evidence pointer is null\n";
@@ -323,7 +337,7 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNullPointerInput) {
 	fiftyoneDegreesPseudoHeadersAddEvidence(
 		evidence,
 		NULL,
-		100,
+		PSEUDO_BUFFER_SIZE,
 		exception);
 	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_NULL_POINTER, exception->status) <<
 		"Status code should be NULL_POINTER where headers pointer is null\n";
@@ -353,12 +367,12 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceAlreadyIncluded) {
 	fiftyoneDegreesPseudoHeadersAddEvidence(
 		evidence,
 		acceptedHeaders,
-		100,
+		PSEUDO_BUFFER_SIZE,
 		exception);
 	FIFTYONE_DEGREES_EXCEPTION_THROW;
 
 	checkResults(expectedEvidence, 2);
-	removePseudoEvidence(100);
+	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceAllAlreadyIncluded) {
@@ -382,13 +396,13 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceAllAlreadyIncluded) {
 	fiftyoneDegreesPseudoHeadersAddEvidence(
 		evidence,
 		acceptedHeaders,
-		100,
+		PSEUDO_BUFFER_SIZE,
 		exception);
 	FIFTYONE_DEGREES_EXCEPTION_THROW;
 
 	EXPECT_EQ(0, evidence->pseudoEvidence->count) <<
 		"No new evidence should have been added\n";
-	removePseudoEvidence(100);
+	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
 TEST_F(PseudoHeaderTests, EvidenceRemoveNullPointerInput) {

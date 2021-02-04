@@ -94,9 +94,10 @@ static void addUniqueHeaders(
 }
 
 static uint32_t countRequestHeaders(const char* pseudoHeaders) {
-	uint32_t count = 0;
+	uint32_t count;
 	const char* tmp = pseudoHeaders;
-	for (count = 0;
+	// Count start from 1 as there be at list one headr name
+	for (count = 1;
 		(tmp = strchr(tmp, '|')) != NULL;
 		tmp++, count++) {}
 	return count;

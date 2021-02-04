@@ -161,6 +161,9 @@ fiftyoneDegreesPseudoHeadersAddEvidence(
                         evidence->pseudoEvidence->count++;
                     }
                     else if (charAdded < 0) {
+                        fiftyoneDegreesPseudoHeadersRemoveEvidence(
+                            evidence,
+                            bufferSize);
                         // The reason to set exception here is because without
                         // a fully constructed pseudo evidence, Client Hints
                         // won't work.

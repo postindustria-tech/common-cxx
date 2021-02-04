@@ -69,35 +69,35 @@ static int constructPseudoEvidence(
             // Add open bracket
             appendString(
                 buffer,
-                bufferSize,
+                (int)bufferSize,
                 charactersAdded,
                 tempCount,
                 "{")
             // Add header and value
             appendString(
                 buffer,
-                bufferSize,
+                (int)bufferSize,
                 charactersAdded,
                 tempCount,
                 requestHeaderName)
             // Add @
             appendString(
                 buffer,
-                bufferSize,
+                (int)bufferSize,
                 charactersAdded,
                 tempCount,
                 "@")
             // Add evidence
             appendString(
                 buffer,
-                bufferSize,
+                (int)bufferSize,
                 charactersAdded,
                 tempCount,
                 requestHeaderValue)
                 // Add open bracket
             appendString(
                 buffer,
-                bufferSize,
+                (int)bufferSize,
                 charactersAdded,
                 tempCount,
                 "}")

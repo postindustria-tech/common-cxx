@@ -256,7 +256,7 @@ void fiftyoneDegreesDataSetReset(fiftyoneDegreesDataSetBase *dataSet);
  * @param manager pointer to the manager which manages the data set resource
  * @return pointer to the data set resource
  */
-fiftyoneDegreesDataSetBase* fiftyoneDegreesDataSetGet(
+EXTERNAL fiftyoneDegreesDataSetBase* fiftyoneDegreesDataSetGet(
 	fiftyoneDegreesResourceManager *manager);
 
 /** 
@@ -264,7 +264,7 @@ fiftyoneDegreesDataSetBase* fiftyoneDegreesDataSetGet(
  * method.
  * @param dataSet pointer to the data set to release
  */
-void fiftyoneDegreesDataSetRelease(fiftyoneDegreesDataSetBase *dataSet);
+EXTERNAL void fiftyoneDegreesDataSetRelease(fiftyoneDegreesDataSetBase *dataSet);
 
 /**
  * Closes the data set by freeing anything which has been initialised at

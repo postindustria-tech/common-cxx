@@ -284,7 +284,9 @@ void fiftyoneDegreesHeadersFree(fiftyoneDegreesHeaders *headers) {
 				&headers->items[i].name);
 		}
 		freePseudoHeaders(headers);
-		Free(headers->pseudoHeaders);
+		if (headers->pseudoHeaders != NULL) {
+			Free(headers->pseudoHeaders);
+		}
 		Free(headers);
 		headers = NULL;
 	}

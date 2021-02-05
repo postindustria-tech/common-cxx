@@ -133,10 +133,8 @@ typedef enum e_fiftyone_degrees_status_code {
 															range */
 	FIFTYONE_DEGREES_STATUS_COLLECTION_FILE_SEEK_FAIL, /**< Seek failure */
 	FIFTYONE_DEGREES_STATUS_COLLECTION_FILE_READ_FAIL, /**< Read failure */
-	FIFTYONE_DEGREES_STATUS_INCORRECT_IP_ADDRESS_FORMAT, /**< IP address 
+	FIFTYONE_DEGREES_STATUS_INCORRECT_IP_ADDRESS_FORMAT /**< IP address 
 														format is incorrect */
-	FIFTYONE_DEGREES_STATUS_INSUFFICIENT_BUFFER /**< Buffer provided is not big
-												enough */
 } fiftyoneDegreesStatusCode;
 
 /**

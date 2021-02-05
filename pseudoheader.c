@@ -168,7 +168,7 @@ fiftyoneDegreesPseudoHeadersAddEvidence(
                         // a fully constructed pseudo evidence, Client Hints
                         // won't work.
                         FIFTYONE_DEGREES_EXCEPTION_SET(
-                            FIFTYONE_DEGREES_STATUS_INSUFFICIENT_BUFFER);
+                            FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
                         break;
                     }
                 }

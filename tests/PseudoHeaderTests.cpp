@@ -7,77 +7,24 @@
 #define NO_HEADERS_NO_PSEUDO 2
 
 // Fixed set of unique headers
-static testString uniqueHeaders[NO_HEADERS] = {
-	{
-		(uint16_t)strlen("header1"),
-		"header1"
-	},
-	{
-		(uint16_t)strlen("header2"),
-		"header2"
-	},
-	{
-		(uint16_t)strlen("header3"),
-		"header3"
-	},
-	{
-		(uint16_t)strlen("header4"),
-		"header4"
-	},
-	{
-		(uint16_t)strlen("header5"),
-		"header5"
-	},
-	{
-		(uint16_t)strlen("header1|header2"),
-		"header1|header2"
-	},
-	{
-		(uint16_t)strlen("header2|header3"),
-		"header2|header3"
-	},
-	{
-		(uint16_t)strlen("header1|header2|header3"),
-		"header1|header2|header3"
-	}
+static const char *uniqueHeaders[NO_HEADERS] = {
+	"header1",
+	"header2",
+	"header3",
+	"header4",
+	"header5",
+	"header1|header2",
+	"header2|header3",
+	"header1|header2|header3"
 };
 
-static testString uniqueHeadersNoPseudoHeader[NO_HEADERS_NO_PSEUDO] = {
-	{
-		(uint16_t)strlen("header1"),
-		"header1"
-	},
-	{
-		(uint16_t)strlen("header2"),
-		"header2"
-	}
+static const char *uniqueHeadersNoPseudoHeader[NO_HEADERS_NO_PSEUDO] = {
+	"header1",
+	"header2"
 };
 
-static fiftyoneDegreesCollection stringCollection;
-
-// A dummy collection release method
-static void collectionItemRelease(fiftyoneDegreesCollectionItem* item) {
-	return;
-}
-
-// Return a unique header. Used when creating unique headers list.
-static long getUniqueHeader(
-	void* state,
-	uint32_t index,
-	fiftyoneDegreesCollectionItem* nameItem) {
-	testHeaders* headers = (testHeaders*)state;
-	if (index < headers->size) {
-		nameItem->data.ptr = (byte*)&headers->headers[index];
-		nameItem->collection = &stringCollection;
-		stringCollection.release = collectionItemRelease;
-		return index + 1000;
-	}
-	else {
-		return -1;
-	}
-}
-
-PseudoHeaderTests::PseudoHeaderTests() {
+void PseudoHeaderTests::SetUp() {
+	Base::SetUp();
 	evidence = fiftyoneDegreesEvidenceCreate(NO_HEADERS);
 	evidence->pseudoEvidence = fiftyoneDegreesEvidenceCreate(NO_PSEUDO_HEADERS);
 	for (int i = 0; i < NO_PSEUDO_HEADERS; i++) {
@@ -89,29 +36,9 @@ PseudoHeaderTests::PseudoHeaderTests() {
 			'\0',
 			PSEUDO_BUFFER_SIZE);
 	}
-
-	// Create normal headers
-	testHeaders headers = { 
-		sizeof(uniqueHeaders) / sizeof(testString),
-		uniqueHeaders
-	};
-	acceptedHeaders = fiftyoneDegreesHeadersCreate(
-		false,
-		&headers,
-		getUniqueHeader);
-
-	// Create no pseudo headers
-	headers = {
-		sizeof(uniqueHeadersNoPseudoHeader) / sizeof(testString),
-		uniqueHeadersNoPseudoHeader
-	};
-	acceptedHeadersNoPseudoHeaders = fiftyoneDegreesHeadersCreate(
-		false,
-		&headers,
-		getUniqueHeader);
 }
 
-PseudoHeaderTests::~PseudoHeaderTests() {
+void PseudoHeaderTests::TearDown() {
 	for (int i = 0; i < NO_PSEUDO_HEADERS; i++) {
 		fiftyoneDegreesFree(
 			(void *)evidence->pseudoEvidence->items[i].originalValue);
@@ -119,6 +46,31 @@ PseudoHeaderTests::~PseudoHeaderTests() {
 	fiftyoneDegreesHeadersFree(acceptedHeaders);
 	fiftyoneDegreesEvidenceFree(evidence->pseudoEvidence);
 	fiftyoneDegreesEvidenceFree(evidence);
+	if (strings != nullptr) {
+		delete strings;
+	}
+	Base::TearDown();
+}
+
+/**
+	 * Create an headers structure with the specified capacity and a string
+	 * collection constructed by the StringCollection class from the list of
+	 * header names provided, using the create method in headers.c. The
+	 * expected memory allocation is calculated, and the actual memory
+	 * allocation is tracked. The structure is freed automatically after each
+	 * test, at which point the expected and actual memory allocation is
+	 * checked for equality.
+	 */
+void PseudoHeaderTests::createHeaders(
+	const char** headersList,
+	int headersCount,
+	bool expectUpperPrefixedHeaders) {
+	int count = headersCount;
+	strings = new StringCollection(headersList, count);
+	acceptedHeaders = fiftyoneDegreesHeadersCreate(
+		expectUpperPrefixedHeaders,
+		strings->getState(),
+		getHeaderUniqueId);
 }
 
 void PseudoHeaderTests::addEvidence(
@@ -173,6 +125,9 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidInput) {
 		"{header2@value2}{header3@value3}",
 		"{header1@value1}{header2@value2}{header3@value3}"
 	};
+
+	// Create headers
+	createHeaders(uniqueHeaders, NO_HEADERS, false);
 	
 	testKeyValuePair evidenceList[3] =
 	{ {"header1", "value1"}, {"header2", "value2"}, {"header3", "value3"} };
@@ -199,6 +154,9 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidInputReverseOrder) {
 		"{header1@value1}{header2@value2}{header3@value3}"
 	};
 
+	// Create headers
+	createHeaders(uniqueHeaders, NO_HEADERS, false);
+
 	testKeyValuePair evidenceList[3] =
 	{ {"header3", "value3"}, {"header2", "value2"}, {"header1", "value1"} };
 	addEvidence(evidenceList, 3, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
@@ -223,6 +181,9 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidPartialInput) {
 		"{header2@value2}{header3@value3}",
 		"{header2@value2}{header3@value3}"
 	};
+
+	// Create headers
+	createHeaders(uniqueHeaders, NO_HEADERS, false);
 
 	testKeyValuePair evidenceList[2] =
 	{ {"header3", "value3"}, {"header2", "value2"}};
@@ -249,6 +210,9 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveQueryInput) {
 		"{header2@value2}{header3@value3}"
 	};
 
+	// Create headers
+	createHeaders(uniqueHeaders, NO_HEADERS, false);
+
 	testKeyValuePair evidenceList[2] =
 	{ {"header3", "value3"}, {"header2", "value2"} };
 	addEvidence(evidenceList, 2, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
@@ -269,6 +233,9 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveQueryInput) {
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationNoPseudoHeaders) {
+	// Create headers
+	createHeaders(uniqueHeadersNoPseudoHeader, NO_HEADERS_NO_PSEUDO, false);
+
 	testKeyValuePair evidenceList[3] =
 	{ {"header1", "value1"}, {"header2", "value2"}, {"header3", "value3"} };
 	addEvidence(evidenceList, 3, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
@@ -276,7 +243,7 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNoPseudoHeaders) {
 	FIFTYONE_DEGREES_EXCEPTION_CREATE;
 	fiftyoneDegreesPseudoHeadersAddEvidence(
 		evidence,
-		acceptedHeadersNoPseudoHeaders,
+		acceptedHeaders,
 		PSEUDO_BUFFER_SIZE,
 		exception);
 	FIFTYONE_DEGREES_EXCEPTION_THROW;
@@ -287,6 +254,9 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNoPseudoHeaders) {
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationNoRequestHeadersForPseudoHeaders) {
+	// Create headers
+	createHeaders(uniqueHeaders, NO_HEADERS, false);
+
 	testKeyValuePair evidenceList[2] =
 	{ {"header4", "value4"}, {"header5", "value5"} };
 	addEvidence(evidenceList, 2, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
@@ -305,6 +275,9 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNoRequestHeadersForPseudoHeaders) {
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
+	// Create headers
+	createHeaders(uniqueHeaders, NO_HEADERS, false);
+
 	testKeyValuePair evidenceList[2] =
 	{ {"header1", ""}, {"header2", ""} };
 	addEvidence(evidenceList, 2, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
@@ -323,6 +296,9 @@ TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationNullPointerInput) {
+	// Create headers
+	createHeaders(uniqueHeaders, NO_HEADERS, false);
+
 	// Check if exception is set correctly for NULL evidence pointer
 	FIFTYONE_DEGREES_EXCEPTION_CREATE;
 	fiftyoneDegreesPseudoHeadersAddEvidence(
@@ -351,6 +327,9 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceAlreadyIncluded) {
 		"{header1@value1}{header2@value2}{header3@value3}"
 	};
 
+	// Create headers
+	createHeaders(uniqueHeaders, NO_HEADERS, false);
+
 	testKeyValuePair evidenceList[3] =
 	{ 
 		{"header1", "value1"}, 
@@ -376,6 +355,9 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceAlreadyIncluded) {
 }
 
 TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceAllAlreadyIncluded) {
+	// Create headers
+	createHeaders(uniqueHeaders, NO_HEADERS, false);
+
 	testKeyValuePair evidenceList[3] =
 	{
 		{"header1", "value1"},

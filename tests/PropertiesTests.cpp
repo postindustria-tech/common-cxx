@@ -34,7 +34,8 @@ static const char* testValues[] = {
 	"Brown",
 	"Black",
 	"White",
-	"Yellowjs"
+	"Yellowjs",
+	"SetHeaderBrowserAccept-CH"
 };
 
 /**
@@ -428,4 +429,36 @@ TEST_F(Properties, EvidenceProperties_NotRequired) {
 	ASSERT_NE(
 		-1,
 		this->properties->items[yellowIndex].evidenceProperties->items[0]);
+}
+
+/**
+ * Check that 'SetHeader' properties is included in the list of 
+ * required properties.
+ */
+TEST_F(Properties, EvidenceProperties_IsSetHeaderRequired) {
+	const char* testsIncluded[]{ "Blue", "SetHeaderBrowserAccept-CH" };
+	const char* testsNotIncluded[]{ "Blue", "SetHeaderBrowserNotRequired" };
+	fiftyoneDegreesPropertiesRequired required;
+	required.string = NULL;
+	required.array = testsIncluded;
+	required.count = sizeof(testsIncluded) / sizeof(const char*);
+	required.existing = NULL;
+	CreateProperties(&required);
+	// Check if the 'SetHeader' property is included in the available
+	// required properties
+	bool isIncluded = fiftyoneDegreesPropertiesIsSetHeaderAvailable(properties);
+	ASSERT_TRUE(isIncluded);
+	if (properties != nullptr) {
+		fiftyoneDegreesPropertiesFree(properties);
+	}
+
+	required.string = NULL;
+	required.array = testsNotIncluded;
+	required.count = sizeof(testsIncluded) / sizeof(const char*);
+	required.existing = NULL;
+	CreateProperties(&required);
+	// Check if the 'SetHeader' property is not included in the available
+	// required properties
+	isIncluded = fiftyoneDegreesPropertiesIsSetHeaderAvailable(properties);
+	ASSERT_FALSE(isIncluded);
 }

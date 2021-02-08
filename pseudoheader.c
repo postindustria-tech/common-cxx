@@ -184,7 +184,7 @@ fiftyoneDegreesPseudoHeadersAddEvidence(
 void fiftyoneDegreesPseudoHeadersRemoveEvidence(
     fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
     size_t bufferSize) {
-    if (evidence != NULL) {
+    if (evidence != NULL && evidence->pseudoEvidence != NULL) {
         fiftyoneDegreesEvidenceKeyValuePair* pair = NULL;
         for (uint32_t i = 0; i < evidence->pseudoEvidence->count; i++) {
             pair = &evidence->pseudoEvidence->items[i];

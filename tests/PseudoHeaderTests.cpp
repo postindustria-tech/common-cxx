@@ -117,6 +117,10 @@ void PseudoHeaderTests::removePseudoEvidence(size_t bufferSize) {
 	}
 }
 
+/*
+ * Check that pseudo evidence are created correctly if pseudo headers and
+ * their corresponding request evidence are present in the evidence collection.
+ */
 TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidInput) {
 	// Expected value
 	const char* expectedEvidence[3] =
@@ -128,37 +132,9 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidInput) {
 
 	// Create headers
 	createHeaders(uniqueHeaders, NO_HEADERS, false);
-	
-	testKeyValuePair evidenceList[3] =
-	{ {"header1", "value1"}, {"header2", "value2"}, {"header3", "value3"} };
-	addEvidence(evidenceList, 3, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
-	
-	FIFTYONE_DEGREES_EXCEPTION_CREATE;
-	fiftyoneDegreesPseudoHeadersAddEvidence(
-		evidence,
-		acceptedHeaders,
-		PSEUDO_BUFFER_SIZE,
-		exception);
-	FIFTYONE_DEGREES_EXCEPTION_THROW;
-	
-	checkResults(expectedEvidence, 3);
-	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
-}
-
-TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidInputReverseOrder) {
-	// Expected value
-	const char* expectedEvidence[3] =
-	{
-		"{header1@value1}{header2@value2}",
-		"{header2@value2}{header3@value3}",
-		"{header1@value1}{header2@value2}{header3@value3}"
-	};
-
-	// Create headers
-	createHeaders(uniqueHeaders, NO_HEADERS, false);
 
 	testKeyValuePair evidenceList[3] =
-	{ {"header3", "value3"}, {"header2", "value2"}, {"header1", "value1"} };
+	{ {"header3", "value3"}, {"header1", "value1"}, {"header2", "value2"} };
 	addEvidence(evidenceList, 3, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
 
 	FIFTYONE_DEGREES_EXCEPTION_CREATE;
@@ -173,6 +149,10 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidInputReverseOrder) {
 	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
+/*
+ * Check that pseudo evidence are created correctly if only part of the request
+ * evidence present in the evidence collection.
+ */
 TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidPartialInput) {
 	// Expected value
 	const char* expectedEvidence[3] =
@@ -201,6 +181,10 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveValidPartialInput) {
 	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
+/*
+ * Check that if the request evidence with other prefixes than 'header' will
+ * not be considered when constructing the pseudo evidence.
+ */
 TEST_F(PseudoHeaderTests, EvidenceCreationPositiveQueryInput) {
 	// Expected value
 	const char* expectedEvidence[3] =
@@ -232,6 +216,9 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPositiveQueryInput) {
 	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
+/*
+ * Check that if no pseuo header are present, no pseuo evidence will be created
+ */
 TEST_F(PseudoHeaderTests, EvidenceCreationNoPseudoHeaders) {
 	// Create headers
 	createHeaders(uniqueHeadersNoPseudoHeader, NO_HEADERS_NO_PSEUDO, false);
@@ -253,6 +240,10 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNoPseudoHeaders) {
 	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
+/*
+ * Check that if no request evidence are present, no pseudo evidence will be
+ * created.
+ */
 TEST_F(PseudoHeaderTests, EvidenceCreationNoRequestHeadersForPseudoHeaders) {
 	// Create headers
 	createHeaders(uniqueHeaders, NO_HEADERS, false);
@@ -274,6 +265,10 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNoRequestHeadersForPseudoHeaders) {
 	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
+/*
+ * Check that if the request evidence are present with blank values, no pseudo
+ * evidence will be created.
+ */
 TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
 	// Create headers
 	createHeaders(uniqueHeaders, NO_HEADERS, false);
@@ -295,6 +290,10 @@ TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
 	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
+/*
+ * Check that the PseudoHeadersAddEvidence APIs handle NULL pointer input
+ * correctly.
+ */
 TEST_F(PseudoHeaderTests, EvidenceCreationNullPointerInput) {
 	// Create headers
 	createHeaders(uniqueHeaders, NO_HEADERS, false);
@@ -319,6 +318,10 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNullPointerInput) {
 		"Status code should be NULL_POINTER where headers pointer is null\n";
 }
 
+/*
+ * Check that pseudo evidence that has already been provided in the evidence
+ * collection will not be created again.
+ */
 TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceAlreadyIncluded) {
 	// Expected value
 	const char* expectedEvidence[2] =
@@ -354,6 +357,10 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceAlreadyIncluded) {
 	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
+/*
+ * Check that no pseudo evidence is created if all already been provied in the
+ * evidence collection.
+ */
 TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceAllAlreadyIncluded) {
 	// Create headers
 	createHeaders(uniqueHeaders, NO_HEADERS, false);
@@ -387,7 +394,18 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceAllAlreadyIncluded) {
 	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 
+/*
+ * Check that PseudoHeadersRemoveEvidence API deal with NULL pointer input
+ * correctly.
+ */
 TEST_F(PseudoHeaderTests, EvidenceRemoveNullPointerInput) {
-	// This should not crash
+	// Should not crash if evidence input is NULL
 	fiftyoneDegreesPseudoHeadersRemoveEvidence(NULL, 0);
+
+	// Should not crash if evidence how a NULL pointer for pseudo evidence
+	fiftyoneDegreesEvidenceKeyValuePairArray* savePseudoEvidence =
+		evidence->pseudoEvidence;
+	evidence->pseudoEvidence = NULL;
+	fiftyoneDegreesPseudoHeadersRemoveEvidence(evidence, PSEUDO_BUFFER_SIZE);
+	evidence->pseudoEvidence = savePseudoEvidence;
 }

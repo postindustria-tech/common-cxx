@@ -38,12 +38,9 @@ static EvidencePrefixMap _map[] = {
 	{ "cookie.", sizeof("cookie.") - 1, FIFTYONE_DEGREES_EVIDENCE_COOKIE }
 };
 
-static void parsePair(
-	EvidenceKeyValuePairArray *evidence, 
-	EvidenceKeyValuePair *pair) {
+static void parsePair(EvidenceKeyValuePair *pair) {
 	switch (pair->prefix) {
 	case FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_IP_ADDRESSES:
-		// parseIpAddresses(evidence->Malloc, pair->originalValue);
 	case FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING:
 	case FIFTYONE_DEGREES_EVIDENCE_SERVER:
 	case FIFTYONE_DEGREES_EVIDENCE_QUERY:
@@ -103,7 +100,7 @@ uint32_t fiftyoneDegreesEvidenceIterate(
 		pair = &evidence->items[i++];
 		if ((pair->prefix & prefixes) == pair->prefix) {
 			if (pair->parsedValue == NULL) {
-				parsePair(evidence, pair);
+				parsePair(pair);
 			}
 			cont = callback(state, pair);
 			count++;

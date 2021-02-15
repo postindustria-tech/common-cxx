@@ -86,6 +86,10 @@ public:
 		return map[count - 1] + 1;
 	}
 
+#ifdef _MSC_VER
+	// This is a mock function so not all parameters can be used.
+#pragma warning (disable: 4100)
+#endif
 	static int itemComparerInt(
 		void *state,
 		fiftyoneDegreesCollectionItem *item,
@@ -94,6 +98,9 @@ public:
 		return *((int*)item->data.ptr) - *(int*)state;
 	}
 };
+#ifdef _MSC_VER
+#pragma warning (default: 4100)
+#endif
 
 class CollectionTestDataVariable : public CollectionTestData {
 public:
@@ -120,6 +127,10 @@ public:
 		return (uint32_t)(size + 1);
 	}
 
+#ifdef _MSC_VER
+	// This is a mock function so not all parameters can be used
+#pragma warning (disable: 4100)
+#endif
 	static int itemComparerString(
 		void *state,
 		fiftyoneDegreesCollectionItem *item,
@@ -130,6 +141,9 @@ public:
 		return strcmp(itemString, targetString);
 	}
 };
+#ifdef _MSC_VER
+#pragma warning (default: 4100)
+#endif
 
 class CollectionTestDataVariableSize : public CollectionTestDataVariable {
 public:

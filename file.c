@@ -412,7 +412,10 @@ static bool iteratorFileMatch(const char *fileName, void *state) {
 	return true;
 }
 
-
+#ifdef _MSC_VER
+// For MSC version, the parameter is not required
+#pragma warning (disable: 4100)
+#endif
 /**
  * Returns true if the file is in use. Note that this is only functional on
  * Linux systems. Windows does not need this for the usage in this file.
@@ -523,6 +526,9 @@ bool isFileInUse(const char *pathName) {
     return false;
 #endif
 }
+#ifdef _MSC_VER
+#pragma warning (default: 4100)
+#endif
 
 /**
  * Deletes the file is it is not in use. The first byte of state->destination

@@ -72,6 +72,12 @@ static void deleteTestFile(string fileName)
 	remove(fileName.c_str());
 }
 
+#ifdef _MSC_VER
+// This is a mock definition of the callback function
+// required for #fiftyoneDegreesTextFileIterate
+// so not all paramters are used
+#pragma warning (disable: 4100)
+#endif
 /*
  * Callback function to count the number of records
  * being read from the file
@@ -82,6 +88,9 @@ static void deleteTestFile(string fileName)
 static void testCallBack(const char* testRecord, void* state) {
 	((testState *)state)->count++;
 }
+#ifdef _MSC_VER
+#pragma warning (default: 4100)
+#endif
 
 TEST(TextFileIteratorTests, NoLimitWithoutEOFNewLine) {
 	string* filePath = getFileWithPath(string("testfile"));

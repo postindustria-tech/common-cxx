@@ -427,7 +427,10 @@ static bool iteratorFileMatch(const char *fileName, void *state) {
  */
 bool isFileInUse(const char *pathName) {
 #ifdef __APPLE__
-	int i, j, pid, fdCount, bufferSize, pidCount;
+	// This implementation is unstable so not being used.
+	// Keep for future reference. Initialise bufferSize to 100
+	// (randomly picked) to supress warnings.
+	int i, j, pid, fdCount, bufferSize = 100, pidCount;
 	struct vnode_fdinfowithpath vnodeInfo;
 	pid_t *pids = calloc(0x1000, 1);
 	pidCount = proc_listallpids(pids, 0x1000);

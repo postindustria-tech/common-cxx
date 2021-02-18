@@ -181,7 +181,8 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitFromFile(
 	const char *fileName,
 	long bytesToCompare) {
 	char *copiedString;
-	size_t fileNameLength = strlen(fileName);
+	// Add 1 for the null terminator
+	size_t fileNameLength = strlen(fileName) + 1;
 
 	// Check there is sufficient space to store the filename provided.
 	if (fileNameLength > sizeof(dataSet->masterFileName) ||

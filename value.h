@@ -78,6 +78,15 @@ typedef struct fiftyoneDegrees_value_t {
 	                                     the value description */
 	const int32_t urlOffset; /**< The offset in the strings structure to the 
 	                             value URL */
+#ifdef __cplusplus
+	fiftyoneDegrees_value_t& operator=(fiftyoneDegrees_value_t other) {
+		proppertyIndex = other.propertyIndex;
+		nameOffset = other.nameOffset;
+		descriptionOffset = other.descriptionOffset;
+		urlOffset = other.urlOffset;
+		return *this;
+	}
+#endif
 } fiftyoneDegreesValue;
 #pragma pack(pop)
 

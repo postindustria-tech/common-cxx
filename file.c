@@ -497,22 +497,28 @@ bool isFileInUse(const char *pathName) {
                     if (strcmp(ent2->d_name, ".") != 0 &&
                         strcmp(ent2->d_name, "..") != 0) {
                         // Get the path which the symlink is pointing to
-                        sprintf(linkFile, "%s/%s", fdPath, ent2->d_name);
-                        ssize_t written =
-							readlink(linkFile, linkPath, FILE_MAX_PATH);
-                        if (written >= 0) {
-                            linkPath[written] = '\0';
-							size_t linkPathLen = strlen(linkPath);
-							size_t pathNameLen = strlen(pathName);
-							if (pathNameLen <= linkPathLen &&
-								strncmp(linkPath + linkPathLen - pathNameLen,
-									pathName,
-									pathNameLen) == 0) {
-                                closedir(fdDir);
-                                closedir(procDir);
-                                return true;
-                            }
-                        }
+						if (snprintf(
+							linkFile,
+							FILE_MAX_PATH,
+							"%s/%s",
+							fdPath,
+							ent2->d_name) >= 0) {
+							ssize_t written =
+								readlink(linkFile, linkPath, FILE_MAX_PATH);
+							if (written >= 0) {
+								linkPath[written] = '\0';
+								size_t linkPathLen = strlen(linkPath);
+								size_t pathNameLen = strlen(pathName);
+								if (pathNameLen <= linkPathLen &&
+									strncmp(linkPath + linkPathLen - pathNameLen,
+										pathName,
+										pathNameLen) == 0) {
+									closedir(fdDir);
+									closedir(procDir);
+									return true;
+								}
+							}
+						}
                     }
                 }
             }

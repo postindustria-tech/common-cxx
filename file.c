@@ -479,7 +479,6 @@ bool isFileInUse(const char *pathName) {
 	return false;
 #else
 
-	fiftyoneDegreesStatusCode status = SUCCESS;
     DIR *procDir;
 	struct dirent *ent1, *ent2;
     char fdPath[FILE_MAX_PATH];

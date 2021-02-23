@@ -34,6 +34,7 @@ StatusCodeException::StatusCodeException(
 	if (statusMessage != nullptr) {
 		message.append(statusMessage);
 		Free((void*)statusMessage);
+		this->statusCode = code;
 	}
 }
 
@@ -44,12 +45,17 @@ StatusCodeException::StatusCodeException(
 	if (statusMessage != nullptr) {
 		message.append(statusMessage);
 		Free((void*)statusMessage);
+		this->statusCode = code;
 	}
 }
 StatusCodeException::~StatusCodeException() {}
 
 const char* StatusCodeException::what() const noexcept {
 	return message.c_str();
+}
+
+fiftyoneDegreesStatusCode StatusCodeException::getCode() const noexcept {
+	return statusCode;
 }
 
 FatalException::FatalException(

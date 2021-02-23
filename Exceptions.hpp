@@ -65,12 +65,21 @@ namespace FiftyoneDegrees {
 			 * @return error message
 			 */
 			const char* what() const noexcept;
+
+			/**
+			 * Get the status code
+			 */
+			fiftyoneDegreesStatusCode getCode() const noexcept;
+
 		protected:
 
 			/**
 			 * Default constructor.
 			 */
 			StatusCodeException();
+
+			/** Status code */
+			fiftyoneDegreesStatusCode statusCode;
 
 			/** Error message from the status code. */
 			string message;

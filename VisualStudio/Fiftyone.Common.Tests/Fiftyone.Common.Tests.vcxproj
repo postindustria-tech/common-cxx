@@ -71,6 +71,7 @@
     <ClCompile Include="..\..\tests\StatusTests.cpp" />
     <ClCompile Include="..\..\tests\StringCollection.cpp" />
     <ClCompile Include="..\..\tests\TestStrings.cpp" />
+    <ClCompile Include="..\..\tests\TextFileTests.cpp" />
     <ClCompile Include="..\..\tests\ThreadingTests.cpp" />
     <ClCompile Include="..\..\tests\ValueTests.cpp" />
   </ItemGroup>

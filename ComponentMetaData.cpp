@@ -26,7 +26,7 @@ using namespace FiftyoneDegrees::Common;
 
 ComponentMetaData::ComponentMetaData()
     : ComponentMetaData(
-        (byte)-1, // component id
+        static_cast<byte>(-1), // component id
         "invalid", // name
         0 // default profile id
     ) { }

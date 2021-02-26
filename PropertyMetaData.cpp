@@ -32,7 +32,7 @@ PropertyMetaData::PropertyMetaData()
 		"invalid", // category
 		"invalid", // url
 		false, // available
-		(byte)-1, // display order
+		static_cast<byte>(-1), // display order
 		false, // mandatory
 		false, // list
 		false, // obsolete
@@ -40,7 +40,7 @@ PropertyMetaData::PropertyMetaData()
 		false, // show values
 		"invalid", // description
 		"invalid", // default value,
-		(byte)-1, // component id
+		static_cast<byte>(-1), // component id
 		vector<uint32_t>()
 	) { }
 

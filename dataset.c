@@ -71,14 +71,17 @@ void fiftyoneDegreesDataSetFree(fiftyoneDegreesDataSetBase *dataSet) {
 
 	// Free the memory used by the unique headers.
 	HeadersFree(dataSet->uniqueHeaders);
+	dataSet->uniqueHeaders = NULL;
 
 	// Free the override properties if any.
 	if (dataSet->overridable != NULL) {
 		fiftyoneDegreesOverridePropertiesFree(dataSet->overridable);
+		dataSet->overridable = NULL;
 	}
 
 	// Free the memory used by the available properties.
 	PropertiesFree(dataSet->available);
+	dataSet->available = NULL;
 
 	// Free the file handles and memory used by the reader.
 	FilePoolRelease(&dataSet->filePool);
@@ -326,7 +329,6 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetReloadManagerFromFile(
 		fileName,
 		exception);
 	if (status != SUCCESS) {
-		DataSetFree(replacement);
 		return status;
 	}
 	

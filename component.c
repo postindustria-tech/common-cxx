@@ -82,7 +82,7 @@ void* fiftyoneDegreesComponentReadFromFile(
 	uint32_t offset,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception) {
-	Component component = { 0, 0, 0, 0, 0 };
+	Component component = { 0, 0, 0, 0, { 0, 0 } };
 	return CollectionReadFileVariable(
 		file,
 		data,

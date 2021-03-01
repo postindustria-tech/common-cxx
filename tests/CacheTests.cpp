@@ -50,6 +50,10 @@ public:
 	}
 	fiftyoneDegreesCache *cache;
 	
+#ifdef _MSC_VER
+	// This is a mock function, so not all parameters can be used.
+#pragma warning (disable: 4100)
+#endif
 	/**
 	 * Load the string value of an integer from zero to nine into the node data.
 	 * Frees old data if there is any.
@@ -69,6 +73,9 @@ public:
 			data->used = (uint32_t)size;
 		}
 	}
+#ifdef _MSC_VER
+#pragma warning (default: 4100)
+#endif
 
 	static void checkValue(long key, fiftyoneDegreesCacheNode *node) {
 		ASSERT_EQ(key, node->tree.key) <<

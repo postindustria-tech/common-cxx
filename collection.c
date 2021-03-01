@@ -837,6 +837,9 @@ fiftyoneDegreesCollectionHeader fiftyoneDegreesCollectionHeaderFromFile(
 	return header;
 }
 
+#if defined(_MSC_VER) && defined(FIFTYONE_DEGREES_MEMORY_ONLY)
+#pragma warning (disable: 4100)
+#endif
 fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromFile(
 	FILE *file,
 	fiftyoneDegreesFilePool *reader,
@@ -935,6 +938,9 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromFile(
 
 	return result;
 }
+#if defined(_MSC_VER) && defined(FIFTYONE_DEGREES_MEMORY_ONLY)
+#pragma warning (default: 4100)
+#endif
 
 fiftyoneDegreesFileHandle* fiftyoneDegreesCollectionReadFilePosition(
 	const fiftyoneDegreesCollectionFile *file,
@@ -1100,6 +1106,9 @@ static void* readFileVariable(
 
 #endif
 
+#if defined(_MSC_VER) && defined(FIFTYONE_DEGREES_MEMORY_ONLY)
+#pragma warning (disable: 4100)
+#endif
 void* fiftyoneDegreesCollectionReadFileVariable(
 	const fiftyoneDegreesCollectionFile *fileCollection,
 	fiftyoneDegreesData *data,
@@ -1147,6 +1156,9 @@ void* fiftyoneDegreesCollectionReadFileVariable(
 
 	return ptr;
 }
+#if defined(_MSC_VER) && defined(FIFTYONE_DEGREES_MEMORY_ONLY)
+#pragma warning (default: 4100)
+#endif
 
 int32_t fiftyoneDegreesCollectionGetInteger32(
 	fiftyoneDegreesCollection *collection,

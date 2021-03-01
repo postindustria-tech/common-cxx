@@ -116,6 +116,11 @@ static int compareIpAddress(String *value, const char *target) {
 	return result;
 }
 
+#ifdef _MSC_VER
+// Not all parameters are used for this implementation of
+// #fiftyoneDegreesCollentionItemComparer
+#pragma warning (disable: 4100)
+#endif
 static int compareValueByName(void *state, Item *item, long curIndex, Exception *exception) {
 	int result = 0;
 	Item name;
@@ -143,6 +148,9 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 	}
 	return result;
 }
+#ifdef _MSC_VER
+#pragma warning (default: 4100)
+#endif
 
 fiftyoneDegreesString* fiftyoneDegreesValueGetName(
 	fiftyoneDegreesCollection *strings,

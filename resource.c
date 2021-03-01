@@ -41,7 +41,7 @@ typedef struct counter_t {
 	int32_t padding;
 } Counter;
 static InterlockDoubleWidth emptyCounter() {
-	InterlockDoubleWidth empty;
+	InterlockDoubleWidth empty = { 0, 0 };
 	((Counter*)&empty)->handle = NULL;
 	((Counter*)&empty)->padding = 0;
 	((Counter*)&empty)->inUse = 0;
@@ -54,7 +54,7 @@ typedef struct counter_t {
 	int32_t inUse;
 } Counter;
 static InterlockDoubleWidth emptyCounter() {
-	InterlockDoubleWidth empty;
+	InterlockDoubleWidth empty = { 0 };
 	((Counter*)&empty)->handle = NULL;
 	((Counter*)&empty)->inUse = 0;
 	return empty;

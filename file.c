@@ -412,7 +412,10 @@ static bool iteratorFileMatch(const char *fileName, void *state) {
 	return true;
 }
 
-
+#ifdef _MSC_VER
+// For MSC version, the parameter is not required
+#pragma warning (disable: 4100)
+#endif
 /**
  * Returns true if the file is in use. Note that this is only functional on
  * Linux systems. Windows does not need this for the usage in this file.
@@ -424,7 +427,10 @@ static bool iteratorFileMatch(const char *fileName, void *state) {
  */
 bool isFileInUse(const char *pathName) {
 #ifdef __APPLE__
-	int i, j, pid, fdCount, bufferSize, pidCount;
+	// This implementation is unstable so not being used.
+	// Keep for future reference. Initialise bufferSize to 100
+	// (randomly picked) to supress warnings.
+	int i, j, pid, fdCount, bufferSize = 100, pidCount;
 	struct vnode_fdinfowithpath vnodeInfo;
 	pid_t *pids = calloc(0x1000, 1);
 	pidCount = proc_listallpids(pids, 0x1000);
@@ -473,7 +479,6 @@ bool isFileInUse(const char *pathName) {
 	return false;
 #else
 
-	fiftyoneDegreesStatusCode status = SUCCESS;
     DIR *procDir;
 	struct dirent *ent1, *ent2;
     char fdPath[FILE_MAX_PATH];
@@ -492,22 +497,28 @@ bool isFileInUse(const char *pathName) {
                     if (strcmp(ent2->d_name, ".") != 0 &&
                         strcmp(ent2->d_name, "..") != 0) {
                         // Get the path which the symlink is pointing to
-                        sprintf(linkFile, "%s/%s", fdPath, ent2->d_name);
-                        ssize_t written =
-							readlink(linkFile, linkPath, FILE_MAX_PATH);
-                        if (written >= 0) {
-                            linkPath[written] = '\0';
-							size_t linkPathLen = strlen(linkPath);
-							size_t pathNameLen = strlen(pathName);
-							if (pathNameLen <= linkPathLen &&
-								strncmp(linkPath + linkPathLen - pathNameLen,
-									pathName,
-									pathNameLen) == 0) {
-                                closedir(fdDir);
-                                closedir(procDir);
-                                return true;
-                            }
-                        }
+						if (snprintf(
+							linkFile,
+							FILE_MAX_PATH,
+							"%s/%s",
+							fdPath,
+							ent2->d_name) >= 0) {
+							ssize_t written =
+								readlink(linkFile, linkPath, FILE_MAX_PATH);
+							if (written >= 0) {
+								linkPath[written] = '\0';
+								size_t linkPathLen = strlen(linkPath);
+								size_t pathNameLen = strlen(pathName);
+								if (pathNameLen <= linkPathLen &&
+									strncmp(linkPath + linkPathLen - pathNameLen,
+										pathName,
+										pathNameLen) == 0) {
+									closedir(fdDir);
+									closedir(procDir);
+									return true;
+								}
+							}
+						}
                     }
                 }
             }
@@ -523,6 +534,9 @@ bool isFileInUse(const char *pathName) {
     return false;
 #endif
 }
+#ifdef _MSC_VER
+#pragma warning (default: 4100)
+#endif
 
 /**
  * Deletes the file is it is not in use. The first byte of state->destination

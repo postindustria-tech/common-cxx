@@ -154,7 +154,10 @@ typedef fiftyoneDegreesStatusCode(*fiftyoneDegreesDataSetInitFromMemoryMethod)(
 	fiftyoneDegreesException *exception);
 
 /**
- * Initialses the data set from data stored on file.
+ * Initialses the data set from data stored on file. This method
+ * should clean up the resource properly if the initialisation process fails.
+ * That means all allocated memory should be freed and pointers to these
+ * memorys should be set to NULL. The input dataSet should also be freed.
  * @param dataSet pointer to the data set to be initialised
  * @param config configuration for the operation of the data set, or NULL if
  * default configuration is required

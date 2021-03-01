@@ -31,9 +31,10 @@
 #include "float.h"
 
 float fiftyoneDegreesFloatToNative(fiftyoneDegreesFloatInternal f) {
-	fiftyoneDegreesFloatU floatU = { .fValue = f };
+	fiftyoneDegreesFloatU floatU;
 	float nativeValue;
 
+	floatU.fValue = f;
 	if (floatU.parts.exponent == 0) {
 		if (floatU.parts.mantissa == 0) {
 			// When all bits in exponent and mantissa are 0s. The float value is 0.

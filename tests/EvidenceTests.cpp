@@ -142,12 +142,19 @@ TEST_F(Evidence, Iterate_String_AlreadyParsed) {
 	free(parsed);
 }
 
+#ifdef _MSC_VER
+// This is mock implementation of the method so not all arguments are used
+#pragma warning (disable: 4100)
+#endif
 static bool countEvidence(
 	void* state,
 	fiftyoneDegreesEvidenceKeyValuePair* pair) {
 	(*(int*)state)++;
 	return true;
 }
+#ifdef _MSC_VER
+#pragma warning (default: 4100)
+#endif
 
 /*
  * Check that the iteration API only iterate through the main evidence list

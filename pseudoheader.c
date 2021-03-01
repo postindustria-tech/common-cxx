@@ -65,7 +65,7 @@ static int constructPseudoEvidence(
                     "%c",
                     PSEUDO_HEADER_SEP);
                 if (tempCount < 0 ||
-                    ((charactersAdded += tempCount) > bufferSize)) {
+                    ((size_t)(charactersAdded += tempCount) > bufferSize)) {
                     memset(buffer, '\0', bufferSize);
                     charactersAdded = -1;
                     break;
@@ -79,7 +79,7 @@ static int constructPseudoEvidence(
                 "%s",
                 requestHeaderValue);
             if (tempCount < 0 ||
-                ((charactersAdded += tempCount) > bufferSize)) {
+                ((size_t)(charactersAdded += tempCount) > bufferSize)) {
                 memset(buffer, '\0', bufferSize);
                 charactersAdded = -1;
                 break;

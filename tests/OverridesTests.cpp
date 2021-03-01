@@ -23,10 +23,16 @@
 #include "pch.h"
 #include "../overrides.h"
 
+#ifdef _MSC_VER
+// This is a mock implementation of the method
+#pragma warning (disable: 4100)
+#endif
 static void overrideProfileId(void *state, uint32_t profileId) {
 	(*(int*)state)++;
 }
-
+#ifdef _MSC_VER
+#pragma warning (default: 4100)
+#endif
 // This test whether the ProfileIds evidence key is treated
 // as case insensitive.
 // Since the test only targets the case insensitivity aspect

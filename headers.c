@@ -52,7 +52,7 @@ static bool doesHeaderExist(Headers *headers, Item *item) {
  * Check if a header is a pseudo header.
  */
 bool fiftyoneDegreesHeadersIsPseudo(const char *headerName) {
-	return strchr(headerName, '|') != NULL;
+	return strchr(headerName, PSEUDO_HEADER_SEP) != NULL;
 }
 
 /**
@@ -77,8 +77,8 @@ static void addUniqueHeaders(
 			header->uniqueId = uniqueId;
 			headers->count++;
 			// Check if header is pseudo header then add it to the list
-			if (fiftyoneDegreesHeadersIsPseudo(
-				FIFTYONE_DEGREES_STRING(nameItem->data.ptr))) {
+			if (HeadersIsPseudo(
+				STRING(nameItem->data.ptr))) {
 				headers->pseudoHeaders[pIndex++] = i;
 			}
 			else {
@@ -98,7 +98,7 @@ static uint32_t countRequestHeaders(const char* pseudoHeaders) {
 	const char* tmp = pseudoHeaders;
 	// Count start from 1 as there be at list one headr name
 	for (count = 1;
-		(tmp = strchr(tmp, '|')) != NULL;
+		(tmp = strchr(tmp, PSEUDO_HEADER_SEP)) != NULL;
 		tmp++, count++) {}
 	return count;
 }
@@ -117,7 +117,7 @@ static void freePseudoHeaders(Headers* headers) {
  * the indices to actual headers that form them.
  */
 static StatusCode updatePseudoHeaders(Headers* headers) {
-	fiftyoneDegreesHeader* curPseudoHeader = NULL;
+	Header* curPseudoHeader = NULL;
 	const char* requestHeaderName = NULL;
 	const char* tmp = NULL;
 	const char* curHeaderName = NULL;
@@ -134,9 +134,9 @@ static StatusCode updatePseudoHeaders(Headers* headers) {
 			if (curPseudoHeader->requestHeaders != NULL) {
 				// Iterate through each request header and find a match
 				while (requestHeaderName != NULL) {
-					// Find the position of the next '|'
-					tmp = strchr(requestHeaderName, '|');
-					// Check if there is no more '|' and this is the last
+					// Find the position of the next '\x1F'
+					tmp = strchr(requestHeaderName, PSEUDO_HEADER_SEP);
+					// Check if there is no more '\x1F' and this is the last
 					// request header
 					headerLength = 
 						tmp == NULL ?
@@ -176,14 +176,14 @@ typedef struct header_counts_t {
 
 static headerCounts countHeaders(
 	void *state,
-	fiftyoneDegreesHeadersGetMethod get) {
+	HeadersGetMethod get) {
 	Item name;
 	headerCounts counts = { 0, 0 };
 	DataReset(&name.data);
 	while (get(state, counts.uniqueHeadersCount, &name) >= 0) {
 		// Check if name is pseduo header
-		if (fiftyoneDegreesHeadersIsPseudo(
-			FIFTYONE_DEGREES_STRING(name.data.ptr))) {
+		if (HeadersIsPseudo(
+			STRING(name.data.ptr))) {
 			counts.pseudoHeadersCount++;
 		}
 		COLLECTION_RELEASE(name.collection, &name);
@@ -196,7 +196,7 @@ fiftyoneDegreesHeaders* fiftyoneDegreesHeadersCreate(
 	bool expectUpperPrefixedHeaders,
 	void *state,
 	fiftyoneDegreesHeadersGetMethod get) {
-	fiftyoneDegreesHeaders *headers;
+	Headers *headers;
 	headerCounts counts = countHeaders(state, get);
 	FIFTYONE_DEGREES_ARRAY_CREATE(
 		fiftyoneDegreesHeader,
@@ -222,7 +222,7 @@ fiftyoneDegreesHeaders* fiftyoneDegreesHeadersCreate(
 
 		addUniqueHeaders(headers, state, get);
 		if (updatePseudoHeaders(headers) != SUCCESS) {
-			fiftyoneDegreesHeadersFree(headers);
+			HeadersFree(headers);
 			headers = NULL;
 		}
 	}

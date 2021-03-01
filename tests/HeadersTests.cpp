@@ -312,9 +312,9 @@ const char* testHeaders_PseudoHeaders[] = {
 	"header1",
 	"header2",
 	"header3",
-	"header1|header2",
-	"header2|header3",
-	"header1|header2|header3"
+	"header1\x1Fheader2",
+	"header2\x1Fheader3",
+	"header1\x1Fheader2\x1Fheader3"
 };
 
 TEST_F(HeadersTests, PseudoHeaders) {
@@ -340,21 +340,21 @@ TEST_F(HeadersTests, PseudoHeaders) {
 	EXPECT_EQ(NULL, headers->items[2].requestHeaders);
 	EXPECT_EQ(0, headers->items[2].requestHeaderCount);
 
-	EXPECT_STREQ("header1|header2", FIFTYONE_DEGREES_STRING(
+	EXPECT_STREQ("header1\x1Fheader2", FIFTYONE_DEGREES_STRING(
 		(fiftyoneDegreesString*)headers->items[3].name.data.ptr));
 	EXPECT_TRUE(headers->items[3].requestHeaders != NULL);
 	EXPECT_EQ(2, headers->items[3].requestHeaderCount);
 	EXPECT_EQ(0, headers->items[3].requestHeaders[0]);
 	EXPECT_EQ(1, headers->items[3].requestHeaders[1]);
 
-	EXPECT_STREQ("header2|header3", FIFTYONE_DEGREES_STRING(
+	EXPECT_STREQ("header2\x1Fheader3", FIFTYONE_DEGREES_STRING(
 		(fiftyoneDegreesString*)headers->items[4].name.data.ptr));
 	EXPECT_TRUE(headers->items[4].requestHeaders != NULL);
 	EXPECT_EQ(2, headers->items[4].requestHeaderCount);
 	EXPECT_EQ(1, headers->items[4].requestHeaders[0]);
 	EXPECT_EQ(2, headers->items[4].requestHeaders[1]);
 
-	EXPECT_STREQ("header1|header2|header3", FIFTYONE_DEGREES_STRING(
+	EXPECT_STREQ("header1\x1Fheader2\x1Fheader3", FIFTYONE_DEGREES_STRING(
 		(fiftyoneDegreesString*)headers->items[5].name.data.ptr));
 	EXPECT_TRUE(headers->items[5].requestHeaders != NULL);
 	EXPECT_EQ(3, headers->items[5].requestHeaderCount);

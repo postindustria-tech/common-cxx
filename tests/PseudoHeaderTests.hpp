@@ -8,6 +8,11 @@ typedef struct test_key_value_pair_t {
 	char value[50];
 } testKeyValuePair;
 
+typedef struct test_expected_result_t {
+	char result[50];
+	fiftyoneDegreesEvidencePrefix prefix;
+} testExpectedResult;
+
 class PseudoHeaderTests : public Base {
 public:
 	void SetUp();
@@ -20,7 +25,7 @@ public:
 		testKeyValuePair* evidenceList,
 		int size,
 		fiftyoneDegreesEvidencePrefix prefix);
-	void checkResults(const char** expectedEvidence, int size);
+	void checkResults(const testExpectedResult *expectedEvidence, int size);
 	void removePseudoEvidence(size_t bufferSize);
 protected:
 	StringCollection* strings = NULL;

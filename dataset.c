@@ -184,7 +184,8 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitFromFile(
 	const char *fileName,
 	long bytesToCompare) {
 	char *copiedString;
-	size_t fileNameLength = strlen(fileName);
+	// Add 1 for the null terminator
+	size_t fileNameLength = strlen(fileName) + 1;
 
 	// Check there is sufficient space to store the filename provided.
 	if (fileNameLength > sizeof(dataSet->masterFileName) ||
@@ -192,11 +193,22 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitFromFile(
 		return FILE_PATH_TOO_LONG;
 	}
 
+#if defined(__linux__) && __GNUC__ >= 7
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+// strncpy is called using the length computed on the string lenght
+// adding 1 for null terminator. This is valid and should not cause
+// overflow as we have properly checked the buffer size above. Thus
+// suppress the warning here.
+#endif
 	// Use the file name provided as the master data file for the data set.
 	copiedString = strncpy(
 		(char*)dataSet->masterFileName,
 		fileName,
 		fileNameLength);
+#if defined(__linux__) && __GNUC__ >= 7
+#pragma GCC diagnostic pop
+#endif
 	if (strncmp(fileName, copiedString, fileNameLength) != 0) {
 		return CORRUPT_DATA;
 	}

@@ -299,7 +299,7 @@ fiftyoneDegreesString* fiftyoneDegreesOverrideValuesGetFirst(
 bool fiftyoneDegreesOverrideHasValueForRequiredPropertyIndex(
 	fiftyoneDegreesOverrideValueArray *values,
 	uint32_t requiredPropertyIndex) {
-	uint32_t i, count = 0;
+	uint32_t i;
 	OverrideValue *current;
 	if (values != NULL) {
 		// Loop through the values available from the overrides checking they

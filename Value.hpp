@@ -155,10 +155,10 @@ namespace FiftyoneDegrees {
 
 			/**
 			 * Set the value to be contained in the Value instance.
-			 * @param value the value to set
+			 * @param targetValue the value to set
 			 */
-			void setValue(T value) {
-				this->value = value;
+			void setValue(T targetValue) {
+				this->value = targetValue;
 				hasValueInternal = true;
 			}
 

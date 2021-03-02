@@ -141,7 +141,7 @@ static StatusCode updatePseudoHeaders(Headers* headers) {
 					headerLength = 
 						tmp == NULL ?
 						strlen(requestHeaderName) :
-						tmp - requestHeaderName;
+						(size_t)(tmp - requestHeaderName);
 					for (uint32_t j = 0; j < headers->count; j++) {
 						curHeaderName = STRING(headers->items[j].name.data.ptr);
 						if (headerLength == strlen(curHeaderName) &&

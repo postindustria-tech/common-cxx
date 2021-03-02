@@ -317,7 +317,7 @@ const char* testHeaders_PseudoHeaders[] = {
 	"header1\x1Fheader2\x1Fheader3"
 };
 
-TEST_F(HeadersTests, PseudoHeaders) {
+TEST_F(HeadersTests, PseudoHeadersPositive) {
 	CreateHeaders(
 		testHeaders_PseudoHeaders,
 		sizeof(testHeaders_PseudoHeaders) / sizeof(const char*),
@@ -361,4 +361,63 @@ TEST_F(HeadersTests, PseudoHeaders) {
 	EXPECT_EQ(0, headers->items[5].requestHeaders[0]);
 	EXPECT_EQ(1, headers->items[5].requestHeaders[1]);
 	EXPECT_EQ(2, headers->items[5].requestHeaders[2]);
+}
+
+// ----------------------------------------------------------------------
+// Check that header collection creation construct pseudo headers
+// correctly when pseudo header contains special cases.
+// These special cases are very unlikely to happen but are valid. Thus
+// added to test the robustness of the code.
+// ----------------------------------------------------------------------
+
+const char* testHeaders_PseudoHeadersSpecialCases[] = {
+	"header1",
+	"header2",
+	"\x1Fheader1",
+	"header1\x1F",
+	"\x1F\x1F\x1F",
+	"header1\x1F\x1Fheader2"
+};
+
+TEST_F(HeadersTests, PseudoHeadersSpecialCases) {
+	CreateHeaders(
+		testHeaders_PseudoHeadersSpecialCases,
+		sizeof(testHeaders_PseudoHeaders) / sizeof(const char*),
+		false);
+	EXPECT_EQ(6, headers->count);
+	EXPECT_EQ(4, headers->pseudoHeadersCount);
+	EXPECT_TRUE(headers->pseudoHeaders != NULL);
+
+	EXPECT_STREQ("header1", FIFTYONE_DEGREES_STRING(
+		(fiftyoneDegreesString*)headers->items[0].name.data.ptr));
+	EXPECT_EQ(NULL, headers->items[0].requestHeaders);
+	EXPECT_EQ(0, headers->items[0].requestHeaderCount);
+
+	EXPECT_STREQ("header2", FIFTYONE_DEGREES_STRING(
+		(fiftyoneDegreesString*)headers->items[1].name.data.ptr));
+	EXPECT_EQ(NULL, headers->items[1].requestHeaders);
+	EXPECT_EQ(0, headers->items[1].requestHeaderCount);
+
+	EXPECT_STREQ("\x1Fheader1", FIFTYONE_DEGREES_STRING(
+		(fiftyoneDegreesString*)headers->items[2].name.data.ptr));
+	EXPECT_TRUE(headers->items[2].requestHeaders != NULL);
+	EXPECT_EQ(1, headers->items[2].requestHeaderCount);
+	EXPECT_EQ(0, headers->items[2].requestHeaders[0]);
+
+	EXPECT_STREQ("header1\x1F", FIFTYONE_DEGREES_STRING(
+		(fiftyoneDegreesString*)headers->items[3].name.data.ptr));
+	EXPECT_TRUE(headers->items[3].requestHeaders != NULL);
+	EXPECT_EQ(1, headers->items[3].requestHeaderCount);
+	EXPECT_EQ(0, headers->items[3].requestHeaders[0]);
+
+	EXPECT_STREQ("\x1F\x1F\x1F", FIFTYONE_DEGREES_STRING(
+		(fiftyoneDegreesString*)headers->items[4].name.data.ptr));
+	EXPECT_EQ(0, headers->items[4].requestHeaderCount);
+
+	EXPECT_STREQ("header1\x1F\x1Fheader2", FIFTYONE_DEGREES_STRING(
+		(fiftyoneDegreesString*)headers->items[5].name.data.ptr));
+	EXPECT_TRUE(headers->items[5].requestHeaders != NULL);
+	EXPECT_EQ(2, headers->items[5].requestHeaderCount);
+	EXPECT_EQ(0, headers->items[5].requestHeaders[0]);
+	EXPECT_EQ(1, headers->items[5].requestHeaders[1]);
 }

@@ -34,9 +34,11 @@ static const char* getEvidenceValueForHeader(
  *
  * @param buffer the buffer to write the evidence to
  * @param bufferSize the size of the buffer
+ * @param acceptedHeaders the list of accepted headers
  * @param pseudoHeader the pseudo header to create evidence for
  * @param evidence the list of evidence to get actual evidence from
- * @return the number of evidence added. Return negative number to 
+ * @param prefix the target prefix to look for in the evidence list
+ * @return the number of characters added. Return negative number to 
  * indicate something has gone wrong.
  */
 static int constructPseudoEvidence(
@@ -99,8 +101,8 @@ static int constructPseudoEvidence(
  * Check if an evidence is present for a uniqueHeader with specific prefix
  * @param evidence the evidence collection
  * @param uniqueHeader the target unique header to check for
- * @param acceptedPrefixes the list of accepted acceptedPrefixes
- * @param numberOfPrefixes number of accepted acceptedPrefixes
+ * @param acceptedPrefixes the list of accepted accepted prefixes
+ * @param numberOfPrefixes number of accepted prefixes
  * @return whether the evidence for the target unique header presents in the
  * evidence collection.
  */

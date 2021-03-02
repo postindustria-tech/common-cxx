@@ -141,5 +141,5 @@ gtest_discover_tests(CommonTests)
 set_target_properties(CommonTests PROPERTIES FOLDER "Tests") 
 
 if (CMAKE_COMPILER_IS_GNUCC)
-    target_compile_options(CommonTests PRIVATE "-Wall" "-Wno-unused-variable" "-Wno-unused-result")
+	target_compile_options(CommonTests PRIVATE "-Wall" "-Werror" "-Wno-unused-variable" "-Wno-unused-result" "-Wno-unused-but-set-variable")
 endif()

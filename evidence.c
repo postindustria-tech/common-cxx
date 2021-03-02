@@ -89,6 +89,20 @@ fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddString(
 	return pair;
 }
 
+/*
+ * Iterate through an evidence collection and perform callback on the evidence
+ * whose prefix matches the input prefixes.
+ *
+ * @param evidence the evidence collection to process
+ * @param prefixes the accepted evidence prefixes
+ * @param state the state object to hold the current state of the process
+ * @param cont indicate whether the iteration should continue. This normally
+ * indicate if error has occured. Upon return, this value is also updated so
+ * that caller know whether to continue processing any other member set of
+ * the evidence collection.
+ * @param callback the method to call back when a matched evidence is found.
+ * @return number of evidence processed.
+ */
 static uint32_t evidenceIterateSub(
 	fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
 	int prefixes,

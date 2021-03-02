@@ -8,6 +8,7 @@
  *
  * @param header the request header to compare against
  * @param evidence the evidence collection to search from
+ * @param prefix the target prefix in the evidence collection
  * @return the evidence value or NULL if not found.
  */
 static const char* getEvidenceValueForHeader(

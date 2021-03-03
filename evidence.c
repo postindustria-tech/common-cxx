@@ -63,6 +63,7 @@ fiftyoneDegreesEvidenceCreate(uint32_t capacity) {
 			evidence->items[i].parsedValue = NULL;
 			evidence->items[i].prefix = FIFTYONE_DEGREES_EVIDENCE_IGNORE;
 		}
+		evidence->pseudoEvidence = NULL;
 	}
 	return evidence;
 }
@@ -88,23 +89,62 @@ fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddString(
 	return pair;
 }
 
-uint32_t fiftyoneDegreesEvidenceIterate(
-	fiftyoneDegreesEvidenceKeyValuePairArray *evidence,
+/*
+ * Iterate through an evidence collection and perform callback on the evidence
+ * whose prefix matches the input prefixes.
+ *
+ * @param evidence the evidence collection to process
+ * @param prefixes the accepted evidence prefixes
+ * @param state the state object to hold the current state of the process
+ * @param cont indicate whether the iteration should continue. This normally
+ * indicate if error has occured. Upon return, this value is also updated so
+ * that caller know whether to continue processing any other member set of
+ * the evidence collection.
+ * @param callback the method to call back when a matched evidence is found.
+ * @return number of evidence processed.
+ */
+static uint32_t evidenceIterateSub(
+	fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
 	int prefixes,
-	void *state,
+	void* state,
+	bool* cont,
 	fiftyoneDegreesEvidenceIterateMethod callback) {
 	uint32_t i = 0, count = 0;
-	bool cont = true;
-	EvidenceKeyValuePair *pair;
-	while (cont == true &&  i < evidence->count) {
+	EvidenceKeyValuePair* pair;
+	while (*cont == true && i < evidence->count) {
 		pair = &evidence->items[i++];
 		if ((pair->prefix & prefixes) == pair->prefix) {
 			if (pair->parsedValue == NULL) {
 				parsePair(pair);
 			}
-			cont = callback(state, pair);
+			*cont = callback(state, pair);
 			count++;
 		}
+	}
+	return count;
+}
+
+uint32_t fiftyoneDegreesEvidenceIterate(
+	fiftyoneDegreesEvidenceKeyValuePairArray *evidence,
+	int prefixes,
+	void *state,
+	fiftyoneDegreesEvidenceIterateMethod callback) {
+	bool cont = true;
+	uint32_t count = evidenceIterateSub(
+		evidence,
+		prefixes,
+		state,
+		&cont,
+		callback);
+
+	// Continue if there is a secondary evidence
+	if (cont == true && evidence->pseudoEvidence != NULL) {
+		count += evidenceIterateSub(
+			evidence->pseudoEvidence,
+			prefixes,
+			state,
+			&cont,
+			callback);
 	}
 	return count;
 }

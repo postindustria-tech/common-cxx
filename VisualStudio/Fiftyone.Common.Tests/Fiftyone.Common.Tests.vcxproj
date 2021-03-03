@@ -66,6 +66,7 @@
     <ClCompile Include="..\..\tests\pch.cpp" />
     <ClCompile Include="..\..\tests\PropertiesTests.cpp" />
     <ClCompile Include="..\..\tests\PropertyMetaDataTests.cpp" />
+    <ClCompile Include="..\..\tests\PseudoHeaderTests.cpp" />
     <ClCompile Include="..\..\tests\RequiredPropertiesConfigTests.cpp" />
     <ClCompile Include="..\..\tests\ResourceManagerTests.cpp" />
     <ClCompile Include="..\..\tests\StatusTests.cpp" />
@@ -82,6 +83,7 @@
     <ClInclude Include="..\..\tests\ExampleTests.hpp" />
     <ClInclude Include="..\..\tests\FileHandle.hpp" />
     <ClInclude Include="..\..\tests\pch.h" />
+    <ClInclude Include="..\..\tests\PseudoHeaderTests.hpp" />
     <ClInclude Include="..\..\tests\StringCollection.hpp" />
     <ClInclude Include="..\..\tests\TestStrings.hpp" />
   </ItemGroup>

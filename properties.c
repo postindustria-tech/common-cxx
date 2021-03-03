@@ -507,6 +507,18 @@ fiftyoneDegreesString* fiftyoneDegreesPropertiesGetNameFromRequiredIndex(
 	return (String*)available->items[requiredPropertyIndex].name.data.ptr;
 }
 
+bool fiftyoneDegreesPropertiesIsSetHeaderAvailable(
+	fiftyoneDegreesPropertiesAvailable* available) {
+	const char* string;
+	for (uint32_t i = 0; i < available->count; i++) {
+		string = FIFTYONE_DEGREES_STRING(available->items[i].name.data.ptr);
+		if (StringSubString(string, "SetHeader") == string) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void fiftyoneDegreesPropertiesFree(
 	fiftyoneDegreesPropertiesAvailable *available) {
 	uint32_t i;

@@ -117,6 +117,7 @@ typedef struct fiftyone_degrees_dataset_base_t {
 						partially allocated memory in use. */
 	bool isInMemory; /**< True if the data file has been read into continuous
 						 memory */
+	bool isClientHintsEnabled; /** True if client hints is enabled */
 	fiftyoneDegreesFilePool filePool; /**< Linked list of file readers */
 	fiftyoneDegreesResourceHandle *handle; /**< Pointer to the handle that
 										   tracks this data set instance */
@@ -259,7 +260,7 @@ void fiftyoneDegreesDataSetReset(fiftyoneDegreesDataSetBase *dataSet);
  * @param manager pointer to the manager which manages the data set resource
  * @return pointer to the data set resource
  */
-fiftyoneDegreesDataSetBase* fiftyoneDegreesDataSetGet(
+EXTERNAL fiftyoneDegreesDataSetBase* fiftyoneDegreesDataSetGet(
 	fiftyoneDegreesResourceManager *manager);
 
 /** 
@@ -267,7 +268,7 @@ fiftyoneDegreesDataSetBase* fiftyoneDegreesDataSetGet(
  * method.
  * @param dataSet pointer to the data set to release
  */
-void fiftyoneDegreesDataSetRelease(fiftyoneDegreesDataSetBase *dataSet);
+EXTERNAL void fiftyoneDegreesDataSetRelease(fiftyoneDegreesDataSetBase *dataSet);
 
 /**
  * Closes the data set by freeing anything which has been initialised at

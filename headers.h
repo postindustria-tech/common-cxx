@@ -115,6 +115,10 @@ typedef struct fiftyone_degrees_header_t {
 	fiftyoneDegreesCollectionItem name; /**< Collection item containing the
 										name of the header as a
 										#fiftyoneDegreesString */
+	uint32_t* requestHeaders; /**< Indices for unique headers that form
+							 this pseudo-header. Null if not a pseudo header */
+	uint32_t requestHeaderCount; /**< Number of request headers. 0 If not a
+								pseudo header */
 	uint32_t uniqueId; /**< Id which uniquely identifies the header within the
 					   data set. */
 } fiftyoneDegreesHeader;
@@ -122,7 +126,9 @@ typedef struct fiftyone_degrees_header_t {
 #define FIFTYONE_DEGREES_HEADERS_MEMBERS \
 bool expectUpperPrefixedHeaders; /**< True if the headers structure should
 								 expect input header to be prefixed with
-								 'HTTP_' */
+								 'HTTP_' */ \
+uint32_t* pseudoHeaders; \
+uint32_t pseudoHeadersCount; /**< Count number of pseudo headers */
 
 FIFTYONE_DEGREES_ARRAY_TYPE(
 	fiftyoneDegreesHeader, 
@@ -155,10 +161,19 @@ typedef long(*fiftyoneDegreesHeadersGetMethod)(
 EXTERNAL size_t fiftyoneDegreesHeadersSize(int count);
 
 /**
+ * Check if a header is a pseudo header.
+ * @param headerName name of the header
+ * @return whether a header is a pseudo header.
+ */
+EXTERNAL bool fiftyoneDegreesHeadersIsPseudo(const char *headerName);
+
+/**
  * Creates a new headers instance configured with the unique HTTP names needed
  * from evidence. If the useUpperPrefixedHeaders flag is true then checks for 
  * the presence of HTTP headers will also include checking for HTTP_ as a
- * prefix to the header key.
+ * prefix to the header key. If header is a pseudo header, the indices of
+ * actual headers that form this header will be constructed.
+ *
  * @param useUpperPrefixedHeaders true if HTTP_ prefixes should be checked
  * @param state pointer used by getHeaderMethod to retrieve the header integer
  * @param get used to return the HTTP header unique integer
@@ -198,6 +213,7 @@ EXTERNAL fiftyoneDegreesHeader* fiftyoneDegreesHeadersGetHeaderFromUniqueId(
 
 /**
  * Frees the memory allocated by the #fiftyoneDegreesHeadersCreate method.
+ *
  * @param headers structure created by #fiftyoneDegreesHeadersCreate
  */
 EXTERNAL void fiftyoneDegreesHeadersFree(fiftyoneDegreesHeaders *headers);

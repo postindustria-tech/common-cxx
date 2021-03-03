@@ -296,6 +296,15 @@ EXTERNAL fiftyoneDegreesString*
 		int requiredPropertyIndex);
 
 /**
+ * Check if the 'SetHeader' properties are included in the
+ * available required properties.
+ * @param available properties instance
+ * @return bool whether 'SetHeader' properties are included
+ */
+EXTERNAL bool fiftyoneDegreesPropertiesIsSetHeaderAvailable(
+	fiftyoneDegreesPropertiesAvailable* available);
+
+/**
  * Frees the memory and resources used by the properties results previously 
  * created using the #fiftyoneDegreesPropertiesCreate method.
  * @param available properties instance to be freed

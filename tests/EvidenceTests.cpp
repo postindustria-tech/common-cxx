@@ -141,3 +141,70 @@ TEST_F(Evidence, Iterate_String_AlreadyParsed) {
 		onMatchIterateStringAlreadyParsed);
 	free(parsed);
 }
+
+#ifdef _MSC_VER
+// This is mock implementation of the method so not all arguments are used
+#pragma warning (disable: 4100)
+#endif
+static bool countEvidence(
+	void* state,
+	fiftyoneDegreesEvidenceKeyValuePair* pair) {
+	(*(int*)state)++;
+	return true;
+}
+#ifdef _MSC_VER
+#pragma warning (default: 4100)
+#endif
+
+/*
+ * Check that the iteration API only iterate through the main evidence list
+ */
+TEST_F(Evidence, Iterate_String_without_pseudo_evidence) {
+	CreateEvidence(1);
+	fiftyoneDegreesEvidenceAddString(
+		evidence,
+		FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING,
+		"header1",
+		"value1");
+
+	int count = 0;
+	fiftyoneDegreesEvidenceIterate(
+		evidence,
+		FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING,
+		&count,
+		countEvidence);
+
+	EXPECT_EQ(1, count) <<
+		"Number of evidence should be 1\n";
+}
+
+/*
+ * Check that the iteration API also iterate through the pseudo evidence list
+ */
+TEST_F(Evidence, Iterate_String_with_pseudo_evidence) {
+	CreateEvidence(1);
+	fiftyoneDegreesEvidenceAddString(
+		evidence,
+		FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING,
+		"header1",
+		"value1");
+
+	evidence->pseudoEvidence = fiftyoneDegreesEvidenceCreate(2);
+	fiftyoneDegreesEvidenceAddString(
+		evidence->pseudoEvidence,
+		FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING,
+		"pseudo_header1",
+		"pseudo_value1");
+
+	int count = 0;
+	fiftyoneDegreesEvidenceIterate(
+		evidence,
+		FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING,
+		&count,
+		countEvidence);
+
+	EXPECT_EQ(2, count) <<
+		"Number of evidence should be 2\n";
+	// The pseudo evidence list should be freed separately
+	fiftyoneDegreesEvidenceFree(evidence->pseudoEvidence);
+}

@@ -104,7 +104,7 @@ static StatusMessage messages[] = {
 	{ INCORRECT_IP_ADDRESS_FORMAT,
 		"The input IP address format is incorrect. Verify the input IP address "
 		"string has correct format. If passing a byte array, verify the "
-		"associated input data is also consistent." },
+		"associated input data is also consistent." }
 };
 
 static char defaultMessage[] = "Status code %i does not have any message text.";

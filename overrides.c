@@ -386,6 +386,23 @@ void fiftyoneDegreesOverrideValuesFree(
 	}
 }
 
+void fiftyoneDegreesOverrideValuesReset(
+	fiftyoneDegreesOverrideValueArray *overrides) {
+	uint32_t i;
+	OverrideValue *item;
+	if (overrides != NULL) {
+		for (i = 0; i < overrides->capacity; i++) {
+			item = &overrides->items[i];
+			if (item->string.ptr != NULL && item->string.allocated > 0) {
+				memset(item->string.ptr, 0, item->string.allocated);
+				item->string.used = 0;
+				item->requiredPropertyIndex = 0;
+			}
+		}
+		overrides->count = 0;
+	}
+}
+
 static void extractProfileId(char *value, overrideProfileIds *state) {
 	if (*value >= 0 && isdigit(*value) != 0) {
 		int profileId = atoi(value);

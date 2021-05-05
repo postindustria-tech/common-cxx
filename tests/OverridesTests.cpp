@@ -22,6 +22,7 @@
 
 #include "pch.h"
 #include "../overrides.h"
+#include "../string.h"
 
 #ifdef _MSC_VER
 // This is a mock implementation of the method
@@ -67,4 +68,37 @@ TEST(OverrideProfileIdsTests, CaseSensitivity) {
 	fiftyoneDegreesOverrideProfileIds(evidence, &state, override);
 	EXPECT_EQ(5, state) <<
 		"Case insentivity should be honoured for ProfileIds with lower case.";
+}
+
+// Check if overrides are set correctly
+TEST(OverrideValuesResetTests, Positive) {
+	uint32_t i, capacity = 10;
+	fiftyoneDegreesOverrideValueArray *overrides = 
+		fiftyoneDegreesOverrideValuesCreate(capacity);
+
+	for (i = 0; i < capacity; i++) {
+		fiftyoneDegreesOverridesAdd(overrides, i, "TestValue");
+		EXPECT_EQ(i + 1, overrides->count);
+		EXPECT_EQ(
+			strlen("TestValue") + sizeof(fiftyoneDegreesString),
+			overrides->items[i].string.allocated);
+		EXPECT_STREQ(
+			"TestValue",
+			FIFTYONE_DEGREES_STRING(overrides->items[i].string.ptr));
+	}
+
+	fiftyoneDegreesOverrideValuesReset(overrides);
+	EXPECT_EQ(0, overrides->count) << "Failed to reset overrides count.";
+	for (i = 0; i < capacity; i++) {
+		EXPECT_EQ(0, overrides->items[i].string.used);
+		EXPECT_EQ(0, overrides->items[i].requiredPropertyIndex);
+		EXPECT_STREQ("", FIFTYONE_DEGREES_STRING(overrides->items[i].string.ptr));
+	}
+
+	fiftyoneDegreesOverrideValuesFree(overrides);
+}
+
+// Check if test doest not crash if reset a null pointer.
+TEST(OverrideValuesResetTests, Negative) {
+	fiftyoneDegreesOverrideValuesReset(NULL);
 }

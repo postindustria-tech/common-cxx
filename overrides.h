@@ -145,7 +145,7 @@ typedef bool(*fiftyoneDegreesOverridesFilterMethod)(
  * @param capacity the number of values the array can contain
  * @return a new array of override values
  */
-fiftyoneDegreesOverrideValueArray* fiftyoneDegreesOverrideValuesCreate(
+EXTERNAL fiftyoneDegreesOverrideValueArray* fiftyoneDegreesOverrideValuesCreate(
 	uint32_t capacity);
 
 /**
@@ -218,7 +218,7 @@ uint32_t fiftyoneDegreesOverrideValuesAdd(
  * @param value the value string override
  * @return true if the value was added successfully
  */
-bool fiftyoneDegreesOverridesAdd(
+EXTERNAL bool fiftyoneDegreesOverridesAdd(
 	fiftyoneDegreesOverrideValueArray *values,
 	int requiredPropertyIndex,
 	const char *value);
@@ -253,7 +253,15 @@ int fiftyoneDegreesOverridesGetOverridingRequiredPropertyIndex(
  * Frees the memory used for the override values.
  * @param values to be freed
  */
-void fiftyoneDegreesOverrideValuesFree(
+EXTERNAL void fiftyoneDegreesOverrideValuesFree(
+	fiftyoneDegreesOverrideValueArray *values);
+
+/**
+ * Reset override array. All existing item memory will not be freed by reset
+ * with 0s. Remaining values will be reset to default except the allocateds size..
+ * @param values to be reset
+ */
+EXTERNAL void fiftyoneDegreesOverrideValuesReset(
 	fiftyoneDegreesOverrideValueArray *values);
 
 /**

@@ -5,6 +5,7 @@
 #define PSEUDO_BUFFER_SIZE 100
 #define PSEUDO_HEADERS_SIZE 3
 #define HEADERS_SIZE 8
+#define HEADERS_DUPLICATE_SIZE 13
 #define HEADERS_NO_PSEUDO_SIZE 2
 #define PREFIXES_SIZE 2
 
@@ -25,6 +26,22 @@ static const char *uniqueHeaders[HEADERS_SIZE] = {
 	"header1\x1Fheader2",
 	"header2\x1Fheader3",
 	"header1\x1Fheader2\x1Fheader3"
+};
+
+static const char* nonUniqueHeaders[HEADERS_DUPLICATE_SIZE] = {
+	"header1\x1Fheader2",
+	"header2\x1Fheader3",
+	"header1",
+	"header2",
+	"header1",
+	"header2",
+	"header5",
+	"header3",
+	"header4",
+	"header1\x1Fheader2\x1Fheader3",
+	"header3",
+	"header4",
+	"header5"
 };
 
 static const char *uniqueHeadersNoPseudoHeader[HEADERS_NO_PSEUDO_SIZE] = {
@@ -127,6 +144,37 @@ void PseudoHeaderTests::removePseudoEvidence(size_t bufferSize) {
 				evidence->pseudoEvidence->items[i].originalValue)[0]) <<
 			"Memory should be reset to all NULL\n";
 	}
+}
+
+int PseudoHeaderTests::getNextPseudoIndex(const char* headers[], int size, int index) {
+	do {
+		index++;
+	} while (index < size && strstr(headers[index], "\x1f") == nullptr);
+	return index;
+}
+
+/**
+ * Check that when there are duplicate headers, and pseudo headers,
+ * that the unique headers are correctly constructed. This also tests
+ * for the regression of a bug resulting in an exception when a pseudo
+ * header follows a series of duplicates.
+ */
+TEST_F(PseudoHeaderTests, CreateWithNonUnique) {
+	// Create headers
+	createHeaders(nonUniqueHeaders, HEADERS_DUPLICATE_SIZE, false);
+
+	bool foundPastIndex = false;
+	int index = -1;
+	do {
+		index = getNextPseudoIndex(nonUniqueHeaders, HEADERS_DUPLICATE_SIZE, index);
+		foundPastIndex = foundPastIndex ||
+			(index < HEADERS_DUPLICATE_SIZE && index > (int)acceptedHeaders->count);
+	} while (index < HEADERS_DUPLICATE_SIZE);
+	EXPECT_TRUE(foundPastIndex) <<
+		L"The non unique set of headers is not set up properly to prevent" <<
+		L" regresion.";
+	EXPECT_EQ(acceptedHeaders->capacity, HEADERS_DUPLICATE_SIZE);
+	EXPECT_EQ(acceptedHeaders->count, HEADERS_SIZE);
 }
 
 /*

@@ -27,6 +27,7 @@ public:
 		fiftyoneDegreesEvidencePrefix prefix);
 	void checkResults(const testExpectedResult *expectedEvidence, int size);
 	void removePseudoEvidence(size_t bufferSize);
+	int getNextPseudoIndex(const char* headers[], int size, int index);
 protected:
 	StringCollection* strings = NULL;
 	fiftyoneDegreesHeaders* acceptedHeaders = NULL;

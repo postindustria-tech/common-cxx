@@ -75,16 +75,16 @@ static void addUniqueHeaders(
 		if (((String*)nameItem->data.ptr)->size > 1 &&
 			doesHeaderExist(headers, nameItem) == false) {
 			header->uniqueId = uniqueId;
-			headers->count++;
 			// Check if header is pseudo header then add it to the list
 			if (HeadersIsPseudo(
 				STRING(nameItem->data.ptr))) {
-				headers->pseudoHeaders[pIndex++] = i;
+				headers->pseudoHeaders[pIndex++] = headers->count;
 			}
 			else {
 				header->requestHeaders = NULL;
 			}
 			header->requestHeaderCount = 0;
+			headers->count++;
 		}
 		else {
 			assert(nameItem->collection != NULL);

@@ -118,7 +118,7 @@ namespace FiftyoneDegrees {
 			 * instance.
 			 * @return the number of available properties
 			 */
-			int getAvailableProperties();
+			int getAvailableProperties() const;
 
 			/**
 			 * Get whether or not this results instance contains a value for
@@ -126,7 +126,7 @@ namespace FiftyoneDegrees {
 			 * @param propertyName name of the property to check for
 			 * @return true if there is a value for the requested property
 			 */
-			bool containsProperty(const string &propertyName);
+			bool containsProperty(const string &propertyName) const;
 
 			/**
 			 * Get the names of the properties which are available in the
@@ -135,7 +135,7 @@ namespace FiftyoneDegrees {
 			 * can be used to fetch its corresponding value via a get method.
 			 * @return vector containing the names of all available properties
 			 */
-			vector<string> getProperties();
+			vector<string> getProperties() const;
 
 			/**
 			 * Get the name of the property at the require property index, or
@@ -144,7 +144,7 @@ namespace FiftyoneDegrees {
 			 * @return the name of the property, or an empty string if not
 			 * valid
 			 */
-			string getPropertyName(int requiredPropertyIndex);
+			string getPropertyName(int requiredPropertyIndex) const;
 
 			/**
 			 * @}

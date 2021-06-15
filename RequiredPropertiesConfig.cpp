@@ -88,7 +88,7 @@ RequiredPropertiesConfig::~RequiredPropertiesConfig() {
 	}
 }
 
-vector<string> RequiredPropertiesConfig::getProperties() {
+vector<string> RequiredPropertiesConfig::getProperties() const {
 	int i;
 	char *current;
 	vector<string> result;
@@ -108,7 +108,7 @@ vector<string> RequiredPropertiesConfig::getProperties() {
 }
 
 bool RequiredPropertiesConfig::containsProperty(
-	const char *property) {
+	const char *property) const {
 	int i;
 	char *current;
 	if (conf.array != nullptr) {
@@ -131,11 +131,11 @@ bool RequiredPropertiesConfig::containsProperty(
 }
 
 bool RequiredPropertiesConfig::containsProperty(
-	const string property) {
+	const string property) const {
 	return containsProperty(property.c_str());
 }
 
-int RequiredPropertiesConfig::getCount() {
+int RequiredPropertiesConfig::getCount() const {
 	int count;
 	char *current;
 	if (conf.array != nullptr) {

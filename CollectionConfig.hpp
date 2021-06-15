@@ -105,26 +105,26 @@ namespace FiftyoneDegrees {
 			 * Get the number of items the cache should store, 0 for no cache.
 			 * @return capacity value
 			 */
-			uint32_t getCapacity();
+			uint32_t getCapacity() const;
 
 			/**
 			 * Get the expected number of concurrent requests.
 			 * @return concurrency value
 			 */
-			uint16_t getConcurrency();
+			uint16_t getConcurrency() const;
 
 			/**
 			 * Get the number of items to load into memory from the start of
 			 * the collection.
 			 * @return loaded value
 			 */
-			uint32_t getLoaded();
+			uint32_t getLoaded() const;
 
 			/**
 			 * Get a pointer to the underlying configuration structure.
 			 * @return C structure pointer
 			 */
-			fiftyoneDegreesCollectionConfig* getConfig();
+			fiftyoneDegreesCollectionConfig* getConfig() const;
 
 			/** 
 			 * @}

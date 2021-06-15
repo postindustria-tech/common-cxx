@@ -74,13 +74,13 @@ namespace FiftyoneDegrees {
 			 * Get the unique id of the profile.
 			 * @return unique id
 			 */
-			uint32_t getProfileId();
+			uint32_t getProfileId() const;
 
 			/**
 			 * Get the unique id of the component the profile relates to.
 			 * @return unique component id
 			 */
-			byte getComponentId();
+			byte getComponentId() const;
 
 			/**
 			 * @}

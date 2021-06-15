@@ -204,7 +204,7 @@ fiftyoneDegreesPseudoHeadersAddEvidence(
 }
 
 void fiftyoneDegreesPseudoHeadersRemoveEvidence(
-    EvidenceKeyValuePairArray* evidence,
+    fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
     size_t bufferSize) {
     if (evidence != NULL && evidence->pseudoEvidence != NULL) {
         EvidenceKeyValuePair* pair = NULL;

@@ -36,18 +36,18 @@ ResultsBase::ResultsBase(
 ResultsBase::~ResultsBase() {
 }
 
-int ResultsBase::getAvailableProperties() {
+int ResultsBase::getAvailableProperties() const {
 	return available->count;
 }
 
 bool ResultsBase::containsProperty(
-	const string &propertyName) {
+	const string &propertyName) const {
 	return PropertiesGetRequiredPropertyIndexFromName(
 		available,
 		propertyName.c_str()) >= 0;
 }
 
-vector<string> ResultsBase::getProperties() {
+vector<string> ResultsBase::getProperties() const {
 	int i, size = getAvailableProperties();
 	vector<string> result;
 	for (i = 0; i < size; i++) {
@@ -57,7 +57,7 @@ vector<string> ResultsBase::getProperties() {
 }
 
 string ResultsBase::getPropertyName(
-	int requiredPropertyIndex) {
+	int requiredPropertyIndex) const {
 	string name;
 	const char *cName;
 	if (requiredPropertyIndex >= 0 &&

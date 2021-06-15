@@ -36,8 +36,8 @@ Date::Date(const fiftyoneDegreesDate *date) {
 	this->date = *date;
 }
 
-int Date::getYear() { return date.year; }
+int Date::getYear() const { return date.year; }
 
-int Date::getMonth() { return date.month; }
+int Date::getMonth() const { return date.month; }
 
-int Date::getDay() { return date.day; }
+int Date::getDay() const { return date.day; }

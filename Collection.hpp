@@ -101,20 +101,20 @@ namespace FiftyoneDegrees {
 			 * same as the key
 			 * @return a new instance of the item at the index
 			 */
-			virtual V* getByIndex(uint32_t index) = 0;
+			virtual V* getByIndex(uint32_t index) const = 0;
 
 			/**
 			 * Get the item for the key from the collection.
 			 * @param key unique key of the item required in the collection
 			 * @return a new instance of the item with the key
 			 */
-			virtual V* getByKey(K key) = 0;
+			virtual V* getByKey(K key) const = 0;
 
 			/**
 			* Number of items in the underlying collection.
 			* @return the number of items in the collection
 			*/
-			virtual uint32_t getSize() = 0;
+			virtual uint32_t getSize() const = 0;
 
 			/**
 			 * @}

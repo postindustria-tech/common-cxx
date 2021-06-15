@@ -78,25 +78,25 @@ namespace FiftyoneDegrees {
 			 * Get the unique if of the component as an integer.
 			 * @return unique id as int
 			 */
-			int getComponentIdAsInt();
+			int getComponentIdAsInt() const;
 
 			/**
 			 * Get the unique id of the component.
 			 * @return unique id
 			 */
-			byte getComponentId();
+			byte getComponentId() const;
 
 			/**
 			 * Get the name of the component.
 			 * @return name of the component
 			 */
-			string getName();
+			string getName() const;
 
 			/**
 			 * Get the unique id for the default profile for this component.
 			 * @return default profile id
 			 */
-			uint32_t getDefaultProfileId();
+			uint32_t getDefaultProfileId() const;
 
 			/**
 			 * @}

@@ -117,7 +117,7 @@ void EngineBase::setDataUpdateUrl(const string &newUpdateUrl) {
 	this->updateUrl.assign(newUpdateUrl);
 }
 
-string EngineBase::getDataUpdateUrl() {
+string EngineBase::getDataUpdateUrl() const {
 	stringstream stream;
 	if (updateUrl.empty() == false) {
 		stream << updateUrl;
@@ -131,26 +131,26 @@ string EngineBase::getDataUpdateUrl() {
 	return stream.str();
 }
 
-MetaData* EngineBase::getMetaData() {
+MetaData* EngineBase::getMetaData() const {
 	return metaData;
 }
 
-bool EngineBase::getAutomaticUpdatesEnabled() {
+bool EngineBase::getAutomaticUpdatesEnabled() const {
 	return getDataUpdateUrl().empty() == false;
 }
 
-vector<string>* EngineBase::getKeys() {
+const vector<string>* EngineBase::getKeys() const {
 	return &keys;
 }
 
-bool EngineBase::getIsThreadSafe() {
+bool EngineBase::getIsThreadSafe() const {
 	return ThreadingGetIsThreadSafe();
 }
 
 void EngineBase::appendString(
 	stringstream &stream,
 	fiftyoneDegreesCollection *strings,
-	uint32_t offset) {
+	uint32_t offset) const {
 	EXCEPTION_CREATE;
 	Item item;
 	DataReset(&item.data);

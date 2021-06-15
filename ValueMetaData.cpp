@@ -99,14 +99,14 @@ ValueMetaData::ValueMetaData(
 	this->url = url;
 }
 
-string ValueMetaData::getName() {
+string ValueMetaData::getName() const {
 	return getKey().getValueName();
 }
 
-string ValueMetaData::getDescription() {
+string ValueMetaData::getDescription() const {
 	return description;
 }
 
-string ValueMetaData::getUrl() {
+string ValueMetaData::getUrl() const {
 	return url;
 }

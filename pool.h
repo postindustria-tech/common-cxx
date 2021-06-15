@@ -120,7 +120,11 @@
 #include <errno.h>
 #include <stdint.h>
 #ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 5105) 
 #include <windows.h>
+#pragma warning (default: 5105) 
+#pragma warning (pop)
 #endif
 #include <assert.h>
 #include <limits.h>

@@ -158,19 +158,19 @@ namespace FiftyoneDegrees {
 			 * the value itself.
 			 * @return value name
 			 */
-			string getName();
+			string getName() const;
 
 			/**
 			 * Get the full description of the value.
 			 * @return description string
 			 */
-			string getDescription();
+			string getDescription() const;
 
 			/**
 			 * Get the URL containing any extra information about the value.
 			 * @return URL string
 			 */
-			string getUrl();
+			string getUrl() const;
 
 			/**
 			 * @}

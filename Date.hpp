@@ -74,19 +74,19 @@ namespace FiftyoneDegrees {
 			 * Get the year
 			 * @return year
 			 */
-			int getYear();
+			int getYear() const;
 
 			/**
 			 * Get the month
 			 * @return month
 			 */
-			int getMonth();
+			int getMonth() const;
 
 			/**
 			 * Get the day of the month
 			 * @return day of the month
 			 */
-			int getDay();
+			int getDay() const;
 
 			/**
 			 * @}

@@ -124,7 +124,7 @@ namespace FiftyoneDegrees {
 			 * Get the list of properties which are required.
 			 * @return vector containing the property names
 			 */
-			vector<string> getProperties();
+			vector<string> getProperties() const;
 
 			/**
 			 * Get a pointer to the underlying C required properties structure.
@@ -139,7 +139,7 @@ namespace FiftyoneDegrees {
 			 * properties configuration.
 			 * @return number of properties
 			 */
-			int getCount();
+			int getCount() const;
 
 			/**
 			 * @}
@@ -151,7 +151,7 @@ namespace FiftyoneDegrees {
 			 * @param property name of the property to find
 			 * @return true if the property name is present
 			 */
-			bool containsProperty(const char *property);
+			bool containsProperty(const char *property) const;
 
 			/**
 			 * Get whether or not the property name supplied is contained in
@@ -159,7 +159,7 @@ namespace FiftyoneDegrees {
 			 * @param property name of the property to find
 			 * @return true if the property name is present
 			 */
-			bool containsProperty(const string property);
+			bool containsProperty(const string property) const;
 		private:
 			/** The underlying C configuration structure. */
 			fiftyoneDegreesPropertiesRequired conf;

@@ -45,18 +45,18 @@ ComponentMetaData::ComponentMetaData(
 	this->defaultProfileId = defaultProfileId;
 }
 
-int ComponentMetaData::getComponentIdAsInt() {
+int ComponentMetaData::getComponentIdAsInt() const {
 	return (int)getComponentId();
 }
 
-byte ComponentMetaData::getComponentId() {
+byte ComponentMetaData::getComponentId() const {
 	return getKey();
 }
 
-string ComponentMetaData::getName() {
+string ComponentMetaData::getName() const {
 	return this->name;
 }
 
-uint32_t ComponentMetaData::getDefaultProfileId() {
+uint32_t ComponentMetaData::getDefaultProfileId() const {
 	return this->defaultProfileId;
 }

@@ -99,13 +99,21 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
 #ifdef _MSC_VER
+#endif
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 5105) 
 #include <windows.h>
+#pragma warning (default: 5105) 
+#pragma warning (pop)
 #endif
 #include <assert.h>
 #include "data.h"
 #include "exceptions.h"
 #include "tree.h"
+
 #ifndef FIFTYONE_DEGREES_NO_THREADING
 #include "threading.h"
 #endif

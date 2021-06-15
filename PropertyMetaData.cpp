@@ -98,66 +98,66 @@ PropertyMetaData::PropertyMetaData(
 	this->evidenceProperties = evidenceProperties;
 }
 
-string PropertyMetaData::getName() {
+string PropertyMetaData::getName() const {
 	return getKey();
 }
 
-vector<string> PropertyMetaData::getDataFilesWherePresent() {
+vector<string> PropertyMetaData::getDataFilesWherePresent() const {
 	return dataFilesWherePresent;
 }
 
-string PropertyMetaData::getType() {
+string PropertyMetaData::getType() const {
 	return type;
 }
 
-string PropertyMetaData::getCategory() {
+string PropertyMetaData::getCategory() const {
 	return category;
 }
 
-string PropertyMetaData::getUrl() {
+string PropertyMetaData::getUrl() const {
 	return url;
 }
 
-bool PropertyMetaData::getAvailable() {
+bool PropertyMetaData::getAvailable() const {
 	return available;
 }
 
-int PropertyMetaData::getDisplayOrder() {
+int PropertyMetaData::getDisplayOrder() const {
 	return (int)displayOrder;
 }
 
-bool PropertyMetaData::getIsMandatory() {
+bool PropertyMetaData::getIsMandatory() const {
 	return isMandatory;
 }
 
-bool PropertyMetaData::getIsList() {
+bool PropertyMetaData::getIsList() const {
 	return isList;
 }
 
-bool PropertyMetaData::getIsObsolete() {
+bool PropertyMetaData::getIsObsolete() const {
 	return isObsolete;
 }
 
-bool PropertyMetaData::getShow() {
+bool PropertyMetaData::getShow() const {
 	return show;
 }
 
-bool PropertyMetaData::getShowValues() {
+bool PropertyMetaData::getShowValues() const {
 	return showValues;
 }
 
-string PropertyMetaData::getDescription() {
+string PropertyMetaData::getDescription() const {
 	return description;
 }
 
-byte PropertyMetaData::getComponentId() {
+byte PropertyMetaData::getComponentId() const {
 	return componentId;
 }
 
-string PropertyMetaData::getDefaultValue() {
+string PropertyMetaData::getDefaultValue() const {
 	return defaultValue;
 }
 
-vector<uint32_t> PropertyMetaData::getEvidenceProperties() {
+vector<uint32_t> PropertyMetaData::getEvidenceProperties() const {
 	return evidenceProperties;
 }

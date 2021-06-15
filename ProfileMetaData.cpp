@@ -43,10 +43,10 @@ ProfileMetaData::ProfileMetaData(ProfileMetaData *profile)
 		profile->getComponentId()) {
 }
 
-uint32_t ProfileMetaData::getProfileId() {
+uint32_t ProfileMetaData::getProfileId() const {
 	return getKey();
 }
 
-byte ProfileMetaData::getComponentId() {
+byte ProfileMetaData::getComponentId() const {
 	return componentId;
 }

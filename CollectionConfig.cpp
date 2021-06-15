@@ -52,18 +52,18 @@ void CollectionConfig::setLoaded(uint32_t loaded) {
 	config->loaded = loaded; 
 }
 
-uint32_t CollectionConfig::getCapacity() {
+uint32_t CollectionConfig::getCapacity() const {
 	return config->capacity; 
 }
 
-uint16_t CollectionConfig::getConcurrency() { 
+uint16_t CollectionConfig::getConcurrency() const { 
 	return config->concurrency; 
 }
 
-uint32_t CollectionConfig::getLoaded() { 
+uint32_t CollectionConfig::getLoaded() const { 
 	return config->loaded;
 }
 
-fiftyoneDegreesCollectionConfig* CollectionConfig::getConfig() {
+fiftyoneDegreesCollectionConfig* CollectionConfig::getConfig() const {
 	return config;
 }

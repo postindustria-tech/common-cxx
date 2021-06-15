@@ -112,33 +112,33 @@ namespace FiftyoneDegrees {
 			 * @return a new results instance with the values for all requested
 			 * properties
 			 */
-			virtual ResultsBase* processBase(EvidenceBase *evidence) = 0;
+			virtual ResultsBase* processBase(EvidenceBase *evidence) const = 0;
 
 			/**
 			 * Refresh the data set from the original file location. This
 			 * should be implemented by the extending class.
 			 */
-			virtual void refreshData() = 0;
+			virtual void refreshData() const = 0;
 
 			/**
 			 * Refresh the data set from the file location provided.
 			 * @param fileName of the new data file
 			 */
-			virtual void refreshData(const char *fileName) = 0;
+			virtual void refreshData(const char *fileName) const = 0;
 
 			/**
 			 * Refresh the data set from the memory location provided.
 			 * @param data pointer to the data in memory
 			 * @param length length of the data in memory
 			 */
-			virtual void refreshData(void *data, long length) = 0;
+			virtual void refreshData(void *data, long length) const = 0;
 
 			/**
 			 * Refresh the data set from the memory location provided.
 			 * @param data pointer to the data in memory
 			 * @param length of the data in memory
 			 */
-			virtual void refreshData(unsigned char data[], long length) = 0;
+			virtual void refreshData(unsigned char data[], long length) const = 0;
 
 			/**
 			 * @}
@@ -170,7 +170,7 @@ namespace FiftyoneDegrees {
 			 * exist within the engine.
 			 * @return pointer to the meta data class
 			 */
-			MetaData* getMetaData();
+			MetaData* getMetaData() const;
 
 			/**
 			 * Gets whether or not automatic updates are enabled. If they are,
@@ -178,54 +178,54 @@ namespace FiftyoneDegrees {
 			 * data set.
 			 * @return true if updates are enabled
 			 */
-			bool getAutomaticUpdatesEnabled();
+			bool getAutomaticUpdatesEnabled() const;
 
 			/**
 			 * Get the path to the data file the current data set was
 			 * initialised from.
 			 * @return data file path
 			 */
-			virtual string getDataFilePath() = 0;
+			virtual string getDataFilePath() const = 0;
 
 			/**
 			 * Get the path to the temporary data file created by the engine,
 			 * or an empty string if one was not created.
 			 * @return temp data file path or empty string
 			 */
-			virtual string getDataFileTempPath() = 0;
+			virtual string getDataFileTempPath() const = 0;
 
 			/**
 			 * Get the URL to be used when updating the data file, or an empty
 			 * string if this is not set.
 			 * @return URL to download new data file from
 			 */
-			virtual string getDataUpdateUrl();
+			virtual string getDataUpdateUrl() const;
 
 			/**
 			 * Get the date at which the current data set was published.
 			 * @return data set published date
 			 */
-			virtual Date getPublishedTime() = 0;
+			virtual Date getPublishedTime() const = 0;
 
 			/**
 			 * Get the date at which a new data file will be available to
 			 * download from the URL returned by #getDataUpdateUrl().
 			 * @return new data set available date
 			 */
-			virtual Date getUpdateAvailableTime() = 0;
+			virtual Date getUpdateAvailableTime() const = 0;
 
 			/**
 			 * Get the name of the data set being used e.g. Pattern or Hash.
 			 * @return product name
 			 */
-			virtual string getProduct() = 0;
+			virtual string getProduct() const = 0;
 
 			/**
 			 * Get the tier of the data set being used e.g. Premium or
 			 * Enterprise.
 			 * @return data set type
 			 */
-			virtual string getType() = 0;
+			virtual string getType() const = 0;
 
 			/**
 			 * Get the list of keys which the engine accepts as evidence. This
@@ -233,14 +233,14 @@ namespace FiftyoneDegrees {
 			 * freed.
 			 * @return pointer to the list of evidence keys
 			 */
-			vector<string>* getKeys();
+			const vector<string>* getKeys() const;
 
 			/**
 			 * Get whether or not the engine was compiled with thread-safe
 			 * support. If it was not then certain precautions should be taken.
 			 * @return true if the engine is thread-safe
 			 */
-			bool getIsThreadSafe();
+			bool getIsThreadSafe() const;
 
 			/**
 			 * @}
@@ -285,7 +285,7 @@ namespace FiftyoneDegrees {
 			virtual void appendString(
 				stringstream &stream,
 				fiftyoneDegreesCollection *strings,
-				uint32_t offset);
+				uint32_t offset) const;
 
 			/**
 			 * Initialise the HTTP header keys which are used by this engine.

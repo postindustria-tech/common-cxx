@@ -96,28 +96,28 @@ namespace FiftyoneDegrees {
 			 * on the unique id of the component.
 			 * @return all components
 			 */
-			virtual Collection<byte, ComponentMetaData>* getComponents() = 0;
+			virtual Collection<byte, ComponentMetaData>* getComponents() const = 0;
 
 			/**
 			 * Get a new Collection instance of all property meta data keyed on
 			 * the name of the property.
 			 * @return all properties
 			 */
-			virtual Collection<string, PropertyMetaData>* getProperties() = 0;
+			virtual Collection<string, PropertyMetaData>* getProperties() const = 0;
 
 			/**
 			 * Get a new Collection instance of all profile meta data keyed on
 			 * the unique id of the profile.
 			 * @return all profiles
 			 */
-			virtual Collection<uint32_t, ProfileMetaData>* getProfiles() = 0;
+			virtual Collection<uint32_t, ProfileMetaData>* getProfiles() const = 0;
 
 			/**
 			 * Get a new Collection instance of all value meta data keyed on
 			 * the name of the value and the property it relates to.
 			 * @return all values
 			 */
-			virtual Collection<ValueMetaDataKey, ValueMetaData>* getValues() = 0;
+			virtual Collection<ValueMetaDataKey, ValueMetaData>* getValues() const = 0;
 
 			/**
 			 * @}
@@ -132,8 +132,8 @@ namespace FiftyoneDegrees {
 			 * @param property to get the values for
 			 * @return values for the property
 			 */
-			virtual Collection<ValueMetaDataKey, ValueMetaData>*
-				getValuesForProperty(PropertyMetaData *property) = 0;
+			virtual Collection<ValueMetaDataKey, ValueMetaData>*  
+				getValuesForProperty(PropertyMetaData *property) const = 0;
 
 			/**
 			 * Get a new Collection instance of value meta data for the
@@ -142,8 +142,8 @@ namespace FiftyoneDegrees {
 			 * @param profile to get the values for
 			 * @return values for the profile
 			 */
-			virtual Collection<ValueMetaDataKey, ValueMetaData>*
-				getValuesForProfile(ProfileMetaData *profile) = 0;
+			virtual Collection<ValueMetaDataKey, ValueMetaData>* 
+				getValuesForProfile(ProfileMetaData *profile) const = 0;
 
 			/**
 			 * Get the Component which the specified profile relates to.
@@ -151,7 +151,7 @@ namespace FiftyoneDegrees {
 			 * @return component the profile relates to
 			 */
 			virtual ComponentMetaData* getComponentForProfile(
-				ProfileMetaData *profile) = 0;
+				ProfileMetaData *profile) const = 0;
 
 			/**
 			 * Get the Component which the specified property relates to.
@@ -159,7 +159,7 @@ namespace FiftyoneDegrees {
 			 * @return component the property relates to
 			 */
 			virtual ComponentMetaData* getComponentForProperty(
-				PropertyMetaData *property) = 0;
+				PropertyMetaData *property) const = 0;
 
 			/**
 			 * Get the default profile for the specified component. This is the
@@ -168,7 +168,7 @@ namespace FiftyoneDegrees {
 			 * @return default profile for the component
 			 */
 			virtual ProfileMetaData* getDefaultProfileForComponent(
-				ComponentMetaData *component) = 0;
+				ComponentMetaData *component) const = 0;
 
 			/**
 			 * Get the default value for the specified component. This is the
@@ -178,7 +178,7 @@ namespace FiftyoneDegrees {
 			 * @return default value for the property
 			 */
 			virtual ValueMetaData* getDefaultValueForProperty(
-				PropertyMetaData *property) = 0;
+				PropertyMetaData *property) const = 0;
 
 			/**
 			 * Get a new Collection instance of the property meta data relating
@@ -188,8 +188,8 @@ namespace FiftyoneDegrees {
 			 * @param component to get the properties for
 			 * @return properties for the component
 			 */
-			virtual Collection<string, PropertyMetaData>*
-				getPropertiesForComponent(ComponentMetaData *component) = 0;
+			virtual Collection<string, PropertyMetaData>* 
+				getPropertiesForComponent(ComponentMetaData *component) const = 0;
 
 			/**
 			 * Get the property which the value relates to.
@@ -197,7 +197,7 @@ namespace FiftyoneDegrees {
 			 * @return property the value relates to
 			 */
 			virtual PropertyMetaData* getPropertyForValue(
-				ValueMetaData *value) = 0;
+				ValueMetaData *value) const = 0;
 
 			/**
 			 * Get the properties which are required to fetch extra evidence for
@@ -208,7 +208,7 @@ namespace FiftyoneDegrees {
 			 * @return evidence properties for the property
 			 */
 			virtual Collection<string, PropertyMetaData>*
-				getEvidencePropertiesForProperty(PropertyMetaData *property) = 0;
+				getEvidencePropertiesForProperty(PropertyMetaData *property) const = 0;
 
 			/**
 			 * @}

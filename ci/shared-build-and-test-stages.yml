@@ -1,17 +1,14 @@
-name: Build and Test Common C++
-
-pr:
-- master
-- develop
-
-trigger: none
+parameters:
+- name: windowsImage
+- name: linuxImage
+- name: macImage
 
 stages:
 
 - stage: Windows
   dependsOn: []
   pool:
-    name: Hosted VS2017
+    vmImage: ${{ parameters.windowsImage }}
     demands:
     - msbuild
     - vstest
@@ -53,7 +50,7 @@ stages:
           BuildPlatform: x64  
           BuildDirectory: x64/Release
     steps:
-    - template: ci/steps-windows-test-vs.yml
+    - template: shared-steps-windows-test-vs.yml
       parameters:
         buildPlatform: '$(BuildPlatform)'
         buildConfiguration: '$(BuildConfiguration)'
@@ -95,7 +92,7 @@ stages:
           BuildPlatform: x64
           BuildArguments: -DNoThreading=ON
     steps:
-    - template: ci/steps-windows-test-cmake.yml
+    - template: shared-steps-windows-test-cmake.yml
       parameters:
         buildPlatform: '$(BuildPlatform)'
         buildConfiguration: '$(BuildConfiguration)'
@@ -107,7 +104,7 @@ stages:
   - job: Build_And_Test_Mac
     pool:
       name: Azure Pipelines
-      vmImage: 'macOS-10.14'
+      vmImage: ${{ parameters.macImage }}
     strategy:
       matrix:
         debug x64 multi threads:
@@ -123,7 +120,7 @@ stages:
           BuildConfiguration: Release  
           BuildArguments: -DNoThreading=ON
     steps:
-    - template: ci/steps-cmake-test.yml
+    - template: shared-steps-cmake-test.yml
       parameters:
         platformName: 'Mac'
         buildConfiguration: '$(BuildConfiguration)'
@@ -134,7 +131,7 @@ stages:
   jobs:
   - job: Build_And_Test_Ubuntu
     pool:
-      name: Hosted Ubuntu 1604
+      vmImage: ${{ parameters.linuxImage }}
     strategy:
       matrix:
         debug x86 multi threads:
@@ -163,12 +160,16 @@ stages:
           BuildArguments: -DNoThreading=ON
     steps:
     - script: |
+        # Update package repositories
+        sudo apt-get -y update
+        
+        # Install required packages
         sudo apt-get -y install \
           gcc-multilib \
           g++-multilib        
       displayName: 'Install Required Packages'
     
-    - template: ci/steps-cmake-test.yml
+    - template: shared-steps-cmake-test.yml
       parameters:
         platformName: 'Ubuntu'  
         buildConfiguration: '$(BuildConfiguration)'

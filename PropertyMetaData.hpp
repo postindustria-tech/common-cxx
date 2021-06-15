@@ -113,85 +113,85 @@ namespace FiftyoneDegrees {
 			 * Get the name of the property.
 			 * @return string representing the property
 			 */
-			string getName();
+			string getName() const;
 
 			/**
 			 * Get the list of data file tiers where the property is available
 			 * e.g. Premium or Enterprise.
 			 * @return vector containing data file names
 			 */
-			vector<string> getDataFilesWherePresent();
+			vector<string> getDataFilesWherePresent() const;
 
 			/**
 			 * Get the type of data which the property refers to e.g. `int`
 			 * @return string indicating the variable type
 			 */
-			string getType();
+			string getType() const;
 
 			/**
 			 * Get the category which the property belongs to e.g. `device`.
 			 * @return string indicating the category
 			 */
-			string getCategory();
+			string getCategory() const;
 
 			/**
 			 * Get the URL related to the property.
 			 * @return URL string
 			 */
-			string getUrl();
+			string getUrl() const;
 
 			/**
 			 * Get whether or not the property is available in the active data
 			 * set.
 			 * @return true if the property is available, otherwise false.
 			 */
-			bool getAvailable();
+			bool getAvailable() const;
 
 			/**
 			 * Get the order in which the property should be displayed.
 			 * @return display order
 			 */
-			int getDisplayOrder();
+			int getDisplayOrder() const;
 
 			/**
 			 * Get whether or not the property is mandatory. This means that it
 			 * must be populated in the data set.
 			 * @return true if the property is mandatory
 			 */
-			bool getIsMandatory();
+			bool getIsMandatory() const;
 
 			/**
 			 * Get whether or not the value of the property is a list. If so,
 			 * the a result can contain multiple values for this property.
 			 * @return true if the value of the property is a list
 			 */
-			bool getIsList();
+			bool getIsList() const;
 
 			/**
 			 * Get whether or not the property is obsolete. If so, the values
 			 * may not be exported in the data set.
 			 * @return true if the property is obsolete
 			 */
-			bool getIsObsolete();
+			bool getIsObsolete() const;
 
 			/**
 			 * Get whether or not the property should be displayed.
 			 * @return true if the property should be displayed
 			 */
-			bool getShow();
+			bool getShow() const;
 
 			/**
 			 * Get whether or not the values of the property should be
 			 * displayed.
 			 * @return true if the values of the property should be displayed
 			 */
-			bool getShowValues();
+			bool getShowValues() const;
 
 			/**
 			 * Get the full description of the property.
 			 * @return description string
 			 */
-			string getDescription();
+			string getDescription() const;
 
 			/**
 			 * Gets the default value as a string for the property. This can be
@@ -199,20 +199,20 @@ namespace FiftyoneDegrees {
 			 * from the value meta data collection.
 			 * @return default value string
 			 */
-			string getDefaultValue();
+			string getDefaultValue() const;
 
 			/**
 			 * Get the component id of the property. This can be used to get
 			 * the component meta data from the component meta data collection.
 			 * @return component id
 			 */
-			byte getComponentId();
+			byte getComponentId() const;
 
 			/**
 			 * Get the evidence property indexes for the property.
 			 * @return indexes for evidence properties
 			 */
-			vector<uint32_t> getEvidenceProperties();
+			vector<uint32_t> getEvidenceProperties() const;
 
 			/**
 			 * @}

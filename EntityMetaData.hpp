@@ -65,7 +65,7 @@ namespace FiftyoneDegrees {
 			 * Get the unique key for this entity instance.
 			 * @return key of type K
 			 */
-			K getKey() { return key; }
+			K getKey() const { return key; }
 
 			/**
 			 * @}

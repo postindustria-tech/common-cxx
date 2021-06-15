@@ -125,21 +125,21 @@ namespace FiftyoneDegrees {
 			 * @return true if upper case HTTP_ prefixed header keys should be
 			 * considered.
 			 */
-			bool getUseUpperPrefixHeaders();
+			bool getUseUpperPrefixHeaders() const;
 
 			/**
 			 * Get whether or not a temporary file should be created from the
 			 * original data file and used to initialise the data set.
 			 * @return true if temporary files should be used, otherwise false.
 			 */
-			bool getUseTempFile();
+			bool getUseTempFile() const;
 
 			/**
 			 * Get whether temporary files can be reused across multiple
 			 * processes.
 			 * @return true if temporary files can be reused, otherwise false.
 			 */
-			bool getReuseTempFile();
+			bool getReuseTempFile() const;
 
 			/**
 			 * Gets a vector of temporary directory strings which should be
@@ -147,13 +147,13 @@ namespace FiftyoneDegrees {
 			 * @return a vector of temporary directories, or NULL if no
 			 * temporary directories are to be used.
 			 */
-			vector<string> getTempDirectories();
+			vector<string> getTempDirectories() const;
 
 			/**
 			 * Get the expected number of concurrent accessors of the data set.
 			 * @return concurrency
 			 */
-			virtual uint16_t getConcurrency();
+			virtual uint16_t getConcurrency() const;
 
 			/**
 			 * @}

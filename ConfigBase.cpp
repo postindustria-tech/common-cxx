@@ -52,23 +52,23 @@ void ConfigBase::setTempDirectories(
 	mapTempDirectories();
 }
 
-bool ConfigBase::getUseUpperPrefixHeaders() {
+bool ConfigBase::getUseUpperPrefixHeaders() const {
 	return config->usesUpperPrefixedHeaders;
 }
 
-bool ConfigBase::getUseTempFile() {
+bool ConfigBase::getUseTempFile() const {
 	return config->useTempFile;
 }
 
-bool ConfigBase::getReuseTempFile() {
+bool ConfigBase::getReuseTempFile() const {
 	return config->reuseTempFile;
 }
 
-vector<string> ConfigBase::getTempDirectories() {
+vector<string> ConfigBase::getTempDirectories() const {
 	return tempDirs;
 }
 
-uint16_t ConfigBase::getConcurrency() {
+uint16_t ConfigBase::getConcurrency() const {
 	return 0;
 }
 

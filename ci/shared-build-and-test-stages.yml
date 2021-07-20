@@ -18,7 +18,7 @@ stages:
 
   jobs:
   - job: Build_And_Test_VisualStudio
-    condition: eq(${{ parameters.runTests }}, 'On')
+    condition: ne(${{ parameters.runTests }}, 'Off')
     strategy:
       matrix:
         debug x86 multi threads:
@@ -61,7 +61,7 @@ stages:
         buildDirectory: '$(BuildDirectory)'
 
   - job: Build_And_Test_CMake
-    condition: eq(${{ parameters.runTests }}, 'On')
+    condition: ne(${{ parameters.runTests }}, 'Off')
     strategy:
       matrix:
         debug x86 multi threads:
@@ -107,7 +107,7 @@ stages:
   dependsOn: []
   jobs:
   - job: Build_And_Test_Mac
-    condition: eq(${{ parameters.runTests }}, 'On')
+    condition: ne(${{ parameters.runTests }}, 'Off')
     pool:
       name: Azure Pipelines
       vmImage: ${{ parameters.macImage }}
@@ -136,7 +136,7 @@ stages:
   dependsOn: []
   jobs:
   - job: Build_And_Test_Ubuntu
-    condition: eq(${{ parameters.runTests }}, 'On')
+    condition: ne(${{ parameters.runTests }}, 'Off')
     pool:
       vmImage: ${{ parameters.linuxImage }}
     strategy:

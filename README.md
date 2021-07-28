@@ -32,6 +32,15 @@ Finally, the optional last part completes the description of the method's use, e
 
 # Installing
 
+## Dependecies
+
+When compiling on Linux, there is a dependency on `libatomic`. This
+is usually already present as part of the C libraries, and is included
+as part of GCC 5 and abover. On other systems, can be installed with:
+```
+sudo apt-get install libatomic1
+```
+
 ## Using CMake
 
 To build the make files required to build, open a `bash` or `Visual Studio Developer Command Prompt` terminal and run

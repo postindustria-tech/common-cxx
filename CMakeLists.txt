@@ -2,11 +2,20 @@ cmake_minimum_required(VERSION 3.10)
 set (CMAKE_C_STANDARD 11)
 set (CMAKE_CXX_STANDARD 11)
 
+if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.1)
+    message(FATAL_ERROR "Require at least gcc-5.1")
+endif()
+
 project(51DegreesCommon VERSION 4.0.1 LANGUAGES CXX C)
 
 include(CTest)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 find_package(Threads REQUIRED)
+
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "^arm" OR CMAKE_SYSTEM_PROCESSOR MATCHES "^aarch64")
+	set(IS_ARM TRUE)
+endif()
 
 if(NOT CMAKE_BUILD_TYPE AND NOT MSVC)
 	message("-- Setting default CMAKE_BUILD_TYPE  to Release")
@@ -25,10 +34,15 @@ option(MemoryOnly "MemoryOnly" OFF)
 option(NoThreading "NoThreading" OFF)
 option(ExceptionsDisabled "ExceptionsDisabled" OFF)
 
-if (32bit AND NOT MSVC)
+if (32bit AND NOT MSVC AND NOT IS_ARM)
 	message("-- 32 bit compilation")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+endif()
+
+if (NOT MSVC AND NOT APPLE)
+    find_package(GccAtomic)
+    set(EXE_LINKER_FLAGS "${EXE_LINKER_FLAGS} -latomic")
 endif()
 
 if (MemoryOnly)
@@ -63,7 +77,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 FILE(GLOB COMC_SRC ${CMAKE_CURRENT_LIST_DIR}/*.c)
 FILE(GLOB COMC_H ${CMAKE_CURRENT_LIST_DIR}/*.h)
 add_library(fiftyone-common-c ${COMC_SRC} ${COMC_H})
-target_link_libraries(fiftyone-common-c	${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(fiftyone-common-c	${CMAKE_THREAD_LIBS_INIT} ${GCCLIBATOMIC_LIBRARY})
 
 FILE(GLOB COMCPP_SRC ${CMAKE_CURRENT_LIST_DIR}/*.cpp)
 FILE(GLOB COMCPP_H ${CMAKE_CURRENT_LIST_DIR}/*.hpp)
@@ -75,7 +89,7 @@ if (MSVC)
 	target_compile_options(fiftyone-common-c PRIVATE "/D_CRT_SECURE_NO_WARNINGS" "/W4" "/WX")
 	target_compile_options(fiftyone-common-cxx PRIVATE "/D_CRT_SECURE_NO_WARNINGS" "/W4" "/WX")
 else ()
-	target_compile_options(fiftyone-common-c PRIVATE ${COMPILE_OPTION_DEBUG} "-Werror")
+	target_compile_options(fiftyone-common-c PRIVATE ${COMPILE_OPTION_DEBUG} "-Werror" "-Wno-atomic-alignment")
 	target_compile_options(fiftyone-common-cxx PRIVATE ${COMPILE_OPTION_DEBUG} "-Werror")
 endif()
 

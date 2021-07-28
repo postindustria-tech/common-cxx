@@ -36,6 +36,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <stdio.h>
+
 #ifdef __cplusplus
 #define EXTERNAL extern "C"
 #else
@@ -304,7 +306,7 @@ void fiftyoneDegreesSignalWait(fiftyoneDegreesSignal *signal);
 #ifdef _MSC_VER
 #define FIFTYONE_DEGREES_INTERLOCK_INC(v) _InterlockedIncrement(v)
 #else
-#define FIFTYONE_DEGREES_INTERLOCK_INC(v) (__sync_add_and_fetch(v, 1))
+#define FIFTYONE_DEGREES_INTERLOCK_INC(v) (__atomic_add_fetch(v, 1, __ATOMIC_SEQ_CST))
 #endif
 
 /**
@@ -315,7 +317,7 @@ void fiftyoneDegreesSignalWait(fiftyoneDegreesSignal *signal);
 #ifdef _MSC_VER
 #define FIFTYONE_DEGREES_INTERLOCK_DEC(v) _InterlockedDecrement(v)
 #else
-#define FIFTYONE_DEGREES_INTERLOCK_DEC(v) (__sync_add_and_fetch(v, -1))
+#define FIFTYONE_DEGREES_INTERLOCK_DEC(v) (__atomic_add_fetch(v, -1, __ATOMIC_SEQ_CST))
 #endif
 
 /**
@@ -330,8 +332,11 @@ void fiftyoneDegreesSignalWait(fiftyoneDegreesSignal *signal);
 #define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(d,e,c) \
 	InterlockedCompareExchange(&d, e, c)
 #else
+/* __sync is still used here, as __atomic only offers a bool return value.
+This will end up being resolved to __atomic functions anyway, so is still
+supported. */
 #define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(d,e,c) \
-	__sync_val_compare_and_swap(&d,c,e)
+	__sync_val_compare_and_swap(&d,c,e) 
 #endif
 
 /**
@@ -366,52 +371,33 @@ void fiftyoneDegreesSignalWait(fiftyoneDegreesSignal *signal);
     FIFTYONE_DEGREES_INTERLOCK_EXCHANGE(d,e,c)
 #endif
 
-#ifndef _MSC_VER
- /**
-  * Implements the __sync_bool_compare_and_swap_16 function which is often not
-  * implemtned by the compiler. This uses the cmpxchg16b instruction from the
-  * x86-64 instruction set, the same instruction as the
-  * InterlockedCompareExchange128 implementation
-  * (see https://docs.microsoft.com/en-us/cpp/intrinsics/interlockedcompareexchange128?view=vs-2019#remarks).
-  * It is therefore supported by modern Intel and AMD CPUs. However, most ARM
-  * chips will not support this.
-  * For full details of the cmpxchg16b instruction, see the manual:
-  * https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.pdf
-  * and other example implementations:
-  * https://github.com/ivmai/libatomic_ops/blob/release-7_2/src/atomic_ops/sysdeps/gcc/x86_64.h#L148
-  * https://github.com/haproxy/haproxy/blob/a7bf57352059277239794950f9aac33d05741f1a/include/common/hathreads.h#L1000
-  * @param destination memory location to be replaced if the compare is true
-  * @param exchange memory to copy to the destination if the compare is true
-  * @param compare memory to compare to destination.
-  * @return 1 if all 16 bytes of destination and compare were equal and
-  * destination was replaced, otherwise 0
-  */
-static __inline int
-__fod_sync_bool_compare_and_swap_16(
-    void* destination,
-    const void* exchange,
-    void* compare)
-{
-    char result;
-    __asm __volatile("lock cmpxchg16b %0; setz %3"
-    : "+m" (*(void**)destination),
-        "=a" (((void**)compare)[0]),
-        "=d" (((void**)compare)[1]),
-        "=q" (result)
-        : "a" (((void**)compare)[0]),
-        "d" (((void**)compare)[1]),
-        "b" (((const void**)exchange)[0]),
-        "c" (((const void**)exchange)[1])
-        : "memory", "cc");
-    return (result);
-}
-#endif
-
 /**
  * Double width (64 or 128 depending on the architecture) compare and exchange.
  * Replaces the destination value with the exchange value, only if the
  * destination value matched the comparand. Returns true if the value was
  * exchanged.
+ * 
+ * Windows: Either InterlockedCompareExchange128 or InterlockedCompareExchange64
+ * is used, depending on whether the source is compiled in 32 or 64 bit.
+ * InterlockedCompareExchange128 will use the cmpxchg16b instruction on modern
+ * Intel and AMD CPUs.
+ * 
+ * see: https://docs.microsoft.com/en-us/cpp/intrinsics/interlockedcompareexchange128?view=msvc-160
+ *
+ * Linux: __atomic_compare_exchange is used regardless of architecture. The size
+ * of fiftyoneDegreesInterlockDoubleWidth dictates whether
+ * __atomic_compare_exchange_8 or __atomic_compare_exchange_16 will be called.
+ * The underlying implementation will depend on the hardware - either the compiler
+ * intrinsic will be used, or a library function if that is not available.
+ *
+ * __atomic_compare_exchange_16 will use the cmpxchg16b on modern Intel and AMD CPUs.
+ * However, most ARM chips will not support this, so the fallback library function
+ * may not offer the same performance. Falling back to a library function may mean
+ * that the operation is not lock free. To check, see the
+ * FIFTYONE_DEGREES_IS_LOCK_FREE macro.
+ *
+ * see: https://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_concurrency_impl.html
+ * 
  * @param d the destination to swap
  * @param e the exchange value
  * @param c the comparand
@@ -424,28 +410,43 @@ typedef struct fiftyone_degrees_interlock_dw_type_t {
 } fiftyoneDegreesInterlockDoubleWidth;
 #define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(d,e,c) \
     InterlockedCompareExchange128(&d.low, e.high, e.low, &c.low)
-#else
+#else // _WIN64
 typedef struct fiftyone_degrees_interlock_dw_type_t {
     LONG64 value;
 } fiftyoneDegreesInterlockDoubleWidth;
 #define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(d,e,c) \
     InterlockedCompareExchange64(&d.value, e.value, c.value) == c.value
-#endif
-#else
-#if defined(__x86_64__) || defined(__aarch64__)
+#endif // _WIN64
+#else // _MSC_VER
+#ifdef _LP64
 typedef struct fiftyone_degrees_interlock_dw_type_t {
     int64_t low;
     int64_t high;
-} fiftyoneDegreesInterlockDoubleWidth;
-#else
+} __attribute__((aligned(8),packed)) fiftyoneDegreesInterlockDoubleWidth;
+#else // _LP64
 typedef struct fiftyone_degrees_interlock_dw_type_t {
     int64_t value;
 } fiftyoneDegreesInterlockDoubleWidth;
-#endif
+#endif //_LP64
 #define FIFTYONE_DEGREES_INTERLOCK_EXCHANGE_DW(d,e,c) \
-    (sizeof(void*) == 8 ? \
-    __fod_sync_bool_compare_and_swap_16((void*)&d, (void*)&e, (void*)&c) : \
-    __sync_bool_compare_and_swap((int64_t*)&d, *((int64_t*)&c), *((int64_t*)&e)))
+    (__atomic_compare_exchange( \
+        (fiftyoneDegreesInterlockDoubleWidth*)&d, \
+        (fiftyoneDegreesInterlockDoubleWidth*)&c, \
+        (fiftyoneDegreesInterlockDoubleWidth*)&e, \
+        false, \
+        __ATOMIC_SEQ_CST, \
+        __ATOMIC_SEQ_CST))
+#endif // _MSC_VER
+
+
+#ifdef _MSC_VER
+#ifdef _WIN64
+#define FIFTYONE_DEGREES_IS_LOCK_FREE IsProcessorFeaturePresent(PF_COMPARE_EXCHANGE128)
+#else
+#define FIFTYONE_DEGREES_IS_LOCK_FREE true
+#endif
+#else
+#define FIFTYONE_DEGREES_IS_LOCK_FREE __atomic_is_lock_free(sizeof(fiftyoneDegreesInterlockDoubleWidth), NULL)
 #endif
 
 /**

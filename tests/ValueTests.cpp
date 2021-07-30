@@ -169,7 +169,7 @@ TEST_F(ValueTests, ExceptionMessage) {
 		value.getValue();
 		FAIL() << L"This point should not be reached. See GetUnsetValue test.";
 	}
-	catch (NoValuesAvailableException e) {
+	catch (NoValuesAvailableException& e) {
 		ASSERT_STREQ(expected, e.what()) <<
 			L"The no value message in the exception was not the one which was set.";
 	}

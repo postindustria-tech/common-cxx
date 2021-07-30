@@ -559,7 +559,7 @@ void hashMetaData(MetaDataReloadState *state, int index) {
 		}
 		delete values;
 	}
-	catch (NotImplementedException) {
+	catch (NotImplementedException&) {
 		// Ignore the fact this metadata type is not implemented.
 	}
 
@@ -574,7 +574,7 @@ void hashMetaData(MetaDataReloadState *state, int index) {
 	    }
 	    delete profiles;
 	}
-	catch (NotImplementedException) {
+	catch (NotImplementedException&) {
 	    // Ignore the fact this metadata type is not implemented.
 	}
 }

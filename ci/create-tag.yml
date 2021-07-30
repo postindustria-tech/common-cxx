@@ -17,14 +17,8 @@ resources:
       name: common-ci # Name of the actual repository
 
 stages:
-- template: shared-build-and-test-stages.yml
-  parameters:
-    windowsImage: $(windowsImage)
-    linuxImage: $(linuxImage)
-    macImage: $(macImage)
 
 - stage: Tagging
-  dependsOn: [Windows,Linux,MacOS]
 
   jobs:
   - template: shared-create-tag-job.yml@ciTemplates

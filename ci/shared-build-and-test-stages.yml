@@ -2,6 +2,9 @@ parameters:
 - name: windowsImage
 - name: linuxImage
 - name: macImage
+- name: runTests
+  type: string
+  default: 'On'
 
 stages:
 
@@ -15,6 +18,7 @@ stages:
 
   jobs:
   - job: Build_And_Test_VisualStudio
+    condition: ne(${{ parameters.runTests }}, 'Off')
     strategy:
       matrix:
         debug x86 multi threads:
@@ -56,7 +60,8 @@ stages:
         buildConfiguration: '$(BuildConfiguration)'
         buildDirectory: '$(BuildDirectory)'
 
-  - job: Build_And_Test_CMake  
+  - job: Build_And_Test_CMake
+    condition: ne(${{ parameters.runTests }}, 'Off')
     strategy:
       matrix:
         debug x86 multi threads:
@@ -102,6 +107,7 @@ stages:
   dependsOn: []
   jobs:
   - job: Build_And_Test_Mac
+    condition: ne(${{ parameters.runTests }}, 'Off')
     pool:
       name: Azure Pipelines
       vmImage: ${{ parameters.macImage }}
@@ -130,6 +136,7 @@ stages:
   dependsOn: []
   jobs:
   - job: Build_And_Test_Ubuntu
+    condition: ne(${{ parameters.runTests }}, 'Off')
     pool:
       vmImage: ${{ parameters.linuxImage }}
     strategy:

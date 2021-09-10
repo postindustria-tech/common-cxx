@@ -162,6 +162,22 @@ EXTERNAL size_t fiftyoneDegreesMemoryTrackingGetAllocated();
 EXTERNAL void fiftyoneDegreesMemoryTrackingReset();
 
 /**
+ * Setup memory tracking by resetting memory tracking and setting all Malloc/Free
+ * function pointers to pointer to TrackingMalloc/Free functions.
+ */
+EXTERNAL void fiftyoneDegreesSetUpMemoryTracking();
+
+/**
+ * This function works in collaboration with fiftyoneDegreesSetUpMemoryTracking.
+ * Check if all tracking memory has been freed.
+ * Unset memory tracking by setting all Malloc/Free function pointer to standard
+ * Malloc/Free functions. Then, reset memory tracking.
+ * @return 0 if all freed, non 0 if there are memory left unfreed. The returned
+ * value is the size of allocated memory left unfreed.
+ */
+EXTERNAL size_t fiftyoneDegreesUnsetMemoryTracking();
+
+/**
  * Pointer to the method used to allocate memory. By default this maps to
  * #fiftyoneDegreesMemoryStandardMalloc which calls the standard library malloc.
  * @param __size to allocate

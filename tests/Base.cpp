@@ -32,11 +32,16 @@ void Base::SetUp() {
 	// allocation tracking.
 	fiftyoneDegreesMemoryTrackingReset();
 
+#if defined(_DEBUG) || defined(FORCE_TEST_MEMORY_CHECK)
 #ifdef _MSC_FULL_VER
 	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
 
 	// Take a sample of the memory before allocating anything.
 	_CrtMemCheckpoint(&_states.s1);
+#else
+	// Setup the memory track.
+	fiftyoneDegreesSetUpMemoryTracking();
+#endif
 #endif
 }
 
@@ -83,10 +88,9 @@ string Base::GetFilePath(string dataFolderName, string fileName) {
  * has not been freed then the test fails.
  */
 void Base::TearDown() {
-#ifdef _MSC_FULL_VER
 #ifndef NDEBUG
+#ifdef _MSC_FULL_VER
 	_CrtMemState s3;
-#endif
 	// Take a sample of the memory now that everything is done.
 	_CrtMemCheckpoint(&_states.s2);
 
@@ -97,6 +101,14 @@ void Base::TearDown() {
 		_CrtMemDumpStatistics(&s3);
 		FAIL() << "There was a memory leak, see debug log for details.";
 	}
+#else
+	// Check memory leaks.
+	size_t memAlloced = fiftyoneDegreesUnsetMemoryTracking();
+	// Exit if there are memory leaks.
+	if (memAlloced != 0) {
+		FAIL() << "There was a memory leak. Some tracked memory is not freed.";
+	}
+#endif
 #endif
 }
 

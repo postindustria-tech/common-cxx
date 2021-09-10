@@ -34,6 +34,9 @@
 #include "../Exceptions.hpp"
 #include "../memory.h"
 #include "../file.h"
+#if !defined(NDEBUG) && !defined(_MSC_VER)
+#include "dmalloc.h"
+#endif
 
 #ifdef _DEBUG
 #ifdef _MSC_FULL_VER
@@ -42,6 +45,11 @@
 typedef struct memoryStates_t {
 	_CrtMemState s1;
 	_CrtMemState s2;
+} memoryStates;
+#else
+typedef struct memoryStates_t {
+	unsigned long s1;
+	unsigned long s2;
 } memoryStates;
 #endif
 #endif
@@ -106,9 +114,7 @@ protected:
 		FIFTYONE_DEGREES_THREAD_ROUTINE runThread);
 private:
 #ifdef _DEBUG
-#ifdef _MSC_FULL_VER
 	memoryStates _states;
-#endif
 #endif
 };
 

@@ -72,6 +72,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if (NOT MSVC)
+	include_directories(/usr/local/include)
+	link_directories(/usr/local/lib)
+endif()
+
 # Common
 
 FILE(GLOB COMC_SRC ${CMAKE_CURRENT_LIST_DIR}/*.c)

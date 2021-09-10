@@ -32,19 +32,15 @@ void Base::SetUp() {
 	// allocation tracking.
 	fiftyoneDegreesMemoryTrackingReset();
 
-#ifdef _DEBUG
+#if defined(_DEBUG) || defined(FORCE_TEST_MEMORY_CHECK)
 #ifdef _MSC_FULL_VER
 	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
 
 	// Take a sample of the memory before allocating anything.
 	_CrtMemCheckpoint(&_states.s1);
 #else
-	mkdir("dmalloc", 0777);	
-	const ::testing::TestInfo *testInfo = ::testing::UnitTest::GetInstance()->current_test_info();
-	stringstream dmallocArgs;
-	dmallocArgs << "log=dmalloc/" << testInfo->test_case_name() << "." << testInfo->name() << ".log";
-	dmalloc_debug_setup(dmallocArgs.str().c_str());
-	_states.s1 = dmalloc_mark();
+	// Setup the memory track.
+	fiftyoneDegreesSetUpMemoryTracking();
 #endif
 #endif
 }
@@ -106,20 +102,12 @@ void Base::TearDown() {
 		FAIL() << "There was a memory leak, see debug log for details.";
 	}
 #else
-	_states.s2 = dmalloc_count_changed(_states.s1, 1, 0);
-	if (_states.s2 != 0) {
-		dmalloc_message(
-			"Logging %lu unfreed pointers created during test\n",
-			 _states.s2);
-		dmalloc_log_changed(
-			_states.s2,
-			1, // log unfreed
-			0, // don't log freed
-			1); // log details
-		dmalloc_log_stats();
-		FAIL() << "There was a memory leak, see log file for details.";
+	// Check memory leaks.
+	size_t memAlloced = fiftyoneDegreesUnsetMemoryTracking();
+	// Exit if there are memory leaks.
+	if (memAlloced != 0) {
+		FAIL() << "There was a memory leak. Some tracked memory is not freed.";
 	}
-	dmalloc_shutdown();
 #endif
 #endif
 }

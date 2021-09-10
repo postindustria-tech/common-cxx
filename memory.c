@@ -261,6 +261,24 @@ void fiftyoneDegreesMemoryTrackingReset() {
 	initialised = true;
 }
 
+void fiftyoneDegreesSetUpMemoryTracking() {
+	fiftyoneDegreesMemoryTrackingReset();
+	fiftyoneDegreesMalloc = fiftyoneDegreesMemoryTrackingMalloc;
+	fiftyoneDegreesMallocAligned = fiftyoneDegreesMemoryTrackingMallocAligned;
+	fiftyoneDegreesFree = fiftyoneDegreesMemoryTrackingFree;
+	fiftyoneDegreesFreeAligned = fiftyoneDegreesMemoryTrackingFreeAligned;
+}
+
+size_t fiftyoneDegreesUnsetMemoryTracking() {
+	size_t memAlloced = MemoryTrackingGetAllocated();
+	fiftyoneDegreesMalloc = fiftyoneDegreesMemoryStandardMalloc;
+	fiftyoneDegreesMallocAligned = fiftyoneDegreesMemoryStandardMallocAligned;
+	fiftyoneDegreesFree = fiftyoneDegreesMemoryStandardFree;
+	fiftyoneDegreesFreeAligned = fiftyoneDegreesMemoryStandardFreeAligned;
+	fiftyoneDegreesMemoryTrackingReset();
+	return memAlloced;
+}
+
 #ifdef FIFTYONE_DEGREES_MEMORY_TRACK_ENABLED
 
 /**

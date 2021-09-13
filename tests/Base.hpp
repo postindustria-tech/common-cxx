@@ -34,24 +34,14 @@
 #include "../Exceptions.hpp"
 #include "../memory.h"
 #include "../file.h"
-#if !defined(NDEBUG) && !defined(_MSC_VER)
-#include "dmalloc.h"
-#endif
 
-#ifdef _DEBUG
-#ifdef _MSC_FULL_VER
+#if defined(_DEBUG) && defined(_MSC_FULL_VER)
 #define _CRTDBG_MAP_ALLOC
 /* Sampled memory states used to check for memory leaks. */
 typedef struct memoryStates_t {
 	_CrtMemState s1;
 	_CrtMemState s2;
 } memoryStates;
-#else
-typedef struct memoryStates_t {
-	unsigned long s1;
-	unsigned long s2;
-} memoryStates;
-#endif
 #endif
 
 using namespace std;
@@ -113,7 +103,7 @@ protected:
 		int concurrency,
 		FIFTYONE_DEGREES_THREAD_ROUTINE runThread);
 private:
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_MSC_FULL_VER)
 	memoryStates _states;
 #endif
 };

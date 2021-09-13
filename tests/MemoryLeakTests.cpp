@@ -51,12 +51,12 @@ protected:
 };
 
 /**
- * Make sure the memory is allocated but not freed so the test fail as expected.
- * This test follow how Base.cpp SetUp/TearDown process is done by calling
- * Base::SetUpMemoryCheck() at the start and Base:::PerformanceMemoryCheck()
- * at the end.
+ * Make sure the memory is allocated but not freed so the memroy leak can be
+ * detected. This test follow how Base.cpp SetUp/TearDown process is done by
+ * calling Base::SetUpMemoryCheck() at the start and
+ * Base:::PerformanceMemoryCheck() at the end.
  */
-TEST_F(MemoryLeak, MemoryLeakPositive) {
+TEST_F(MemoryLeak, MemoryLeakNotFreed) {
 	Base::SetUpMemoryCheck();
 	int *leakMem = (int *)fiftyoneDegreesMalloc(sizeof(int));
 #ifdef _DEBUG
@@ -64,6 +64,25 @@ TEST_F(MemoryLeak, MemoryLeakPositive) {
 	// in debug mode.
 	if (Base::PerformMemoryCheck() == 0) {
 		FAIL() << "Failed to detect memory leak.";
+	}
+#endif
+}
+
+/**
+ * Make sure the memory is all freed so that no memory leak is detected.
+ * This test follow how Base.cpp SetUp/TearDown process is done by calling
+ * Base::SetUpMemoryCheck() at the start and Base:::PerformanceMemoryCheck()
+ * at the end.
+ */
+TEST_F(MemoryLeak, MemoryLeakFreed) {
+	Base::SetUpMemoryCheck();
+	int *leakMem = (int *)fiftyoneDegreesMalloc(sizeof(int));
+	fiftyoneDegreesFree(leakMem);
+#ifdef _DEBUG
+	// Memory leak feature mainly rely on Debug build so only perform this check
+	// in debug mode.
+	if (Base::PerformMemoryCheck() != 0) {
+		FAIL() << "Failed to detect determine that all memory has been freed.";
 	}
 #endif
 }

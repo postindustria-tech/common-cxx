@@ -63,9 +63,13 @@ TEST_F(MemoryLeak, MemoryLeakNotFreed) {
 	// Memory leak feature mainly rely on Debug build so only perform this check
 	// in debug mode.
 	if (Base::PerformMemoryCheck() == 0) {
+		// Free memory here to make sure the test does not actually leak.
+		fiftyoneDegreesFree(leakMem);
 		FAIL() << "Failed to detect memory leak.";
 	}
 #endif
+	// Free allocated memory after check to make sure the test does not actually leak
+	fiftyoneDegreesFree(leakMem);
 }
 
 /**

@@ -101,7 +101,7 @@ size_t Base::PerformMemoryCheck() {
 	_CrtMemCheckpoint(&_states.s2);
 
 	// Check there were no memory leaks.
-	leakedMemory = _CrtMemDifference(&s3, &_states.s1, &_states.s2;
+	leakedMemory = _CrtMemDifference(&s3, &_states.s1, &_states.s2);
 	if (leakedMemory) {
 		// There were, so dump the info and fail the test.
 		_CrtMemDumpAllObjectsSince(&_states.s1);

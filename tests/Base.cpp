@@ -23,16 +23,15 @@
 #include "Base.hpp"
 
 /**
- * Begins the memory leak check by creating a memory checkpoint before the test
- * method is called. Also resets 51Degrees memory tracking counters.
+ * Create a memory checkpoint before the test method is called. Also resets
+ * 51Degrees memory tracking counters.
  */
-void Base::SetUp() {
-	
+void Base::SetUpMemoryCheck() {
 	// Reset the memory tracking counters in case the test will use memory
 	// allocation tracking.
 	fiftyoneDegreesMemoryTrackingReset();
 
-#if defined(_DEBUG) || defined(FORCE_TEST_MEMORY_CHECK)
+#ifdef _DEBUG
 #ifdef _MSC_FULL_VER
 	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
 
@@ -43,6 +42,13 @@ void Base::SetUp() {
 	fiftyoneDegreesSetUpMemoryTracking();
 #endif
 #endif
+}
+
+/**
+ * Begins the memory leak check.
+ */
+void Base::SetUp() {
+	SetUpMemoryCheck();
 }
 
 /**
@@ -84,32 +90,39 @@ string Base::GetFilePath(string dataFolderName, string fileName) {
 
 /**
  * Concludes the memory leak check by creating a memory checkpoint after the
- * test method is called and comparing to the first. If there is memory which
- * has not been freed then the test fails.
+ * test method is called and comparing to the first.
  */
-void Base::TearDown() {
-#ifndef NDEBUG
+size_t Base::PerformMemoryCheck() {
+	size_t leakedMemory = 0;
+#ifdef _DEBUG
 #ifdef _MSC_FULL_VER
 	_CrtMemState s3;
 	// Take a sample of the memory now that everything is done.
 	_CrtMemCheckpoint(&_states.s2);
 
 	// Check there were no memory leaks.
-	if (_CrtMemDifference(&s3, &_states.s1, &_states.s2)) {
+	leakedMemory = _CrtMemDifference(&s3, &_states.s1, &_states.s2;
+	if (leakedMemory) {
 		// There were, so dump the info and fail the test.
 		_CrtMemDumpAllObjectsSince(&_states.s1);
 		_CrtMemDumpStatistics(&s3);
-		FAIL() << "There was a memory leak, see debug log for details.";
 	}
 #else
 	// Check memory leaks.
-	size_t memAlloced = fiftyoneDegreesUnsetMemoryTracking();
-	// Exit if there are memory leaks.
-	if (memAlloced != 0) {
-		FAIL() << "There was a memory leak. Some tracked memory is not freed.";
+	leakedMemory = fiftyoneDegreesUnsetMemoryTracking();
+#endif
+#endif
+	return leakedMemory;
+}
+
+/**
+ * Check if there is memory which has not been freed. If yes then fails the test
+ * .
+ */
+void Base::TearDown() {
+	if (PerformMemoryCheck()) {
+		FAIL() << "There was a memory leak, see debug log for details.";
 	}
-#endif
-#endif
 }
 
 /**

@@ -80,6 +80,7 @@
 #include "float.h"
 #include "coordinate.h"
 #include "pseudoheader.h"
+#include "bool.h"
 
 /**
  * Macro used to support synonym implementation. Creates a typedef which 
@@ -315,6 +316,8 @@ MAP_TYPE(Coordinate)
 #define SignalClose fiftyoneDegreesSignalClose /**< Synonym for #fiftyoneDegreesSignalClose function. */
 #define SignalSet fiftyoneDegreesSignalSet /**< Synonym for #fiftyoneDegreesSignalSet function. */
 #define SignalWait fiftyoneDegreesSignalWait /**< Synonym for #fiftyoneDegreesSignalWait function. */
+#define IntToBool fiftyoneDegreesIntToBool /**< Synonym for #fiftyoneDegreesIntToBool function. */
+#define BoolToInt fiftyoneDegreesBoolToInt /**< Synonym for #fiftyoneDegreesBoolToInt function. */
 
 /* <-- only one asterisk to avoid inclusion in documentation
  * Shortened macros.

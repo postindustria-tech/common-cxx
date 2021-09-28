@@ -153,6 +153,8 @@ add_executable(CommonTests ${COM_TEST_SRC} ${COM_TEST_H})
 if (MSVC)
 	target_compile_options(CommonTests PRIVATE "/D_CRT_SECURE_NO_WARNINGS" "/W4" "/WX")
 	target_link_options(CommonTests PRIVATE "/WX")
+else ()
+	target_compile_options(CommonTests PRIVATE ${COMPILE_OPTION_DEBUG})
 endif()
 
 target_link_libraries(CommonTests fiftyone-common-cxx gtest_main)

@@ -97,6 +97,8 @@ class Base : public ::testing::Test {
 protected:
 	virtual void SetUp();
 	virtual void TearDown();
+	void SetUpMemoryCheck();
+	size_t PerformMemoryCheck();
 	string GetFilePath(string dataFolderName, string fileName);
 	void AssertStatus(fiftyoneDegreesStatusCode status, const char *fileName);
 	void runThreads(

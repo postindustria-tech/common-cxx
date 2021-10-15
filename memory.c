@@ -73,7 +73,7 @@ void* fiftyoneDegreesMemoryStandardMalloc(size_t size) {
 
 void* fiftyoneDegreesMemoryStandardMallocAligned(int alignment, size_t size) {
 	size += size % alignment;
-#ifdef _MSC_VER
+#if defined( _MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
 	return _aligned_malloc(size, alignment);
 #elif defined (__APPLE__)
 	void *pointer;
@@ -216,7 +216,7 @@ void fiftyoneDegreesMemoryStandardFree(void *pointer) {
 }
 
 void fiftyoneDegreesMemoryStandardFreeAligned(void* pointer) {
-#ifdef _MSC_VER
+#if defined( _MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
 	_aligned_free(pointer);
 #else
 	free(pointer);

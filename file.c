@@ -416,6 +416,7 @@ static bool iteratorFileMatch(const char *fileName, void *state) {
 // For MSC version, the parameter is not required
 #pragma warning (disable: 4100)
 #endif
+#ifdef __linux__
 /**
  * Returns true if the file is in use. Note that this is only functional on
  * Linux systems. Windows does not need this for the usage in this file.
@@ -425,79 +426,26 @@ static bool iteratorFileMatch(const char *fileName, void *state) {
  * @param pathName path to the file to check
  * @return true if the file is in use
  */
-bool isFileInUse(const char *pathName) {
-#ifdef __APPLE__
-	// This implementation is unstable so not being used.
-	// Keep for future reference. Initialise bufferSize to 100
-	// (randomly picked) to supress warnings.
-	int i, j, pid, fdCount, bufferSize = 100, pidCount;
-	struct vnode_fdinfowithpath vnodeInfo;
-	pid_t *pids = calloc(0x1000, 1);
-	pidCount = proc_listallpids(pids, 0x1000);
-	struct proc_fdinfo *procInfo = (struct proc_fdinfo *)Malloc(bufferSize);
-	for (i = 0; i < pidCount; i++) {
-		pid = pids[i];
-		bufferSize = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, 0, 0);
-		fdCount = bufferSize / PROC_PIDLISTFD_SIZE;
-		proc_pidinfo(pid, PROC_PIDLISTFDS, 0, procInfo, bufferSize);
-
-		for (j = 0; j < fdCount; j++) {
-			if (procInfo[j].proc_fdtype == PROX_FDTYPE_VNODE) {
-				// A file is open
-				int bytesUsed = proc_pidfdinfo(
-					pid,
-					procInfo[j].proc_fd,
-					PROC_PIDFDVNODEPATHINFO,
-					&vnodeInfo,
-					PROC_PIDFDVNODEPATHINFO_SIZE);
-				if (proc_pidfdinfo(
-					pid,
-					procInfo[j].proc_fd,
-					PROC_PIDFDVNODEPATHINFO,
-					&vnodeInfo,
-					PROC_PIDFDVNODEPATHINFO_SIZE) ==
-					PROC_PIDFDVNODEPATHINFO_SIZE) {
-					size_t linkPathLen = strlen(vnodeInfo.pvip.vip_path);
-					size_t pathNameLen = strlen(pathName);
-					if (pathNameLen <= linkPathLen &&
-						strncmp(
-							vnodeInfo.pvip.vip_path + linkPathLen - pathNameLen,
-							pathName,
-							pathNameLen) == 0) {
-						Free(procInfo);
-						return true;
-					}
-				}
-			}
-		}
-	}
-	Free(procInfo);
-	return false;
-#elif defined(_MSC_VER)
-	// No need to implement this in MSVC as it is already handled when
-	// accessing files, making this method irrelevant.
-	return false;
-#else
-
-    DIR *procDir;
+static bool isFileInUse(const char *pathName) {
+	DIR *procDir;
 	struct dirent *ent1, *ent2;
-    char fdPath[FILE_MAX_PATH];
-    char linkFile[FILE_MAX_PATH];
-    char linkPath[FILE_MAX_PATH];
+	char fdPath[FILE_MAX_PATH];
+	char linkFile[FILE_MAX_PATH];
+	char linkPath[FILE_MAX_PATH];
 	procDir = opendir("/proc");
 	if (procDir != NULL) {
 		// Iterate over all directories in /proc
 		while ((ent1 = readdir(procDir)) != NULL) {
-            // Get the path to the file descriptor directory for a PID
-            sprintf(fdPath, "/proc/%s/fd", ent1->d_name);
-            DIR *fdDir = opendir(fdPath);
-            if (fdDir != NULL) {
-                while((ent2 = readdir(fdDir)) != NULL) {
-                    // Check that the file is not '.' or '..'
-                    if (strcmp(ent2->d_name, ".") != 0 &&
-                        strcmp(ent2->d_name, "..") != 0) {
-                        // Get the path which the symlink is pointing to
-						if (snprintf(
+			// Get the path to the file descriptor directory for a PID
+			sprintf(fdPath, "/proc/%s/fd", ent1->d_name);
+			DIR *fdDir = opendir(fdPath);
+			if (fdDir != NULL) {
+				while ((ent2 = readdir(fdDir)) != NULL) {
+					// Check that the file is not '.' or '..'
+					if (strcmp(ent2->d_name, ".") != 0 &&
+						strcmp(ent2->d_name, "..") != 0) {
+						// Get the path which the symlink is pointing to
+						if (Snprintf(
 							linkFile,
 							FILE_MAX_PATH,
 							"%s/%s",
@@ -519,10 +467,10 @@ bool isFileInUse(const char *pathName) {
 								}
 							}
 						}
-                    }
-                }
-            }
-            closedir(fdDir);
+					}
+				}
+			}
+			closedir(fdDir);
 		}
 		closedir(procDir);
 	}
@@ -531,9 +479,10 @@ bool isFileInUse(const char *pathName) {
 		// So to be safe, lets report true so it is not deleted.
 		return true;
 	}
-    return false;
-#endif
+	return false;
 }
+#endif
+
 #ifdef _MSC_VER
 #pragma warning (default: 4100)
 #endif
@@ -547,13 +496,19 @@ bool isFileInUse(const char *pathName) {
  */
 static bool iteratorFileDelete(const char *fileName, void *state) {
 	fileIteratorState *fileState = (fileIteratorState*)state;
-#if !defined(_MSC_VER) && !defined(__APPLE__)
+#ifdef __linux__
+	/*
+	  On non Windows platforms, the file locking is advisory. Therefore,
+	  an explicit check is required. Currently no stable solution has been
+	  implemented for MacOS platform so only perform this for Linux.
+	  TODO: Implement a 'isFileInUse' solution for MacOS.
+	*/
 	if (isFileInUse(fileName) == false) {
 #endif
 		if (fiftyoneDegreesFileDelete(fileName) == SUCCESS) {
 			((byte*)fileState->destination)[0]++;
 		}
-#if !defined(_MSC_VER) && !defined(__APPLE__)
+#ifdef __linux__
 	}
 #endif
 	return false;
@@ -731,7 +686,7 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileGetPath(
 		for (i = strlen(testPath); i > 0; i--) {
 			if (testPath[i] == '\\' || testPath[i] == '/' ||
 				testPath[i] == '\0') {
-				charsWritten = snprintf(
+				charsWritten = Snprintf(
 					testPath + i,
 					sizeof(testPath) - (i * sizeof(char)),
 					"/%s/%s",
@@ -747,7 +702,7 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileGetPath(
 				if (fileOpen(testPath, &handle, "rb") ==
 					SUCCESS) {
 					fclose(handle);
-					charsWritten = snprintf(destination, size, "%s", testPath);
+					charsWritten = Snprintf(destination, size, "%s", testPath);
 					if (charsWritten < 0) {
 						return ENCODING_ERROR;
 					}

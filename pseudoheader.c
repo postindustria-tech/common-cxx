@@ -62,7 +62,7 @@ static int constructPseudoEvidence(
             requestHeaderName, evidence, prefix);
         if (requestHeaderValue != NULL) {
             if (i != 0) {
-                tempCount = snprintf(
+                tempCount = Snprintf(
                     buffer + charactersAdded,
                     (int)bufferSize - charactersAdded,
                     "%c",
@@ -76,7 +76,7 @@ static int constructPseudoEvidence(
             }
 
             // Add evidence
-            tempCount = snprintf(
+            tempCount = Snprintf(
                 buffer + charactersAdded,
                 (int)bufferSize - charactersAdded,
                 "%s",

@@ -32,8 +32,7 @@
 #ifndef FIFTYONE_DEGREES_NO_THREADING
 #define VOLATILE volatile
 #if ((defined(_MSC_VER) && defined(_WIN64)) \
-    || ((defined(__GNUC__) || defined(__clang__)) \
-        && (defined(__x86_64__) || defined(__aarch64__))))
+    || (!defined(_MSC_VER) && (defined(_LP64) || defined(__MINGW64__))))
 #define ALIGN_SIZE 16
 typedef struct counter_t {
 	ResourceHandle* handle;

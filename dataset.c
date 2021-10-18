@@ -205,7 +205,7 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitFromFile(
 	copiedString = strncpy(
 		(char*)dataSet->masterFileName,
 		fileName,
-		fileNameLength);
+		sizeof(dataSet->masterFileName));
 #if defined(__linux__) && __GNUC__ >= 7
 #pragma GCC diagnostic pop
 #endif

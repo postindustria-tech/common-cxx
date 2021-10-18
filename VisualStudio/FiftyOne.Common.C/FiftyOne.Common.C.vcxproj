@@ -77,6 +77,7 @@
     <ClInclude Include="..\..\pseudoheader.h" />
     <ClInclude Include="..\..\resource.h" />
     <ClInclude Include="..\..\results.h" />
+    <ClInclude Include="..\..\snprintf.h" />
     <ClInclude Include="..\..\status.h" />
     <ClInclude Include="..\..\string.h" />
     <ClInclude Include="..\..\textfile.h" />

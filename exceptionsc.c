@@ -44,7 +44,7 @@ const char* fiftyoneDegreesExceptionGetMessage(
 		length += exception->func != NULL ? strlen(exception->func) : 0;
 		length += 10; // add 10 for line number
 		exceptionMessage = (char*)Malloc(length);
-		snprintf(
+		Snprintf(
 			exceptionMessage,
 			length,
 			format,

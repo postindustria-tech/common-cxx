@@ -5,6 +5,9 @@ parameters:
 - name: runTests
   type: string
   default: 'On'
+- name: minGWGenerator
+  type: string
+  default: '-G "MinGW Makefiles"'
 
 stages:
 
@@ -179,5 +182,33 @@ stages:
     - template: shared-steps-cmake-test.yml
       parameters:
         platformName: 'Ubuntu'  
+        buildConfiguration: '$(BuildConfiguration)'
+        buildArguments: '$(BuildArguments)'
+
+- stage: MinGW
+  dependsOn: []
+  jobs:
+  - job: Build_And_Test_MinGW
+    condition: ne(${{ parameters.runTests }}, 'Off')
+    pool:
+      vmImage: ${{ parameters.windowsImage }}
+    strategy:
+      matrix:
+        debug x64 multi threads:
+          BuildConfiguration: Debug
+          BuildArguments: ${{ parameters.minGWGenerator }} -DNoThreading=OFF
+        release x64 multi threads:
+          BuildConfiguration: Release 
+          BuildArguments: ${{ parameters.minGWGenerator }} -DNoThreading=OFF
+        debug x64 single thread:
+          BuildConfiguration: Debug
+          BuildArguments: ${{ parameters.minGWGenerator }} -DNoThreading=ON
+        release x64 single thread:
+          BuildConfiguration: Release  
+          BuildArguments: ${{ parameters.minGWGenerator }} -DNoThreading=ON
+    steps:
+    - template: shared-steps-cmake-test.yml
+      parameters:
+        platformName: 'MinGW'  
         buildConfiguration: '$(BuildConfiguration)'
         buildArguments: '$(BuildArguments)'

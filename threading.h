@@ -418,7 +418,7 @@ typedef struct fiftyone_degrees_interlock_dw_type_t {
     InterlockedCompareExchange64(&d.value, e.value, c.value) == c.value
 #endif // _WIN64
 #else // _MSC_VER
-#ifdef _LP64
+#if (defined(_LP64) || defined(__MINGW64__))
 typedef struct fiftyone_degrees_interlock_dw_type_t {
     int64_t low;
     int64_t high;

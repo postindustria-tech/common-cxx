@@ -80,6 +80,7 @@
 #include "float.h"
 #include "coordinate.h"
 #include "pseudoheader.h"
+#include "snprintf.h"
 #include "bool.h"
 
 /**

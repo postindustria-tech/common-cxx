@@ -268,6 +268,13 @@ public:
 	static void* multiThreadRandomRunThread(void* state) {
 		((CacheTest*)state)->random();
 		FIFTYONE_DEGREES_THREAD_EXIT;
+#if defined(__MINGW32__) || defined(__MINGW64__)
+		// When compiled with MinGW, this results in a warning due to
+		// no return statement presents when it is expected.
+		// However, the FIFTYONE_DEGREES_THREAD_EXIT should terminate
+		// the thread before this point, so this should never be reached.
+		return NULL;
+#endif
 	}
 	
 	/**

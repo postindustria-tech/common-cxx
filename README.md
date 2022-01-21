@@ -64,6 +64,11 @@ Libraries are output to the `lib/` directory, and executables like examples and 
 
 Calling `CMake` in an MSVC environment (as described in the [Using CMake](#Using-CMake) section) will produce a Visual Studio solution with projects for all libraries, examples, and tests. However, it is preferable to use the dedicated Visual Studio solution in the `VisualStudio/` directory.
 
+Prerequisites:
+- Required Visual Studio 2019 or equivalent [C++ build tool](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+  - Minimum Platform Toolset Version `v142`
+  - Minimum Windows SDK Version `10.0.18362.0`
+
 ## Build Options
 
 ### MemoryOnly

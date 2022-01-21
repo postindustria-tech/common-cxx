@@ -8,6 +8,8 @@ parameters:
 - name: minGWGenerator
   type: string
   default: '-G "MinGW Makefiles"'
+- name: platformToolsetVersion
+- name: windowsSDKVersion
 
 stages:
 
@@ -105,6 +107,8 @@ stages:
         buildPlatform: '$(BuildPlatform)'
         buildConfiguration: '$(BuildConfiguration)'
         buildArguments: '$(BuildArguments)'
+        platformToolsetVersion: '${{ parameters.platformToolsetVersion }}'
+        windowsSDKVersion: '${{ parameters.windowsSDKVersion }}'
 
 - stage: MacOS
   dependsOn: []

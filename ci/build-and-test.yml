@@ -8,16 +8,17 @@ schedules:
     include:
     - develop
 
-# Include shared variables
-variables:
-- template: shared-variables.yml
-- group: CIAutomation # Required to access CI variables
-
 resources:
   repositories:
   - repository: ciTemplates # Id of the repository used to reference to in this script
     type: git
     name: common-ci # Name of the actual repository
+
+# Include shared variables
+variables:
+- template: shared-variables.yml@ciTemplates
+- template: c/shared-variables.yml@ciTemplates
+- group: CIAutomation # Required to access CI variables
 
 stages:
 - template: shared-build-and-test-stages.yml
@@ -26,6 +27,8 @@ stages:
     linuxImage: $(linuxImage)
     macImage: $(macImage)
     runTests: variables['RunTests']
+    platformToolsetVersion: '${{ variables.plfTsVer }}'
+    windowsSDKVersion: '${{ variables.winSDKVer }}'
 
 # Try to complete the corresponding pull request if
 # this is triggered by one.    

@@ -2,11 +2,30 @@ cmake_minimum_required(VERSION 3.10)
 set (CMAKE_C_STANDARD 11)
 set (CMAKE_CXX_STANDARD 11)
 
+# Minimum required versions for MSVC
+set (MIN_VS_TOOLSET_VERSION 142)
+set (MIN_VS_PLATFORM_VERSION 10.0.18362.0)
+
 if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.1)
     message(FATAL_ERROR "Require at least gcc-5.1")
 endif()
 
 project(51DegreesCommon VERSION 4.0.1 LANGUAGES CXX C)
+
+if (MSVC)
+# Check minimum required versions for MSVC
+    if (CMAKE_VS_PLATFORM_TOOLSET MATCHES "v([0-9]+)")
+        if (${CMAKE_MATCH_1} LESS MIN_VS_TOOLSET_VERSION)
+	        message(FATAL_ERROR "Require at least Platform Toolset v${MIN_VS_TOOLSET_VERSION}. These can be installed by Visual Studio Installer or as part of C++ Build Tools which can be downloaded from https://visualstudio.microsoft.com/visual-cpp-build-tools/")
+        endif()
+    else()
+        message(FATAL_ERROR "Platform toolset version should start with 'v' and followed by numbers. Got ${CMAKE_VS_PLATFORM_TOOLSET}.")
+    endif()
+	
+	if (CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION VERSION_LESS ${MIN_VS_PLATFORM_VERSION})
+        message(FATAL_ERROR "Require at least windows SDK version ${MIN_VS_PLATFORM_VERSION} which can be downloaded from https://developer.microsoft.com/en-us/windows/downloads/sdk-archive/")
+    endif()
+endif()
 
 include(CTest)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)

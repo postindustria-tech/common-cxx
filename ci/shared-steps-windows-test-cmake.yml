@@ -2,6 +2,8 @@ parameters:
 - name: buildPlatform
 - name: buildConfiguration
 - name: buildArguments
+- name: platformToolsetVersion
+- name: windowsSDKVersion
 
 steps:
 - checkout: self
@@ -17,7 +19,7 @@ steps:
   displayName: 'CMake Configure'
   inputs:
     workingDirectory: build
-    cmakeArgs: '.. -A ${{ parameters.buildPlatform }} ${{ parameters.buildArguments }}'
+    cmakeArgs: '.. -A ${{ parameters.buildPlatform }} ${{ parameters.buildArguments }} -DCMAKE_GENERATOR_TOOLSET=${{ parameters.platformToolsetVersion }} -DCMAKE_SYSTEM_VERSION=${{ parameters.windowsSDKVersion }}'
 
 - task: CMake@1
   displayName: 'CMake Build'

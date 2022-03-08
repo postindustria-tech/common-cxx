@@ -20,7 +20,6 @@ static const char* getEvidenceValueForHeader(
         // which means from Http Header.
         if (StringCompare(
             header, evidence->items[i].field) == 0 &&
-            strcmp(evidence->items[i].originalValue, "") != 0 &&
             evidence->items[i].prefix ==
             prefix) {
             return (char *)evidence->items[i].originalValue;

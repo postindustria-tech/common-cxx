@@ -117,7 +117,7 @@ void PseudoHeaderTests::checkResults(
 	const testExpectedResult *expectedEvidence,
 	int size) {
 	EXPECT_EQ(size, evidence->pseudoEvidence->count) <<
-		"Incorrect number of pseudo evidence constructed, here it should be" <<
+		"Incorrect number of pseudo evidence constructed, here it should be " <<
 		size << "\n";
 	for (int i = 0; i < size; i++) {
 		EXPECT_EQ(
@@ -154,9 +154,9 @@ int PseudoHeaderTests::getNextPseudoIndex(const char* headers[], int size, int i
 }
 
 /**
- * Check that when there are duplicate headers, and pseudo headers,
- * that the unique headers are correctly constructed. This also tests
- * for the regression of a bug resulting in an exception when a pseudo
+ * Check that when there are duplicate headers and pseudo headers,
+ * the unique headers will be constructed correctly. This also tests
+ * a case where an exception is thrown when a pseudo
  * header follows a series of duplicates.
  */
 TEST_F(PseudoHeaderTests, CreateWithNonUnique) {
@@ -399,7 +399,7 @@ TEST_F(PseudoHeaderTests, EvidenceCreationOrderOfPrecedenceNoDuplicate) {
 }
 
 /*
- * Check that if no pseuo header are present, no pseuo evidence will be created
+ * Check that if no pseudo header are present, no pseudo evidence will be created
  */
 TEST_F(PseudoHeaderTests, EvidenceCreationNoPseudoHeaders) {
 	// Create headers
@@ -452,16 +452,34 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNoRequestHeadersForPseudoHeaders) {
 }
 
 /*
- * Check that if the request evidence are present with blank values, no pseudo
- * evidence will be created.
+ * Check that if the request evidence are present with blank values, pseudo
+ * evidence will only be created if at least one request evidence is non-blank.
+ * If all request evidence are blank, the pseudo evidence won't be constructed.
  */
 TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
+	// Expected value
+	const testExpectedResult expectedEvidence[2] =
+	{
+		{
+			"\x1Fvalue3",
+			FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
+		},
+		{
+			"\x1F\x1Fvalue3",
+			FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
+		}
+	};
+
 	// Create headers
 	createHeaders(uniqueHeaders, HEADERS_SIZE, false);
 
-	testKeyValuePair evidenceList[2] =
-	{ {"header1", ""}, {"header2", ""} };
-	addEvidence(evidenceList, 2, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
+	testKeyValuePair evidenceList[3] =
+	{ 
+		{"header1", ""},
+		{"header2", ""},
+		{"header3", "value3"}
+	};
+	addEvidence(evidenceList, 3, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
 
 	EXCEPTION_CREATE;
 	PseudoHeadersAddEvidence(
@@ -473,8 +491,7 @@ TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
 		exception);
 	EXCEPTION_THROW;
 
-	EXPECT_EQ(0, evidence->pseudoEvidence->count) <<
-		"No pseudo evidence should has been added\n";
+	checkResults(expectedEvidence, 2);
 	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 

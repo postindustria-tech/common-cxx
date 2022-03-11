@@ -453,7 +453,8 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNoRequestHeadersForPseudoHeaders) {
 
 /*
  * Check that if the request evidence are present with blank values, pseudo
- * evidence will still be created.
+ * evidence will only be created if at least one request evidence is non-blank.
+ * If all request evidence are blank, the pseudo evidence won't be constructed.
  */
 TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
 	// Expected value

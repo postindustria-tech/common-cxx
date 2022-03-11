@@ -457,12 +457,8 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNoRequestHeadersForPseudoHeaders) {
  */
 TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
 	// Expected value
-	const testExpectedResult expectedEvidence[3] =
+	const testExpectedResult expectedEvidence[2] =
 	{
-		{
-			"\x1F",
-			FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
-		},
 		{
 			"\x1Fvalue3",
 			FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
@@ -494,7 +490,7 @@ TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
 		exception);
 	EXCEPTION_THROW;
 
-	checkResults(expectedEvidence, 3);
+	checkResults(expectedEvidence, 2);
 	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 

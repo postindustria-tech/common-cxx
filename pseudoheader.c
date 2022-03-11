@@ -49,6 +49,8 @@ static int constructPseudoEvidence(
     const EvidenceKeyValuePairArray* evidence,
     EvidencePrefix prefix) {
     int tempCount = 0, charactersAdded = 0;
+    uint32_t emptyCount = 0;
+
     // Iterate through the request headers and construct the evidence
     // If bufferSize = 0; then don't add to the buffer
     const char *requestHeaderName = NULL, *requestHeaderValue = NULL;
@@ -60,6 +62,11 @@ static int constructPseudoEvidence(
         requestHeaderValue = getEvidenceValueForHeader(
             requestHeaderName, evidence, prefix);
         if (requestHeaderValue != NULL) {
+            // Check if value is empty
+            if (strcmp(requestHeaderValue, "") == 0) {
+                emptyCount++;
+            }
+
             if (i != 0) {
                 tempCount = Snprintf(
                     buffer + charactersAdded,
@@ -94,6 +101,13 @@ static int constructPseudoEvidence(
             break;
         }
     }
+
+    // If all values are empty discard the result
+    if (emptyCount == pseudoHeader.requestHeaderCount) {
+        memset(buffer, '\0', bufferSize);
+        charactersAdded = 0;
+    }
+
     return charactersAdded;
 }
 

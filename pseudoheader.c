@@ -55,9 +55,8 @@ static int constructPseudoEvidence(
     const char *requestHeaderName = NULL, *requestHeaderValue = NULL;
     for (uint32_t i = 0; i < pseudoHeader.requestHeaderCount; i++) {
         // Get the evidence and add it to the buffer
-        requestHeaderName = FIFTYONE_DEGREES_STRING(
-            acceptedHeaders->items[pseudoHeader.requestHeaders[i]]
-                .name.data.ptr);
+        requestHeaderName = acceptedHeaders->items[pseudoHeader.requestHeaders[i]]
+            .name;
         requestHeaderValue = getEvidenceValueForHeader(
             requestHeaderName, evidence, prefix);
         if (requestHeaderValue != NULL) {
@@ -124,7 +123,7 @@ static bool isEvidencePresentForHeader(
         }
 
         if (matchPrefix && StringCompare(
-                STRING(uniqueHeader->name.data.ptr),
+                uniqueHeader->name,
                 evidence->items[i].field) == 0) {
             return true;
         }
@@ -172,7 +171,7 @@ fiftyoneDegreesPseudoHeadersAddEvidence(
                         if (charAdded > 0) {
                             evidence->pseudoEvidence->items[
                                 evidence->pseudoEvidence->count].field =
-                                STRING(curHeader.name.data.ptr);
+                                curHeader.name;
                                 evidence->pseudoEvidence->items[
                                     evidence->pseudoEvidence->count].prefix =
                                     orderOfPrecedence[j];

@@ -29,7 +29,8 @@
 
 static bool doesHeaderExist(Headers *headers, Item *item) {
 	uint32_t i;
-	String *compare, *test;
+	String* compare;
+	const char *test;
 	compare = (String*)(item->data.ptr);
 
 	if (compare == NULL) {
@@ -37,11 +38,11 @@ static bool doesHeaderExist(Headers *headers, Item *item) {
 	}
 
 	for (i = 0; i < headers->count; i++) {
-		test = (String*)headers->items[i].name.data.ptr;
+		test = headers->items[i].name;
 		if (test != NULL &&
 			_stricmp(
 				&compare->value,
-				&test->value) == 0) {
+				test) == 0) {
 			return true;
 		}
 	}
@@ -63,22 +64,29 @@ static void addUniqueHeaders(
 	void *state,
 	HeadersGetMethod get) {
 	uint32_t i, pIndex, uniqueId;
-	Item *nameItem;
+	Item nameItem;
 	Header *header;
 	for (i = 0, pIndex = 0; i < headers->capacity; i++) {
 		header = &headers->items[headers->count];
-		nameItem = &header->name;
-		DataReset(&nameItem->data);
-		nameItem->collection = NULL;
-		nameItem->handle = NULL;
-		uniqueId = get(state, i, nameItem);
-		if (((String*)nameItem->data.ptr)->size > 1 &&
-			doesHeaderExist(headers, nameItem) == false) {
+		DataReset(&nameItem.data);
+		nameItem.collection = NULL;
+		nameItem.handle = NULL;
+		uniqueId = get(state, i, &nameItem);
+		if (((String*)&nameItem.data.ptr)->size > 1 &&
+			doesHeaderExist(headers, &nameItem) == false) {
 			header->uniqueId = uniqueId;
+			header->name = Malloc(
+				sizeof(char) * ((String*)&nameItem.data.ptr)->size); // todo +1?
+			header->nameLength = ((String*)&nameItem.data.ptr)->size;
+			memcpy(
+				(void*)header->name,
+				&((String*)&nameItem.data.ptr)->value,
+				((String*)&nameItem.data.ptr)->size);
 			// Check if header is pseudo header then add it to the list
-			if (HeadersIsPseudo(
-				STRING(nameItem->data.ptr))) {
+			if (HeadersIsPseudo(header->name)) {
 				headers->pseudoHeaders[pIndex++] = headers->count;
+				/// also check if constituants are present, and add if not
+				// involves allocating new stirngs
 			}
 			else {
 				header->requestHeaders = NULL;
@@ -87,9 +95,9 @@ static void addUniqueHeaders(
 			headers->count++;
 		}
 		else {
-			assert(nameItem->collection != NULL);
-			COLLECTION_RELEASE(nameItem->collection, nameItem);
+			assert(nameItem.collection != NULL);
 		}
+		COLLECTION_RELEASE(nameItem.collection, &nameItem);
 	}
 }
 
@@ -125,7 +133,7 @@ static StatusCode updatePseudoHeaders(Headers* headers) {
 	int noOfRequestHeaders = 0;
 	for (uint32_t i = 0; i < headers->pseudoHeadersCount; i++) {
 		curPseudoHeader = &headers->items[headers->pseudoHeaders[i]];
-		requestHeaderName = STRING(curPseudoHeader->name.data.ptr);
+		requestHeaderName = curPseudoHeader->name;
 		// Calculate the size of request headers array
 		if ((noOfRequestHeaders = countRequestHeaders(requestHeaderName)) > 0) {
 			// Allocate the memory for the request headers array
@@ -140,11 +148,11 @@ static StatusCode updatePseudoHeaders(Headers* headers) {
 					// request header
 					headerLength = 
 						tmp == NULL ?
-						strlen(requestHeaderName) :
+						strlen(requestHeaderName) : // todo
 						(size_t)(tmp - requestHeaderName);
 					for (uint32_t j = 0; j < headers->count; j++) {
-						curHeaderName = STRING(headers->items[j].name.data.ptr);
-						if (headerLength == strlen(curHeaderName) &&
+						curHeaderName = headers->items[j].name;
+						if (headerLength == strlen(curHeaderName) && //; todo
 							StringCompareLength(
 								curHeaderName,
 								requestHeaderName,
@@ -234,7 +242,8 @@ int fiftyoneDegreesHeaderGetIndex(
 	const char* httpHeaderName,
 	size_t length) {
 	uint32_t i;
-	String *compare;
+	const char *compare;
+	size_t compareLength;
 
 	// Check if header is from a Perl or PHP wrapper in the form of HTTP_*
 	// and if present skip these characters.
@@ -250,12 +259,13 @@ int fiftyoneDegreesHeaderGetIndex(
 
 	// Perform a case insensitive compare of the remaining characters.
 	for (i = 0; i < headers->count; i++) {
-		compare = (String*)headers->items[i].name.data.ptr;
-		if ((size_t)((size_t)compare->size - 1) == length &&
+		compare = headers->items[i].name;
+		compareLength = (size_t)headers->items[i].nameLength;
+		if (compareLength - 1 == length &&
 			compare != NULL &&
 			StringCompareLength(
 				httpHeaderName, 
-				&compare->value, 
+				compare, 
 				length) == 0) {
 			return i;
 		}
@@ -280,8 +290,7 @@ void fiftyoneDegreesHeadersFree(fiftyoneDegreesHeaders *headers) {
 	uint32_t i;
 	if (headers != NULL) {
 		for (i = 0; i < headers->count; i++) {
-			COLLECTION_RELEASE(headers->items[i].name.collection,
-				&headers->items[i].name);
+			Free((void*)headers->items[i].name);
 		}
 		freePseudoHeaders(headers);
 		if (headers->pseudoHeaders != NULL) {

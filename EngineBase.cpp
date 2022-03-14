@@ -102,8 +102,7 @@ void EngineBase::initHttpHeaderKeys(
 			if (config->getUseUpperPrefixHeaders()) {
 				key.append("HTTP_");
 			}
-			key.append(&((fiftyoneDegreesString*)
-				uniqueHeaders->items[i].name.data.ptr)->value);
+			key.append(uniqueHeaders->items[i].name);
 			addKey(key);
 		}
 	}

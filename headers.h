@@ -108,19 +108,21 @@
 #define EXTERNAL
 #endif
 
-/**
- * Header structure containing the name and unique id.
- */
+ /**
+  * Header structure containing the name and unique id of the header.
+  */
 typedef struct fiftyone_degrees_header_t {
-	fiftyoneDegreesCollectionItem name; /**< Collection item containing the
-										name of the header as a
-										#fiftyoneDegreesString */
+	const char* name; /**< Name of the header or pseudo header field as a
+					       string */
+	// todo int16 or size_t
+	int16_t nameLength; /**< Length of the name string excluding the
+							 terminating null */
 	uint32_t* requestHeaders; /**< Indices for unique headers that form
-							 this pseudo-header. Null if not a pseudo header */
+							       this pseudo-header. Null if not a pseudo header */
 	uint32_t requestHeaderCount; /**< Number of request headers. 0 If not a
-								pseudo header */
+								      pseudo header */
 	uint32_t uniqueId; /**< Id which uniquely identifies the header within the
-					   data set. */
+					        data set. */
 } fiftyoneDegreesHeader;
 
 #define FIFTYONE_DEGREES_HEADERS_MEMBERS \

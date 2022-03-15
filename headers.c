@@ -257,6 +257,7 @@ static int splitPseudoHeaders(
 			pseudoHeaderName = tmp == NULL ? NULL : tmp + 1;
 		}
 	}
+	return i;
 }
 
 static bool tryAddPseudoHeader(

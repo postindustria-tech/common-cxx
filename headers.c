@@ -27,21 +27,20 @@
 /* HTTP header prefix used when processing collections of parameters. */
 #define HTTP_PREFIX_UPPER "HTTP_"
 
-static bool doesHeaderExist(Headers *headers, Item *item) {
+static bool doesHeaderExist(Headers *headers, const char *headerName) {
 	uint32_t i;
-	String *compare, *test;
-	compare = (String*)(item->data.ptr);
+	const char *test;
 
-	if (compare == NULL) {
+	if (headerName == NULL) {
 		return false;
 	}
 
 	for (i = 0; i < headers->count; i++) {
-		test = (String*)headers->items[i].name.data.ptr;
+		test = headers->items[i].name;
 		if (test != NULL &&
 			_stricmp(
-				&compare->value,
-				&test->value) == 0) {
+				headerName,
+				test) == 0) {
 			return true;
 		}
 	}
@@ -58,26 +57,37 @@ bool fiftyoneDegreesHeadersIsPseudo(const char *headerName) {
 /**
  * This also construct the list of pseudo-headers indices.
  */
-static void addUniqueHeaders(
+static StatusCode addUniqueHeaders(
 	Headers *headers,
 	void *state,
-	HeadersGetMethod get) {
+	HeadersGetMethod get,
+	uint32_t uniqueHeadersCount) {
+	size_t nameSize;
 	uint32_t i, pIndex, uniqueId;
-	Item *nameItem;
+	Item nameItem;
 	Header *header;
-	for (i = 0, pIndex = 0; i < headers->capacity; i++) {
+	for (i = 0, pIndex = 0; i < uniqueHeadersCount; i++) {
 		header = &headers->items[headers->count];
-		nameItem = &header->name;
-		DataReset(&nameItem->data);
-		nameItem->collection = NULL;
-		nameItem->handle = NULL;
-		uniqueId = get(state, i, nameItem);
-		if (((String*)nameItem->data.ptr)->size > 1 &&
-			doesHeaderExist(headers, nameItem) == false) {
+		DataReset(&nameItem.data);
+		nameItem.collection = NULL;
+		nameItem.handle = NULL;
+		uniqueId = get(state, i, &nameItem);
+		nameSize = ((String*)nameItem.data.ptr) == NULL ?
+			0 : ((String*)nameItem.data.ptr)->size;
+		if (nameSize > 1 &&
+			doesHeaderExist(headers, STRING(nameItem.data.ptr)) == false) {
 			header->uniqueId = uniqueId;
+			header->name = Malloc(sizeof(char) * nameSize);
+			if (header->name == NULL) {
+				return INSUFFICIENT_MEMORY;
+			}
+			header->nameLength = (int16_t)nameSize - 1;
+			memcpy(
+				(void*)header->name,
+				&((String*)nameItem.data.ptr)->value,
+				((String*)nameItem.data.ptr)->size);
 			// Check if header is pseudo header then add it to the list
-			if (HeadersIsPseudo(
-				STRING(nameItem->data.ptr))) {
+			if (HeadersIsPseudo(header->name)) {
 				headers->pseudoHeaders[pIndex++] = headers->count;
 			}
 			else {
@@ -87,16 +97,17 @@ static void addUniqueHeaders(
 			headers->count++;
 		}
 		else {
-			assert(nameItem->collection != NULL);
-			COLLECTION_RELEASE(nameItem->collection, nameItem);
+			assert(nameItem.collection != NULL);
 		}
+		COLLECTION_RELEASE(nameItem.collection, &nameItem);
 	}
+	return SUCCESS;
 }
 
 static uint32_t countRequestHeaders(const char* pseudoHeaders) {
 	uint32_t count;
 	const char* tmp = pseudoHeaders;
-	// Count start from 1 as there be at list one headr name
+	// Count start from 1 as there be at least one header name
 	for (count = 1;
 		(tmp = strchr(tmp, PSEUDO_HEADER_SEP)) != NULL;
 		tmp++, count++) {}
@@ -117,6 +128,7 @@ static void freePseudoHeaders(Headers* headers) {
  * the indices to actual headers that form them.
  */
 static StatusCode updatePseudoHeaders(Headers* headers) {
+	bool found;
 	Header* curPseudoHeader = NULL;
 	const char* requestHeaderName = NULL;
 	const char* tmp = NULL;
@@ -125,15 +137,16 @@ static StatusCode updatePseudoHeaders(Headers* headers) {
 	int noOfRequestHeaders = 0;
 	for (uint32_t i = 0; i < headers->pseudoHeadersCount; i++) {
 		curPseudoHeader = &headers->items[headers->pseudoHeaders[i]];
-		requestHeaderName = STRING(curPseudoHeader->name.data.ptr);
+		requestHeaderName = curPseudoHeader->name;
 		// Calculate the size of request headers array
-		if ((noOfRequestHeaders = countRequestHeaders(requestHeaderName)) > 0) {
+		if ((noOfRequestHeaders = countRequestHeaders(requestHeaderName)) > 1) {
 			// Allocate the memory for the request headers array
 			curPseudoHeader->requestHeaders = 
 				(uint32_t*)Malloc(noOfRequestHeaders * sizeof(uint32_t));
 			if (curPseudoHeader->requestHeaders != NULL) {
 				// Iterate through each request header and find a match
 				while (requestHeaderName != NULL) {
+					found = false;
 					// Find the position of the next '\x1F'
 					tmp = strchr(requestHeaderName, PSEUDO_HEADER_SEP);
 					// Check if there is no more '\x1F' and this is the last
@@ -142,17 +155,40 @@ static StatusCode updatePseudoHeaders(Headers* headers) {
 						tmp == NULL ?
 						strlen(requestHeaderName) :
 						(size_t)(tmp - requestHeaderName);
-					for (uint32_t j = 0; j < headers->count; j++) {
-						curHeaderName = STRING(headers->items[j].name.data.ptr);
-						if (headerLength == strlen(curHeaderName) &&
-							StringCompareLength(
-								curHeaderName,
+					if (headerLength > 0) {
+						for (uint32_t j = 0; j < headers->count && found == false; j++) {
+							curHeaderName = headers->items[j].name;
+							if (headerLength == strlen(curHeaderName) &&
+								StringCompareLength(
+									curHeaderName,
+									requestHeaderName,
+									headerLength) == 0) {
+								curPseudoHeader->requestHeaders[
+									curPseudoHeader->requestHeaderCount++] = j;
+								// Found a match
+								found = true;
+							}
+						}
+						if (found == false) {
+							// The header was not found, so add it to the header structure.
+							char* name = Malloc(sizeof(char) * (headerLength + 1));
+							if (name == NULL) {
+								return INSUFFICIENT_MEMORY;
+							}
+							memcpy(
+								name,
 								requestHeaderName,
-								headerLength) == 0) {
+								headerLength);
+							name[headerLength] = '\0';
+							headers->items[headers->count].name = name;
+							headers->items[headers->count].nameLength = (int16_t)headerLength;
+							headers->items[headers->count].requestHeaderCount = 0;
+							headers->items[headers->count].requestHeaders = NULL;
+							headers->items[headers->count].uniqueId =
+								((uint32_t*)&headers->items[headers->count].name)[0];
 							curPseudoHeader->requestHeaders[
-								curPseudoHeader->requestHeaderCount++] = j;
-							// Found a match
-							break;
+								curPseudoHeader->requestHeaderCount++] = headers->count;
+							headers->count++;
 						}
 					}
 					// Update the cursor position in the pseudo header name
@@ -192,16 +228,160 @@ static headerCounts countHeaders(
 	return counts;
 }
 
+static int splitPseudoHeaders(
+	const char* pseudoHeaderName,
+	char** headers) {
+	size_t headerLength;
+	const char* tmp = NULL;
+	int i = 0;
+	if (headers != NULL) {
+		// Iterate through each request header and find a match
+		while (pseudoHeaderName != NULL) {
+			// Find the position of the next '\x1F'
+			tmp = strchr(pseudoHeaderName, PSEUDO_HEADER_SEP);
+			// Check if there is no more '\x1F' and this is the last
+			// request header
+			headerLength =
+				tmp == NULL ?
+				strlen(pseudoHeaderName) :
+				(size_t)(tmp - pseudoHeaderName);
+			headers[i] = Malloc(sizeof(char) * (headerLength + 1));
+			if (headers[i] == NULL) {
+				return i;
+			}
+			memcpy(headers[i], pseudoHeaderName, headerLength);
+			headers[i][headerLength] = '\0';
+			i++;
+			// Update the cursor position in the pseudo header name
+			// Set to NULL if it is the last header
+			pseudoHeaderName = tmp == NULL ? NULL : tmp + 1;
+		}
+	}
+	return i;
+}
+
+static bool tryAddPseudoHeader(
+	const char* header,
+	char** headers,
+	int headersCount,
+	Exception *exception) {
+	for (int i = 0; i < headersCount; i++) {
+		if (StringCompare(header, headers[i]) == 0) {
+			return false;
+		}
+	}
+	headers[headersCount] = Malloc(sizeof(char) * (strlen(header) + 1));
+	if (headers[headersCount] == NULL) {
+		EXCEPTION_SET(INSUFFICIENT_MEMORY);
+		return false;
+	}
+	memcpy(headers[headersCount], header, strlen(header) + 1);
+	return true;
+}
+
+static int countTotalRequestHeaders(
+	void* state,
+	HeadersGetMethod get,
+	int headersCount) {
+	Item name;
+	int i;
+	int total = 0;
+	for (i = 0; i < headersCount; i++) {
+		if (get(state, i, &name) >= 0) {
+			// Check if name is pseduo header
+			if (HeadersIsPseudo(
+				STRING(name.data.ptr))) {
+				total += countRequestHeaders(STRING(name.data.ptr));
+			}
+		}
+		COLLECTION_RELEASE(name.collection, &name);
+	}
+	return total;
+}
+
+static int countUnavailablePseudoHeaders(
+	void* state,
+	HeadersGetMethod get,
+	int headersCount,
+	Exception *exception) {
+	Item name;
+	Item otherName;
+	int i, j, k;
+	char** tmpHeaders;
+	char** unavailable =  Malloc(sizeof(char*) * countTotalRequestHeaders(state, get, headersCount));
+	if (unavailable == NULL) {
+		EXCEPTION_SET(INSUFFICIENT_MEMORY);
+		return 0;
+	}
+	bool found;
+	int unavailableCount = 0;
+	int pseudoCount, splitCount;
+	DataReset(&name.data);
+	DataReset(&otherName.data);
+	for (i = 0; i < headersCount; i++) {
+		if (get(state, i, &name) >= 0) {
+			// Check if name is pseduo header
+			if (HeadersIsPseudo(
+				STRING(name.data.ptr))) {
+				pseudoCount = countRequestHeaders(STRING(name.data.ptr));
+				tmpHeaders = Malloc(sizeof(char*) * pseudoCount);
+				if (tmpHeaders == NULL) {
+					EXCEPTION_SET(INSUFFICIENT_MEMORY);
+					break;
+				}
+				splitCount = splitPseudoHeaders(STRING(name.data.ptr), tmpHeaders);
+				if (splitCount < pseudoCount) {
+					EXCEPTION_SET(INSUFFICIENT_MEMORY);
+				}
+				for (j = 0; j < splitCount; j++) {
+					if (EXCEPTION_OKAY) {
+						found = false;
+
+						for (k = 0; k < headersCount && found == false; k++) {
+							if (get(state, k, &otherName) >= 0) {
+								if (StringCompare(STRING(otherName.data.ptr), tmpHeaders[j]) == 0) {
+									found = true;
+								}
+							}
+							COLLECTION_RELEASE(otherName.collection, &otherName);
+
+						}
+						if (found == false) {
+							if (tryAddPseudoHeader(tmpHeaders[j], unavailable, unavailableCount, exception)) {
+								unavailableCount++;
+							}
+						}
+					}
+					Free(tmpHeaders[j]);
+				}
+				Free(tmpHeaders);
+			}
+		}
+		COLLECTION_RELEASE(name.collection, &name);
+	}
+	for (i = 0; i < unavailableCount; i++) {
+		Free(unavailable[i]);
+	}
+	Free(unavailable);
+	return unavailableCount;
+}
+
 fiftyoneDegreesHeaders* fiftyoneDegreesHeadersCreate(
 	bool expectUpperPrefixedHeaders,
 	void *state,
 	fiftyoneDegreesHeadersGetMethod get) {
+	EXCEPTION_CREATE;
 	Headers *headers;
 	headerCounts counts = countHeaders(state, get);
+	int unavailablePseudoHeaders =
+		countUnavailablePseudoHeaders(state, get, counts.uniqueHeadersCount, exception);
+	if (EXCEPTION_FAILED) {
+		return NULL;
+	}
 	FIFTYONE_DEGREES_ARRAY_CREATE(
 		fiftyoneDegreesHeader,
 		headers,
-		counts.uniqueHeadersCount);
+		counts.uniqueHeadersCount + unavailablePseudoHeaders);
 	if (headers != NULL) {
 		headers->expectUpperPrefixedHeaders = expectUpperPrefixedHeaders;
 		headers->pseudoHeadersCount = counts.pseudoHeadersCount;
@@ -220,8 +400,12 @@ fiftyoneDegreesHeaders* fiftyoneDegreesHeadersCreate(
 			headers->pseudoHeaders = NULL;
 		}
 
-		addUniqueHeaders(headers, state, get);
-		if (updatePseudoHeaders(headers) != SUCCESS) {
+		if (addUniqueHeaders(headers, state, get, counts.uniqueHeadersCount)
+			!= SUCCESS) {
+			HeadersFree(headers);
+			headers = NULL;
+		}
+		if (headers != NULL && updatePseudoHeaders(headers) != SUCCESS) {
 			HeadersFree(headers);
 			headers = NULL;
 		}
@@ -234,7 +418,8 @@ int fiftyoneDegreesHeaderGetIndex(
 	const char* httpHeaderName,
 	size_t length) {
 	uint32_t i;
-	String *compare;
+	const char *compare;
+	size_t compareLength;
 
 	// Check if header is from a Perl or PHP wrapper in the form of HTTP_*
 	// and if present skip these characters.
@@ -250,12 +435,13 @@ int fiftyoneDegreesHeaderGetIndex(
 
 	// Perform a case insensitive compare of the remaining characters.
 	for (i = 0; i < headers->count; i++) {
-		compare = (String*)headers->items[i].name.data.ptr;
-		if ((size_t)((size_t)compare->size - 1) == length &&
+		compare = headers->items[i].name;
+		compareLength = (size_t)headers->items[i].nameLength;
+		if (compareLength == length &&
 			compare != NULL &&
 			StringCompareLength(
 				httpHeaderName, 
-				&compare->value, 
+				compare, 
 				length) == 0) {
 			return i;
 		}
@@ -280,8 +466,7 @@ void fiftyoneDegreesHeadersFree(fiftyoneDegreesHeaders *headers) {
 	uint32_t i;
 	if (headers != NULL) {
 		for (i = 0; i < headers->count; i++) {
-			COLLECTION_RELEASE(headers->items[i].name.collection,
-				&headers->items[i].name);
+			Free((void*)headers->items[i].name);
 		}
 		freePseudoHeaders(headers);
 		if (headers->pseudoHeaders != NULL) {

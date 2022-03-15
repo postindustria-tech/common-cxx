@@ -58,7 +58,7 @@ typedef struct fiftyone_degrees_array_##t##_t { \
 /**
  * Works out the size of the array with a given capacity for the type.
  */
-#define FIFTYONE_DEGREES_ARRAY_SIZE(t, c) (sizeof(t##Array) + (sizeof(t) * c))
+#define FIFTYONE_DEGREES_ARRAY_SIZE(t, c) (sizeof(t##Array) + (sizeof(t) * (c)))
 
 /**
  * Initialises the array.

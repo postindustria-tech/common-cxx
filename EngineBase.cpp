@@ -97,14 +97,17 @@ void EngineBase::initHttpHeaderKeys(
 	uint32_t i, p;
 	const char *prefixes[] = { "header.", "query." };
 	for (i = 0; i < uniqueHeaders->count; i++) {
-		for (p = 0; p < sizeof(prefixes) / sizeof(const char*); p++) {
-			string key = string(prefixes[p]);
-			if (config->getUseUpperPrefixHeaders()) {
-				key.append("HTTP_");
+		// If the header is a pseudo header, then don't expose to the
+		// caller as it's not important externally.
+		if (strstr(uniqueHeaders->items[i].name, "\x1F") == nullptr) {
+			for (p = 0; p < sizeof(prefixes) / sizeof(const char*); p++) {
+				string key = string(prefixes[p]);
+				if (config->getUseUpperPrefixHeaders()) {
+					key.append("HTTP_");
+				}
+				key.append(uniqueHeaders->items[i].name);
+				addKey(key);
 			}
-			key.append(&((fiftyoneDegreesString*)
-				uniqueHeaders->items[i].name.data.ptr)->value);
-			addKey(key);
 		}
 	}
 }

@@ -185,7 +185,7 @@ static StatusCode updatePseudoHeaders(Headers* headers) {
 							headers->items[headers->count].requestHeaderCount = 0;
 							headers->items[headers->count].requestHeaders = NULL;
 							headers->items[headers->count].uniqueId =
-								(uint32_t)(uint64_t)headers->items[headers->count].name; // todo is this really unique?
+								((uint32_t*)&headers->items[headers->count].name)[0];
 							curPseudoHeader->requestHeaders[
 								curPseudoHeader->requestHeaderCount++] = headers->count;
 							headers->count++;

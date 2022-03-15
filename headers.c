@@ -284,6 +284,7 @@ static int countTotalRequestHeaders(
 	HeadersGetMethod get,
 	int headersCount) {
 	Item name;
+	DataReset(&name.data);
 	int i;
 	int total = 0;
 	for (i = 0; i < headersCount; i++) {

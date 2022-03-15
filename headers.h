@@ -114,7 +114,6 @@
 typedef struct fiftyone_degrees_header_t {
 	const char* name; /**< Name of the header or pseudo header field as a
 					       string */
-	// todo int16 or size_t
 	int16_t nameLength; /**< Length of the name string excluding the
 							 terminating null */
 	uint32_t* requestHeaders; /**< Indices for unique headers that form

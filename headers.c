@@ -57,11 +57,12 @@ bool fiftyoneDegreesHeadersIsPseudo(const char *headerName) {
 /**
  * This also construct the list of pseudo-headers indices.
  */
-static void addUniqueHeaders(
+static StatusCode addUniqueHeaders(
 	Headers *headers,
 	void *state,
 	HeadersGetMethod get,
 	uint32_t uniqueHeadersCount) {
+	size_t nameSize;
 	uint32_t i, pIndex, uniqueId;
 	Item nameItem;
 	Header *header;
@@ -71,12 +72,16 @@ static void addUniqueHeaders(
 		nameItem.collection = NULL;
 		nameItem.handle = NULL;
 		uniqueId = get(state, i, &nameItem);
-		if (((String*)nameItem.data.ptr)->size > 1 &&
+		nameSize = ((String*)nameItem.data.ptr) == NULL ?
+			0 : ((String*)nameItem.data.ptr)->size;
+		if (nameSize > 1 &&
 			doesHeaderExist(headers, STRING(nameItem.data.ptr)) == false) {
 			header->uniqueId = uniqueId;
-			header->name = (const char*)Malloc(
-				sizeof(char) * (((String*)nameItem.data.ptr)->size));
-			header->nameLength = ((String*)nameItem.data.ptr)->size;
+			header->name = Malloc(sizeof(char) * nameSize);
+			if (header->name == NULL) {
+				return INSUFFICIENT_MEMORY;
+			}
+			header->nameLength = (int16_t)nameSize - 1;
 			memcpy(
 				(void*)header->name,
 				&((String*)nameItem.data.ptr)->value,
@@ -96,6 +101,7 @@ static void addUniqueHeaders(
 		}
 		COLLECTION_RELEASE(nameItem.collection, &nameItem);
 	}
+	return SUCCESS;
 }
 
 static uint32_t countRequestHeaders(const char* pseudoHeaders) {
@@ -147,12 +153,12 @@ static StatusCode updatePseudoHeaders(Headers* headers) {
 					// request header
 					headerLength = 
 						tmp == NULL ?
-						strlen(requestHeaderName) : // todo
+						strlen(requestHeaderName) :
 						(size_t)(tmp - requestHeaderName);
 					if (headerLength > 0) {
 						for (uint32_t j = 0; j < headers->count && found == false; j++) {
 							curHeaderName = headers->items[j].name;
-							if (headerLength == strlen(curHeaderName) && //; todo
+							if (headerLength == strlen(curHeaderName) &&
 								StringCompareLength(
 									curHeaderName,
 									requestHeaderName,
@@ -166,13 +172,16 @@ static StatusCode updatePseudoHeaders(Headers* headers) {
 						if (found == false) {
 							// The header was not found, so add it to the header structure.
 							char* name = Malloc(sizeof(char) * (headerLength + 1));
+							if (name == NULL) {
+								return INSUFFICIENT_MEMORY;
+							}
 							memcpy(
 								name,
 								requestHeaderName,
 								headerLength);
 							name[headerLength] = '\0';
 							headers->items[headers->count].name = name;
-							headers->items[headers->count].nameLength = (int16_t)headerLength; // todo memcpy
+							headers->items[headers->count].nameLength = (int16_t)headerLength;
 							headers->items[headers->count].requestHeaderCount = 0;
 							headers->items[headers->count].requestHeaders = NULL;
 							headers->items[headers->count].uniqueId =
@@ -234,9 +243,12 @@ static int splitPseudoHeaders(
 			// request header
 			headerLength =
 				tmp == NULL ?
-				strlen(pseudoHeaderName) : // todo
+				strlen(pseudoHeaderName) :
 				(size_t)(tmp - pseudoHeaderName);
 			headers[i] = Malloc(sizeof(char) * (headerLength + 1));
+			if (headers[i] == NULL) {
+				return i;
+			}
 			memcpy(headers[i], pseudoHeaderName, headerLength);
 			headers[i][headerLength] = '\0';
 			i++;
@@ -245,19 +257,23 @@ static int splitPseudoHeaders(
 			pseudoHeaderName = tmp == NULL ? NULL : tmp + 1;
 		}
 	}
-	return i;
 }
 
 static bool tryAddPseudoHeader(
 	const char* header,
 	char** headers,
-	int headersCount) {
+	int headersCount,
+	Exception *exception) {
 	for (int i = 0; i < headersCount; i++) {
 		if (StringCompare(header, headers[i]) == 0) {
 			return false;
 		}
 	}
 	headers[headersCount] = Malloc(sizeof(char) * (strlen(header) + 1));
+	if (headers[headersCount] == NULL) {
+		EXCEPTION_SET(INSUFFICIENT_MEMORY);
+		return false;
+	}
 	memcpy(headers[headersCount], header, strlen(header) + 1);
 	return true;
 }
@@ -285,15 +301,21 @@ static int countTotalRequestHeaders(
 static int countUnavailablePseudoHeaders(
 	void* state,
 	HeadersGetMethod get,
-	int headersCount) {
+	int headersCount,
+	Exception *exception) {
 	Item name;
+	StatusCode status;
 	Item otherName;
 	int i, j, k;
 	char** tmpHeaders;
 	char** unavailable =  Malloc(sizeof(char*) * countTotalRequestHeaders(state, get, headersCount));
+	if (unavailable == NULL) {
+		EXCEPTION_SET(INSUFFICIENT_MEMORY);
+		return 0;
+	}
 	bool found;
 	int unavailableCount = 0;
-	int pseudoCount;
+	int pseudoCount, splitCount;
 	DataReset(&name.data);
 	DataReset(&otherName.data);
 	for (i = 0; i < headersCount; i++) {
@@ -303,22 +325,31 @@ static int countUnavailablePseudoHeaders(
 				STRING(name.data.ptr))) {
 				pseudoCount = countRequestHeaders(STRING(name.data.ptr));
 				tmpHeaders = Malloc(sizeof(char*) * pseudoCount);
-				splitPseudoHeaders(STRING(name.data.ptr), tmpHeaders); // todo check result.
-				for (j = 0; j < pseudoCount; j++) {
-					found = false;
+				if (tmpHeaders == NULL) {
+					EXCEPTION_SET(INSUFFICIENT_MEMORY);
+					break;
+				}
+				splitCount = splitPseudoHeaders(STRING(name.data.ptr), tmpHeaders);
+				if (splitCount < pseudoCount) {
+					EXCEPTION_SET(INSUFFICIENT_MEMORY);
+				}
+				for (j = 0; j < splitCount; j++) {
+					if (EXCEPTION_OKAY) {
+						found = false;
 
-					for (k = 0; k < headersCount && found == false; k++) {
-						if (get(state, k, &otherName) >= 0) {
-							if (StringCompare(STRING(otherName.data.ptr), tmpHeaders[j]) == 0) {
-								found = true;
+						for (k = 0; k < headersCount && found == false; k++) {
+							if (get(state, k, &otherName) >= 0) {
+								if (StringCompare(STRING(otherName.data.ptr), tmpHeaders[j]) == 0) {
+									found = true;
+								}
 							}
-						}
-						COLLECTION_RELEASE(otherName.collection, &otherName);
+							COLLECTION_RELEASE(otherName.collection, &otherName);
 
-					}
-					if (found == false) {
-						if (tryAddPseudoHeader(tmpHeaders[j], unavailable, unavailableCount)) {
-							unavailableCount++;
+						}
+						if (found == false) {
+							if (tryAddPseudoHeader(tmpHeaders[j], unavailable, unavailableCount, exception)) {
+								unavailableCount++;
+							}
 						}
 					}
 					Free(tmpHeaders[j]);
@@ -339,10 +370,14 @@ fiftyoneDegreesHeaders* fiftyoneDegreesHeadersCreate(
 	bool expectUpperPrefixedHeaders,
 	void *state,
 	fiftyoneDegreesHeadersGetMethod get) {
+	EXCEPTION_CREATE;
 	Headers *headers;
 	headerCounts counts = countHeaders(state, get);
 	int unavailablePseudoHeaders =
-		countUnavailablePseudoHeaders(state, get, counts.uniqueHeadersCount);
+		countUnavailablePseudoHeaders(state, get, counts.uniqueHeadersCount, exception);
+	if (EXCEPTION_FAILED) {
+		return NULL;
+	}
 	FIFTYONE_DEGREES_ARRAY_CREATE(
 		fiftyoneDegreesHeader,
 		headers,
@@ -365,8 +400,12 @@ fiftyoneDegreesHeaders* fiftyoneDegreesHeadersCreate(
 			headers->pseudoHeaders = NULL;
 		}
 
-		addUniqueHeaders(headers, state, get, counts.uniqueHeadersCount);
-		if (updatePseudoHeaders(headers) != SUCCESS) {
+		if (addUniqueHeaders(headers, state, get, counts.uniqueHeadersCount)
+			!= SUCCESS) {
+			HeadersFree(headers);
+			headers = NULL;
+		}
+		if (headers != NULL && updatePseudoHeaders(headers) != SUCCESS) {
 			HeadersFree(headers);
 			headers = NULL;
 		}

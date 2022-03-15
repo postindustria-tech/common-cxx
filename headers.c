@@ -74,8 +74,8 @@ static void addUniqueHeaders(
 		if (((String*)nameItem.data.ptr)->size > 1 &&
 			doesHeaderExist(headers, STRING(nameItem.data.ptr)) == false) {
 			header->uniqueId = uniqueId;
-			header->name = Malloc(
-				sizeof(char) * ((String*)nameItem.data.ptr)->size); // todo +1?
+			header->name = (const char*)Malloc(
+				sizeof(char) * (((String*)nameItem.data.ptr)->size));
 			header->nameLength = ((String*)nameItem.data.ptr)->size;
 			memcpy(
 				(void*)header->name,
@@ -84,8 +84,6 @@ static void addUniqueHeaders(
 			// Check if header is pseudo header then add it to the list
 			if (HeadersIsPseudo(header->name)) {
 				headers->pseudoHeaders[pIndex++] = headers->count;
-				/// also check if constituants are present, and add if not
-				// involves allocating new stirngs
 			}
 			else {
 				header->requestHeaders = NULL;
@@ -259,7 +257,7 @@ static bool tryAddPseudoHeader(
 			return false;
 		}
 	}
-	headers[headersCount] = Malloc(sizeof(char) * strlen(header));
+	headers[headersCount] = Malloc(sizeof(char) * (strlen(header) + 1));
 	memcpy(headers[headersCount], header, strlen(header) + 1);
 	return true;
 }

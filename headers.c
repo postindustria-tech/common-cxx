@@ -437,7 +437,7 @@ int fiftyoneDegreesHeaderGetIndex(
 	for (i = 0; i < headers->count; i++) {
 		compare = headers->items[i].name;
 		compareLength = (size_t)headers->items[i].nameLength;
-		if (compareLength - 1 == length &&
+		if (compareLength == length &&
 			compare != NULL &&
 			StringCompareLength(
 				httpHeaderName, 

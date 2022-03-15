@@ -305,7 +305,6 @@ static int countUnavailablePseudoHeaders(
 	int headersCount,
 	Exception *exception) {
 	Item name;
-	StatusCode status;
 	Item otherName;
 	int i, j, k;
 	char** tmpHeaders;

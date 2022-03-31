@@ -7,6 +7,9 @@
 #define HEADERS_SIZE 8
 #define HEADERS_DUPLICATE_SIZE 13
 #define HEADERS_NO_PSEUDO_SIZE 2
+// This is the number of actual unique headers plus the headers which are
+// constructed from the segments of each pseudo header.
+#define HEADERS_CONSTRUCTED_SIZE 20
 #define PREFIXES_SIZE 2
 
 // Order of precedence for accepted prefixes
@@ -172,8 +175,8 @@ TEST_F(PseudoHeaderTests, CreateWithNonUnique) {
 	} while (index < HEADERS_DUPLICATE_SIZE);
 	EXPECT_TRUE(foundPastIndex) <<
 		L"The non unique set of headers is not set up properly to prevent" <<
-		L" regresion.";
-	EXPECT_EQ(acceptedHeaders->capacity, HEADERS_DUPLICATE_SIZE);
+		L" regression.";
+	EXPECT_EQ(acceptedHeaders->capacity, HEADERS_CONSTRUCTED_SIZE);
 	EXPECT_EQ(acceptedHeaders->count, HEADERS_SIZE);
 }
 
@@ -458,8 +461,12 @@ TEST_F(PseudoHeaderTests, EvidenceCreationNoRequestHeadersForPseudoHeaders) {
  */
 TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
 	// Expected value
-	const testExpectedResult expectedEvidence[2] =
+	const testExpectedResult expectedEvidence[3] =
 	{
+		{
+			"\x1F",
+			FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
+		},
 		{
 			"\x1Fvalue3",
 			FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
@@ -491,7 +498,7 @@ TEST_F(PseudoHeaderTests, EvidenceCreationBlankRequestHeadersForPseudoHeaders) {
 		exception);
 	EXCEPTION_THROW;
 
-	checkResults(expectedEvidence, 2);
+	checkResults(expectedEvidence, 3);
 	removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }
 

@@ -180,11 +180,11 @@ EXTERNAL int fiftyoneDegreesStringCompareLength(
 EXTERNAL int fiftyoneDegreesStringCompare(const char *a, const char *b);
 
 /**
- * Case insensitively searching a first occurence of a
+ * Case insensitively searching a first occurrence of a
  * substring.
  * @param a string to search
  * @param b substring to be searched for
- * @return pointer to the first occurence or NULL if not found
+ * @return pointer to the first occurrence or NULL if not found
  */
 EXTERNAL char *fiftyoneDegreesStringSubString(const char *a, const char *b);
 

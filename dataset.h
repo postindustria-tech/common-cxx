@@ -117,7 +117,6 @@ typedef struct fiftyone_degrees_dataset_base_t {
 						partially allocated memory in use. */
 	bool isInMemory; /**< True if the data file has been read into continuous
 						 memory */
-	bool isClientHintsEnabled; /** True if client hints is enabled */
 	fiftyoneDegreesFilePool filePool; /**< Linked list of file readers */
 	fiftyoneDegreesResourceHandle *handle; /**< Pointer to the handle that
 										   tracks this data set instance */

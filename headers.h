@@ -109,26 +109,38 @@
 #endif
 
 /**
- * Header structure containing the name and unique id.
+ * Null or PSEUDO_HEADER_SEP terminated string segment within a header.
+ */
+typedef struct fiftyone_degrees_header_segment_t {
+	const char* segment; /**< Segment in the name string */
+	size_t length; /**< Length of the segment in the name strings without the 
+				        terminating character */
+} fiftyoneDegreesHeaderSegment;
+
+FIFTYONE_DEGREES_ARRAY_TYPE(
+	fiftyoneDegreesHeaderSegment, 
+	);
+
+/**
+ * Header structure to identify a header that either comes directly from the
+ * data set, or one that forms a pseudo header.
  */
 typedef struct fiftyone_degrees_header_t {
-	fiftyoneDegreesCollectionItem name; /**< Collection item containing the
-										name of the header as a
-										#fiftyoneDegreesString */
-	uint32_t* requestHeaders; /**< Indices for unique headers that form
-							 this pseudo-header. Null if not a pseudo header */
-	uint32_t requestHeaderCount; /**< Number of request headers. 0 If not a
-								pseudo header */
-	uint32_t uniqueId; /**< Id which uniquely identifies the header within the
-					   data set. */
+	const char* name; /**< Name of the header or pseudo header field as a
+					       null terminated string */
+	size_t nameLength; /**< Length of the name string excluding the
+							terminating null */
+	fiftyoneDegreesHeaderSegmentArray* segments; /**< Segments within the 
+												      name */
+	bool isDataSet; /**< True if the header originates from the data set */
+	uint32_t uniqueId; /** < Unique id provided by the data set */
 } fiftyoneDegreesHeader;
 
 #define FIFTYONE_DEGREES_HEADERS_MEMBERS \
 bool expectUpperPrefixedHeaders; /**< True if the headers structure should
 								 expect input header to be prefixed with
 								 'HTTP_' */ \
-uint32_t* pseudoHeaders; \
-uint32_t pseudoHeadersCount; /**< Count number of pseudo headers */
+uint32_t pseudoHeadersCount; /**< Count of the number of pseudo headers */
 
 FIFTYONE_DEGREES_ARRAY_TYPE(
 	fiftyoneDegreesHeader, 

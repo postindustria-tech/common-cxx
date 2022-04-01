@@ -162,6 +162,7 @@ MAP_TYPE(PropertiesAvailable)
 MAP_TYPE(EvidencePropertyIndex)
 MAP_TYPE(EvidenceProperties)
 MAP_TYPE(Header)
+MAP_TYPE(HeaderArray)
 MAP_TYPE(OverridesFilterMethod)
 MAP_TYPE(Mutex)
 MAP_TYPE(Signal)
@@ -171,6 +172,8 @@ MAP_TYPE(ProfileOffset)
 MAP_TYPE(ProfileIterateMethod)
 MAP_TYPE(Float)
 MAP_TYPE(Coordinate)
+MAP_TYPE(HeaderSegment)
+MAP_TYPE(HeaderSegmentArray)
 
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */
 #define OverrideValuesAdd fiftyoneDegreesOverrideValuesAdd /**< Synonym for #fiftyoneDegreesOverrideValuesAdd function. */

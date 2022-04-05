@@ -42,17 +42,18 @@ static const char* getEvidenceValueForHeader(
  * @param header the pseudo header to create evidence for
  * @param evidence the list of evidence to get actual evidence from
  * @param prefix the target prefix to look for in the evidence list
- * @return the number of characters added. Return negative number to 
- * indicate something has gone wrong.
+ * @return the number of characters added or the length of first portion of
+ * the string where it found the allocated buffer was not big enough to hold.
+ * Return negative value to indicate something has gone wrong.
  */
-static size_t constructPseudoEvidence(
+static int constructPseudoEvidence(
     char* buffer,
     size_t bufferSize,
     Header* header,
     const EvidenceKeyValuePairArray* evidence,
     EvidencePrefix prefix) {
     uint32_t i;
-    size_t added;
+    int added;
     HeaderSegment* segment;
     const char* value;
     char* current = buffer;
@@ -82,14 +83,18 @@ static size_t constructPseudoEvidence(
 
         // Add the value to the buffer.
         added = Snprintf(current, max - current, "%s", value);
-        if (added < 0 || added >= (size_t)(max - current)) {
+        if (added < 0) {
+			memset(buffer, '\0', bufferSize);
+			return added;
+		}
+		else if (added >= max - current) {
             memset(buffer, '\0', bufferSize);
-            return 0;
+            return (int)(current - buffer + added);
         }
         current += added;
     }
 
-    return current - buffer;
+    return (int)(current - buffer);
 }
 
 /*
@@ -143,7 +148,7 @@ fiftyoneDegreesPseudoHeadersAddEvidence(
     Exception* exception) {
     Header* header;
     char* buffer = NULL;
-    size_t charAdded;
+    int charAdded;
     uint32_t i;
     if (evidence != NULL && acceptedHeaders != NULL) {
         for (i = 0;
@@ -173,28 +178,33 @@ fiftyoneDegreesPseudoHeadersAddEvidence(
                             // charAdded == 0 means no evidence is added due to
                             // valid reasons such as missing evidence for request
                             // headers that form the pseudo header.
-                            if (charAdded > 0) {
-                                evidence->pseudoEvidence->items[
-                                    evidence->pseudoEvidence->count].field =
-                                    header->name;
-                                    evidence->pseudoEvidence->items[
-                                        evidence->pseudoEvidence->count].prefix =
-                                        orderOfPrecedence[j];
-                                        evidence->pseudoEvidence->count++;
-                                        // Once a complete pseudo evidence is found
-                                        // move on the next pseudo header
-                                        break;
-                            }
-                            else if (charAdded < 0) {
-                                PseudoHeadersRemoveEvidence(
-                                    evidence,
-                                    bufferSize);
-                                // The reason to set exception here is because
-                                // without a fully constructed pseudo evidence,
-                                // Client Hints won't work.
-                                EXCEPTION_SET(
-                                    FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
-                                break;
+                            if (charAdded > 0 && (size_t)charAdded <= bufferSize) {
+                               	evidence->pseudoEvidence->items[
+                                   	evidence->pseudoEvidence->count].field =
+                                   	header->name;
+                                   	evidence->pseudoEvidence->items[
+                                       	evidence->pseudoEvidence->count].prefix =
+                                       	orderOfPrecedence[j];
+                                       	evidence->pseudoEvidence->count++;
+                                       	// Once a complete pseudo evidence is found
+                                       	// move on the next pseudo header
+                                       	break;
+							}
+							else if (charAdded != 0) {
+								PseudoHeadersRemoveEvidence(
+									evidence,
+									bufferSize);
+								// Without fully constructed pseudo evidence,
+								// Client Hints won't work. Set an exception.
+								if (charAdded < 0) {
+									EXCEPTION_SET(
+										FIFTYONE_DEGREES_STATUS_ENCODING_ERROR);
+								}
+								else if ((size_t)charAdded > bufferSize) {
+									EXCEPTION_SET(
+										FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+								}
+								break;
                             }
                         }
                     }

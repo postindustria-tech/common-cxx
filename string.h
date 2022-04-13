@@ -68,12 +68,7 @@
 #include "exceptions.h"
 #include "collection.h"
 #include "float.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Enumeration to indicate what format is held in a string item

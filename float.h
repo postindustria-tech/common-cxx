@@ -60,12 +60,7 @@
 
 #include <stdint.h>
 #include "data.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * IEEE single precision floating point bias value

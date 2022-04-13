@@ -138,12 +138,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include "threading.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /** @cond FORWARD_DECLARATIONS */
 typedef struct fiftyone_degrees_resource_manager_t

@@ -48,12 +48,7 @@
 #include "data.h"
 #include "status.h"
 #include "dataset.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Enum containing reasons which cause a value to not be present or valid.

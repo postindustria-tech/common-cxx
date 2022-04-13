@@ -65,12 +65,7 @@
 #include "string.h"
 #include "property.h"
 #include "profile.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /** Value structure containing meta data relating to the value. */
 #pragma pack(push, 2)

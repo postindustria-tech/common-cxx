@@ -24,12 +24,18 @@
 
 #include "fiftyone.h"
 
+#include <inttypes.h>
+
+#ifdef _MSC_VER
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
 #ifdef __APPLE__
 #include <libproc.h>
 #include <sys/proc_info.h>
 #endif
-
-#define TEMP_FILENAME_LENGTH 20
 
  /* Compare method passed to the iterate method. */
 typedef bool(*fileCompare)(const char*, void*);
@@ -158,36 +164,73 @@ static bool fileExists(const char *fileName) {
 	return false;
 }
 
+static long getRandSeed() {
+	struct timespec ts;
+#ifdef _MSC_VER
+	if (timespec_get(&ts, TIME_UTC) != 0) {
+		return ts.tv_nsec;
+	}
+#else
+	if (clock_gettime(CLOCK_REALTIME, &ts) == 0) {
+		return ts.tv_nsec;
+	}
+#endif
+	else {
+		return -1;
+	}
+}
+
+/**
+ * Generates a random string consisting of random ASCII characters. The
+ * random name is written to the destination parameter, and the number of
+ * characters written are returned.
+ * @param length the number of characters including null terminator
+ * @param destination allocated memory where the string will be written
+ * @return number of characters written. Negative if error occurs.
+ */
+static int getRandomString(
+	size_t length,
+	char *destination) {
+	size_t i;
+
+	// Seed the random function. If this is not done, then the same random
+	// names will be generated each time an executable is run.
+	long seed = getRandSeed();
+	if (seed == -1) {
+		return seed;
+	}
+
+	srand((unsigned int)seed);
+
+	// Generate a random string using ASCII characters in the range [65,90)
+	// i.e. uppercase alphabet.
+	for (i = 0; i < length - 1; i++) {
+		destination[i] = (char)(rand() % 26 + 65);
+	}
+	destination[length - 1] = '\0';
+
+	return (int)length;
+}
+
 /**
  * Generates a unique file name consisting of random ASCII characters. The
  * unique name is written to the destination parameter, and the number of
- * characters written are returned.
+ * characters written are returned. This is used by the old CreateTempFile
  * @param length the number of characters including null terminator
  * @param destination allocated memory where the string will be written
  * @param nameStart the character position to in destination to start writing
  * the file name
  * @return number of characters written
  */
-static size_t getUniqueName(
-	int length,
-	char *destination,
-	int nameStart) {
-	int i;
-	// Seed the random function. If this is not done, then the same random
-	// names will be generated each time an executable is run.
-	srand((unsigned int)time(0));
-
-	// Generate file names until one is generated which does not exist.
+static int getUniqueLegacyFileName(
+	size_t length,
+	char* destination,
+	size_t nameStart) {
+	int charAdded = 0;
 	do {
-		// Generate a random string using ASCII characters in the range [65,90)
-		// i.e. uppercase alphabet.
-		for (i = 0; i < length - 1; i++) {
-			destination[nameStart + i] = (char)(rand() % 26 + 65);
-		}
-		destination[nameStart + length - 1] = '\0';
-	} while (fileExists(destination));
-
-	return length;
+		charAdded = getRandomString(length, destination + nameStart);
+	} while (fileExists(destination) && (charAdded >= 0 && charAdded <= (int)length));
+	return charAdded;
 }
 
 /**
@@ -626,6 +669,171 @@ bool fiftyoneDegreesFileGetExistingTempFile(
 	return false;
 }
 
+static fiftyoneDegreesStatusCode getBasenameWithoutExtension(
+	const char* path,
+	char* dest,
+	size_t length) {
+	StatusCode status = NOT_SET;
+	const char* pos = getNameFromPath(path);
+	char* dot = strrchr(path, '.');
+	size_t end = strlen(pos);
+	if (dot != NULL) {
+		end = dot - pos;
+	}
+
+	if (end + 1 > length) {
+		status = INSUFFICIENT_MEMORY;
+	}
+	else {
+		strncpy(dest, pos, end);
+		dest[end] = '\0';
+		status = SUCCESS;
+	}
+	return status;
+}
+
+fiftyoneDegreesStatusCode fiftyoneDegreesFileAddTempFileName(
+	const char* masterFileName,
+	char* destination,
+	size_t nameStart,
+	size_t length) {
+	char uniqueString[TEMP_UNIQUE_STRING_LENGTH + 1];
+	char basename[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	uint64_t processId = ProcessGetId();
+	StatusCode status = getBasenameWithoutExtension(
+		masterFileName, basename, FIFTYONE_DEGREES_FILE_MAX_PATH);
+	if (status != SUCCESS) {
+		return status;
+	}
+
+	do {
+		if (getRandomString(TEMP_UNIQUE_STRING_LENGTH + 1, uniqueString) < 0) {
+			return TEMP_FILE_ERROR;
+		}
+
+		int charsAdded = Snprintf(
+			destination + nameStart,
+			length,
+			"%s-%" PRId64 "-%s",
+			basename,
+			processId,
+			uniqueString);
+	
+		if (charsAdded < 0) {
+			status = ENCODING_ERROR;
+		}
+		else if ((size_t)charsAdded > length) {
+			status = INSUFFICIENT_MEMORY;
+		}
+		else {
+			status = SUCCESS;
+		}
+	
+		// Discard any changes to the destination if error occurred
+		if (status != NOT_SET && status != SUCCESS) {
+			memset(destination + nameStart, 0, length);
+		}
+	} while (status == SUCCESS && fileExists(destination));
+	return status;
+}
+
+const char* fiftyoneDegreesFileGetBaseName(const char *path) {
+	char* lastSlash = NULL;
+	if ((lastSlash = strrchr(path, '/')) == NULL) {
+		lastSlash = strrchr(path, '\\');
+		if (lastSlash != NULL && strlen(lastSlash) != 1) {
+			return lastSlash + 1;
+		}
+	}
+	return NULL;
+}
+
+fiftyoneDegreesStatusCode createTempFileWithoutPaths(
+	const char* masterFile,
+	char* destination,
+	size_t length) {
+	const char* masterFileName = getNameFromPath(masterFile);
+	StatusCode status = fiftyoneDegreesFileAddTempFileName(
+		masterFileName, destination, 0, length);
+	if (status != SUCCESS) {
+		return status;
+	}
+
+	status = FileCopy(masterFile, destination);
+	if (status != SUCCESS && length > 0) {
+		memset(destination, 0, length);
+	}
+	return status;
+}
+
+fiftyoneDegreesStatusCode createTempFileWithPaths(
+	const char* masterFile,
+	const char** paths,
+	int count,
+	char* destination,
+	size_t length) {
+	size_t nameStart;
+	StatusCode status = NOT_SET;
+	const char* masterFileName = getNameFromPath(masterFile);
+
+	for (int i = 0; i < count; i++) {
+		int charAdded = 0;
+		nameStart = strlen(paths[i]);
+		if (nameStart != 0 &&
+			paths[i][nameStart - 1] != '/' &&
+			paths[i][nameStart - 1] != '\\') {
+			charAdded = Snprintf(
+				destination, length, "%s/", paths[i]);
+			nameStart++;
+		}
+		else {
+			charAdded = Snprintf(
+				destination, length, "%s", paths[i]);
+		}
+
+		if (charAdded < 0) {
+			status = ENCODING_ERROR;
+		}
+		else if ((size_t)charAdded > length) {
+			status = INSUFFICIENT_MEMORY;
+		}
+		else {
+			status = fiftyoneDegreesFileAddTempFileName(
+				masterFileName, destination, nameStart, length - nameStart - 1);
+			if (status == SUCCESS) {
+				// Create the temp file
+				status = FileCopy(masterFile, destination);
+			}
+		}
+
+		// Reset the destination
+		if (status != SUCCESS && length > 0) {
+			memset(destination, 0, length);
+		}
+	}
+	return status;
+}
+
+fiftyoneDegreesStatusCode fiftyoneDegreesFileNewTempFile(
+	const char* masterFile,
+	const char** paths,
+	int count,
+	char* destination,
+	size_t length) {
+	StatusCode status = NOT_SET;
+
+	if (paths == NULL || count == 0) {
+		status = createTempFileWithoutPaths(
+			masterFile, destination, length);
+	}
+	else if (paths != NULL) {
+		status = createTempFileWithPaths(
+			masterFile, paths, count, destination, length);
+	}
+	assert(status != NOT_SET);
+	return status;
+}
+
 fiftyoneDegreesStatusCode fiftyoneDegreesFileCreateTempFile(
 	const char *masterFile,
 	const char **paths,
@@ -634,11 +842,11 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileCreateTempFile(
 	int i;
 	size_t nameStart;
 	StatusCode status = NOT_SET;
-	char fileName[TEMP_FILENAME_LENGTH];
+	char fileName[TEMP_UNIQUE_STRING_LENGTH];
 	char tempPath[FIFTYONE_DEGREES_FILE_MAX_PATH];
 
 	if (paths == NULL || count == 0) {
-		getUniqueName(TEMP_FILENAME_LENGTH, fileName, 0);
+		getUniqueLegacyFileName(TEMP_UNIQUE_STRING_LENGTH, fileName, 0);
 		status = FileCopy(masterFile, fileName);
 		if (status == SUCCESS) {
 			strcpy((char*)destination, fileName);
@@ -654,8 +862,8 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileCreateTempFile(
 				tempPath[nameStart - 1] != '\\') {
 				tempPath[nameStart++] = '/';
 			}
-			if (nameStart + TEMP_FILENAME_LENGTH < FIFTYONE_DEGREES_FILE_MAX_PATH) {
-				getUniqueName(TEMP_FILENAME_LENGTH, tempPath, (int)nameStart);
+			if (nameStart + TEMP_UNIQUE_STRING_LENGTH < FIFTYONE_DEGREES_FILE_MAX_PATH) {
+				getUniqueLegacyFileName(TEMP_UNIQUE_STRING_LENGTH, tempPath, nameStart);
 				status = FileCopy(masterFile, tempPath);
 				if (status == SUCCESS) {
 					strcpy((char*)destination, tempPath);

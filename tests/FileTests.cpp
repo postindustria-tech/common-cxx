@@ -32,7 +32,8 @@
 #define _rmdir rmdir
 #endif
 
-static const char *tempPath = "tmp";
+static const char *tempPath1 = "tmp1";
+static const char* tempPath2 = "tmp2";
 static const char *fileName = "tempfile";
 static const char someData[] = "some data";
 
@@ -99,6 +100,20 @@ protected:
 	}
 
 	/**
+	 * Check if a file exists.
+	 * @param file path to check
+	 */
+	static bool fileExists(const char* file) {
+		if (FILE* f = fopen(file, "r")) {
+			fclose(f);
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
 	 * Create a directory at the path provided. The path to the directory must
 	 * exist. This method checks that the 51Degrees file operation was
 	 * successful.
@@ -134,6 +149,46 @@ protected:
 		EXPECT_EQ(0, _rmdir(dir)) <<
 			"The temporary directory was not removed.";
 	}
+
+	static bool isNumber(char ch) {
+		return ch >= '0' && ch <= '9';
+	}
+
+	static bool isAlphabet(char ch) {
+		return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
+	}
+
+	static void checkTempFileName(const char* mainFileName, char* dest) {
+		char* tmp = dest;
+		char* charPos = strchr(tmp, '-');
+		EXPECT_EQ(0, strncmp(mainFileName, tmp, charPos - dest)) <<
+			"First segment of the temporary name is not the main file name. " <<
+			"Temp name is " << dest;
+
+		tmp = charPos + 1;
+		charPos = strchr(tmp, '-');
+		EXPECT_NE(tmp, charPos);
+		for (char* i = tmp; i < charPos; i++) {
+			EXPECT_EQ(true, isNumber(*i)) <<
+				"Expected a number but get '" << *i << "'";
+		}
+
+		tmp = charPos + 1;
+		charPos = strchr(tmp, '\0');
+		EXPECT_NE(tmp, charPos);
+		EXPECT_EQ(TEMP_UNIQUE_STRING_LENGTH, charPos - tmp);
+		for (char* i = tmp; i < charPos; i++) {
+			EXPECT_EQ(true, isAlphabet(*i)) <<
+				"Expected an alphabet but get '" << *i << "'";
+		}
+	}
+
+	static void createTempFileName(const char* mainFileName, char* dest, size_t length) {
+		EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
+			fiftyoneDegreesFileAddTempFileName(mainFileName, dest, 0, length)) <<
+			"Failed to create and add a temporary file name to a buffer.";
+		checkTempFileName(mainFileName, dest);
+	}
 };
 
 /**
@@ -145,10 +200,64 @@ TEST_F(File, PoolInit) {
 	fiftyoneDegreesFilePoolRelease(&pool);
 }
 
+TEST_F(File, TempCreateFileNameWithoutExtension) {
+	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	createTempFileName(fileName, tempFileName, FIFTYONE_DEGREES_FILE_MAX_PATH);
+}
+
+TEST_F(File, TempCreateFileNameWithExtension) {
+	const char* fileNameWithExtension = "tempfile.ext";
+	const char* extension = strrchr(fileNameWithExtension, '.');
+	int lenWithoutExtension = (int)(extension - fileNameWithExtension);
+	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	createTempFileName(fileNameWithExtension, tempFileName, FIFTYONE_DEGREES_FILE_MAX_PATH);
+	EXPECT_EQ(0, strncmp(fileNameWithExtension, tempFileName, lenWithoutExtension));
+	EXPECT_EQ(0, strncmp("-", tempFileName + lenWithoutExtension, 1));
+}
+
+TEST_F(File, TempCreateFilenameSmallBuffer) {
+	char tempFileName[1];
+
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY,
+		fiftyoneDegreesFileAddTempFileName(fileName, tempFileName, 0, 1)) <<
+		"Failed to create and add a temporary file name to a buffer.";
+	EXPECT_EQ('\0', tempFileName[0]);
+}
+
+TEST_F(File, TempCreateFileNameNoDup) {
+	char tempFileNames[2][FIFTYONE_DEGREES_FILE_MAX_PATH];
+	for (int i = 0; i < 2; i++) {
+		createTempFileName(fileName, tempFileNames[i], FIFTYONE_DEGREES_FILE_MAX_PATH);
+	}
+
+	EXPECT_NE(0, strcmp(tempFileNames[0], tempFileNames[1]));
+}
+
+TEST_F(File, TempCreateEmptyPath) {
+	const char* paths[] = { "" };
+	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	tempFileName[0] = '\0';
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
+		fiftyoneDegreesFileNewTempFile(fileName, paths, 1, tempFileName, FIFTYONE_DEGREES_FILE_MAX_PATH)) <<
+		"A temporary file was not created.";
+	EXPECT_NE('\0', tempFileName[0]) <<
+		"The temporary file's path was not returned.";
+	EXPECT_TRUE(fileExists(tempFileName)) <<
+		"The temporary file was not created.";
+	removeFile(tempFileName);
+}
+
 /**
  * Check that a temp file can be successfully created in the same directory as
  * the master file.
  */
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 TEST_F(File, TempFileCreateEmptyPath) {
 	const char *paths[] = { "" };
 	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
@@ -158,6 +267,31 @@ TEST_F(File, TempFileCreateEmptyPath) {
 		"A temporary file was not created.";
 	EXPECT_NE('\0', tempFileName[0]) <<
 		"The temporary file's path was not returned.";
+	EXPECT_TRUE(fileExists(tempFileName)) <<
+		"The temporary file was not created.";
+	removeFile(tempFileName);
+}
+#ifdef _MSC_VER
+#pragma warning(default: 4996)
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
+#endif
+
+/**
+ * Check that a temp file can be successfully created in the same directory as
+ * the master file when no directories are passed to the method.
+ */
+TEST_F(File, TempCreateDefaultPath) {
+	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	tempFileName[0] = '\0';
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
+		fiftyoneDegreesFileNewTempFile(fileName, NULL, 0, tempFileName, FIFTYONE_DEGREES_FILE_MAX_PATH)) <<
+		"A temporary file was not created.";
+	EXPECT_NE('\0', tempFileName[0]) <<
+		"The temporary file's path was not returned.";
+	EXPECT_TRUE(fileExists(tempFileName)) <<
+		"The temporary file was not created.";
 	removeFile(tempFileName);
 }
 
@@ -165,6 +299,13 @@ TEST_F(File, TempFileCreateEmptyPath) {
  * Check that a temp file can be successfully created in the same directory as
  * the master file when no directories are passed to the method.
  */
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 TEST_F(File, TempFileCreateDefaultPath) {
 	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	tempFileName[0] = '\0';
@@ -175,13 +316,41 @@ TEST_F(File, TempFileCreateDefaultPath) {
 		"The temporary file's path was not returned.";
 	removeFile(tempFileName);
 }
+#ifdef _MSC_VER
+#pragma warning(default: 4996)
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
+#endif
 
 /**
  * Check that a temp file cannot be created in a directory which does not
  * exist.
  */
+TEST_F(File, TempCreateInvalidPath) {
+	const char* paths[] = { tempPath1 };
+	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	tempFileName[0] = '\0';
+	EXPECT_NE(FIFTYONE_DEGREES_STATUS_SUCCESS,
+		fiftyoneDegreesFileNewTempFile(fileName, paths, 1, tempFileName, FIFTYONE_DEGREES_FILE_MAX_PATH)) <<
+		"A missing directory was not reported.";
+	EXPECT_EQ('\0', tempFileName[0]) <<
+		"The temporary file's path was not returned.";
+}
+
+/**
+ * Check that a temp file cannot be created in a directory which does not
+ * exist.
+ */
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 TEST_F(File, TempFileCreateInvalidPath) {
-	const char *paths[] = { tempPath };
+	const char *paths[] = { tempPath1 };
 	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	tempFileName[0] = '\0';
 	EXPECT_NE(FIFTYONE_DEGREES_STATUS_SUCCESS,
@@ -190,23 +359,144 @@ TEST_F(File, TempFileCreateInvalidPath) {
 	EXPECT_EQ('\0', tempFileName[0]) <<
 		"The temporary file's path was not returned.";
 }
+#ifdef _MSC_VER
+#pragma warning(default: 4996)
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
+#endif
 
 /**
  * Check that a temp file can be successfully created in a directory passed to
  * the method.
  */
-TEST_F(File, TempFileCreateValidPath) {
-	const char *paths[] = { tempPath };
+TEST_F(File, TempCreateValidPath) {
+	const char* paths[] = { tempPath1 };
 	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	tempFileName[0] = '\0';
-	createDir(tempPath);
+	createDir(tempPath1);
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
+		fiftyoneDegreesFileNewTempFile(fileName, paths, 1, tempFileName, FIFTYONE_DEGREES_FILE_MAX_PATH)) <<
+		"A temporary file was not created.";
+	EXPECT_NE('\0', tempFileName[0]) <<
+		"The temporary file's path was not returned.";
+	EXPECT_TRUE(fileExists(tempFileName)) <<
+		"The temporary file was not created.";
+	removeFile(tempFileName);
+	removeDir(tempPath1);
+}
+
+/**
+ * Check that a temp file can be successfully created in a directory passed to
+ * the method.
+ */
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+TEST_F(File, TempFileCreateValidPath) {
+	const char *paths[] = { tempPath1 };
+	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	tempFileName[0] = '\0';
+	createDir(tempPath1);
 	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
 		fiftyoneDegreesFileCreateTempFile(fileName, paths, 1, tempFileName)) <<
 		"A temporary file was not created.";
 	EXPECT_NE('\0', tempFileName[0]) <<
 		"The temporary file's path was not returned.";
+	EXPECT_TRUE(fileExists(tempFileName)) <<
+		"The temporary file was not created.";
 	removeFile(tempFileName);
-	removeDir(paths[0]);
+	removeDir(tempPath1);
+}
+#ifdef _MSC_VER
+#pragma warning(default: 4996)
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
+#endif
+
+/*
+ * Check is the right status code is returned if the destination length is not
+ * big enough without paths
+ */
+TEST_F(File, TempCreateSmallBufferWithoutPaths) {
+	char tempFileName[1];
+	tempFileName[0] = '\0';
+	createDir(tempPath1);
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY,
+		fiftyoneDegreesFileNewTempFile(fileName, NULL, 0, tempFileName, 1)) <<
+		"Expected file path too long status.";
+	EXPECT_EQ('\0', tempFileName[0]) <<
+		"Expected string buffer to be set to zeros.";
+	removeDir(tempPath1);
+}
+
+/*
+ * Check is the right status code is returned if the destination length is not
+ * big enough with paths
+ */
+TEST_F(File, TempCreateSmallBufferWithPaths) {
+	const char* paths[] = { tempPath1 };
+	char tempFileName[1];
+	tempFileName[0] = '\0';
+	createDir(tempPath1);
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY,
+		fiftyoneDegreesFileNewTempFile(fileName, paths, 1, tempFileName, 1)) <<
+		"Expected file path too long status.";
+	EXPECT_EQ('\0', tempFileName[0]) <<
+		"Expected string buffer to be set to zeros.";
+	removeDir(tempPath1);
+}
+
+/*
+ * Check is the right status code is returned if the destination length is 0
+ * with paths
+ */
+TEST_F(File, TempCreateZeroBufferWithPaths) {
+	const char* paths[] = { tempPath1 };
+	createDir(tempPath1);
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY,
+		fiftyoneDegreesFileNewTempFile(fileName, paths, 1, NULL, 0)) <<
+		"Expected file path too long status.";
+	removeDir(tempPath1);
+}
+
+/*
+ * Check is the right status code is returned if the destination length is 0
+ * without paths
+ */
+TEST_F(File, TempCreateZeroBufferWithoutPaths) {
+	createDir(tempPath1);
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY,
+		fiftyoneDegreesFileNewTempFile(fileName, NULL, 0, NULL, 0)) <<
+		"Expected file path too long status.";
+	removeDir(tempPath1);
+}
+
+/*
+ * Check if only one temp file is created in the target path
+ */
+TEST_F(File, TempFileCreateInvalidAndValidPaths) {
+	const char* paths[] = { tempPath1, tempPath2 };
+	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	tempFileName[0] = '\0';
+	createDir(tempPath2);
+	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
+		fiftyoneDegreesFileNewTempFile(
+			fileName, paths, 2, tempFileName, FIFTYONE_DEGREES_FILE_MAX_PATH)) <<
+		"A temporary file was not created.";
+	EXPECT_NE('\0', tempFileName[0]) <<
+		"The temporary file's path was not returned.";
+	EXPECT_TRUE(fileExists(tempFileName)) <<
+		"The temporary file was not created.";
+	EXPECT_EQ(0, strncmp(tempPath2, tempFileName, strlen(tempPath2))) <<
+		"The temporary file was created in the wrong path.";
+	removeFile(tempFileName);
+	removeDir(tempPath2);
 }
 
 /**
@@ -236,13 +526,13 @@ TEST_F(File, DirectoryCreate) {
 	struct stat dir;
 
 	ASSERT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
-		fiftyoneDegreesFileCreateDirectory(tempPath)) <<
+		fiftyoneDegreesFileCreateDirectory(tempPath1)) <<
 		"The method did not report the operation successful.";
 	ASSERT_TRUE(
-		(stat(tempPath, &dir) == 0 &&
+		(stat(tempPath1, &dir) == 0 &&
 			(dir.st_mode & S_IFMT) == S_IFDIR)) <<
 		"The directory was not created.";
-	removeDir(tempPath);
+	removeDir(tempPath1);
 }
 
 /**
@@ -250,14 +540,14 @@ TEST_F(File, DirectoryCreate) {
  * file method, and that the path returned is correct.
  */
 TEST_F(File, TempExists) {
-	const char *paths[] = { tempPath };
+	const char *paths[] = { tempPath1 };
 	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	char foundFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	tempFileName[0] = '\0';
 	// Make the temp directory to use.
-	createDir(tempPath);
+	createDir(tempPath1);
 	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
-		fiftyoneDegreesFileCreateTempFile(fileName, paths, 1, tempFileName)) <<
+		fiftyoneDegreesFileNewTempFile(fileName, paths, 1, tempFileName, FIFTYONE_DEGREES_FILE_MAX_PATH)) <<
 		"A temporary file was not created.";
 
 	EXPECT_TRUE(fiftyoneDegreesFileGetExistingTempFile(
@@ -271,7 +561,7 @@ TEST_F(File, TempExists) {
 		"The matching file name was not written to the memory passed in.";
 
 	removeFile(tempFileName);
-	removeDir(tempPath);
+	removeDir(tempPath1);
 }
 
 /**
@@ -280,19 +570,19 @@ TEST_F(File, TempExists) {
  * returned is correct.
  */
 TEST_F(File, TempExists_Delete) {
-	const char *paths[] = { tempPath };
+	const char *paths[] = { tempPath1 };
 	char tempFileName1[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	char tempFileName2[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	char foundFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	tempFileName1[0] = '\0';
 	tempFileName2[0] = '\0';
 	// Make the temp directory to use.
-	createDir(tempPath);
+	createDir(tempPath1);
 	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
-		fiftyoneDegreesFileCreateTempFile(fileName, paths, 1, tempFileName1)) <<
+		fiftyoneDegreesFileNewTempFile(fileName, paths, 1, tempFileName1, FIFTYONE_DEGREES_FILE_MAX_PATH)) <<
 		"A temporary file was not created.";
 	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
-		fiftyoneDegreesFileCreateTempFile(fileName, paths, 1, tempFileName2)) <<
+		fiftyoneDegreesFileNewTempFile(fileName, paths, 1, tempFileName2, FIFTYONE_DEGREES_FILE_MAX_PATH)) <<
 		"A temporary file was not created.";
 
 	EXPECT_TRUE(fiftyoneDegreesFileGetExistingTempFile(
@@ -315,7 +605,7 @@ TEST_F(File, TempExists_Delete) {
 		foundFileName)) <<
 		"The existing temporary file was not deleted.";
 
-	removeDir(tempPath);
+	removeDir(tempPath1);
 }
 
 #ifndef __APPLE__
@@ -325,15 +615,22 @@ TEST_F(File, TempExists_Delete) {
  * not deleted by the delete existing temp file method, and that the number of
  * deleted files returned is correct.
  */
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 TEST_F(File, TempExists_DeleteInUse) {
-	const char *paths[] = { tempPath };
+	const char *paths[] = { tempPath1 };
 	char tempFileName1[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	char tempFileName2[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	char foundFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	tempFileName1[0] = '\0';
 	tempFileName2[0] = '\0';
 	// Make the temp directory to use.
-	createDir(tempPath);
+	createDir(tempPath1);
 	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
 		fiftyoneDegreesFileCreateTempFile(fileName, paths, 1, tempFileName1)) <<
 		"A temporary file was not created.";
@@ -368,8 +665,14 @@ TEST_F(File, TempExists_DeleteInUse) {
 
 	fclose(handle);
 	removeFile(foundFileName);
-	removeDir(tempPath);
+	removeDir(tempPath1);
 }
+#ifdef _MSC_VER
+#pragma warning(default: 4996)
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
+#endif
 
 #endif
 
@@ -378,8 +681,15 @@ TEST_F(File, TempExists_DeleteInUse) {
  * file method when only the first n bytes are compared, and that the path
  * returned is correct.
  */
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 TEST_F(File, TempExists_ComparePortion) {
-	const char *paths[] = { tempPath };
+	const char *paths[] = { tempPath1 };
 	long bytesToCompare = 4;
 	char alteredData[sizeof(someData)];
 	strcpy(alteredData, someData);
@@ -392,7 +702,7 @@ TEST_F(File, TempExists_ComparePortion) {
 	char foundFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	tempFileName[0] = '\0';
 	// Make the temp directory to use.
-	createDir(tempPath);
+	createDir(tempPath1);
 	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
 		fiftyoneDegreesFileCreateTempFile(fileName, paths, 1, tempFileName)) <<
 		"A temporary file was not created.";
@@ -422,18 +732,24 @@ TEST_F(File, TempExists_ComparePortion) {
 		"The matching file name was not written to the memory passed in.";
 
 	removeFile(tempFileName);
-	removeDir(tempPath);
+	removeDir(tempPath1);
 }
+#ifdef _MSC_VER
+#pragma warning(default: 4996)
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
+#endif
 
 /**
  * Check that the get existing temp file method returns false if a matching
  * file is not found.
  */
 TEST_F(File, TempDoesNotExist) {
-	const char *paths[] = { tempPath };
+	const char *paths[] = { tempPath1 };
 	char foundFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	// Make the temp directory to use.
-	createDir(tempPath);
+	createDir(tempPath1);
 	EXPECT_FALSE(fiftyoneDegreesFileGetExistingTempFile(
 		fileName,
 		paths,
@@ -442,20 +758,27 @@ TEST_F(File, TempDoesNotExist) {
 		foundFileName)) <<
 		"An existing temporary file does not exist yet, so false should " <<
 		"have been returned.";
-	removeDir(tempPath);
+	removeDir(tempPath1);
 }
 
 /**
  * Check that the get existing temp file method returns false if a file matches
  * but is the master file passed in.
  */
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 TEST_F(File, TempDoesNotMatchSelf) {
-	const char *paths[] = { tempPath };
+	const char *paths[] = { tempPath1 };
 	char tempFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	char foundFileName[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	tempFileName[0] = '\0';
 	// Make the temp directory to use.
-	createDir(tempPath);
+	createDir(tempPath1);
 	EXPECT_EQ(FIFTYONE_DEGREES_STATUS_SUCCESS,
 		fiftyoneDegreesFileCreateTempFile(fileName, paths, 1, tempFileName)) <<
 		"A temporary file was not created.";
@@ -469,8 +792,14 @@ TEST_F(File, TempDoesNotMatchSelf) {
 		"The same file was reported as a match for itself.";
 
 	removeFile(tempFileName);
-	removeDir(tempPath);
+	removeDir(tempPath1);
 }
+#ifdef _MSC_VER
+#pragma warning(default: 4996)
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
+#endif
 
 /**
  * Check that an existing file is found by the getPath method, and that the
@@ -480,14 +809,14 @@ TEST_F(File, GetPath) {
 	char relativePath[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	char absolutePath[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	char foundPath[FIFTYONE_DEGREES_FILE_MAX_PATH];
-	sprintf(relativePath, "%s/%s", tempPath, fileName);
-	createDir(tempPath);
+	sprintf(relativePath, "%s/%s", tempPath1, fileName);
+	createDir(tempPath1);
 	createFile(relativePath);
 
 	EXPECT_EQ(
 		FIFTYONE_DEGREES_STATUS_SUCCESS,
 		fiftyoneDegreesFileGetPath(
-			tempPath,
+			tempPath1,
 			fileName,
 			foundPath,
 			sizeof(foundPath))) <<
@@ -500,7 +829,7 @@ TEST_F(File, GetPath) {
 		"The found file did not match the actual path.";
 	
 	removeFile(relativePath);
-	removeDir(tempPath);
+	removeDir(tempPath1);
 }
 
 /**
@@ -510,18 +839,18 @@ TEST_F(File, GetPath) {
 TEST_F(File, GetPath_NoFile) {
 	char relativePath[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	char absolutePath[FIFTYONE_DEGREES_FILE_MAX_PATH];
-	createDir(tempPath);
-	sprintf(relativePath, "%s/%s", tempPath, fileName);
+	createDir(tempPath1);
+	sprintf(relativePath, "%s/%s", tempPath1, fileName);
 
 	EXPECT_EQ(
 		FIFTYONE_DEGREES_STATUS_FILE_NOT_FOUND,
-		fiftyoneDegreesFileGetPath(tempPath, fileName, NULL, 0)) <<
+		fiftyoneDegreesFileGetPath(tempPath1, fileName, NULL, 0)) <<
 		"File not found was not reported.";
 
 	GET_CURRENT_DIR(absolutePath, sizeof(absolutePath));
 	sprintf(absolutePath + strlen(absolutePath), "/%s", relativePath);
 
-	removeDir(tempPath);
+	removeDir(tempPath1);
 }
 
 /**
@@ -531,11 +860,11 @@ TEST_F(File, GetPath_NoFile) {
 TEST_F(File, GetPath_NoDirectory) {
 	char relativePath[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	char absolutePath[FIFTYONE_DEGREES_FILE_MAX_PATH];
-	sprintf(relativePath, "%s/%s", tempPath, fileName);
+	sprintf(relativePath, "%s/%s", tempPath1, fileName);
 
 	EXPECT_EQ(
 		FIFTYONE_DEGREES_STATUS_FILE_NOT_FOUND,
-		fiftyoneDegreesFileGetPath(tempPath, fileName, NULL, 0)) <<
+		fiftyoneDegreesFileGetPath(tempPath1, fileName, NULL, 0)) <<
 		"File not found was not reported.";
 
 	GET_CURRENT_DIR(absolutePath, sizeof(absolutePath));
@@ -549,21 +878,21 @@ TEST_F(File, GetPath_NoDirectory) {
 TEST_F(File, GetPath_InsufficientMemory) {
 	char relativePath[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	char foundPath[1];
-	sprintf(relativePath, "%s/%s", tempPath, fileName);
-	createDir(tempPath);
+	sprintf(relativePath, "%s/%s", tempPath1, fileName);
+	createDir(tempPath1);
 	createFile(relativePath);
 
 	EXPECT_EQ(
 		FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY,
 		fiftyoneDegreesFileGetPath(
-			tempPath,
+			tempPath1,
 			fileName,
 			foundPath,
 			sizeof(foundPath))) <<
 		"Insufficient memory to write the path was not reported.";
 
 	removeFile(relativePath);
-	removeDir(tempPath);
+	removeDir(tempPath1);
 }
 
 /**
@@ -592,7 +921,7 @@ TEST_F(File, GetPath_NullFile) {
 	EXPECT_EQ(
 		FIFTYONE_DEGREES_STATUS_FILE_NOT_FOUND,
 		fiftyoneDegreesFileGetPath(
-			tempPath,
+			tempPath1,
 			NULL,
 			foundPath,
 			sizeof(foundPath))) <<
@@ -614,7 +943,7 @@ TEST_F(File, GetPath_PathTooLong) {
 	EXPECT_EQ(
 		FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY,
 		fiftyoneDegreesFileGetPath(
-			tempPath,
+			tempPath1,
 			longName,
 			foundPath,
 			sizeof(foundPath))) <<

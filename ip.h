@@ -41,12 +41,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "data.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * The number of bytes in an Ipv4 Address

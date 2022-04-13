@@ -101,12 +101,7 @@
 #include "list.h"
 #include "evidence.h"
 #include "array.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Null or PSEUDO_HEADER_SEP terminated string segment within a header.

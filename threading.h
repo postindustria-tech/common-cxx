@@ -37,12 +37,7 @@
 #include <stdint.h>
 
 #include <stdio.h>
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Determines if the methods that should be thread safe have been compiled so

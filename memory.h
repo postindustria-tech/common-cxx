@@ -39,12 +39,7 @@
 #include "data.h"
 #include "threading.h"
 #include "tree.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 #ifdef _MSC_VER
 #define FIFTYONE_DEGREES_CALL_CONV __cdecl

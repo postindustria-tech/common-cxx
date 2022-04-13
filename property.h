@@ -61,12 +61,7 @@
 #include "exceptions.h"
 #include "collection.h"
 #include "string.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Enum of property types.

@@ -75,12 +75,7 @@
 #include "properties.h"
 #include "evidence.h"
 #include "array.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Index and pointer to a property which can be overridden.

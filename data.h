@@ -87,12 +87,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Alias for unsigned char

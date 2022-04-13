@@ -124,12 +124,7 @@
 #include "ip.h"
 #include "string.h"
 #include "array.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Evidence prefixes used to determine the category a piece of evidence

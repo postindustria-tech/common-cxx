@@ -78,12 +78,7 @@
 #include "component.h"
 #include "property.h"
 #include "value.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Encapsulates a profile stored within a data set. A profile pertains to a

@@ -176,6 +176,7 @@
 #include "memory.h"
 #include "pool.h"
 #include "threading.h"
+#include "common.h"
 
 /**
  * Platform specific method pointer to return the current working directory.
@@ -196,6 +197,8 @@
 #include <sys/stat.h>
 #endif
 
+#define TEMP_UNIQUE_STRING_LENGTH 20
+
 /**
  * Define the max path length on the target system. For Windows this is 
  * `260` characters, and `4096` on most UNIX systems. The compiler defined
@@ -208,12 +211,6 @@
 #define FIFTYONE_DEGREES_FILE_MAX_PATH 260
 #else
 #define FIFTYONE_DEGREES_FILE_MAX_PATH 4096
-#endif
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
 #endif
 
 /**
@@ -361,6 +358,41 @@ EXTERNAL int fiftyoneDegreesFileDeleteUnusedTempFiles(
 	long bytesToCompare);
 
 /**
+ * Create a temporary file name and add it to the destination.
+ * @param masterFileName basename of the master file
+ * @param destination buffer to write the temporary file name to
+ * @param nameStart position of where the name should be added to the destination
+ * @param length length available in the buffer
+ * @return the result of the file name creation
+ */
+EXTERNAL fiftyoneDegreesStatusCode fiftyoneDegreesFileAddTempFileName(
+	const char* masterFileName,
+	char* destination,
+	size_t nameStart,
+	size_t length);
+
+/**
+ * Create a temporary file containing a copy of the master file using the first
+ * writable path in the list of paths provided. The path which is written to
+ * (including file name) is written to the destination parameter which must
+ * contain enough memory.
+ * If no paths are provided, then the working directory used as the destination.
+ * @param masterFile full path to the file containing the master data to copy
+ * @param paths list of paths to use in order of preference
+ * @param count number of paths in the array
+ * @param destination memory to write the new file path to
+ * @param length size of the memory to be written to
+ * @return the result of the create operation
+ */
+EXTERNAL fiftyoneDegreesStatusCode fiftyoneDegreesFileNewTempFile(
+	const char* masterFile,
+	const char** paths,
+	int count,
+	char* destination,
+	size_t length);
+
+/**
+ * [DEPRECATED - Use #fiftyoneDegreesFileNewTempFile instead]
  * Create a temporary file containing a copy of the master file using the first
  * writable path in the list of paths provided. The path which is written to
  * (including file name) is written to the destination parameter which must
@@ -372,7 +404,7 @@ EXTERNAL int fiftyoneDegreesFileDeleteUnusedTempFiles(
  * @param destination memory to write the new file path to
  * @return the result of the create operation
  */
-EXTERNAL fiftyoneDegreesStatusCode fiftyoneDegreesFileCreateTempFile(
+EXTERNAL DEPRECATED fiftyoneDegreesStatusCode fiftyoneDegreesFileCreateTempFile(
 	const char *masterFile,
 	const char **paths,
 	int count,

@@ -37,12 +37,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "file.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Iterates over all the lines in a text file up to the given limit number of

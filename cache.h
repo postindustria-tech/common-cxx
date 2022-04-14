@@ -113,15 +113,10 @@
 #include "data.h"
 #include "exceptions.h"
 #include "tree.h"
+#include "common.h"
 
 #ifndef FIFTYONE_DEGREES_NO_THREADING
 #include "threading.h"
-#endif
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
 #endif
 
 /** @cond FORWARD_DECLARATIONS */

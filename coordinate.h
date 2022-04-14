@@ -42,12 +42,7 @@
 
 #include "exceptions.h"
 #include "collection.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Singular coordinate, representing a location

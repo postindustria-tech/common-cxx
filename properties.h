@@ -130,12 +130,7 @@
 #include "data.h"
 #include "collection.h"
 #include "array.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Index in the properties collection to a property which is required to get
@@ -225,7 +220,7 @@ typedef uint32_t(*fiftyoneDegreesEvidencePropertiesGetMethod)(
  * Should be used to initialise a new instance of 
  * #fiftyoneDegreesPropertiesRequired.
  */
-EXTERNAL fiftyoneDegreesPropertiesRequired fiftyoneDegreesPropertiesDefault;
+EXTERNAL_VAR fiftyoneDegreesPropertiesRequired fiftyoneDegreesPropertiesDefault;
 
 /**
  * Creates a properties result instance for use with future property 

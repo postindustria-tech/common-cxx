@@ -97,12 +97,7 @@
  */
 
 #include "status.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 #ifndef FIFTYONE_DEGREES_EXCEPTIONS_DISABLED
 

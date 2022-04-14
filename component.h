@@ -59,12 +59,7 @@
 #include "collection.h"
 #include "list.h"
 #include "string.h"
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /**
  * Key value pair contained in each component. This can point to anything. For

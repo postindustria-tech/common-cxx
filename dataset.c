@@ -58,11 +58,12 @@ static StatusCode initWithTempFile(
 			CONFIG(dataSet)->tempDirCount,
 			bytesToCompare,
 			dataSet->fileName) == false) {
-		return FileCreateTempFile(
+		return FileNewTempFile(
 			dataSet->masterFileName,
 			CONFIG(dataSet)->tempDirs,
 			CONFIG(dataSet)->tempDirCount,
-			dataSet->fileName);
+			(char *)dataSet->fileName,
+			sizeof(dataSet->fileName)/sizeof(dataSet->fileName[0]));
 	}
 	return SUCCESS;
 }

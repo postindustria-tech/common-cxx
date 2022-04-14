@@ -71,12 +71,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
-
-#ifdef __cplusplus
-#define EXTERNAL extern "C"
-#else
-#define EXTERNAL
-#endif
+#include "common.h"
 
 /** Status returned from the initialisation of a resource. */
 typedef enum e_fiftyone_degrees_status_code {
@@ -133,8 +128,9 @@ typedef enum e_fiftyone_degrees_status_code {
 															range */
 	FIFTYONE_DEGREES_STATUS_COLLECTION_FILE_SEEK_FAIL, /**< Seek failure */
 	FIFTYONE_DEGREES_STATUS_COLLECTION_FILE_READ_FAIL, /**< Read failure */
-	FIFTYONE_DEGREES_STATUS_INCORRECT_IP_ADDRESS_FORMAT /**< IP address 
+	FIFTYONE_DEGREES_STATUS_INCORRECT_IP_ADDRESS_FORMAT, /**< IP address 
 														format is incorrect */
+	FIFTYONE_DEGREES_STATUS_TEMP_FILE_ERROR, /**< Error creating temp file */
 } fiftyoneDegreesStatusCode;
 
 /**

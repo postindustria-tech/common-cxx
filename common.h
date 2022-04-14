@@ -35,4 +35,10 @@
 #define EXTERNAL
 #endif
 
+#ifdef __cplusplus
+#define EXTERNAL_VAR extern "C"
+#else
+#define EXTERNAL_VAR extern
+#endif
+
 #endif

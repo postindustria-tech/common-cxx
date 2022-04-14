@@ -178,7 +178,7 @@ EXTERNAL size_t fiftyoneDegreesUnsetMemoryTracking();
  * @param __size to allocate
  * @return pointer to allocated memory or NULL
  */
-EXTERNAL void *(FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesMalloc)(size_t __size);
+EXTERNAL_VAR void *(FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesMalloc)(size_t __size);
 
 /**
  * Pointer to the method used to allocate aligned memory. By default this maps
@@ -189,7 +189,7 @@ EXTERNAL void *(FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesMalloc)(size_t __size
  * @param __size to allocate
  * @return pointer to allocated memory or NULL
  */
-EXTERNAL void* (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesMallocAligned)(
+EXTERNAL_VAR void* (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesMallocAligned)(
     int alignment,
     size_t __size);
 
@@ -198,14 +198,14 @@ EXTERNAL void* (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesMallocAligned)(
  * #fiftyoneDegreesMemoryStandardFree which calls the standard library free.
  * @param __ptr pointer to free
  */
-EXTERNAL void (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesFree)(void *__ptr);
+EXTERNAL_VAR void (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesFree)(void *__ptr);
 
 /**
  * Pointer to the method used to free memory. By default this maps to
  * #fiftyoneDegreesMemoryStandardFreeAligned which calls the standard library free.
  * @param __ptr pointer to free
  */
-EXTERNAL void (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesFreeAligned)(void* __ptr);
+EXTERNAL_VAR void (FIFTYONE_DEGREES_CALL_CONV *fiftyoneDegreesFreeAligned)(void* __ptr);
 
 /**
  * @}

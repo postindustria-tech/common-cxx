@@ -220,7 +220,7 @@ typedef uint32_t(*fiftyoneDegreesEvidencePropertiesGetMethod)(
  * Should be used to initialise a new instance of 
  * #fiftyoneDegreesPropertiesRequired.
  */
-EXTERNAL fiftyoneDegreesPropertiesRequired fiftyoneDegreesPropertiesDefault;
+EXTERNAL_VAR fiftyoneDegreesPropertiesRequired fiftyoneDegreesPropertiesDefault;
 
 /**
  * Creates a properties result instance for use with future property 

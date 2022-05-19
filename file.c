@@ -46,6 +46,9 @@ typedef bool(*fileMatch)(const char*, void*);
 /* State passed to the iterator methods. */
 typedef struct fileIteratorState_t {
 	const char *masterFileName; /* Path to the master file */
+	const char *baseName; /* Base name of the master file (i.e. without
+							the path and extension) */
+	size_t baseNameLength; /* Length of baseName */
 	const char *destination; /* Memory to write the matching file path to */
 	long bytesToCompare; /* Number of bytes to compare from the start of the
 						 file */
@@ -432,7 +435,9 @@ static bool iterateFiles(
  */
 static bool iteratorFileCompare(const char *fileName, void *state) {
 	fileIteratorState *fileState = (fileIteratorState*)state;
-	if (compareFiles(
+	
+	if (strncmp(fileState->baseName, fileName, fileState->baseNameLength) == 0 &&
+		compareFiles(
 		fileState->masterFileName,
 		fileName,
 		fileState->bytesToCompare) == true &&
@@ -605,6 +610,29 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileCreateDirectory(
 	return SUCCESS;
 }
 
+static fiftyoneDegreesStatusCode getBasenameWithoutExtension(
+	const char* path,
+	char* dest,
+	size_t length) {
+	StatusCode status = NOT_SET;
+	const char* pos = getNameFromPath(path);
+	char* dot = strrchr(path, '.');
+	size_t end = strlen(pos);
+	if (dot != NULL) {
+		end = dot - pos;
+	}
+
+	if (end + 1 > length) {
+		status = INSUFFICIENT_MEMORY;
+	}
+	else {
+		strncpy(dest, pos, end);
+		dest[end] = '\0';
+		status = SUCCESS;
+	}
+	return status;
+}
+
 int fiftyoneDegreesFileDeleteUnusedTempFiles(
 	const char *masterFileName,
 	const char **paths,
@@ -620,6 +648,15 @@ int fiftyoneDegreesFileDeleteUnusedTempFiles(
 	// is internal only.
 	state.destination = (const char*)&deleted;
 	state.bytesToCompare = bytesToCompare;
+
+	char basename[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	StatusCode status = getBasenameWithoutExtension(
+		masterFileName, basename, FIFTYONE_DEGREES_FILE_MAX_PATH);
+	if (status != SUCCESS) {
+		return 0;
+	}
+	state.baseName = basename;
+	state.baseNameLength = strlen(basename);
 
 	if (paths == NULL || count == 0) {
 		// Look in the working directory.
@@ -669,28 +706,6 @@ bool fiftyoneDegreesFileGetExistingTempFile(
 	return false;
 }
 
-static fiftyoneDegreesStatusCode getBasenameWithoutExtension(
-	const char* path,
-	char* dest,
-	size_t length) {
-	StatusCode status = NOT_SET;
-	const char* pos = getNameFromPath(path);
-	char* dot = strrchr(path, '.');
-	size_t end = strlen(pos);
-	if (dot != NULL) {
-		end = dot - pos;
-	}
-
-	if (end + 1 > length) {
-		status = INSUFFICIENT_MEMORY;
-	}
-	else {
-		strncpy(dest, pos, end);
-		dest[end] = '\0';
-		status = SUCCESS;
-	}
-	return status;
-}
 
 fiftyoneDegreesStatusCode fiftyoneDegreesFileAddTempFileName(
 	const char* masterFileName,

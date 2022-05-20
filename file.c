@@ -102,7 +102,17 @@ static StatusCode fileOpen(
 	const char *mode) {
 	// Open the file and hold on to the data.ptr.
 #ifndef _MSC_FULL_VER
+	unsigned int originalMask;
+	if (strcmp(mode, "wb") == 0) {
+		originalMask = umask(2);
+	}
+
 	*handle = fopen(fileName, mode);
+	
+	if (strcmp(mode, "wb") == 0) {
+		umask(originalMask);
+	}
+	
 	if (*handle == NULL) {
 		if (strcmp(mode, "rb") == 0) {
 			return FILE_NOT_FOUND;
@@ -844,7 +854,7 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileNewTempFile(
 	char* destination,
 	size_t length) {
 	StatusCode status = NOT_SET;
-	
+
 	if (paths == NULL || count == 0) {
 		status = createTempFileWithoutPaths(
 			masterFile, destination, length);

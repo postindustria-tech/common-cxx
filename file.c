@@ -435,8 +435,7 @@ static bool iterateFiles(
  */
 static bool iteratorFileCompare(const char *fileName, void *state) {
 	fileIteratorState *fileState = (fileIteratorState*)state;
-	
-	if (strncmp(fileState->baseName, fileName, fileState->baseNameLength) == 0 &&
+	if (strncmp(fileState->baseName, getNameFromPath(fileName), fileState->baseNameLength) == 0 &&
 		compareFiles(
 		fileState->masterFileName,
 		fileName,
@@ -683,9 +682,18 @@ bool fiftyoneDegreesFileGetExistingTempFile(
 	const char *destination) {
 	int i;
 	fileIteratorState state;
+	char basename[FIFTYONE_DEGREES_FILE_MAX_PATH];
+
 	state.masterFileName = masterFileName;
 	state.destination = destination;
 	state.bytesToCompare = bytesToCompare;
+	StatusCode status = getBasenameWithoutExtension(
+		masterFileName, basename, FIFTYONE_DEGREES_FILE_MAX_PATH);
+	if (status != SUCCESS) {
+		return 0;
+	}
+	state.baseName = basename;
+	state.baseNameLength = strlen(basename);
 
 	if (paths == NULL || count == 0) {
 		// Look in the working directory.
@@ -836,7 +844,7 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileNewTempFile(
 	char* destination,
 	size_t length) {
 	StatusCode status = NOT_SET;
-
+	
 	if (paths == NULL || count == 0) {
 		status = createTempFileWithoutPaths(
 			masterFile, destination, length);

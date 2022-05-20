@@ -71,6 +71,7 @@
     <ClInclude Include="..\..\list.h" />
     <ClInclude Include="..\..\memory.h" />
     <ClInclude Include="..\..\overrides.h" />
+    <ClInclude Include="..\..\pair.h" />
     <ClInclude Include="..\..\pool.h" />
     <ClInclude Include="..\..\process.h" />
     <ClInclude Include="..\..\profile.h" />
@@ -86,6 +87,7 @@
     <ClInclude Include="..\..\threading.h" />
     <ClInclude Include="..\..\tree.h" />
     <ClInclude Include="..\..\value.h" />
+    <ClInclude Include="..\..\yamlfile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\cache.c" />
@@ -117,6 +119,7 @@
     <ClCompile Include="..\..\threading.c" />
     <ClCompile Include="..\..\tree.c" />
     <ClCompile Include="..\..\value.c" />
+    <ClCompile Include="..\..\yamlfile.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

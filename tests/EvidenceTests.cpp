@@ -1,10 +1,10 @@
 /* *********************************************************************
  * This Original Work is copyright of 51 Degrees Mobile Experts Limited.
- * Copyright 2019 51 Degrees Mobile Experts Limited, 5 Charlotte Close,
- * Caversham, Reading, Berkshire, United Kingdom RG4 7BY.
+ * Copyright 2022 51 Degrees Mobile Experts Limited, Davidson House,
+ * Forbury Square, Reading, Berkshire, United Kingdom RG1 3EU.
  *
- * This Original Work is licensed under the European Union Public Licence (EUPL) 
- * v.1.2 and is subject to its terms as set out below.
+ * This Original Work is licensed under the European Union Public Licence
+ * (EUPL) v.1.2 and is subject to its terms as set out below.
  *
  * If a copy of the EUPL was not distributed with this file, You can obtain
  * one at https://opensource.org/licenses/EUPL-1.2.
@@ -33,6 +33,30 @@ void assertStringHeaderAdded(
 		L"Expected name '" << expectedField << "' not '" << pair->field << "'";
 	EXPECT_TRUE(strcmp((const char*)pair->originalValue, expectedValue) == 0) <<
 		L"Expected value '" << expectedValue << "' not '" << pair->originalValue << "'";
+}
+
+TEST_F(Evidence, Get_PrefixString) {
+	struct {
+		fiftyoneDegreesEvidencePrefix prefix;
+		const char* expected;
+	} testData[4] = {
+		{FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "header."},
+		{FIFTYONE_DEGREES_EVIDENCE_SERVER, "server."},
+		{FIFTYONE_DEGREES_EVIDENCE_QUERY, "query."},
+		{FIFTYONE_DEGREES_EVIDENCE_COOKIE, "cookie."}
+	};
+
+	for (int i = 0; i < 4; i++) {
+		const char* prefixStr = fiftyoneDegreesEvidencePrefixString(
+			testData[i].prefix);
+		EXPECT_TRUE(
+			strcmp(
+				testData[i].expected,
+				prefixStr) == 0) <<
+			L"Expected prefix string " << testData[i].expected << " "
+			L"For prefix " << testData[i].prefix << " "
+			L"But get " << prefixStr << ".";
+	}
 }
 
 /*

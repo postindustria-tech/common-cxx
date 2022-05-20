@@ -1,10 +1,10 @@
 /* *********************************************************************
  * This Original Work is copyright of 51 Degrees Mobile Experts Limited.
- * Copyright 2022 51 Degrees Mobile Experts Limited, Davidson House,
- * Forbury Square, Reading, Berkshire, United Kingdom RG1 3EU.
+ * Copyright 2019 51 Degrees Mobile Experts Limited, 5 Charlotte Close,
+ * Caversham, Reading, Berkshire, United Kingdom RG4 7BY.
  *
- * This Original Work is licensed under the European Union Public Licence
- * (EUPL) v.1.2 and is subject to its terms as set out below.
+ * This Original Work is licensed under the European Union Public Licence (EUPL)
+ * v.1.2 and is subject to its terms as set out below.
  *
  * If a copy of the EUPL was not distributed with this file, You can obtain
  * one at https://opensource.org/licenses/EUPL-1.2.
@@ -13,23 +13,21 @@
  * amended by the European Commission) shall be deemed incompatible for
  * the purposes of the Work and the provisions of the compatibility
  * clause in Article 5 of the EUPL shall not apply.
- * 
- * If using the Work as, or as part of, a network application, by 
+ *
+ * If using the Work as, or as part of, a network application, by
  * including the attribution notice(s) required under Article 5 of the EUPL
- * in the end user terms of the application under an appropriate heading, 
+ * in the end user terms of the application under an appropriate heading,
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-%nodefaultctor Collection;
+#ifndef FIFTYONE_DEGREES_PAIR_H_INCLUDED
+#define FIFTYONE_DEGREES_PAIR_H_INCLUDED
 
-%newobject getByIndex;
-%newobject getByKey;
+typedef struct fiftyone_degrees_key_value_pair_t {
+	char* key;
+	size_t keyLength;
+	char* value;
+	size_t valueLength;
+} fiftyoneDegreesKeyValuePair;
 
-template<class K, class V> class Collection
-{
-public:
-	~Collection<K, V>();
-	V* getByKey(K key);
-	V* getByIndex(uint32_t index);
-	uint32_t getSize();
-};
+#endif

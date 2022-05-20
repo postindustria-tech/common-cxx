@@ -1,10 +1,10 @@
 /* *********************************************************************
  * This Original Work is copyright of 51 Degrees Mobile Experts Limited.
- * Copyright 2019 51 Degrees Mobile Experts Limited, 5 Charlotte Close,
- * Caversham, Reading, Berkshire, United Kingdom RG4 7BY.
+ * Copyright 2022 51 Degrees Mobile Experts Limited, Davidson House,
+ * Forbury Square, Reading, Berkshire, United Kingdom RG1 3EU.
  *
- * This Original Work is licensed under the European Union Public Licence (EUPL) 
- * v.1.2 and is subject to its terms as set out below.
+ * This Original Work is licensed under the European Union Public Licence
+ * (EUPL) v.1.2 and is subject to its terms as set out below.
  *
  * If a copy of the EUPL was not distributed with this file, You can obtain
  * one at https://opensource.org/licenses/EUPL-1.2.
@@ -46,6 +46,9 @@ typedef bool(*fileMatch)(const char*, void*);
 /* State passed to the iterator methods. */
 typedef struct fileIteratorState_t {
 	const char *masterFileName; /* Path to the master file */
+	const char *baseName; /* Base name of the master file (i.e. without
+							the path and extension) */
+	size_t baseNameLength; /* Length of baseName */
 	const char *destination; /* Memory to write the matching file path to */
 	long bytesToCompare; /* Number of bytes to compare from the start of the
 						 file */
@@ -99,7 +102,17 @@ static StatusCode fileOpen(
 	const char *mode) {
 	// Open the file and hold on to the data.ptr.
 #ifndef _MSC_FULL_VER
+	unsigned int originalMask;
+	if (strcmp(mode, "wb") == 0) {
+		originalMask = umask(0);
+	}
+
 	*handle = fopen(fileName, mode);
+
+	if (strcmp(mode, "wb") == 0) {
+		umask(originalMask);
+	}
+	
 	if (*handle == NULL) {
 		if (strcmp(mode, "rb") == 0) {
 			return FILE_NOT_FOUND;
@@ -432,7 +445,8 @@ static bool iterateFiles(
  */
 static bool iteratorFileCompare(const char *fileName, void *state) {
 	fileIteratorState *fileState = (fileIteratorState*)state;
-	if (compareFiles(
+	if (strncmp(fileState->baseName, getNameFromPath(fileName), fileState->baseNameLength) == 0 &&
+		compareFiles(
 		fileState->masterFileName,
 		fileName,
 		fileState->bytesToCompare) == true &&
@@ -605,6 +619,29 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileCreateDirectory(
 	return SUCCESS;
 }
 
+static fiftyoneDegreesStatusCode getBasenameWithoutExtension(
+	const char* path,
+	char* dest,
+	size_t length) {
+	StatusCode status = NOT_SET;
+	const char* pos = getNameFromPath(path);
+	char* dot = strrchr(path, '.');
+	size_t end = strlen(pos);
+	if (dot != NULL) {
+		end = dot - pos;
+	}
+
+	if (end + 1 > length) {
+		status = INSUFFICIENT_MEMORY;
+	}
+	else {
+		strncpy(dest, pos, end);
+		dest[end] = '\0';
+		status = SUCCESS;
+	}
+	return status;
+}
+
 int fiftyoneDegreesFileDeleteUnusedTempFiles(
 	const char *masterFileName,
 	const char **paths,
@@ -620,6 +657,15 @@ int fiftyoneDegreesFileDeleteUnusedTempFiles(
 	// is internal only.
 	state.destination = (const char*)&deleted;
 	state.bytesToCompare = bytesToCompare;
+
+	char basename[FIFTYONE_DEGREES_FILE_MAX_PATH];
+	StatusCode status = getBasenameWithoutExtension(
+		masterFileName, basename, FIFTYONE_DEGREES_FILE_MAX_PATH);
+	if (status != SUCCESS) {
+		return 0;
+	}
+	state.baseName = basename;
+	state.baseNameLength = strlen(basename);
 
 	if (paths == NULL || count == 0) {
 		// Look in the working directory.
@@ -646,9 +692,18 @@ bool fiftyoneDegreesFileGetExistingTempFile(
 	const char *destination) {
 	int i;
 	fileIteratorState state;
+	char basename[FIFTYONE_DEGREES_FILE_MAX_PATH];
+
 	state.masterFileName = masterFileName;
 	state.destination = destination;
 	state.bytesToCompare = bytesToCompare;
+	StatusCode status = getBasenameWithoutExtension(
+		masterFileName, basename, FIFTYONE_DEGREES_FILE_MAX_PATH);
+	if (status != SUCCESS) {
+		return 0;
+	}
+	state.baseName = basename;
+	state.baseNameLength = strlen(basename);
 
 	if (paths == NULL || count == 0) {
 		// Look in the working directory.
@@ -669,28 +724,6 @@ bool fiftyoneDegreesFileGetExistingTempFile(
 	return false;
 }
 
-static fiftyoneDegreesStatusCode getBasenameWithoutExtension(
-	const char* path,
-	char* dest,
-	size_t length) {
-	StatusCode status = NOT_SET;
-	const char* pos = getNameFromPath(path);
-	char* dot = strrchr(path, '.');
-	size_t end = strlen(pos);
-	if (dot != NULL) {
-		end = dot - pos;
-	}
-
-	if (end + 1 > length) {
-		status = INSUFFICIENT_MEMORY;
-	}
-	else {
-		strncpy(dest, pos, end);
-		dest[end] = '\0';
-		status = SUCCESS;
-	}
-	return status;
-}
 
 fiftyoneDegreesStatusCode fiftyoneDegreesFileAddTempFileName(
 	const char* masterFileName,

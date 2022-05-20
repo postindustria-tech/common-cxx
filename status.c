@@ -1,10 +1,10 @@
 /* *********************************************************************
  * This Original Work is copyright of 51 Degrees Mobile Experts Limited.
- * Copyright 2019 51 Degrees Mobile Experts Limited, 5 Charlotte Close,
- * Caversham, Reading, Berkshire, United Kingdom RG4 7BY.
+ * Copyright 2022 51 Degrees Mobile Experts Limited, Davidson House,
+ * Forbury Square, Reading, Berkshire, United Kingdom RG1 3EU.
  *
- * This Original Work is licensed under the European Union Public Licence (EUPL) 
- * v.1.2 and is subject to its terms as set out below.
+ * This Original Work is licensed under the European Union Public Licence
+ * (EUPL) v.1.2 and is subject to its terms as set out below.
  *
  * If a copy of the EUPL was not distributed with this file, You can obtain
  * one at https://opensource.org/licenses/EUPL-1.2.
@@ -32,7 +32,7 @@ typedef struct fiftyone_degrees_status_message {
 static StatusMessage messages[] = {
 	{ SUCCESS,
 		"The operation was successful."},
-	{ INSUFFICIENT_MEMORY, 
+	{ INSUFFICIENT_MEMORY,
 		"Insufficient memory allocated for the operation." },
 	{ CORRUPT_DATA,
 		"The data was not in the correct format. Check the data file is "
@@ -74,11 +74,19 @@ static StatusMessage messages[] = {
 		"The file or directory already exists so could not be created." },
 	{ FILE_WRITE_ERROR,
 		"Could not create the file with write permissions." },
+	{ FILE_READ_ERROR,
+		"Could not read the file." },
 	{ FILE_PERMISSION_DENIED,
 		"Permission denied when opening file." },
 	{ FILE_PATH_TOO_LONG,
 		"The file path to the data file is longer than the memory available "
 		"to store it. Use a shorter data file path." },
+	{ FILE_END_OF_DOCUMENT,
+		"End of a Yaml document read." },
+	{ FILE_END_OF_DOCUMENTS,
+		"End of Yaml documents read." },
+	{ FILE_END_OF_FILE,
+		"End of file." },
 	{ ENCODING_ERROR,
 		"There was an error encoding characters of the string. Ensure all "
 		"characters are valid." },

@@ -104,11 +104,11 @@ static StatusCode fileOpen(
 #ifndef _MSC_FULL_VER
 	unsigned int originalMask;
 	if (strcmp(mode, "wb") == 0) {
-		originalMask = umask(2);
+		originalMask = umask(0);
 	}
 
 	*handle = fopen(fileName, mode);
-	
+
 	if (strcmp(mode, "wb") == 0) {
 		umask(originalMask);
 	}

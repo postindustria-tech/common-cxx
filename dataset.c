@@ -197,7 +197,7 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitFromFile(
 #if defined(__linux__) && __GNUC__ >= 7
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
-// strncpy is called using the length computed on the string lenght
+// strncpy is called using the length computed on the string length
 // adding 1 for null terminator. This is valid and should not cause
 // overflow as we have properly checked the buffer size above. Thus
 // suppress the warning here.

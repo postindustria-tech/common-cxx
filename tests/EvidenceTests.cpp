@@ -35,6 +35,30 @@ void assertStringHeaderAdded(
 		L"Expected value '" << expectedValue << "' not '" << pair->originalValue << "'";
 }
 
+TEST_F(Evidence, Get_PrefixString) {
+	struct {
+		fiftyoneDegreesEvidencePrefix prefix;
+		const char* expected;
+	} testData[4] = {
+		{FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "header."},
+		{FIFTYONE_DEGREES_EVIDENCE_SERVER, "server."},
+		{FIFTYONE_DEGREES_EVIDENCE_QUERY, "query."},
+		{FIFTYONE_DEGREES_EVIDENCE_COOKIE, "cookie."}
+	};
+
+	for (int i = 0; i < 4; i++) {
+		const char* prefixStr = fiftyoneDegreesEvidencePrefixString(
+			testData[i].prefix);
+		EXPECT_TRUE(
+			strcmp(
+				testData[i].expected,
+				prefixStr) == 0) <<
+			L"Expected prefix string " << testData[i].expected << " "
+			L"For prefix " << testData[i].prefix << " "
+			L"But get " << prefixStr << ".";
+	}
+}
+
 /*
  * Check that a single string can be added to evidence.
  */

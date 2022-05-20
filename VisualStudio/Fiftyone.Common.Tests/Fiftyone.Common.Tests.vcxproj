@@ -76,6 +76,7 @@
     <ClCompile Include="..\..\tests\TextFileTests.cpp" />
     <ClCompile Include="..\..\tests\ThreadingTests.cpp" />
     <ClCompile Include="..\..\tests\ValueTests.cpp" />
+    <ClCompile Include="..\..\tests\YamlFileTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\tests\Base.hpp" />

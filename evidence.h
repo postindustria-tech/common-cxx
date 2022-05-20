@@ -221,6 +221,14 @@ EXTERNAL fiftyoneDegreesEvidencePrefixMap* fiftyoneDegreesEvidenceMapPrefix(
 	const char *key);
 
 /**
+ * Get the prefix string of an evidence prefix
+ * @param prefix the evidence prefix enumeration
+ * @return null terminated string value of the prefix, including a dot separator
+ */
+EXTERNAL const char* fiftyoneDegreesEvidencePrefixString(
+	fiftyoneDegreesEvidencePrefix prefix);
+
+/**
  * Iterates over the evidence calling the callback method for any values that
  * match the prefixes provided. If there are pseudo evidence, this
  * will also iterate through them and perform the callback on each.

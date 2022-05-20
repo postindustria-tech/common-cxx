@@ -163,3 +163,16 @@ fiftyoneDegreesEvidencePrefixMap* fiftyoneDegreesEvidenceMapPrefix(
 	}
 	return NULL;
 }
+
+EXTERNAL const char* fiftyoneDegreesEvidencePrefixString(
+	fiftyoneDegreesEvidencePrefix prefix) {
+	uint32_t i;
+	EvidencePrefixMap* map;
+	for (i = 0; i < sizeof(_map) / sizeof(EvidencePrefixMap); i++) {
+		map = &_map[i];
+		if (map->prefixEnum == prefix) {
+			return map->prefix;
+		}
+	}
+	return NULL;
+}

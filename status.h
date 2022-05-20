@@ -106,10 +106,17 @@ typedef enum e_fiftyone_degrees_status_code {
 											   created */
 	FIFTYONE_DEGREES_STATUS_FILE_WRITE_ERROR, /**< The data file could not be 
 	                                              created */
+	FIFTYONE_DEGREES_STATUS_FILE_READ_ERROR, /**< The data file could not be
+												  cread */
 	FIFTYONE_DEGREES_STATUS_FILE_PERMISSION_DENIED, /**< File permission denied */
 	FIFTYONE_DEGREES_STATUS_FILE_PATH_TOO_LONG, /**< The file path is longer
 	                                                than the available memory
 	                                                available to store it */
+	FIFTYONE_DEGREES_STATUS_FILE_END_OF_DOCUMENT, /**< End of a yaml document
+													read */
+	FIFTYONE_DEGREES_STATUS_FILE_END_OF_DOCUMENTS, /**< End of yaml documents
+													read */
+	FIFTYONE_DEGREES_STATUS_FILE_END_OF_FILE, /**< End of file */
 	FIFTYONE_DEGREES_STATUS_ENCODING_ERROR, /**< There was an error encoding
 	                                            characters of a string */
 	FIFTYONE_DEGREES_STATUS_INVALID_COLLECTION_CONFIG, /**< The configuration 

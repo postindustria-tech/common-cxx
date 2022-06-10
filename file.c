@@ -102,7 +102,7 @@ static StatusCode fileOpen(
 	const char *mode) {
 	// Open the file and hold on to the data.ptr.
 #ifndef _MSC_FULL_VER
-	unsigned int originalMask;
+	unsigned int originalMask = 0;
 	if (strcmp(mode, "wb") == 0) {
 		originalMask = umask(0);
 	}

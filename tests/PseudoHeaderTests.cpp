@@ -657,3 +657,65 @@ TEST_F(PseudoHeaderTests, EvidenceRemoveNullPointerInput) {
 	PseudoHeadersRemoveEvidence(evidence, PSEUDO_BUFFER_SIZE);
 	evidence->pseudoEvidence = savePseudoEvidence;
 }
+
+TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceTooLong) {
+	// Expected value
+	const testExpectedResult expectedEvidence[1] =
+	{
+		{
+			"value2\x1FXX",
+			FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
+		}
+	};
+
+	// Create headers
+	createHeaders(uniqueHeaders, HEADERS_SIZE, false);
+
+	testKeyValuePair evidenceList[2] =
+	{ {"header2", "value2"}, {"header3", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"} };
+	addEvidence(evidenceList, 2, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
+
+	EXCEPTION_CREATE;
+	PseudoHeadersAddEvidence(
+		evidence,
+		acceptedHeaders,
+		10,
+		orderOfPrecedence,
+		PREFIXES_SIZE,
+		exception);
+	EXCEPTION_THROW;
+
+	checkResults(expectedEvidence, 1);
+	removePseudoEvidence(10);
+}
+TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceTooLongReversed) {
+	// Expected value
+	const testExpectedResult expectedEvidence[1] =
+	{
+		{
+			"XXXXXXXXX",
+			FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
+		}
+	};
+
+	// Create headers
+	createHeaders(uniqueHeaders, HEADERS_SIZE, false);
+
+	testKeyValuePair evidenceList[2] =
+	{ {"header2", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"}, {"header3", "value3"} };
+	addEvidence(evidenceList, 2, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
+
+	EXCEPTION_CREATE;
+	PseudoHeadersAddEvidence(
+		evidence,
+		acceptedHeaders,
+		10,
+		orderOfPrecedence,
+		PREFIXES_SIZE,
+		exception);
+	EXCEPTION_THROW;
+
+
+	checkResults(expectedEvidence, 1);
+	removePseudoEvidence(10);
+}

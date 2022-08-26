@@ -110,7 +110,8 @@ static int constructPseudoEvidence(
 			return added;
 		}
 		else if (added >= max - current) {
-            memset(buffer, '\0', bufferSize);
+            // Don't nullify the buffer in this case, just report that
+            // it is truncated.
             return (int)(current - buffer + added);
         }
         current += added;
@@ -200,7 +201,7 @@ fiftyoneDegreesPseudoHeadersAddEvidence(
                             // charAdded == 0 means no evidence is added due to
                             // valid reasons such as missing evidence for request
                             // headers that form the pseudo header.
-                            if (charAdded > 0 && (size_t)charAdded <= bufferSize) {
+                            if (charAdded > 0) {
                                	evidence->pseudoEvidence->items[
                                    	evidence->pseudoEvidence->count].field =
                                    	header->name;
@@ -212,20 +213,14 @@ fiftyoneDegreesPseudoHeadersAddEvidence(
                                        	// move on the next pseudo header
                                        	break;
 							}
-							else if (charAdded != 0) {
-								PseudoHeadersRemoveEvidence(
+							else if (charAdded < 0) {
+                                PseudoHeadersRemoveEvidence(
 									evidence,
 									bufferSize);
 								// Without fully constructed pseudo evidence,
 								// Client Hints won't work. Set an exception.
-								if (charAdded < 0) {
-									EXCEPTION_SET(
-										FIFTYONE_DEGREES_STATUS_ENCODING_ERROR);
-								}
-								else if ((size_t)charAdded > bufferSize) {
-									EXCEPTION_SET(
-										FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
-								}
+								EXCEPTION_SET(
+									FIFTYONE_DEGREES_STATUS_ENCODING_ERROR);
 								break;
                             }
                         }

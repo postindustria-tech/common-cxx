@@ -174,7 +174,7 @@ static bool copyHeaderName(Header* header, const char* source, size_t length) {
 		Free(name);
 		return false;
 	}
-	header->name = strncpy(name, source, length);
+	header->name = memcpy(name, source, length);
 	if (header->name == NULL) {
 		Free(name);
 		return false;

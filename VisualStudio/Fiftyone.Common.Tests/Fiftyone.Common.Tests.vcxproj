@@ -65,6 +65,7 @@
     <ClCompile Include="..\..\tests\MemoryLeakTests.cpp" />
     <ClCompile Include="..\..\tests\OverridesTests.cpp" />
     <ClCompile Include="..\..\tests\pch.cpp" />
+    <ClCompile Include="..\..\tests\PoolTests.cpp" />
     <ClCompile Include="..\..\tests\PropertiesTests.cpp" />
     <ClCompile Include="..\..\tests\PropertyMetaDataTests.cpp" />
     <ClCompile Include="..\..\tests\PseudoHeaderTests.cpp" />

@@ -100,7 +100,11 @@ static StatusMessage messages[] = {
 	{ INSUFFICIENT_HANDLES,
 		"Insufficient handles available in the pool. Verify the pool has " 
 		"sufficient handles to support the maximum number of concurrent "
-		"threads." },
+		"threads. This can be set when creating the resource containg the "
+		"pool. Another way to avoid this is by using an in-memory "
+		"configuration, which avoids using file handles completely, and "
+		"removes any limit on concurrency. For info see "
+		"https://51degrees.com/documentation/4.4/_device_detection__features__concurrent_processing.html"},
 	{ COLLECTION_INDEX_OUT_OF_RANGE, 
 		"Index used to retrieve an item from a collection was out of range." },
 	{ COLLECTION_OFFSET_OUT_OF_RANGE, 

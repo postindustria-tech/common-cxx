@@ -5,6 +5,6 @@ param(
     [string]$Configuration = "Release"
 )
 
-./c/run-integration-tests.ps1 -RepoName "common-cxx-test" -ProjectDir $ProjectDir -Name $Name -Configuration $Configuration -Arch $Arch
+./c/run-integration-tests.ps1 -RepoName "common-cxx" -ProjectDir $ProjectDir -Name $Name -Configuration $Configuration -Arch $Arch
 
 exit $LASTEXITCODE

@@ -6,6 +6,6 @@ param(
     [string]$BuildMethod = "cmake"
 )
 
-./c/run-unit-tests.ps1 -RepoName "common-cxx-test" -ProjectDir $ProjectDir -Name $Name -Configuration $Configuration -Arch $Arch -BuildMethod $BuildMethod
+./c/run-unit-tests.ps1 -RepoName "common-cxx" -ProjectDir $ProjectDir -Name $Name -Configuration $Configuration -Arch $Arch -BuildMethod $BuildMethod
 
 exit $LASTEXITCODE

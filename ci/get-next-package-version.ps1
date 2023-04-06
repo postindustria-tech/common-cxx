@@ -4,7 +4,7 @@ param (
     [string]$VariableName
 )
 
-./steps/get-next-package-version.ps1 -RepoName "common-cxx-test" -VariableName "GitVersion"
+./steps/get-next-package-version.ps1 -RepoName "common-cxx" -VariableName "GitVersion"
 
 Set-Variable -Name $VariableName -Value $GitVersion.SemVer -Scope Global
 

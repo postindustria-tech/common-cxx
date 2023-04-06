@@ -1,0 +1,27 @@
+[
+  {
+    "Image": "ubuntu-20.04",
+    "Name": "Ubuntu_x64_Debug",
+    "Configuration": "Debug",
+    "Arch": "x64"
+  },
+  {
+    "Image": "windows-latest",
+    "Name": "Windows_VS_x64_Debug",
+    "Configuration": "Debug",
+    "Arch": "x64",
+    "BuildMethod": "msbuild"
+  },
+  {
+    "Image": "windows-latest",
+    "Name": "Windows_x64_Debug",
+    "Configuration": "Debug",
+    "Arch": "x64"
+  },
+  {
+    "Image": "macos-latest",
+    "Name": "Mac_x64_Debug",
+    "Configuration": "Debug",
+    "Arch": "x64"
+  }
+]

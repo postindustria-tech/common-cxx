@@ -36,7 +36,7 @@ if ($BuildMethod -eq "cmake") {
         $Results = Get-Content $OutputFile | ConvertFrom-Json -AsHashtable
         Write-Output "{
             'HigherIsBetter': {
-                'CacheFetchesPerSecond': $($Results.CacheFetchesPerSecond)
+                'CacheFetchesPerSecond': $($Results.CacheFetchesPerSecond),
                 'CacheFetchesPerSecondPerThread': $($Results.CacheFetchesPerSecondPerThread)
             },
             'LowerIsBetter': {

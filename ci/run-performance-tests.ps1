@@ -12,7 +12,7 @@ param(
 
 if ($BuildMethod -eq "cmake") {
 
-    $RepoPath = [IO.Path]::Combine($pwd, build)
+    $RepoPath = [IO.Path]::Combine($pwd, $RepoName)
     $PerfResultsFile = [IO.Path]::Combine($RepoPath, "test-results", "performance-summary", "results_$Name.json")
 
     Push-Location $RepoPath
@@ -26,7 +26,8 @@ if ($BuildMethod -eq "cmake") {
         }
     
         $OutputFile = [IO.Path]::Combine($RepoPath, "summary.json")
-        ./bin/CachePerf $OutputFile
+        $PerfPath = [IO.Path]::Combine($RepoPath, "build", "bin", "CachePerf")
+        . $PerfPath $OutputFile
         $Results = Get-Content $OutputFile | ConvertFrom-Json -AsHashtable
         Write-Output "{
             'HigherIsBetter': {

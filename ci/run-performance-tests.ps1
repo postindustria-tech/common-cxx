@@ -26,7 +26,12 @@ if ($BuildMethod -eq "cmake") {
         }
     
         $OutputFile = [IO.Path]::Combine($RepoPath, "summary.json")
-        $PerfPath = [IO.Path]::Combine($RepoPath, "build", "bin", "CachePerf")
+        if ($env:OS.Contains("Windows")) {
+            $PerfPath = [IO.Path]::Combine($RepoPath, "build", "bin", $Configuration, "CachePerf.exe")
+        }
+        else {
+            $PerfPath = [IO.Path]::Combine($RepoPath, "build", "bin", "CachePerf")
+        }
         . $PerfPath $OutputFile
         $Results = Get-Content $OutputFile | ConvertFrom-Json -AsHashtable
         Write-Output "{

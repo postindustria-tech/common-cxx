@@ -71,3 +71,4 @@ jobs:
       pull-request-id: ${{ matrix.id }}
     secrets: 
       token: ${{ secrets.ACCESS_TOKEN }}
+      asset-keys: '{}'

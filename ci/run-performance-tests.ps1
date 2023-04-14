@@ -26,7 +26,7 @@ if ($BuildMethod -eq "cmake") {
         }
     
         $OutputFile = [IO.Path]::Combine($RepoPath, "summary.json")
-        if ($env:OS.Contains("Windows")) {
+        if ($IsWindows) {
             $PerfPath = [IO.Path]::Combine($RepoPath, "build", "bin", $Configuration, "CachePerf.exe")
         }
         else {

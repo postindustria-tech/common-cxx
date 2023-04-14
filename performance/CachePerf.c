@@ -264,10 +264,21 @@ void printTime(performanceState *state, double totalSec) {
 		cps / (double)state->numberOfThreads);
 }
 
+void outputTime(performanceState *state, double totalSec, const char *outFile) {
+	double cps = (double)state->count / totalSec;
+
+	FILE *file = fopen(outFile, "w");
+	fprintf(file, "{\n");
+	fprintf(file, "  \"CacheFetchesPerSecond\": %.2f,\n", cps);
+	fprintf(file, "  \"CacheFetchesPerSecondPerThread\": %.2f\n", cps / (double)state->numberOfThreads);
+	fprintf(file, "}");
+	fclose(file);
+}
+
 /**
  * Performance test.
  */
-void performance(int passes) {
+void performance(int passes, const char* outFile) {
 	performanceState state;
 	double test, calibration;
 
@@ -309,6 +320,9 @@ void performance(int passes) {
 	test = performTest(&state, "Cache Just Right");
 	fiftyoneDegreesCacheFree(cache);
 	printTime(&state, test - calibration);
+	if (outFile != NULL) {
+		outputTime(&state, test - calibration, outFile);
+	}
 
 	// Fetch random items from a cache which has more than enough capacity to
 	// hold all the items at once.
@@ -346,10 +360,11 @@ int main(int argc, char* argv[]) {
 	FreeAligned = MemoryStandardFreeAligned;
 
 	// Run the performance tests.
-	performance(PASSES);
-
-	// Wait for a character to be pressed.
-	fgetc(stdin);
+	char *outFile = NULL;
+	if (argc > 1) {
+		outFile = argv[1];
+	}
+	performance(PASSES, outFile);
 	
 	return 0;
 }

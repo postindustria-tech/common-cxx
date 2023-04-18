@@ -177,7 +177,7 @@ else ()
 endif()
 
 target_link_libraries(CommonTests fiftyone-common-cxx gtest_main)
-gtest_discover_tests(CommonTests)
+gtest_discover_tests(CommonTests PROPERTIES TEST_DISCOVERY_TIMEOUT 600)
 set_target_properties(CommonTests PROPERTIES FOLDER "Tests") 
 
 if (CMAKE_COMPILER_IS_GNUCC)

@@ -7,7 +7,7 @@ param(
     [string]$BuildMethod = "cmake"
 )
 
-./c/run-performance-tests.ps1 -RepoName "common-cxx" -ProjectDir $ProjectDir -Name $Name -Configuration $Configuration -Arch $Arch
+./cxx/run-performance-tests.ps1 -RepoName $RepoName -ProjectDir $ProjectDir -Name $Name -Configuration $Configuration -Arch $Arch
 
 
 if ($BuildMethod -eq "cmake") {

@@ -3,8 +3,10 @@ param (
 )
 
 $PackagePath = [IO.Path]::Combine($pwd, $RepoName, "package")
-$BinPath = [IO.Path]::Combine($pwd, $RepoName, "build", "bin")
+$BuildPath = [IO.Path]::Combine($pwd, $RepoName, "build")
+$BinPath = [IO.Path]::Combine($BuildPath "bin")
 
-mkdir -Force $BinPath
+mkdir $BuildPath
 
 Copy-Item -Recurse -Path $PackagePath -Destination $BinPath
+Copy-Item -Path $PackagePath -Destination $BinPath -Recurse

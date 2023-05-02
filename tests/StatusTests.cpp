@@ -23,6 +23,7 @@
 #include "pch.h"
 #include "../string.h"
 #include "../status.h"
+#include "../snprintf.h"
 
 /* Test file name to use in tests. */
 static const char *fileName = "somefilename.dat";
@@ -147,7 +148,7 @@ TEST(Status, Get_NotSetMessage) {
 		FIFTYONE_DEGREES_STATUS_NOT_SET,
 		NULL);
 	assertValidMessage(message);
-	sprintf(code, "%d", FIFTYONE_DEGREES_STATUS_NOT_SET);
+	Snprintf(code, 3, "%d", FIFTYONE_DEGREES_STATUS_NOT_SET);
 	assertContains(message, code);
 	free((void*)message);
 }
@@ -256,7 +257,7 @@ TEST(Status, Get_NonExistantCode) {
 	fiftyoneDegreesStatusCode invalidStatus = (fiftyoneDegreesStatusCode)1000;
 	const char *message = fiftyoneDegreesStatusGetMessage(invalidStatus, NULL);
 	assertValidMessage(message);
-	sprintf(code, "%d", invalidStatus);
+	Snprintf(code, 5, "%d", invalidStatus);
 	assertContains(message, code);
 	free((void*)message);
 }
@@ -270,7 +271,7 @@ TEST(Status, Get_NegativeCode) {
 	fiftyoneDegreesStatusCode invalidStatus = (fiftyoneDegreesStatusCode)-1;
 	const char *message = fiftyoneDegreesStatusGetMessage(invalidStatus, NULL);
 	assertValidMessage(message);
-	sprintf(code, "%d", invalidStatus);
+	Snprintf(code, 3, "%d", invalidStatus);
 	assertContains(message, code);
 	free((void*)message);
 }

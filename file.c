@@ -494,7 +494,7 @@ static bool isFileInUse(const char *pathName) {
 		// Iterate over all directories in /proc
 		while ((ent1 = readdir(procDir)) != NULL) {
 			// Get the path to the file descriptor directory for a PID
-			sprintf(fdPath, "/proc/%s/fd", ent1->d_name);
+			Snprintf(fdPath, FILE_MAX_PATH, "/proc/%s/fd", ent1->d_name);
 			DIR *fdDir = opendir(fdPath);
 			if (fdDir != NULL) {
 				while ((ent2 = readdir(fdDir)) != NULL) {

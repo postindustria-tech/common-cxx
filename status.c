@@ -144,7 +144,7 @@ const char* fiftyoneDegreesStatusGetMessage(
 				strlen(current->message) + 1;
 			message = (char*)Malloc(messageSize);
 			if (message != NULL) {
-				sprintf(message, current->message, fileName);
+				Snprintf(message, messageSize, current->message, fileName);
 			}
 			break;
 		}
@@ -152,7 +152,7 @@ const char* fiftyoneDegreesStatusGetMessage(
 	if( message == NULL) {
 		messageSize = sizeof(defaultMessage) + 5;
 		message = (char*)Malloc(messageSize);
-		sprintf(message, defaultMessage, (int)status);
+		Snprintf(message, messageSize, defaultMessage, (int)status);
 	}
 	return message;
 }

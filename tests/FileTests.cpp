@@ -866,7 +866,7 @@ TEST_F(File, GetPath_NoDirectory) {
 		"File not found was not reported.";
 
 	GET_CURRENT_DIR(absolutePath, sizeof(absolutePath));
-	Sn(absolutePath + strlen(absolutePath), FIFTYONE_DEGREES_FILE_MAX_PATH - strlen(absolutePath), "/%s", relativePath);
+	Snprintf(absolutePath + strlen(absolutePath), FIFTYONE_DEGREES_FILE_MAX_PATH - strlen(absolutePath), "/%s", relativePath);
 }
 
 /**

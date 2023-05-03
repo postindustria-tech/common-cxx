@@ -857,7 +857,6 @@ TEST_F(File, GetPath_NoFile) {
  */
 TEST_F(File, GetPath_NoDirectory) {
 	char relativePath[FIFTYONE_DEGREES_FILE_MAX_PATH];
-	char absolutePath[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	Snprintf(relativePath, FIFTYONE_DEGREES_FILE_MAX_PATH, "%s/%s", tempPath1, fileName);
 
 	EXPECT_EQ(

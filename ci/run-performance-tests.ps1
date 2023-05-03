@@ -7,9 +7,10 @@ param(
     [string]$BuildMethod = "cmake"
 )
 
+# This is common logic, so let's call the common script
 ./cxx/run-performance-tests.ps1 -RepoName $RepoName -ProjectDir $ProjectDir -Name $Name -Configuration $Configuration -Arch $Arch
 
-
+# Now get the performance test results for comparison
 if ($BuildMethod -eq "cmake") {
 
     $RepoPath = [IO.Path]::Combine($pwd, $RepoName)

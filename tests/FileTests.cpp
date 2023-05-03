@@ -821,7 +821,11 @@ TEST_F(File, GetPath) {
 		"The file was not found.";
 	
 	GET_CURRENT_DIR(absolutePath, sizeof(absolutePath));
-	Snprintf(absolutePath + strlen(absolutePath), FIFTYONE_DEGREES_FILE_MAX_PATH - strlen(absolutePath), "/%s", relativePath);
+	
+	int written = Snprintf(absolutePath + strlen(absolutePath), FIFTYONE_DEGREES_FILE_MAX_PATH - strlen(absolutePath), "/%s", relativePath);
+	if (written < 0 || written >= (int)(FIFTYONE_DEGREES_FILE_MAX_PATH - strlen(absolutePath))) {
+		FAIL() << "The absolute path was too long.";
+	}
 	
 	EXPECT_STREQ(absolutePath, foundPath) <<
 		"The found file did not match the actual path.";
@@ -836,7 +840,6 @@ TEST_F(File, GetPath) {
  */
 TEST_F(File, GetPath_NoFile) {
 	char relativePath[FIFTYONE_DEGREES_FILE_MAX_PATH];
-	char absolutePath[FIFTYONE_DEGREES_FILE_MAX_PATH];
 	createDir(tempPath1);
 	Snprintf(relativePath, FIFTYONE_DEGREES_FILE_MAX_PATH, "%s/%s", tempPath1, fileName);
 
@@ -844,9 +847,6 @@ TEST_F(File, GetPath_NoFile) {
 		FIFTYONE_DEGREES_STATUS_FILE_NOT_FOUND,
 		fiftyoneDegreesFileGetPath(tempPath1, fileName, NULL, 0)) <<
 		"File not found was not reported.";
-
-	GET_CURRENT_DIR(absolutePath, sizeof(absolutePath));
-	Snprintf(absolutePath + strlen(absolutePath), FIFTYONE_DEGREES_FILE_MAX_PATH - strlen(absolutePath), "/%s", relativePath);
 
 	removeDir(tempPath1);
 }
@@ -864,9 +864,6 @@ TEST_F(File, GetPath_NoDirectory) {
 		FIFTYONE_DEGREES_STATUS_FILE_NOT_FOUND,
 		fiftyoneDegreesFileGetPath(tempPath1, fileName, NULL, 0)) <<
 		"File not found was not reported.";
-
-	GET_CURRENT_DIR(absolutePath, sizeof(absolutePath));
-	Snprintf(absolutePath + strlen(absolutePath), FIFTYONE_DEGREES_FILE_MAX_PATH - strlen(absolutePath), "/%s", relativePath);
 }
 
 /**

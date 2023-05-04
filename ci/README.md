@@ -1,6 +1,11 @@
-# API Specific CI/CD Approach
-This API does not produce packages so use `tag-repository` approach as described in `common-ci` `README.md`.
+# API Specific CI Approach
 
-Differences:
-- There is no `create-packages` pipeline, but `tag-repository` pipeline.
-- `deploy` pipeline only push tag and branch to GitHub.
+For the general CI Approach, see [common-ci](https://github.com/51degrees/common-ci).
+
+### Differences
+- There are no packages produced by this repository, so the only output from the `Nightly Publish Main` workflow is a new tag and release.
+- The package update step does not update dependencies from a package manager in the same way as other repos.
+
+### Build Options
+
+For additional build options in this repo see [common-ci/cxx](https://github.com/51Degrees/common-ci/tree/main/cxx#readme)

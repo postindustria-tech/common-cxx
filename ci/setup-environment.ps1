@@ -12,3 +12,10 @@ if ($BuildMethod -eq "msbuild") {
     ./environments/setup-msbuild.ps1
 
 }
+
+if ($IsLinux) {
+
+    # Install multilib, as this may be required.
+    sudo apt-get install -y gcc-multilib
+
+}

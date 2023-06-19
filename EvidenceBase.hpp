@@ -28,7 +28,10 @@
 #include "Exceptions.hpp"
 #include "evidence.h"
 
-using namespace std;
+using std::map;
+using std::make_shared;
+using std::invalid_argument;
+using std::stringstream;
 
 namespace FiftyoneDegrees {
 	namespace Common {

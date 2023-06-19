@@ -26,7 +26,6 @@
 #include <string>
 #include "EntityMetaData.hpp"
 
-using namespace std;
 
 namespace FiftyoneDegrees {
 	namespace Common {

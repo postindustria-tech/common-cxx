@@ -26,11 +26,15 @@
 #include <string>
 #include <exception>
 #include <stdexcept>
+#include <memory>
 #include "exceptions.h"
 #include "status.h"
 #include "memory.h"
 
-using namespace std;
+using std::runtime_error;
+using std::string;
+using std::exception;
+using std::shared_ptr;
 
 namespace FiftyoneDegrees {
 	namespace Common {

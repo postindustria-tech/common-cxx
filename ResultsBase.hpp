@@ -33,7 +33,8 @@
 #include "results.h"
 #include "resource.h"
 
-using namespace std;
+using std::shared_ptr;
+using std::stringstream;
 
 namespace FiftyoneDegrees {
 	namespace Common {

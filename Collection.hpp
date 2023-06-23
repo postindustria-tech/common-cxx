@@ -26,7 +26,6 @@
 #include "Exceptions.hpp"
 #include "collection.h"
 
-using namespace std;
 
 namespace FiftyoneDegrees {
 	namespace Common {

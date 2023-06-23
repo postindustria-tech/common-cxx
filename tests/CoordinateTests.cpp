@@ -26,8 +26,6 @@
 #include "../string.h"
 #include "../coordinate.h"
 
-using namespace std;
-
 /*
  * fiftyoneDegreesCoordinate extract coordinate from String item test
  */

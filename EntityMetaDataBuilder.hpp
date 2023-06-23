@@ -28,7 +28,6 @@
 #include "collection.h"
 #include "string.h"
 
-using namespace std;
 
 using namespace FiftyoneDegrees;
 

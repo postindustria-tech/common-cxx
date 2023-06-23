@@ -39,7 +39,6 @@
 #include "property.h"
 #include "collection.h"
 
-using namespace std;
 
 namespace FiftyoneDegrees {
 	namespace Common {

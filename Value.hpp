@@ -26,7 +26,6 @@
 #include "Exceptions.hpp"
 #include "results.h"
 
-using namespace std;
 
 namespace FiftyoneDegrees {
 	namespace Common {

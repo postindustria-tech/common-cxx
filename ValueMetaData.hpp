@@ -28,7 +28,6 @@
 #include "EntityMetaData.hpp"
 #include "value.h"
 
-using namespace std;
 
 namespace FiftyoneDegrees {
 	namespace Common {

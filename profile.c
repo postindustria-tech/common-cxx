@@ -52,7 +52,11 @@ static int compareProfileId(
 	Item *item,
 	long curIndex,
 	Exception *exception) {
-	return ((ProfileOffset*)item->data.ptr)->profileId - *(uint32_t*)profileId;
+	const unsigned int a = ((ProfileOffset*)item->data.ptr)->profileId;
+	const unsigned int b = *(uint32_t*)profileId;
+	if (a < b) return -1;
+	if (a > b) return 1;
+	return 0;
 }
 #ifdef _MSC_VER
 #pragma warning (pop)

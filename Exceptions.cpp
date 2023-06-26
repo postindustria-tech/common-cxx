@@ -23,7 +23,6 @@
 #include "Exceptions.hpp"
 #include "fiftyone.h"
 
-using namespace std;
 using namespace FiftyoneDegrees::Common;
 
 StatusCodeException::StatusCodeException() {}

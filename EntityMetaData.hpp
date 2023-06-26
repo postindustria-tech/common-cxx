@@ -27,7 +27,8 @@
 #include <vector>
 #include "data.h"
 
-using namespace std;
+using std::vector;
+using std::string;
 
 namespace FiftyoneDegrees {
 	namespace Common {

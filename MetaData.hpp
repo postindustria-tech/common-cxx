@@ -31,6 +31,8 @@
 #include "resource.h"
 #include <memory>
 
+using std::shared_ptr;
+
 namespace FiftyoneDegrees {
 	namespace Common {
 		/**

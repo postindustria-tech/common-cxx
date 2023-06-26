@@ -28,7 +28,7 @@
 #include "Exceptions.hpp"
 #include "config.h"
 
-using namespace std;
+using std::vector;
 
 namespace FiftyoneDegrees {
 	namespace Common {

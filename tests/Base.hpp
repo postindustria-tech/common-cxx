@@ -44,7 +44,8 @@ typedef struct memoryStates_t {
 } memoryStates;
 #endif
 
-using namespace std;
+using std::stringstream;
+using std::cout;
 
 /**
  * Adds a test to check the value returned by a get method is equal to the

@@ -27,6 +27,9 @@
 #define THREAD_COUNT 4
 #endif
 
+using std::hash;
+using std::thread;
+
 EngineTests::EngineTests(
 	RequiredPropertiesConfig *requiredProperties,
 	const char *directory,

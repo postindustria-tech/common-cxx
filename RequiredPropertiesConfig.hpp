@@ -27,7 +27,8 @@
 #include <vector>
 #include "properties.h"
 
-using namespace std;
+using std::string;
+using std::vector;
 
 namespace FiftyoneDegrees {
 	namespace Common {

@@ -82,7 +82,7 @@ protected:
 	void validateAll(ResultsBase *results);
 	void verifyWithEvidence(EvidenceBase *evidence);
 	bool isNameAvailable(ResultsBase *results, string *name);
-	bool isNameJavaScript(string *name);
+	bool mustHaveValue(string *name);
 	void verifyMetaData(EngineBase *engine);
 	virtual void verifyComponentMetaDataDefaultProfile(
 		MetaData *metaData,

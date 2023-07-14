@@ -147,7 +147,7 @@ static void trackAllocation(void* pointer, size_t size) {
 
 }
 
-void untrackAllocation(void *pointer) {
+static void untrackAllocation(void *pointer) {
 	uint32_t size;
 	int shard = getShardFromPointer(pointer);
 

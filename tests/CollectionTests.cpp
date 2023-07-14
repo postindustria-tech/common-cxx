@@ -663,8 +663,8 @@ TEST_F(CollectionTestFileVariableLimits, OnlyElementHeader) {
 	// Free everything.
 	collection->freeCollection(collection);
 	delete fileHandle;
-	delete offsets;
-	delete data;
+	delete[] offsets;
+	delete[] data;
 }
 
 #define COLLECTION_TEST(s, w, e, o, c) \

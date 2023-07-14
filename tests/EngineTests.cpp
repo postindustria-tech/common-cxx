@@ -129,16 +129,20 @@ bool EngineTests::isNameAvailable(ResultsBase *results, string *name) {
 	return find(p.begin(), p.end(), *name) != p.end();
 }
 
-bool EngineTests::isNameJavaScript(string *name) {
+bool EngineTests::mustHaveValue(string *name) {
 	Collection<string, PropertyMetaData> *properties =
 		getEngine()->getMetaData()->getProperties();
 	PropertyMetaData *property = properties->getByKey(*name);
+	bool isMandatory = property != nullptr &&
+		property->getIsMandatory();
 	bool isJavaScript = property != nullptr &&
 		property->getName() != "" &&
 		property->getType().compare("javascript") == 0;
+	bool hasDefault = property != nullptr &&
+		property->getDefaultValue().empty() == false;
 	delete property;
 	delete properties;
-	return isJavaScript;
+	return (isMandatory || hasDefault) && (isJavaScript == false);
 }
 
 void EngineTests::validateName(ResultsBase *results, string *name) {
@@ -185,16 +189,19 @@ void EngineTests::validateName(ResultsBase *results, string *name) {
 		}
 		else {
 
-			// There are no values returned. This is only allowed in two
+			// There are no values returned. This is only allowed in three
 			// situations:
-			// 1. If the  property is of type JavaScript and there is no
+			// 1. If the property is of type JavaScript and there is no
 			//    JavaScript value for the evidence available. For example;
 			//    the property may relate  specifically to iPhone and the
 			//    User-Agent(s) don't related to iPhone and there is no value
 			//    for the property.
 			// 2. If there was no evidence provided. This means the results can
 			//    not be determined as there was nothing to process.
-			EXPECT_TRUE(isNameJavaScript(name) || values.getNoValueReason() ==
+			// 3. If the property is not marked as mandatory, and does not have
+			//    a default value.
+			EXPECT_TRUE(mustHaveValue(name) == false ||
+				values.getNoValueReason() ==
 				FIFTYONE_DEGREES_RESULTS_NO_VALUE_REASON_NO_RESULTS) <<
 				L"Must get values for available property '" << *name << "'";
 		}

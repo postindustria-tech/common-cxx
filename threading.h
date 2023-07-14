@@ -417,7 +417,7 @@ typedef struct fiftyone_degrees_interlock_dw_type_t {
 typedef struct fiftyone_degrees_interlock_dw_type_t {
     int64_t low;
     int64_t high;
-} __attribute__((aligned(8),packed)) fiftyoneDegreesInterlockDoubleWidth;
+} __attribute__((aligned(16),packed)) fiftyoneDegreesInterlockDoubleWidth;
 #else // _LP64
 typedef struct fiftyone_degrees_interlock_dw_type_t {
     int64_t value;

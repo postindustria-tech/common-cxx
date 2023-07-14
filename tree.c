@@ -259,11 +259,9 @@ static void iterate(Node *node, void *state, IterateMethod callback) {
 fiftyoneDegreesTreeNode* fiftyoneDegreesTreeFind(
 	fiftyoneDegreesTreeRoot *root, 
 	int64_t key) {
-	int32_t iterations = 0;
 	Node *node = root->root.left;
 
 	while (node != TREE_EMPTY(node)) {
-		iterations++;
 		if (key == node->key) {
 			return node;
 		}

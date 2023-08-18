@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 set (CMAKE_C_STANDARD 11)
 set (CMAKE_CXX_STANDARD 17)
 
-option(BUILD_TESTING "Enable testing" ON)
-
 # Minimum required versions for MSVC
 set (MIN_VS_TOOLSET_VERSION 142)
 set (MIN_VS_PLATFORM_VERSION 10.0.18362.0)

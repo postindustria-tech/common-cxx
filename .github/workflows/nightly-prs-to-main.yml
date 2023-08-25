@@ -1,4 +1,4 @@
-name: Nightly PR to Main
+name: Nightly PRs to Main
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         default: false
   schedule:
     # * is a special character in YAML so quote this string
-    - cron:  '0 1 * * *'
+    - cron:  '5 0 * * *'
 
 jobs:
   # Run the common workflow on each pull request
@@ -18,6 +18,6 @@ jobs:
     with:
       repo-name: ${{ github.event.repository.name }}
       dryrun: ${{ inputs.dryrun || false }}
-    secrets: 
+    secrets:
       token: ${{ secrets.ACCESS_TOKEN }}
       asset-keys: '{}'

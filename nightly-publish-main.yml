@@ -1,4 +1,4 @@
-name: Nigthly Publish Main
+name: Nightly Publish Main
 
 on:
   workflow_dispatch:

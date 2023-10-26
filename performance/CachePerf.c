@@ -258,10 +258,28 @@ double performTest(performanceState *state, char *test) {
 }
 
 void printTime(performanceState *state, double totalSec) {
-	double cps = (double)state->count / totalSec;
-	printf("Average cache fetches per second: %.2f (%.2f per thread)\n\n",
+#	define INDENT "    "
+#	define TIME_UNITS "ns"
+
+	const double TIME_FACTOR = 1e9;
+
+	printf(INDENT "%ld cache fetches made in %.3fs using %d threads.\n",
+		state->count,
+		totalSec,
+		state->numberOfThreads);
+
+	const double timeUnitsPerFetch = TIME_FACTOR * totalSec / (double)state->count;
+	printf(INDENT "Average time per cache fetch: %.2f" TIME_UNITS " (%.2f" TIME_UNITS " per thread)\n",
+		timeUnitsPerFetch,
+		timeUnitsPerFetch / state->numberOfThreads);
+
+	const double cps = (double)state->count / totalSec;
+	printf(INDENT "Average cache fetches per second: %.2f (%.2f per thread)\n\n\n",
 		cps,
 		cps / (double)state->numberOfThreads);
+
+#	undef INDENT
+#	undef TIME_UNITS
 }
 
 void outputTime(performanceState *state, double totalSec, const char *outFile) {

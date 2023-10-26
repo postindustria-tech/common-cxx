@@ -280,7 +280,6 @@ void outputTime(performanceState *state, double totalSec, const char *outFile) {
  */
 void performance(int passes, const char* outFile) {
 	performanceState state;
-	double test, calibration;
 
 #ifndef FIFTYONE_DEGREES_NO_THREADING
 	FIFTYONE_DEGREES_MUTEX_CREATE(state.mutex);
@@ -292,49 +291,58 @@ void performance(int passes, const char* outFile) {
 	state.max = passes * state.numberOfThreads;
 	state.calibration = true;
 
-	// Run the process without doing any cache fetches to get a
-	// calibration time.
-	calibration = performTest(&state, "Calibration");
+	{
+		// Run the process without doing any cache fetches to get a
+		// calibration time.
+		const double calibration = performTest(&state, "Calibration");
+		printTime(&state, calibration);
+	};
 
 	// Fetch random items from a cache which does not have enough capacity to
 	// hold all items at once.
 	state.calibration = false;
-	cache = fiftyoneDegreesCacheCreate(
-		valuesCount - THREAD_COUNT,
-		THREAD_COUNT,
-		load,
-		fiftyoneDegreesCacheHash32,
-		_values);
-	test = performTest(&state, "Cache Too Small");
-	fiftyoneDegreesCacheFree(cache);
-	printTime(&state, test - calibration);
+	{
+		cache = fiftyoneDegreesCacheCreate(
+			valuesCount - THREAD_COUNT,
+			THREAD_COUNT,
+			load,
+			fiftyoneDegreesCacheHash32,
+			_values);
+		const double test = performTest(&state, "Cache Too Small");
+		fiftyoneDegreesCacheFree(cache);
+		printTime(&state, test);
+	};
 	
 	// Fetch random items from a cache which has enough capacity to hold all
 	// all the items at once.
-	cache = fiftyoneDegreesCacheCreate(
-		valuesCount,
-		THREAD_COUNT,
-		load,
-		fiftyoneDegreesCacheHash32,
-		_values);
-	test = performTest(&state, "Cache Just Right");
-	fiftyoneDegreesCacheFree(cache);
-	printTime(&state, test - calibration);
-	if (outFile != NULL) {
-		outputTime(&state, test - calibration, outFile);
-	}
+	{
+		cache = fiftyoneDegreesCacheCreate(
+			valuesCount,
+			THREAD_COUNT,
+			load,
+			fiftyoneDegreesCacheHash32,
+			_values);
+		const double test = performTest(&state, "Cache Just Right");
+		fiftyoneDegreesCacheFree(cache);
+		printTime(&state, test);
+		if (outFile != NULL) {
+			outputTime(&state, test, outFile);
+		}
+	};
 
 	// Fetch random items from a cache which has more than enough capacity to
 	// hold all the items at once.
-	cache = fiftyoneDegreesCacheCreate(
-		valuesCount * 20,
-		THREAD_COUNT,
-		load,
-		fiftyoneDegreesCacheHash32,
-		_values);
-	test = performTest(&state, "Cache Too Big");
-	fiftyoneDegreesCacheFree(cache);
-	printTime(&state, test - calibration);
+	{
+		cache = fiftyoneDegreesCacheCreate(
+			valuesCount * 20,
+			THREAD_COUNT,
+			load,
+			fiftyoneDegreesCacheHash32,
+			_values);
+		const double test = performTest(&state, "Cache Too Big");
+		fiftyoneDegreesCacheFree(cache);
+		printTime(&state, test);
+	};
 }
 
 /**

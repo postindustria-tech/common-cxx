@@ -2,7 +2,7 @@
 
 ![51Degrees](https://51degrees.com/DesktopModules/FiftyOne/Distributor/Logo.ashx?utm_source=github&utm_medium=repository&utm_content=home&utm_campaign=c-open-source "Data rewards the curious") **51Degrees Common C Code**
 
-[Reference Documentation](https://github.com/51Degrees/common-cxx "Reference documentation")
+[Reference Documentation](https://51degrees.com/device-detection-cxx/4.4/index.html "Reference documentation")
 
 # Introduction
 

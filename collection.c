@@ -761,7 +761,7 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromMemory(
 	fiftyoneDegreesCollectionHeader header) {
 
 	// Validate the header and the reader are in sync at the correct position.
-	if ((uint32_t)(reader->current - reader->startByte) !=
+	if ((long)(reader->current - reader->startByte) !=
 		header.startPosition) {
 		return NULL;
 	}

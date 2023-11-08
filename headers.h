@@ -216,7 +216,7 @@ EXTERNAL int fiftyoneDegreesHeaderGetIndex(
  */
 EXTERNAL fiftyoneDegreesHeader* fiftyoneDegreesHeadersGetHeaderFromUniqueId(
 	fiftyoneDegreesHeaders *headers,
-	uint32_t uniqueId);
+	long uniqueId);
 
 /**
  * Frees the memory allocated by the #fiftyoneDegreesHeadersCreate method.

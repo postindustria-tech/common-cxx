@@ -190,7 +190,7 @@ static bool setHeaderFromDataSet(
 	Header* header,
 	const char* name,
 	size_t nameLength,
-	uint32_t uniqueId) {
+	long uniqueId) {
 	if (copyHeaderName(header, name, nameLength) == false) {
 		return false;
 	}

@@ -282,7 +282,7 @@ uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
 	fiftyoneDegreesException *exception) {
 	uint32_t i, count = 0;
 	Item propertyItem, offsetItem, profileItem;
-	int valueIndex;
+	long valueIndex;
 	uint32_t *profileValueIndex, *maxProfileValueIndex;
 	Property *property;
 	Profile *profile;

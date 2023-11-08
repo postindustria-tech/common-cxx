@@ -210,7 +210,7 @@ static int getRandomString(
 	// names will be generated each time an executable is run.
 	long seed = getRandSeed();
 	if (seed == -1) {
-		return seed;
+		return -1;
 	}
 
 	srand((unsigned int)seed);

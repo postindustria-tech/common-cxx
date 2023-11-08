@@ -128,7 +128,7 @@ typedef struct fiftyone_degrees_header_t {
 	fiftyoneDegreesHeaderSegmentArray* segments; /**< Segments within the 
 												      name */
 	bool isDataSet; /**< True if the header originates from the data set */
-	uint32_t uniqueId; /** < Unique id provided by the data set */
+	long uniqueId; /** < Unique id provided by the data set */
 } fiftyoneDegreesHeader;
 
 #define FIFTYONE_DEGREES_HEADERS_MEMBERS \

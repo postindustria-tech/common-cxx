@@ -107,8 +107,8 @@ fiftyoneDegreesCache *cache;
  */
 void printLoadBar(performanceState *state) {
 	int i;
-	int full = state->count / state->progress;
-	int empty = (state->max - state->count) / state->progress;
+	long full = state->count / state->progress;
+    long empty = (state->max - state->count) / state->progress;
 
 	printf("\r\t[");
 	for (i = 0; i < full; i++) {

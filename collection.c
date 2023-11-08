@@ -1182,7 +1182,7 @@ long fiftyoneDegreesCollectionBinarySearch(
 	void *state,
 	fiftyoneDegreesCollectionItemComparer comparer,
 	fiftyoneDegreesException *exception) {
-	long upper = upperIndex,
+    uint32_t upper = upperIndex,
 		lower = lowerIndex,
 		middle;
 	int comparisonResult;

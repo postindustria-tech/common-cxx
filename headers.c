@@ -403,7 +403,7 @@ int fiftyoneDegreesHeaderGetIndex(
 
 fiftyoneDegreesHeader* fiftyoneDegreesHeadersGetHeaderFromUniqueId(
 	fiftyoneDegreesHeaders *headers,
-	uint32_t uniqueId) {
+	HeaderID uniqueId) {
 	uint32_t i;
 	for (i = 0; i < headers->count; i++) {
 		if (headers->items[i].uniqueId == uniqueId) {

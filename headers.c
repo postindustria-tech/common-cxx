@@ -256,14 +256,13 @@ static bool addHeadersFromDataSet(
 	HeadersGetMethod get,
 	HeaderArray* headers) {
 	Item item;
-	long uniqueId;
 	uint32_t index = 0;
 	const char* name;
 	size_t nameLength;
 	DataReset(&item.data);
 
 	// Get the first name item from the data set.
-	uniqueId = get(state, index, &item);
+    uint32_t uniqueId = (uint32_t)get(state, index, &item);
 	while (uniqueId >= 0) {
 
 		// Only include the header if it is not zero length, has at least one
@@ -292,7 +291,7 @@ static bool addHeadersFromDataSet(
 
 		// Get the next name item from the data set.
 		index++;
-		uniqueId = get(state, index, &item);
+		uniqueId = (uint32_t)get(state, index, &item);
 	}
 	return true;
 }

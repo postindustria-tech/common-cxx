@@ -282,7 +282,6 @@ uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
 	fiftyoneDegreesException *exception) {
 	uint32_t i, count = 0;
 	Item propertyItem, offsetItem, profileItem;
-	int valueIndex;
 	uint32_t *profileValueIndex, *maxProfileValueIndex;
 	Property *property;
 	Profile *profile;
@@ -295,8 +294,8 @@ uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
 		&propertyItem,
 		exception);
 	if (property != NULL && EXCEPTION_OKAY) {
-		valueIndex = fiftyoneDegreesValueGetIndexByName(
-			values, 
+		const long valueIndex = fiftyoneDegreesValueGetIndexByName(
+			values,
 			strings,
 			property, 
 			valueName,

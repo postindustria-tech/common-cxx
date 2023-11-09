@@ -27,6 +27,8 @@
 /* HTTP header prefix used when processing collections of parameters. */
 #define HTTP_PREFIX_UPPER "HTTP_"
 
+MAP_TYPE(HeaderID)
+
 /**
  * Counts the number of segments in a header name. 
  */
@@ -190,7 +192,7 @@ static bool setHeaderFromDataSet(
 	Header* header,
 	const char* name,
 	size_t nameLength,
-	uint32_t uniqueId) {
+    HeaderID uniqueId) {
 	if (copyHeaderName(header, name, nameLength) == false) {
 		return false;
 	}
@@ -256,15 +258,14 @@ static bool addHeadersFromDataSet(
 	HeadersGetMethod get,
 	HeaderArray* headers) {
 	Item item;
+    long uniqueId;
 	uint32_t index = 0;
 	const char* name;
 	size_t nameLength;
 	DataReset(&item.data);
 
 	// Get the first name item from the data set.
-    uint32_t uniqueId = (uint32_t)get(state, index, &item);
-	while (uniqueId >= 0) {
-
+	while ((uniqueId = get(state, index, &item)) >= 0) {
 		// Only include the header if it is not zero length, has at least one
 		// segment, and does not already exist in the collection.
 		name = STRING(item.data.ptr);
@@ -278,7 +279,7 @@ static bool addHeadersFromDataSet(
 				&headers->items[headers->count],
 				name,
 				nameLength,
-				uniqueId) == false) {
+				(HeaderID)uniqueId) == false) {
 				return false;
 			}
 
@@ -291,7 +292,6 @@ static bool addHeadersFromDataSet(
 
 		// Get the next name item from the data set.
 		index++;
-		uniqueId = (uint32_t)get(state, index, &item);
 	}
 	return true;
 }

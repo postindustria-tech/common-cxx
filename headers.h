@@ -116,6 +116,8 @@ FIFTYONE_DEGREES_ARRAY_TYPE(
 	fiftyoneDegreesHeaderSegment, 
 	);
 
+typedef uint32_t fiftyoneDegreesHeaderID;
+
 /**
  * Header structure to identify a header that either comes directly from the
  * data set, or one that forms a pseudo header.
@@ -128,7 +130,7 @@ typedef struct fiftyone_degrees_header_t {
 	fiftyoneDegreesHeaderSegmentArray* segments; /**< Segments within the 
 												      name */
 	bool isDataSet; /**< True if the header originates from the data set */
-	uint32_t uniqueId; /** < Unique id provided by the data set */
+    fiftyoneDegreesHeaderID uniqueId; /** < Unique id provided by the data set */
 } fiftyoneDegreesHeader;
 
 #define FIFTYONE_DEGREES_HEADERS_MEMBERS \
@@ -216,7 +218,7 @@ EXTERNAL int fiftyoneDegreesHeaderGetIndex(
  */
 EXTERNAL fiftyoneDegreesHeader* fiftyoneDegreesHeadersGetHeaderFromUniqueId(
 	fiftyoneDegreesHeaders *headers,
-	uint32_t uniqueId);
+    fiftyoneDegreesHeaderID uniqueId);
 
 /**
  * Frees the memory allocated by the #fiftyoneDegreesHeadersCreate method.

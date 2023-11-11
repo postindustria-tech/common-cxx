@@ -828,7 +828,7 @@ fiftyoneDegreesCollectionHeader fiftyoneDegreesCollectionHeaderFromFile(
 			header.length = sizeOrCount;
 			header.count = elementSize > 0 ? header.length / elementSize : 0;
 		}
-		header.startPosition = ftell(file);
+		header.startPosition = (uint32_t)ftell(file);
 	}
 	else {
 		header.startPosition = 0;
@@ -1182,7 +1182,7 @@ long fiftyoneDegreesCollectionBinarySearch(
 	void *state,
 	fiftyoneDegreesCollectionItemComparer comparer,
 	fiftyoneDegreesException *exception) {
-	long upper = upperIndex,
+    uint32_t upper = upperIndex,
 		lower = lowerIndex,
 		middle;
 	int comparisonResult;

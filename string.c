@@ -24,7 +24,7 @@
 
 #include "fiftyone.h"
 
-static uint32_t getFinalSize(void *initial) {
+static uint32_t getFinalStringSize(void *initial) {
 	return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
 }
 
@@ -42,7 +42,7 @@ void* fiftyoneDegreesStringRead(
 		offset,
 		&length, 
 		sizeof(int16_t),
-		getFinalSize,
+		getFinalStringSize,
 		exception);
 }
 

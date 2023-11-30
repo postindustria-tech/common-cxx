@@ -25,13 +25,16 @@
 
 MAP_TYPE(Collection)
 
-static String* getString(
+#ifndef FIFTYONE_DEGREES_GET_STRING_DEFINED
+#define FIFTYONE_DEGREES_GET_STRING_DEFINED
+static fiftyoneDegreesString* getString(
 	Collection *stringsCollection,
 	uint32_t offset,
 	Item *item,
 	Exception *exception) {
 	return StringGet(stringsCollection, offset, item, exception);
 }
+#endif
 
 fiftyoneDegreesString* fiftyoneDegreesPropertyGetName(
 	fiftyoneDegreesCollection *stringsCollection,

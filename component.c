@@ -24,7 +24,7 @@
 
 #include "fiftyone.h"
 
-static uint32_t getFinalSize(void *initial) {
+static uint32_t getFinalComponentSize(void *initial) {
 	Component *component = (Component*)initial;
 	int32_t trailing = (component->keyValuesCount - 1) * sizeof(fiftyoneDegreesComponentKeyValuePair);
 	return (uint32_t)(sizeof(Component) + trailing);
@@ -89,7 +89,7 @@ void* fiftyoneDegreesComponentReadFromFile(
 		offset,
 		&component,
 		sizeof(Component) - sizeof(fiftyoneDegreesComponentKeyValuePair),
-		getFinalSize,
+		getFinalComponentSize,
 		exception);
 }
 
@@ -117,7 +117,7 @@ void fiftyoneDegreesComponentInitList(
 				ListAdd(list, &item);
 
 				// Move to the next component in the collection.
-				offset += getFinalSize((void*)component);
+				offset += getFinalComponentSize((void*)component);
 			}
 		}
 	}

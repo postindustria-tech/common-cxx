@@ -31,6 +31,8 @@ typedef struct value_search_t {
 	const char *valueName;
 } valueSearch;
 
+#ifndef FIFTYONE_DEGREES_GET_STRING_DEFINED
+#define FIFTYONE_DEGREES_GET_STRING_DEFINED
 static fiftyoneDegreesString* getString(
 	Collection *strings,
 	uint32_t offset,
@@ -38,6 +40,7 @@ static fiftyoneDegreesString* getString(
 	Exception *exception) {
 	return StringGet(strings, offset, item, exception);
 }
+#endif
 
 /*
  * Function that compare the current String item

@@ -25,7 +25,7 @@
 
 MAP_TYPE(Collection)
 
-static uint32_t getFinalSize(void *initial) {
+static uint32_t getFinalProfileSize(void *initial) {
 	Profile *profile = (Profile*)initial;
 	return sizeof(Profile) +
 		(profile->valueCount * sizeof(uint32_t));
@@ -238,7 +238,7 @@ void* fiftyoneDegreesProfileReadFromFile(
 		offset,
 		&profile,
 		sizeof(Profile),
-		getFinalSize,
+		getFinalProfileSize,
 		exception);
 }
 

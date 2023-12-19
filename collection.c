@@ -1209,7 +1209,7 @@ long fiftyoneDegreesCollectionBinarySearch(
 			return middle;
 		}
 		else if (comparisonResult > 0) {
-			if (middle) {
+			if (middle) { // guard against underflow of unsigned type
 				upper = middle - 1;
 			}
 			else {

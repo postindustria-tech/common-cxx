@@ -249,6 +249,35 @@ public:
 		}
 	}
 
+	void binarySearch_notFound() {
+		if (this->data->isCount == false) {
+			cout << "Skipping binary search test for as the collection "
+				<< "contains variable size elements.\n";
+		}
+		else {
+			FIFTYONE_DEGREES_EXCEPTION_CREATE;
+			fiftyoneDegreesCollectionItem resultItem, targetItem;
+			fiftyoneDegreesDataReset(&resultItem.data);
+			fiftyoneDegreesDataReset(&targetItem.data);
+
+			int DummyIDs[] = {
+				-5,
+				(int)data->count + 3,
+			};
+			for (uint32_t i = 0; i < sizeof(DummyIDs) / sizeof(DummyIDs[0]); i++) {
+				EXPECT_EQ(-1, fiftyoneDegreesCollectionBinarySearch(
+					collection,
+					&resultItem,
+					0,
+					data->count - 1,
+					&(DummyIDs[i]),
+					data->itemComparer,
+					exception));
+				EXPECT_FALSE(FIFTYONE_DEGREES_EXCEPTION_FAILED);
+			}
+		}
+	}
+
 	void outOfRange() {
 		FIFTYONE_DEGREES_EXCEPTION_CREATE
 		fiftyoneDegreesCollectionItem item;
@@ -680,7 +709,8 @@ TEST_F(CollectionTest##s##w##e##o, Random) { random(); } \
 TEST_F(CollectionTest##s##w##e##o, RandomOutOfRange) { random(); outOfRange(); } \
 TEST_F(CollectionTest##s##w##e##o, RandomMultiThreaded) { randomMultiThreaded(); } \
 TEST_F(CollectionTest##s##w##e##o, List) { list(0.1); } \
-TEST_F(CollectionTest##s##w##e##o, BinarySearch) { binarySearch(); }
+TEST_F(CollectionTest##s##w##e##o, BinarySearch) { binarySearch(); } \
+TEST_F(CollectionTest##s##w##e##o, BinarySearchNotFound) { binarySearch_notFound(); }
 
 /* Configs to test. */
 #define COLLECTION_TEST_THREADS 4

@@ -1209,7 +1209,12 @@ long fiftyoneDegreesCollectionBinarySearch(
 			return middle;
 		}
 		else if (comparisonResult > 0) {
-			upper = middle - 1;
+			if (middle) {
+				upper = middle - 1;
+			}
+			else {
+				lower += 1; // break once iteration finishes
+			}
 		}
 		else {
 			lower = middle + 1;

@@ -53,7 +53,8 @@ static StatusMessage messages[] = {
 		"to be smaller than expected. Most likely because the data file was "
 		"not fully loaded into the allocated memory." },
 	{ TOO_MANY_OPEN_FILES,
-		"Too many file handles have been created during initialisation."},
+		"Too many file handles have been created during initialisation. "
+		"Original data file path: '%s'."},
 	{ REQ_PROP_NOT_PRESENT,
 		"None of the properties requested could be found in the data file ('%s'), so "
 		"no properties can be initialised. To initialise all available "
@@ -73,11 +74,13 @@ static StatusMessage messages[] = {
 	{ FILE_EXISTS_ERROR,
 		"The file or directory already exists so could not be created." },
 	{ FILE_WRITE_ERROR,
-		"Could not create the file with write permissions." },
+		"Could not create the file with write permissions. "
+		"Original data file path: '%s'." },
 	{ FILE_READ_ERROR,
 		"Could not read the file." },
 	{ FILE_PERMISSION_DENIED,
-		"Permission denied when opening file." },
+		"Permission denied when opening file. "
+		"Original data file path: '%s'." },
 	{ FILE_PATH_TOO_LONG,
 		"The file path to the data file '%s' is longer than the memory available "
 		"to store it. Use a shorter data file path." },

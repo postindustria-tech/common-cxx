@@ -74,12 +74,12 @@ static StatusMessage messages[] = {
 	{ FILE_EXISTS_ERROR,
 		"The file or directory already exists so could not be created." },
 	{ FILE_WRITE_ERROR,
-		"Could not create the file with write permissions. "
+		"Could not create some file with write permissions. "
 		"Original data file path: '%s'." },
 	{ FILE_READ_ERROR,
 		"Could not read the file." },
 	{ FILE_PERMISSION_DENIED,
-		"Permission denied when opening file. "
+		"Permission denied when opening some file. "
 		"Original data file path: '%s'." },
 	{ FILE_PATH_TOO_LONG,
 		"The file path to the data file '%s' is longer than the memory available "

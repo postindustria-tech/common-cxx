@@ -35,10 +35,10 @@ static StatusMessage messages[] = {
 	{ INSUFFICIENT_MEMORY,
 		"Insufficient memory allocated for the operation." },
 	{ CORRUPT_DATA,
-		"The data was not in the correct format. Check the data file is "
+		"The data was not in the correct format. Check the data file '%s' is "
 		"uncompressed." },
 	{ INCORRECT_VERSION,
-		"The data is an unsupported version. Check you have the latest data "
+		"The data (file: '%s') is an unsupported version. Check you have the latest data "
 		"and API." },
 	{ FILE_NOT_FOUND,
 		"The data file '%s' could not be found. Check the file path and that "
@@ -55,7 +55,7 @@ static StatusMessage messages[] = {
 	{ TOO_MANY_OPEN_FILES,
 		"Too many file handles have been created during initialisation."},
 	{ REQ_PROP_NOT_PRESENT,
-		"None of the properties requested could be found in the data file, so "
+		"None of the properties requested could be found in the data file ('%s'), so "
 		"no properties can be initialised. To initialise all available "
 		"properties, set the field to null." },
 	{ PROFILE_EMPTY,
@@ -63,12 +63,12 @@ static StatusMessage messages[] = {
 		"an empty profile, there is no profile which can be returned." },
 	{ COLLECTION_FAILURE,
 		"There was an error getting an item from a collection within the "
-		"data set. This is likely to be caused by too many concurrent "
+		"data set (file: '%s'). This is likely to be caused by too many concurrent "
 		"operations. Increase the concurrency option in the collection "
 		"configuration to allow more threads to access the collection "
 		"simultaneously." },
 	{ FILE_COPY_ERROR,
-		"There was an error copying the source file to the destination. "
+		"There was an error copying the source file ('%s') to the destination. "
 		"Verify sufficient space is available at the destination." },
 	{ FILE_EXISTS_ERROR,
 		"The file or directory already exists so could not be created." },
@@ -79,7 +79,7 @@ static StatusMessage messages[] = {
 	{ FILE_PERMISSION_DENIED,
 		"Permission denied when opening file." },
 	{ FILE_PATH_TOO_LONG,
-		"The file path to the data file is longer than the memory available "
+		"The file path to the data file '%s' is longer than the memory available "
 		"to store it. Use a shorter data file path." },
 	{ FILE_END_OF_DOCUMENT,
 		"End of a Yaml document read." },
@@ -89,7 +89,7 @@ static StatusMessage messages[] = {
 		"End of file." },
 	{ ENCODING_ERROR,
 		"There was an error encoding characters of the string. Ensure all "
-		"characters are valid." },
+		"characters are valid. File: '%s'." },
 	{ INVALID_COLLECTION_CONFIG,
 		"The configuration provided could not be used to create a valid "
 		"collection. If a cached collection is included in the configuration "
@@ -110,9 +110,9 @@ static StatusMessage messages[] = {
 	{ COLLECTION_OFFSET_OUT_OF_RANGE, 
 		"Offset used to retrieve an item from a collection was out of range." },
 	{ COLLECTION_FILE_SEEK_FAIL, 
-		"A seek operation on a file failed." },
+		"A seek operation on a file ('%s') failed." },
 	{ COLLECTION_FILE_READ_FAIL,
-		"A read operation on a file failed." },
+		"A read operation on a file ('%s') failed." },
 	{ INCORRECT_IP_ADDRESS_FORMAT,
 		"The input IP address format is incorrect. Verify the input IP address "
 		"string has correct format. If passing a byte array, verify the "

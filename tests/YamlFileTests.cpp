@@ -129,7 +129,7 @@ static void testYamlFileIterator(bool eofNewLine, int limit, testDocument *expec
 	string testRecords[11] =
 	{
 		string("---"),
-		string("header.TestKey1: TestRecord1"),
+		string("header.TestKey1: 'TestRecord1'"),
 		string("header.TestKey2: TestRecord2"),
 		string("---"),
 		string("---"),
@@ -184,68 +184,6 @@ static void testYamlFileIterator(bool eofNewLine, int limit, testDocument *expec
 }
 
 TEST(YamlFileIteratorTests, NoLimitWithoutEOFNewLine) {
-	testDocument expected[4] = {
-		{
-			2,
-			{
-				{"header.TestKey1", "TestRecord1"},
-				{"header.TestKey2", "TestRecord2"}
-			}
-		},
-		{
-			0,
-			{}
-		},
-		{
-			3,
-			{
-				{"header.TestKey3", "TestRecord3"},
-				{"header.TestKey4", "TestRecord4"},
-				{"header.TestKey5", "TestRecord5"}
-			}
-		},
-		{
-			1,
-			{
-				{"header.TestKey6", "TestRecord6"}
-			}
-		}
-	};
-	testYamlFileIterator(false, -1, expected, 4);
-}
-
-TEST(YamlFileIteratorTests, NoLimitWithEOFNewLine) {
-	testDocument expected[4] = {
-		{
-			2,
-			{
-				{"header.TestKey1", "TestRecord1"},
-				{"header.TestKey2", "TestRecord2"}
-			}
-		},
-		{
-			0,
-			{}
-		},
-		{
-			3,
-			{
-				{"header.TestKey3", "TestRecord3"},
-				{"header.TestKey4", "TestRecord4"},
-				{"header.TestKey5", "TestRecord5"}
-			}
-		},
-		{
-			1,
-			{
-				{"header.TestKey6", "TestRecord6"}
-			}
-		}
-	};
-	testYamlFileIterator(true, -1, expected, 4);
-}
-
-TEST(YamlFileIteratorTests, Limit) {
 	testDocument expected[3] = {
 		{
 			2,
@@ -255,8 +193,58 @@ TEST(YamlFileIteratorTests, Limit) {
 			}
 		},
 		{
-			0,
-			{}
+			3,
+			{
+				{"header.TestKey3", "TestRecord3"},
+				{"header.TestKey4", "TestRecord4"},
+				{"header.TestKey5", "TestRecord5"}
+			}
+		},
+		{
+			1,
+			{
+				{"header.TestKey6", "TestRecord6"}
+			}
+		}
+	};
+	testYamlFileIterator(false, -1, expected, 3);
+}
+
+TEST(YamlFileIteratorTests, NoLimitWithEOFNewLine) {
+	testDocument expected[3] = {
+		{
+			2,
+			{
+				{"header.TestKey1", "TestRecord1"},
+				{"header.TestKey2", "TestRecord2"}
+			}
+		},
+		{
+			3,
+			{
+				{"header.TestKey3", "TestRecord3"},
+				{"header.TestKey4", "TestRecord4"},
+				{"header.TestKey5", "TestRecord5"}
+			}
+		},
+		{
+			1,
+			{
+				{"header.TestKey6", "TestRecord6"}
+			}
+		}
+	};
+	testYamlFileIterator(true, -1, expected, 3);
+}
+
+TEST(YamlFileIteratorTests, Limit) {
+	testDocument expected[2] = {
+		{
+			2,
+			{
+				{"header.TestKey1", "TestRecord1"},
+				{"header.TestKey2", "TestRecord2"}
+			}
 		},
 		{
 			3,
@@ -267,5 +255,5 @@ TEST(YamlFileIteratorTests, Limit) {
 			}
 		}
 	};
-	testYamlFileIterator(false, 3, expected, 3);
+	testYamlFileIterator(false, 2, expected, 2);
 }

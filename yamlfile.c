@@ -191,10 +191,10 @@ StatusCode fiftyoneDegreesYamlFileIterateWithLimit(
 	// If there is no limit then set the limit to the largest value to 
 	// avoid checking for negative values in the loop.
 	if (limit < 0) {
-		limit = MAXINT;
+		limit = INT_MAX;
 	}
 
-	while ((current = readNext(&fileState)) != '\0') {
+	while (*(current = readNext(&fileState)) != '\0') {
 
 		// If the first new line then move to the next pair.
 		if (*current == '\n' || *current == '\r') {

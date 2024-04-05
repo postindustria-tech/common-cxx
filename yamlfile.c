@@ -215,7 +215,9 @@ StatusCode fiftyoneDegreesYamlFileIterateWithLimit(
 			}
 			else {
 				// EOF
-				callback(keyValuePairs, pairState.index, state);
+				if (pairState.index > 0) {
+					callback(keyValuePairs, pairState.index, state);
+				}
 				break;
 			}
 		}
@@ -243,7 +245,10 @@ StatusCode fiftyoneDegreesYamlFileIterateWithLimit(
 			advance(&fileState);
 			fileState.dotCount++;
 			if (fileState.dotCount == CONTROL_LENGTH) {
-				callback(keyValuePairs, pairState.index, state);
+				if (pairState.index > 0)
+				{
+					callback(keyValuePairs, pairState.index, state);
+				}
 				break;
 			}
 		}

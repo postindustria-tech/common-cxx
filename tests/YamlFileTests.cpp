@@ -120,6 +120,7 @@ struct TestOptions {
 	bool eofNewLine = true;
 	int limit = -1;
 	bool addDotsLine = true;
+	bool addEmptyDoc = false;
 };
 
 static void testYamlFileIterator(const TestOptions testOptions, const TestState &expected) {
@@ -137,6 +138,9 @@ static void testYamlFileIterator(const TestOptions testOptions, const TestState 
 		"---",
 		"header.TestKey6: TestRecord6",
 	};
+	if (testOptions.addEmptyDoc) {
+		testRecords.push_back("---");
+	}
 	if (testOptions.addDotsLine) {
 		testRecords.push_back("...");
 	}
@@ -267,4 +271,58 @@ TEST(YamlFileIteratorTests, NoLimitWithEOFNewLineWithoutDotsLine) {
 		},
 	};
 	testYamlFileIterator({ true, -1, false }, expected);
+}
+
+TEST(YamlFileIteratorTests, NoLimitLastDocEmptyNoDotsLineNoEOFNewLine) {
+	TestState expected = {
+		{
+			{"header.TestKey1", "TestRecord1"},
+			{"header.TestKey2", "TestRecord2"}
+		},
+		{
+			{"header.TestKey3", "TestRecord3"},
+			{"header.TestKey4", "TestRecord4"},
+			{"header.TestKey5", "TestRecord5"}
+		},
+		{
+			{"header.TestKey6", "TestRecord6"},
+		},
+	};
+	testYamlFileIterator({ false, -1, false, true }, expected);
+}
+
+TEST(YamlFileIteratorTests, NoLimitLastDocEmptyNoDotsLine) {
+	TestState expected = {
+		{
+			{"header.TestKey1", "TestRecord1"},
+			{"header.TestKey2", "TestRecord2"}
+		},
+		{
+			{"header.TestKey3", "TestRecord3"},
+			{"header.TestKey4", "TestRecord4"},
+			{"header.TestKey5", "TestRecord5"}
+		},
+		{
+			{"header.TestKey6", "TestRecord6"},
+		},
+	};
+	testYamlFileIterator({ true, -1, false, true }, expected);
+}
+
+TEST(YamlFileIteratorTests, NoLimitLastDocEmptyNoEOFNewLine) {
+	TestState expected = {
+		{
+			{"header.TestKey1", "TestRecord1"},
+			{"header.TestKey2", "TestRecord2"}
+		},
+		{
+			{"header.TestKey3", "TestRecord3"},
+			{"header.TestKey4", "TestRecord4"},
+			{"header.TestKey5", "TestRecord5"}
+		},
+		{
+			{"header.TestKey6", "TestRecord6"},
+		},
+	};
+	testYamlFileIterator({ false, -1, true, true }, expected);
 }

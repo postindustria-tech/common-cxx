@@ -76,7 +76,7 @@ static char* readNext(FileState* fileState) {
 	if (fileState->current > fileState->end) {
 		status = readNextBlock(fileState);
 		if (status != SUCCESS) {
-			return '\0';
+			return NULL;
 		}
 	}
 	return fileState->current;
@@ -194,10 +194,11 @@ StatusCode fiftyoneDegreesYamlFileIterateWithLimit(
 		limit = INT_MAX;
 	}
 
-	while (*(current = readNext(&fileState)) != '\0') {
+	while (true) {
+		current = readNext(&fileState);
 
-		// If the first new line then move to the next pair.
-		if (*current == '\n' || *current == '\r') {
+		// If EOF or the first new line then move to the next pair.
+		if (!current || *current == '\n' || *current == '\r') {
 			if (fileState.newLineCount == 0) {
 
 				// If there was a quote earlier in the string and the last one
@@ -208,8 +209,15 @@ StatusCode fiftyoneDegreesYamlFileIterateWithLimit(
 				}
 				nextPair(&pairState);
 			}
-			newLine(&fileState);
-			fileState.newLineCount++;
+			if (current) {
+				newLine(&fileState);
+				fileState.newLineCount++;
+			}
+			else {
+				// EOF
+				callback(keyValuePairs, pairState.index, state);
+				break;
+			}
 		}
 
 		// If a dash and control length is reached then return the pairs

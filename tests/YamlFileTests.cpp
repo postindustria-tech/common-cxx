@@ -72,7 +72,7 @@ static void createTestFile(string fileNamePath, vector<string> testRecords, bool
 	FILE* fp = fopen(fileNamePath.c_str(), "w+");
 
 	if (fp != NULL) {
-		for (int i = 0; i < testRecords.size(); i++) {
+		for (size_t i = 0; i < testRecords.size(); i++) {
 			if (i != 0) {
 				// Write a new line if not first
 				// The end result will always be

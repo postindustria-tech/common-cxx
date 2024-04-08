@@ -23,277 +23,131 @@
 #include "yamlfile.h"
 #include "fiftyone.h"
 
+// Number of sequential characters needed to indicate a control block.
+const size_t CONTROL_LENGTH = 3;
+
+typedef struct pair_state_t {
+	KeyValuePair* pairs; // array of key value evidence pairs
+	uint16_t size; // total available keyValuePairs
+	int16_t index; // current index being populated in the keyValuePairs
+	char* current; // current pointer to character in the pair
+	char* end; // last pointer that is valid
+} PairState;
+
 typedef struct file_state_t {
-	FILE* handle;
-	char* buffer;
-	size_t current;
-	size_t readLength;
-	size_t length;
-	size_t dashCount;
-	size_t dotCount;
+	FILE* handle; // handle to the yaml file
+	char* buffer; // start of the buffer
+	const size_t bufferLength; // length of the buffer
+	char* end; // last character in the buffer that is valid
+	char* current; // current character in the buffer
+	size_t dashCount; // number of continuous dashes read
+	size_t dotCount; // number of continuous dots read
+	size_t newLineCount; // new line characters read
+	size_t quote; // position of the first quote in the value
+	size_t position; // character index on the current line
+	size_t colon; // position of the colon in the current line
 } FileState;
 
 static StatusCode readNextBlock(FileState* fileState) {
 	StatusCode status = SUCCESS;
-	size_t bytesRead = fread(fileState->buffer,
+	size_t bytesRead = fread(
+		fileState->buffer,
 		sizeof(char),
-		fileState->length,
+		fileState->bufferLength,
 		fileState->handle);
 	if (bytesRead == 0 && !feof(fileState->handle)) {
 		status = INSUFFICIENT_MEMORY;
 	}
-	else if (bytesRead < fileState->readLength
-		&& ferror(fileState->handle)) {
+	else if (ferror(fileState->handle)) {
 		status = FILE_READ_ERROR;
 	}
-	else if (bytesRead < fileState->readLength
-		&& feof(fileState->handle)) {
-		fileState->readLength = bytesRead;
+	else if (bytesRead == 0) {
 		status = FILE_END_OF_FILE;
 	}
-	else {
-		fileState->readLength = bytesRead;
-	}
-	fileState->current = 0;
+	fileState->end = fileState->buffer + bytesRead - 1;
+	fileState->current = fileState->buffer;
 	return status;
 }
 
-// Skip all white spaces
-static StatusCode skipWhiteSpace(FileState* fileState) {
+// Read the next character or null if there are no more characters to be read.
+static char* readNext(FileState* fileState) {
 	StatusCode status = SUCCESS;
-	do {
-		while (fileState->current < fileState->readLength
-			&& *(fileState->buffer + fileState->current) == ' ') fileState->current++;
-		if (fileState->current == fileState->readLength) {
-			status = readNextBlock(fileState);
-			if (status != SUCCESS){
-				return status;
-			}
+	fileState->current++;
+	if (fileState->current > fileState->end) {
+		status = readNextBlock(fileState);
+		if (status != SUCCESS) {
+			return NULL;
 		}
-		else {
-			break;
-		}
-	} while (true);
-	return status;
+	}
+	return fileState->current;
 }
 
-static StatusCode skipLine(FileState *fileState) {
-	StatusCode status = SUCCESS;
-	bool eol = false;
-	do {
-		// Read until end of line or end of the buffer is reached
-		while (fileState->current < fileState->readLength && eol == false) {
-			if (*(fileState->buffer + fileState->current) == '\n' || 
-				*(fileState->buffer + fileState->current) == '\r') {
-				eol = true;
-				break;
-			}
-			fileState->current++;
-		}
-
-		// Skip eol
-		while (fileState->current < fileState->readLength
-			&& eol == true
-			&& (*(fileState->buffer + fileState->current) == '\n' 
-				|| *(fileState->buffer + fileState->current) == '\r')) {
-			fileState->current++;
-		}
-
-		if (fileState->current == fileState->readLength) {
-			status = readNextBlock(fileState);
-			if (status != SUCCESS) {
-				return status;
-			}
-		}
-		else {
-			break;
-		}
-	} while (true);
-	return status;
+// Sets the current and end pointers to the current key.
+static void setCurrentKey(PairState* state) {
+	KeyValuePair* current = state->pairs + state->index;
+	state->current = current->key;
+	state->end = current->key + current->keyLength - 1;
 }
 
-// Read a key and make sure the cursor is updated to the beginning
-// of the value space if it is possible.
-static StatusCode readKey(FileState *fileState, KeyValuePair* pair) {
-	StatusCode status = SUCCESS;
-	size_t filledKeyLength = 0;
-	size_t count = 0;
-	bool separatorFound = false;
-	do {
-		count = 0;
-		while (fileState->current < fileState->readLength) {
-			if (*(fileState->buffer + fileState->current) == ':') {
-				separatorFound = true;
-				break;
-			}
-			
-			// Check document start ---
-			if (*(fileState->buffer + fileState->current) == '-') {
-				if (++fileState->dashCount == 3) {
-					fileState->dashCount = 0;
-					return FILE_END_OF_DOCUMENT;
-				}
-			}
-			else {
-				fileState->dashCount = 0;
-			}
-
-			// Check end of documents ...
-			if (*(fileState->buffer + fileState->current) == '.') {
-				if (++fileState->dotCount == 3) {
-					fileState->dotCount = 0;
-					return FILE_END_OF_DOCUMENTS;
-				}
-			}
-			else {
-				fileState->dotCount = 0;
-			}
-
-			if (filledKeyLength + count > pair->keyLength) {
-				return INSUFFICIENT_MEMORY;
-			}
-			fileState->current++;
-			count++;
-		}
-
-		// Move whichever read to the key space
-		strncpy(pair->key + filledKeyLength, fileState->buffer + fileState->current - count, count);
-		filledKeyLength += count;
-
-		// End of buffer has been reached, read next block
-		// and move cursor to the next byte in the block
-		if (fileState->current == fileState->readLength) {
-			status = readNextBlock(fileState);
-			if ((status != SUCCESS &&
-				status != FILE_END_OF_FILE) ||
-				(status == FILE_END_OF_FILE &&
-				fileState->readLength == 0)) {
-				break;
-			}
-		}
-		else if (separatorFound) {
-			fileState->current++;
-			break;
-		}
-	} while (true);
-
-	// Set the null terminator
-	if (filledKeyLength < pair->keyLength) {
-		pair->key[filledKeyLength] = '\0';
-	}
-	else {
-		pair->key[pair->keyLength] = '\0';
-	}
-	return SUCCESS;
+// Sets the current and end pointers to the current value.
+static void setCurrentValue(PairState* state) {
+	KeyValuePair* current = state->pairs + state->index;
+	state->current = current->value;
+	state->end = current->value + current->valueLength - 1;
 }
 
-// Read a value and make sure the cursor starts at the beginning of
-// the next line.
-StatusCode readValue(FileState *fileState, KeyValuePair* pair) {
-	StatusCode status = SUCCESS;
-	size_t count = 0;
-	size_t filledValueLength = 0;
-	bool eol = false;
-	do {
-		count = 0;
-		// Read until end of line or end of the buffer is reached
-		while (fileState->current < fileState->readLength && eol == false) {
-			if (*(fileState->buffer + fileState->current) == '\n' 
-				|| *(fileState->buffer + fileState->current) == '\r') {
-				eol = true;
-				break;
-			}
-			if (filledValueLength + count > pair->valueLength) {
-				return INSUFFICIENT_MEMORY;
-			}
-			fileState->current++;
-			count++;
-		}
-
-		// Move whichever read to the key space
-		strncpy(
-			pair->value + filledValueLength,
-			fileState->buffer + fileState->current - count,
-			count);
-		filledValueLength += count;
-
-		// Skip eol
-		while (fileState->current < fileState->readLength
-			&& eol == true 
-			&& (*(fileState->buffer + fileState->current) == '\n' 
-				|| *(fileState->buffer + fileState->current) == '\r')) {
-			fileState->current++;
-			count++;
-		}
-
-		if (fileState->current == fileState->readLength) {
-			status = readNextBlock(fileState);
-			if ((status != SUCCESS &&
-				status != FILE_END_OF_FILE) ||
-				(status == FILE_END_OF_FILE &&
-					fileState->readLength == 0)) {
-				break;
-			}
-		}
-		else if (eol) {
-			break;
-		}
-	} while (true);
-
-	// Set the null terminator
-	if (filledValueLength < pair->valueLength) {
-		pair->value[filledValueLength] = '\0';
-	}
-	else {
-		pair->value[pair->valueLength] = '\0';
-	}
-	return status;
+// Switches from writing to the current key to the current value. Ensures that
+// the current string being written is null terminated.
+static void switchKeyValue(PairState* state) {
+	*state->current = '\0';
+	setCurrentValue(state);
 }
 
-StatusCode readNextKeyValuePair(FileState *fileState, KeyValuePair *pair) {
-	StatusCode status;
-	if ((status = readKey(fileState, pair)) != SUCCESS) {
-		return status;
-	}
-
-	if ((status = skipWhiteSpace(fileState)) != SUCCESS) {
-		return status;
-	}
-
-	if ((status = readValue(fileState, pair)) != SUCCESS) {
-		return status;
-	}
-
-	return status;
+// Advances to the next key value pair. Ensures that the current string being 
+// written is null terminated.
+static void nextPair(PairState* state) {
+	*state->current = '\0';
+	state->index++;
+	setCurrentKey(state);
 }
 
-StatusCode readNextDocument(
-	FileState *fileState,
-	KeyValuePair* keyValuePairs,
-	uint16_t collectionSize,
-	void *state,
-	void(*callback)(KeyValuePair*, uint16_t, void*)) {
-	StatusCode status = skipLine(fileState);
-	if (status != SUCCESS) {
-		return status;
-	}
+// Sets the counters for a new line.
+static void newLine(FileState* state) {
+	state->newLineCount = 0;
+	state->dotCount = 0;
+	state->dashCount = 0;
+	state->position = 0;
+	state->colon = 0;
+	state->quote = 0;
+}
 
-	uint16_t count = 0;
-	while (
-		(status = readNextKeyValuePair(
-			fileState,
-			&keyValuePairs[count])) == SUCCESS && count < collectionSize) {
-		count++;
-	}
+// Sets the pairs for a new document.
+static void newDocument(PairState* state) {
+	state->index = -1;
+}
 
-	// Only call back if succeeded
-	if (status == SUCCESS ||
-		status == FILE_END_OF_DOCUMENT ||
-		status == FILE_END_OF_DOCUMENTS)
-	{
-		callback(keyValuePairs, count, state);
+// Move the character position along by one.
+static void advance(FileState* state) {
+	state->newLineCount = 0;
+	state->position++;
+}
+
+// True if the character from the file is a value and not a control character.
+static bool isValue(FileState* state) {
+	return state->colon == 0 || state->position > state->colon + 1;
+}
+
+// Adds the character to the key value pair if the conditions are met.
+static void addCharacter(
+	PairState* pairState, 
+	FileState* fileState, 
+	char* current) {
+	if (pairState->current < pairState->end &&
+		pairState->index < pairState->size &&
+		isValue(fileState)) {
+		*pairState->current = *current;
+		pairState->current++;
 	}
-	return status;
 }
 
 StatusCode fiftyoneDegreesYamlFileIterateWithLimit(
@@ -305,29 +159,129 @@ StatusCode fiftyoneDegreesYamlFileIterateWithLimit(
 	int limit,
 	void* state,
 	void(*callback)(KeyValuePair*, uint16_t, void*)) {
+	char* current;
 	FILE *handle;
 	int count = 0;
-
 	StatusCode status = FileOpen(fileName, &handle);
-	FileState fileState = { handle, buffer, 0, 0, length, 0, 0 };
-	if (status == SUCCESS) {
-		// Read the first block
-		status = readNextBlock(&fileState);
-		if (status == SUCCESS ||
-			status == FILE_END_OF_FILE) {
-			while ((count < limit || limit < 0)
-				&& (status == SUCCESS || status == FILE_END_OF_DOCUMENT)) {
-				status = readNextDocument(
-					&fileState,
-					keyValuePairs,
-					collectionSize,
-					state,
-					callback);
-				count++;
+	if (status != SUCCESS) {
+		return status;
+	}
+
+	FileState fileState = { 
+		handle, 
+		buffer, 
+		length,
+		// Set the end and current to 0 to force the next block to be read.
+		0,
+		0,
+		0, 
+		0,
+		0,
+		0,
+		0,
+		false };
+
+	PairState pairState = {
+		keyValuePairs,
+		collectionSize,
+		0,
+		keyValuePairs[0].key,
+		keyValuePairs[0].key + keyValuePairs[0].keyLength - 1 };
+
+	// If there is no limit then set the limit to the largest value to 
+	// avoid checking for negative values in the loop.
+	if (limit < 0) {
+		limit = INT_MAX;
+	}
+
+	while (true) {
+		current = readNext(&fileState);
+
+		// If EOF or the first new line then move to the next pair.
+		if (!current || *current == '\n' || *current == '\r') {
+			if (fileState.newLineCount == 0) {
+
+				// If there was a quote earlier in the string and the last one
+				// is also a quote then remove the last quote.
+				if (fileState.quote > 0 && 
+					*(pairState.current - 1) == '\'') {
+					pairState.current--;
+				}
+				nextPair(&pairState);
 			}
+			if (current) {
+				newLine(&fileState);
+				fileState.newLineCount++;
+			}
+			else {
+				// EOF
+				if (pairState.index > 0) {
+					callback(keyValuePairs, pairState.index, state);
+				}
+				break;
+			}
+		}
+
+		// If a dash and control length is reached then return the pairs
+		// and reset ready for the next set.
+		else if (*current == '-' && fileState.position == fileState.dashCount) {
+			advance(&fileState);
+			fileState.dashCount++;
+			if (fileState.dashCount == CONTROL_LENGTH) {
+				if (pairState.index > 0)
+				{
+					callback(keyValuePairs, pairState.index, state);
+					count++;
+					if (count >= limit) {
+						break;
+					}
+				}
+				newDocument(&pairState);
+			}
+		}
+
+		// If a dot and control length then return and exit.
+		else if (*current == '.' && fileState.position == fileState.dotCount) {
+			advance(&fileState);
+			fileState.dotCount++;
+			if (fileState.dotCount == CONTROL_LENGTH) {
+				if (pairState.index > 0)
+				{
+					callback(keyValuePairs, pairState.index, state);
+				}
+				break;
+			}
+		}
+
+		// If the first colon then switch adding from the key to the value.
+		// Record the colon having been passed.
+		else if (*current == ':' && fileState.colon == 0) {
+			advance(&fileState);
+			switchKeyValue(&pairState);
+			fileState.colon = fileState.position;
+		}
+
+		// If this is the first quote after the colon and the space then don't
+		// add the character to the value and record the fact a colon has been
+		// found. This will be used at the end of the line to remove the last
+		// quote if one is present. Other quotes within the string will be 
+		// treated normally.
+		else if (*current == '\'' && 
+			fileState.colon > 0 && 
+			fileState.colon + 1 == fileState.position) {
+			advance(&fileState);
+			fileState.quote = fileState.position;
+		}
+
+		// Not a control character just add to the current key or value if
+		// there is space remaining.
+		else {
+			advance(&fileState);
+			addCharacter(&pairState, &fileState, current);
 		}
 	}
 	fclose(handle);
+	
 	return status;
 }
 

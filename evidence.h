@@ -160,6 +160,8 @@ typedef struct fiftyone_degrees_evidence_prefix_map_t {
 typedef struct fiftyone_degrees_evidence_key_value_pair_t {
 	fiftyoneDegreesEvidencePrefix prefix; /**< e.g. #FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING */
 	const char *field; /**< e.g. User-Agent or ScreenPixelsWidth */
+	size_t fieldLength; /**< length of field */
+	void* relative; /**< optional pointer to a related entity */
 	const void *originalValue; /**< The original unparsed value */
 	const void *parsedValue; /**< The parsed value which may not be a string */
 } fiftyoneDegreesEvidenceKeyValuePair;

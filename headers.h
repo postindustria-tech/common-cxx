@@ -195,7 +195,8 @@ EXTERNAL fiftyoneDegreesHeaders* fiftyoneDegreesHeadersCreate(
 	fiftyoneDegreesHeadersGetMethod get);
 
 /**
- * Provides the integer index of the HTTP header name.
+ * Provides the integer index of the HTTP header name, or -1 if there is no 
+ * matching header.
  * @param headers structure created by #fiftyoneDegreesHeadersCreate
  * @param httpHeaderName of the header whose index is required
  * @param length number of characters in httpHeaderName

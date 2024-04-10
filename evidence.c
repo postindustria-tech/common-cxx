@@ -59,6 +59,8 @@ fiftyoneDegreesEvidenceCreate(uint32_t capacity) {
 	if (evidence != NULL) {
 		for (i = 0; i < evidence->capacity; i++) {
 			evidence->items[i].field = NULL;
+			evidence->items[i].fieldLength = 0;
+			evidence->items[i].relative = NULL;
 			evidence->items[i].originalValue = NULL;
 			evidence->items[i].parsedValue = NULL;
 			evidence->items[i].prefix = FIFTYONE_DEGREES_EVIDENCE_IGNORE;
@@ -83,6 +85,7 @@ fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddString(
 		pair = &evidence->items[evidence->count++];
 		pair->prefix = prefix;
 		pair->field = field;
+		pair->fieldLength = strlen(field);
 		pair->originalValue = (void*)originalValue;
 		pair->parsedValue = NULL;
 	}
@@ -97,7 +100,7 @@ fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddString(
  * @param prefixes the accepted evidence prefixes
  * @param state the state object to hold the current state of the process
  * @param cont indicate whether the iteration should continue. This normally
- * indicate if error has occured. Upon return, this value is also updated so
+ * indicate if error has occurred. Upon return, this value is also updated so
  * that caller know whether to continue processing any other member set of
  * the evidence collection.
  * @param callback the method to call back when a matched evidence is found.

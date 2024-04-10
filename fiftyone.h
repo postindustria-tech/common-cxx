@@ -178,6 +178,7 @@ MAP_TYPE(Coordinate)
 MAP_TYPE(HeaderSegment)
 MAP_TYPE(HeaderSegmentArray)
 MAP_TYPE(KeyValuePair)
+MAP_TYPE(HeaderID)
 
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */
 #define OverrideValuesAdd fiftyoneDegreesOverrideValuesAdd /**< Synonym for #fiftyoneDegreesOverrideValuesAdd function. */

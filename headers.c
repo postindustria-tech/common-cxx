@@ -433,7 +433,7 @@ bool fiftyoneDegreesHeadersIsHttp(
 	return HeaderGetIndex(
 		(Headers*)state,
 		pair->field, 
-		strlen(pair->field)) >= 0;
+		pair->fieldLength) >= 0;
 }
 
 /**

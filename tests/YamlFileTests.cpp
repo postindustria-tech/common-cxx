@@ -26,6 +26,7 @@
 #include <sstream>
 #include "../yamlfile.h"
 #include "../fiftyone.h"
+#include <vector>
 
 using namespace std;
 
@@ -33,20 +34,13 @@ using namespace std;
 // cleaned at the end of the test
 #define TEMP_FILE_EXT "_tmp"
 
-typedef struct test_key_value_pair_t {
-	char key[100];
-	char value[100];
-} testKeyValuePair;
+struct TestValuePair {
+	string key;
+	string value;
+};
 
-typedef struct test_document_t {
-	uint32_t count;
-	testKeyValuePair pairs[3];
-} testDocument;
-
-typedef struct test_state_t {
-	uint32_t count;
-	testDocument documents[4];
-} testState;
+typedef vector<TestValuePair> TestDocument;
+typedef vector<TestDocument> TestState;
 
 /*
  * Create a file name used for testing. The file
@@ -56,10 +50,10 @@ typedef struct test_state_t {
  * @return the string object of the newly constructed
  * file name.
  */
-static string* getFileWithPath(string fileName) {
+static string getFileWithPath(string fileName) {
 	stringstream ss = stringstream("");
 	ss << "./" << fileName << TEMP_FILE_EXT;
-	return new string(ss.str());
+	return ss.str();
 }
 
 /*
@@ -72,13 +66,13 @@ static string* getFileWithPath(string fileName) {
  * @param withEOFNewLine whether a new line should
  * be appended to the end of the file
  */
-static void createTestFile(string fileNamePath, string* testRecords, uint16_t size, bool withEOFNewLine)
+static void createTestFile(string fileNamePath, vector<string> testRecords, bool withEOFNewLine)
 {
 	// Create a new file
 	FILE* fp = fopen(fileNamePath.c_str(), "w+");
 
 	if (fp != NULL) {
-		for (int i = 0; i < size; i++) {
+		for (size_t i = 0; i < testRecords.size(); i++) {
 			if (i != 0) {
 				// Write a new line if not first
 				// The end result will always be
@@ -114,36 +108,46 @@ static void deleteTestFile(string fileName)
  * progress of the iteration
  */
 static void testCallBack(KeyValuePair *pairs, uint16_t size, void* state) {
-	testState *tState = (testState*)state;
+	TestState *tState = (TestState*)state;
+	TestDocument newDocument;
 	for (int i = 0; i < size; i++) {
-		testDocument *document = &tState->documents[tState->count];
-		strcpy(document->pairs[document->count].key, pairs[i].key);
-		strcpy(document->pairs[document->count].value, pairs[i].value);
-		document->count++;
+		newDocument.push_back({ pairs[i].key, pairs[i].value });
 	}
-	tState->count++;
+	tState->push_back(newDocument);
 }
 
-static void testYamlFileIterator(bool eofNewLine, int limit, testDocument *expected, size_t expectedCount) {
-	string* filePath = getFileWithPath(string("testfile"));
-	string testRecords[11] =
-	{
-		string("---"),
-		string("header.TestKey1: TestRecord1"),
-		string("header.TestKey2: TestRecord2"),
-		string("---"),
-		string("---"),
-		string("header.TestKey3: TestRecord3"),
-		string("header.TestKey4: TestRecord4"),
-		string("header.TestKey5: TestRecord5"),
-		string("---"),
-		string("header.TestKey6: TestRecord6"),
-		string("..."),
-	};
-	char buffer[500] = "";
-	testState state = { 0 };
+struct TestOptions {
+	bool eofNewLine = true;
+	int limit = -1;
+	bool addDotsLine = true;
+	bool addEmptyDoc = false;
+};
 
-	createTestFile(*filePath, testRecords, 11, eofNewLine);
+static void testYamlFileIterator(const TestOptions testOptions, const TestState &expected) {
+	string filePath = getFileWithPath("testfile");
+	vector<string> testRecords =
+	{
+		"---",
+		"header.TestKey1: 'TestRecord1'",
+		"header.TestKey2: TestRecord2",
+		"---",
+		"---",
+		"header.TestKey3: TestRecord3",
+		"header.TestKey4: TestRecord4",
+		"header.TestKey5: TestRecord5",
+		"---",
+		"header.TestKey6: TestRecord6",
+	};
+	if (testOptions.addEmptyDoc) {
+		testRecords.push_back("---");
+	}
+	if (testOptions.addDotsLine) {
+		testRecords.push_back("...");
+	}
+	char buffer[500] = "";
+	TestState state;
+
+	createTestFile(filePath, testRecords, testOptions.eofNewLine);
 
 	char key[4][100];
 	char value[4][100];
@@ -156,116 +160,169 @@ static void testYamlFileIterator(bool eofNewLine, int limit, testDocument *expec
 
 	// Iterate through file and count the number of records
 	fiftyoneDegreesYamlFileIterateWithLimit(
-		filePath->c_str(),
+		filePath.c_str(),
 		buffer,
 		500,
 		pairs,
 		4,
-		limit,
+		testOptions.limit,
 		&state,
 		testCallBack);
 
 	// Remove the test file
-	deleteTestFile(*filePath);
-	delete filePath;
+	deleteTestFile(filePath);
 
-	ASSERT_EQ(expectedCount, state.count) << expectedCount << " records should have been read.";
-	for (uint32_t i = 0; i < state.count; i++) {
-		ASSERT_EQ(expected[i].count, state.documents[i].count);
-		for (uint32_t j = 0; j < state.documents[i].count; j++) {
-			ASSERT_EQ(0, strcmp(expected[i].pairs[j].key, state.documents[i].pairs[j].key)) <<
-				"Key is not as expected. Expected " << expected[i].pairs[j].key <<
-				" but get " << state.documents[i].pairs[j].key;
-			ASSERT_EQ(0, strcmp(expected[i].pairs[j].value, state.documents[i].pairs[j].value)) <<
-				"Key is not as expected. Expected " << expected[i].pairs[j].value <<
-				" but get " << state.documents[i].pairs[j].value;
+	ASSERT_EQ(expected.size(), state.size()) << expected.size() << " records should have been read.";
+	for (uint32_t i = 0; i < state.size(); i++) {
+		ASSERT_EQ(expected[i].size(), state[i].size());
+		for (uint32_t j = 0; j < state[i].size(); j++) {
+			ASSERT_EQ(0, strcmp(expected[i][j].key.c_str(), state[i][j].key.c_str())) <<
+				"Key is not as expected. Expected " << expected[i][j].key <<
+				" but get " << state[i][j].key;
+			ASSERT_EQ(0, strcmp(expected[i][j].value.c_str(), state[i][j].value.c_str())) <<
+				"Key is not as expected. Expected " << expected[i][j].value <<
+				" but get " << state[i][j].value;
 		}
 	}
 }
 
 TEST(YamlFileIteratorTests, NoLimitWithoutEOFNewLine) {
-	testDocument expected[4] = {
+	TestState expected = {
 		{
-			2,
-			{
-				{"header.TestKey1", "TestRecord1"},
-				{"header.TestKey2", "TestRecord2"}
-			}
+			{"header.TestKey1", "TestRecord1"},
+			{"header.TestKey2", "TestRecord2"}
 		},
 		{
-			0,
-			{}
+			{"header.TestKey3", "TestRecord3"},
+			{"header.TestKey4", "TestRecord4"},
+			{"header.TestKey5", "TestRecord5"}
 		},
 		{
-			3,
-			{
-				{"header.TestKey3", "TestRecord3"},
-				{"header.TestKey4", "TestRecord4"},
-				{"header.TestKey5", "TestRecord5"}
-			}
+			{"header.TestKey6", "TestRecord6"},
 		},
-		{
-			1,
-			{
-				{"header.TestKey6", "TestRecord6"}
-			}
-		}
 	};
-	testYamlFileIterator(false, -1, expected, 4);
+	testYamlFileIterator({ false }, expected);
 }
 
 TEST(YamlFileIteratorTests, NoLimitWithEOFNewLine) {
-	testDocument expected[4] = {
+	TestState expected = {
 		{
-			2,
-			{
-				{"header.TestKey1", "TestRecord1"},
-				{"header.TestKey2", "TestRecord2"}
-			}
+			{"header.TestKey1", "TestRecord1"},
+			{"header.TestKey2", "TestRecord2"},
 		},
 		{
-			0,
-			{}
+			{"header.TestKey3", "TestRecord3"},
+			{"header.TestKey4", "TestRecord4"},
+			{"header.TestKey5", "TestRecord5"},
 		},
 		{
-			3,
-			{
-				{"header.TestKey3", "TestRecord3"},
-				{"header.TestKey4", "TestRecord4"},
-				{"header.TestKey5", "TestRecord5"}
-			}
+			{"header.TestKey6", "TestRecord6"},
 		},
-		{
-			1,
-			{
-				{"header.TestKey6", "TestRecord6"}
-			}
-		}
 	};
-	testYamlFileIterator(true, -1, expected, 4);
+	testYamlFileIterator({ true }, expected);
 }
 
 TEST(YamlFileIteratorTests, Limit) {
-	testDocument expected[3] = {
+	TestState expected = {
 		{
-			2,
-			{
-				{"header.TestKey1", "TestRecord1"},
-				{"header.TestKey2", "TestRecord2"}
-			}
+			{"header.TestKey1", "TestRecord1"},
+			{"header.TestKey2", "TestRecord2"},
 		},
 		{
-			0,
-			{}
+			{"header.TestKey3", "TestRecord3"},
+			{"header.TestKey4", "TestRecord4"},
+			{"header.TestKey5", "TestRecord5"},
 		},
-		{
-			3,
-			{
-				{"header.TestKey3", "TestRecord3"},
-				{"header.TestKey4", "TestRecord4"},
-				{"header.TestKey5", "TestRecord5"}
-			}
-		}
 	};
-	testYamlFileIterator(false, 3, expected, 3);
+	testYamlFileIterator({ false, 2 }, expected);
+}
+
+TEST(YamlFileIteratorTests, NoLimitWithoutEOFNewLineWithoutDotsLine) {
+	TestState expected = {
+		{
+			{"header.TestKey1", "TestRecord1"},
+			{"header.TestKey2", "TestRecord2"}
+		},
+		{
+			{"header.TestKey3", "TestRecord3"},
+			{"header.TestKey4", "TestRecord4"},
+			{"header.TestKey5", "TestRecord5"}
+		},
+		{
+			{"header.TestKey6", "TestRecord6"},
+		},
+	};
+	testYamlFileIterator({ false, -1, false }, expected);
+}
+
+TEST(YamlFileIteratorTests, NoLimitWithEOFNewLineWithoutDotsLine) {
+	TestState expected = {
+		{
+			{"header.TestKey1", "TestRecord1"},
+			{"header.TestKey2", "TestRecord2"}
+		},
+		{
+			{"header.TestKey3", "TestRecord3"},
+			{"header.TestKey4", "TestRecord4"},
+			{"header.TestKey5", "TestRecord5"}
+		},
+		{
+			{"header.TestKey6", "TestRecord6"},
+		},
+	};
+	testYamlFileIterator({ true, -1, false }, expected);
+}
+
+TEST(YamlFileIteratorTests, NoLimitLastDocEmptyNoDotsLineNoEOFNewLine) {
+	TestState expected = {
+		{
+			{"header.TestKey1", "TestRecord1"},
+			{"header.TestKey2", "TestRecord2"}
+		},
+		{
+			{"header.TestKey3", "TestRecord3"},
+			{"header.TestKey4", "TestRecord4"},
+			{"header.TestKey5", "TestRecord5"}
+		},
+		{
+			{"header.TestKey6", "TestRecord6"},
+		},
+	};
+	testYamlFileIterator({ false, -1, false, true }, expected);
+}
+
+TEST(YamlFileIteratorTests, NoLimitLastDocEmptyNoDotsLine) {
+	TestState expected = {
+		{
+			{"header.TestKey1", "TestRecord1"},
+			{"header.TestKey2", "TestRecord2"}
+		},
+		{
+			{"header.TestKey3", "TestRecord3"},
+			{"header.TestKey4", "TestRecord4"},
+			{"header.TestKey5", "TestRecord5"}
+		},
+		{
+			{"header.TestKey6", "TestRecord6"},
+		},
+	};
+	testYamlFileIterator({ true, -1, false, true }, expected);
+}
+
+TEST(YamlFileIteratorTests, NoLimitLastDocEmptyNoEOFNewLine) {
+	TestState expected = {
+		{
+			{"header.TestKey1", "TestRecord1"},
+			{"header.TestKey2", "TestRecord2"}
+		},
+		{
+			{"header.TestKey3", "TestRecord3"},
+			{"header.TestKey4", "TestRecord4"},
+			{"header.TestKey5", "TestRecord5"}
+		},
+		{
+			{"header.TestKey6", "TestRecord6"},
+		},
+	};
+	testYamlFileIterator({ false, -1, true, true }, expected);
 }

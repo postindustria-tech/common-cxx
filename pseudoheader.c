@@ -37,17 +37,15 @@ static const char* getEvidenceValueForHeader(
     HeaderSegment* segment,
     const EvidenceKeyValuePairArray *evidence,
     EvidencePrefix prefix) {
-    size_t length;
     EvidenceKeyValuePair *pair;
     for (uint32_t i = 0; i < evidence->count; i++) {
         pair = &evidence->items[i];
         if (pair->prefix == prefix) {
-            length = strlen(pair->field);
-            if (length == segment->length &&
+            if (pair->fieldLength == segment->length &&
                 StringCompareLength(
                     pair->field,
                     segment->segment, 
-                    length) == 0) {
+                    segment->length) == 0) {
                 return (char*)evidence->items[i].originalValue;
             }
         }
@@ -135,7 +133,6 @@ static bool isEvidencePresentForHeader(
     const EvidencePrefix* acceptedPrefixes,
     size_t numberOfPrefixes) {
     bool matchPrefix = false;
-    size_t length;
     EvidenceKeyValuePair* pair;
     for (uint32_t i = 0; i < evidence->count; i++) {
         pair = &evidence->items[i];
@@ -151,8 +148,7 @@ static bool isEvidencePresentForHeader(
 
         // Compare the field name to the header name if the prefix matches.
         if (matchPrefix) {
-            length = strlen(pair->field);
-            if (length == header->nameLength &&
+            if (pair->fieldLength == header->nameLength &&
                 StringCompare(header->name, pair->field) == 0) {
                 return true;
             }
@@ -205,13 +201,16 @@ fiftyoneDegreesPseudoHeadersAddEvidence(
                                	evidence->pseudoEvidence->items[
                                    	evidence->pseudoEvidence->count].field =
                                    	header->name;
-                                   	evidence->pseudoEvidence->items[
-                                       	evidence->pseudoEvidence->count].prefix =
-                                       	orderOfPrecedence[j];
-                                       	evidence->pseudoEvidence->count++;
-                                       	// Once a complete pseudo evidence is found
-                                       	// move on the next pseudo header
-                                       	break;
+                                evidence->pseudoEvidence->items[
+                                    evidence->pseudoEvidence->count].fieldLength =
+                                    header->nameLength;
+                                evidence->pseudoEvidence->items[
+                                    evidence->pseudoEvidence->count].prefix =
+                                    orderOfPrecedence[j];
+                                    evidence->pseudoEvidence->count++;
+                                    // Once a complete pseudo evidence is found
+                                    // move on the next pseudo header
+                                    break;
 							}
 							else if (charAdded < 0) {
                                 PseudoHeadersRemoveEvidence(
@@ -243,6 +242,7 @@ void fiftyoneDegreesPseudoHeadersRemoveEvidence(
         for (uint32_t i = 0; i < evidence->pseudoEvidence->count; i++) {
             pair = &evidence->pseudoEvidence->items[i];
             pair->field = NULL;
+            pair->fieldLength = 0;
             memset((void*)pair->originalValue, '\0', bufferSize);
         }
         evidence->pseudoEvidence->count = 0;

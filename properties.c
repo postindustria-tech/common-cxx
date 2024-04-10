@@ -54,9 +54,7 @@ static uint32_t countAvailableProperties(propertiesSource *source) {
 	uint32_t i = 0;
 	DataReset(&stringItem.data);
 	while (source->getName(source->state, i, &stringItem) != NULL) {
-		if (stringItem.collection != NULL) {
-			COLLECTION_RELEASE(stringItem.collection, &stringItem);
-		}
+		COLLECTION_RELEASE(stringItem.collection, &stringItem);
 		i++;
 	}
 	return i;
@@ -129,14 +127,10 @@ static int getPropertyIndex(
 			_strnicmp(&test->value,
 				requiredPropertyName,
 				requiredPropertyLength) == 0) {
-			if (stringItem.collection != NULL) {
-				COLLECTION_RELEASE(stringItem.collection, &stringItem);
-			}
+			COLLECTION_RELEASE(stringItem.collection, &stringItem);
 			return i;
 		}
-		if (stringItem.collection != NULL) {
-			COLLECTION_RELEASE(stringItem.collection, &stringItem);
-		}
+		COLLECTION_RELEASE(stringItem.collection, &stringItem);
 		test = source->getName(source->state, ++i, &stringItem);
 	}
 	return -1;

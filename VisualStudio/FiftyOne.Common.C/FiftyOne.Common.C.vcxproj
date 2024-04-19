@@ -69,6 +69,7 @@
     <ClInclude Include="..\..\headers.h" />
     <ClInclude Include="..\..\ip.h" />
     <ClInclude Include="..\..\list.h" />
+    <ClInclude Include="..\..\indexes.h" />
     <ClInclude Include="..\..\memory.h" />
     <ClInclude Include="..\..\overrides.h" />
     <ClInclude Include="..\..\pair.h" />
@@ -103,6 +104,7 @@
     <ClCompile Include="..\..\headers.c" />
     <ClCompile Include="..\..\ip.c" />
     <ClCompile Include="..\..\list.c" />
+    <ClCompile Include="..\..\indexes.c" />
     <ClCompile Include="..\..\memory.c" />
     <ClCompile Include="..\..\overrides.c" />
     <ClCompile Include="..\..\pool.c" />

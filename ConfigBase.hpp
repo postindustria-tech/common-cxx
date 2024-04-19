@@ -114,6 +114,13 @@ namespace FiftyoneDegrees {
 			void setTempDirectories(vector<string> tempDirs);
 			
 			/**
+			 * Set whether or not an index to speed up the retrieval of values
+			 * for profiles and properties is created.
+			 * @param index should create an index
+			 */
+			void setPropertyValueIndex(bool index);
+
+			/**
 			 * @}
 			 * @name Getters
 			 * @{
@@ -148,6 +155,13 @@ namespace FiftyoneDegrees {
 			 * temporary directories are to be used.
 			 */
 			vector<string> getTempDirectories() const;
+
+			/**
+			 * Gets a flag indicating if an index of values for properties and
+			 * profile is created.
+			 * @return true if an index should be created, or false if not.
+			 */
+			bool getPropertyValueIndex() const;
 
 			/**
 			 * Get the expected number of concurrent accessors of the data set.

@@ -107,7 +107,6 @@ static uint32_t* getFirstValueForProfileAndProperty(
  */
 static uint32_t iterateValues(
 	Collection *values,
-	Profile *profile,
 	Property *property,
 	void *state,
 	ProfileIterateMethod callback,
@@ -117,13 +116,6 @@ static uint32_t iterateValues(
 	Item valueItem;
 	uint32_t count = 0;
 	bool cont = true;
-
-	// Move back through the values until the first one for the property is 
-	// found.
-	while ((void*)valueIndex > (void*)(profile + 1) &&
-		*(valueIndex - 1) >= property->firstValueIndex) {
-		valueIndex--;
-	}
 
 	// Loop through until the last value for the property has been returned
 	// or the callback doesn't need to continue.
@@ -135,8 +127,8 @@ static uint32_t iterateValues(
 		// Reset the items as they should never share the same memory.
 		DataReset(&valueItem.data);
 
-		// Get the value from the value index and call the callback. Do not free
-		// the item as the calling function is responsible for this.
+		// Get the value from the value index and call the callback. Do not 
+		// free the item as the calling function is responsible for this.
 		if (values->get(values, *valueIndex, &valueItem, exception) != NULL &&
 			EXCEPTION_OKAY) {
 			cont = callback(state, &valueItem);
@@ -251,22 +243,44 @@ uint32_t fiftyoneDegreesProfileIterateValuesForProperty(
 	void *state,
 	fiftyoneDegreesProfileIterateMethod callback,
 	fiftyoneDegreesException *exception) {
-	uint32_t *valueIndex  = getFirstValueForProfileAndProperty(
+	uint32_t *firstValueIndex  = getFirstValueForProfileAndProperty(
 		profile, 
 		property);
 	uint32_t count = 0;
-	if (valueIndex != NULL) {
+	if (firstValueIndex != NULL) {
 		count = iterateValues(
 			values, 
-			profile, 
 			property, 
 			state, 
 			callback, 
-			valueIndex,
+			firstValueIndex,
 			((uint32_t*)(profile + 1)) + profile->valueCount,
 			exception);
 	}
 	return count;
+}
+
+uint32_t fiftyoneDegreesProfileIterateValuesForPropertyWithIndex(
+	fiftyoneDegreesCollection* values,
+	fiftyoneDegreesIndexPropertyProfile* index,
+	uint32_t propertyIndex,
+	fiftyoneDegreesProfile* profile,
+	fiftyoneDegreesProperty* property,
+	void* state,
+	fiftyoneDegreesProfileIterateMethod callback,
+	fiftyoneDegreesException* exception) {
+	uint32_t firstValueIndex = IndexPropertyProfileLookup(
+		index,
+		profile->profileId,
+		propertyIndex);
+	return iterateValues(
+		values,
+		property,
+		state,
+		callback,
+		&firstValueIndex,
+		((uint32_t*)(profile + 1)) + profile->valueCount,
+		exception);
 }
 
 uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(

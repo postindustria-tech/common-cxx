@@ -269,7 +269,7 @@ uint32_t fiftyoneDegreesProfileIterateValuesForPropertyWithIndex(
 	void* state,
 	fiftyoneDegreesProfileIterateMethod callback,
 	fiftyoneDegreesException* exception) {
-	uint32_t firstValueIndex = IndexPropertyProfileLookup(
+	uint32_t *firstValueIndex = IndexPropertyProfileLookup(
 		index,
 		profile->profileId,
 		propertyIndex);
@@ -278,7 +278,7 @@ uint32_t fiftyoneDegreesProfileIterateValuesForPropertyWithIndex(
 		property,
 		state,
 		callback,
-		&firstValueIndex,
+		firstValueIndex,
 		((uint32_t*)(profile + 1)) + profile->valueCount,
 		exception);
 }

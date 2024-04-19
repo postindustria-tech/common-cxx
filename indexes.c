@@ -55,13 +55,13 @@ static void addProfileValuesMethod(
 	// relates to a new property index. If it does then record the first value
 	// index and advance the current index to the next pointer.
 	for (uint32_t i = 0; i < profile->valueCount && EXCEPTION_OKAY; i++) {
-		value = s->values->get(s->values, *(first + i), &valueItem, exception);
+		value = s->values->get(s->values, first[i], &valueItem, exception);
 		if (value != NULL && EXCEPTION_OKAY) {
 			
 			// If the values skip property indexes then set the value to zero
 			// and move to the next one.
 			while (nextPropertyIndex < value->propertyIndex) {
-				s->index->valueIndexes[currentIndex] = 0;
+				s->index->valueIndexes[currentIndex] = NULL;
 				currentIndex++;
 				nextPropertyIndex++;
 			}
@@ -69,7 +69,7 @@ static void addProfileValuesMethod(
 			// If this is the first value for the property index then record
 			// the value.
 			if (value->propertyIndex == nextPropertyIndex) {
-				s->index->valueIndexes[currentIndex] = *(first + i);
+				s->index->valueIndexes[currentIndex] = first + i;
 				currentIndex++;
 				nextPropertyIndex++;
 				s->index->filled++;
@@ -80,7 +80,7 @@ static void addProfileValuesMethod(
 
 	// Set any remaining values to zero.
 	while (nextPropertyIndex < (int16_t)s->index->propertyCount) {
-		s->index->valueIndexes[currentIndex] = 0;
+		s->index->valueIndexes[currentIndex] = NULL;
 		currentIndex++;
 		nextPropertyIndex++;
 	}
@@ -175,7 +175,7 @@ fiftyoneDegreesIndexPropertyProfileCreate(
 	index->profileCount = profileCount;
 	index->size = (maxProfileId + 1) * properties->count;
 	index->propertyCount = properties->count;
-	index->valueIndexes =(uint32_t*)Malloc(sizeof(uint32_t) * index->size);
+	index->valueIndexes =(uint32_t**)Malloc(sizeof(uint32_t*) * index->size);
 	if (index->valueIndexes == NULL) {
 		EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
 		Free(index);
@@ -209,7 +209,7 @@ void fiftyoneDegreesIndexPropertyProfileFree(
 	Free(index);
 }
 
-uint32_t fiftyoneDegreesIndexPropertyProfileLookup(
+uint32_t *fiftyoneDegreesIndexPropertyProfileLookup(
 	fiftyoneDegreesIndexPropertyProfile* index,
 	uint32_t profileId,
 	uint32_t propertyIndex) {

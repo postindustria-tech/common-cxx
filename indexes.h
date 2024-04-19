@@ -54,7 +54,7 @@
  * the number of properties multiplied by the number of profiles.
  */
 typedef struct fiftyoneDegrees_index_property_profile{
-	uint32_t* valueIndexes; // array of value indexes
+	uint32_t** valueIndexes; // array of value indexes
 	uint32_t propertyCount; // number of properties
 	uint32_t profileCount; // number of profiles in profileOffsets / profiles
 	uint32_t size; // number elements in the valueIndexes array
@@ -101,7 +101,7 @@ EXTERNAL void fiftyoneDegreesIndexPropertyProfileFree(
  * @return the index in the list of values for the profile for the first value 
  * associated with the property
  */
-EXTERNAL uint32_t fiftyoneDegreesIndexPropertyProfileLookup(
+EXTERNAL uint32_t *fiftyoneDegreesIndexPropertyProfileLookup(
 	fiftyoneDegreesIndexPropertyProfile* index,
 	uint32_t profileId,
 	uint32_t propertyIndex);

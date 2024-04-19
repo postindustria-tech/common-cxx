@@ -95,6 +95,7 @@
 #include "config.h"
 #include "overrides.h"
 #include "common.h"
+#include "indexes.h"
 
 /**
  * Base data set structure which contains the 'must have's for all data sets.
@@ -126,6 +127,9 @@ typedef struct fiftyone_degrees_dataset_base_t {
 	fiftyoneDegreesOverridePropertyArray *overridable; /**< Array of properties
 													   that can be 
 													   overridden */
+	fiftyoneDegreesIndexPropertyProfile* indexPropertyProfile; /**< Index to 
+															   look up profile 
+															   values */
     const void *config; /**< Pointer to the config used to create the dataset */
 } fiftyoneDegreesDataSetBase;
 

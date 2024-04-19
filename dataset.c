@@ -70,13 +70,19 @@ static StatusCode initWithTempFile(
 
 void fiftyoneDegreesDataSetFree(fiftyoneDegreesDataSetBase *dataSet) {
 
+	// Free the memory used for the index of property and profile values.
+	if (dataSet->indexPropertyProfile != NULL) {
+		IndexPropertyProfileFree(dataSet->indexPropertyProfile);
+		dataSet->indexPropertyProfile = NULL;
+	}
+
 	// Free the memory used by the unique headers.
 	HeadersFree(dataSet->uniqueHeaders);
 	dataSet->uniqueHeaders = NULL;
 
 	// Free the override properties if any.
 	if (dataSet->overridable != NULL) {
-		fiftyoneDegreesOverridePropertiesFree(dataSet->overridable);
+		OverridePropertiesFree(dataSet->overridable);
 		dataSet->overridable = NULL;
 	}
 
@@ -109,6 +115,7 @@ void fiftyoneDegreesDataSetReset(fiftyoneDegreesDataSetBase *dataSet) {
 	dataSet->uniqueHeaders = NULL;
 	dataSet->available = NULL;
 	dataSet->overridable = NULL;
+	dataSet->indexPropertyProfile = NULL;
 	dataSet->config = NULL;
 	dataSet->handle = NULL;
 }

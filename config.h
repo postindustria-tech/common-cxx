@@ -63,6 +63,8 @@ typedef struct fiftyone_degrees_config_base_t {
 	const char **tempDirs; /**< Array of temp directories which can be used in
 	                           order of preference. */
 	int tempDirCount; /**< Number of directories in the tempDirs array. */
+	bool propertyValueIndex; /**< Indicates if an index to values for property 
+							     and profiles should be created. */
 } fiftyoneDegreesConfigBase;
 
 /** Default value for the #FIFTYONE_DEGREES_CONFIG_USE_TEMP_FILE macro. */
@@ -99,7 +101,8 @@ FIFTYONE_DEGREES_CONFIG_ALL_IN_MEMORY_DEFAULT
 	FIFTYONE_DEGREES_CONFIG_USE_TEMP_FILE, /* useTempFile */ \
 	false, /* reuseTempFile */ \
 	NULL, /* tempDirs */ \
-	0 /* tempDirCount */
+	0, /* tempDirCount */ \
+	true /* propertyValueIndex */
 
 /**
  * @}

@@ -126,6 +126,9 @@
     <ClInclude Include="..\..\yamlfile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\indexes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\cache.c">
@@ -216,6 +219,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\yamlfile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\indexes.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

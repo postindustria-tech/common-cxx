@@ -79,6 +79,7 @@
 #include "property.h"
 #include "value.h"
 #include "common.h"
+#include "indexes.h"
 
 /**
  * Encapsulates a profile stored within a data set. A profile pertains to a
@@ -195,6 +196,30 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateValuesForProperty(
 	void *state,
 	fiftyoneDegreesProfileIterateMethod callback,
 	fiftyoneDegreesException *exception);
+
+/**
+ * Iterate over all values contained in the profile which relate to the
+ * specified property and profile, calling the callback method for each.
+ * @param values collection containing all values
+ * @param index array of property and profile first value indexes
+ * @param profileIndex the index of the profile
+ * @param propertyIndex the index of the property
+ * @param property which the values must relate to
+ * @param state pointer containing data needed for the callback method
+ * @param callback method to be called for each value
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h
+ * @return the number of matching values which have been iterated
+ */
+EXTERNAL uint32_t fiftyoneDegreesProfileIterateValuesForPropertyWithIndex(
+	fiftyoneDegreesCollection* values,
+	fiftyoneDegreesIndexPropertyProfile* index,
+	uint32_t propertyIndex,
+	fiftyoneDegreesProfile* profile,
+	fiftyoneDegreesProperty* property,
+	void* state,
+	fiftyoneDegreesProfileIterateMethod callback,
+	fiftyoneDegreesException* exception);
 
 /**
  * Iterate all profiles which contain the specified value, calling the callback

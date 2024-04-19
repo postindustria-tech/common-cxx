@@ -52,6 +52,10 @@ void ConfigBase::setTempDirectories(
 	mapTempDirectories();
 }
 
+void ConfigBase::setPropertyValueIndex(bool index) {
+	this->config->propertyValueIndex = index;
+}
+
 bool ConfigBase::getUseUpperPrefixHeaders() const {
 	return config->usesUpperPrefixedHeaders;
 }
@@ -66,6 +70,10 @@ bool ConfigBase::getReuseTempFile() const {
 
 vector<string> ConfigBase::getTempDirectories() const {
 	return tempDirs;
+}
+
+bool ConfigBase::getPropertyValueIndex() const {
+	return config->propertyValueIndex;
 }
 
 uint16_t ConfigBase::getConcurrency() const {

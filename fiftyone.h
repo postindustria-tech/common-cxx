@@ -85,6 +85,7 @@
 #include "process.h"
 #include "pair.h"
 #include "yamlfile.h"
+#include "indexes.h"
 
 /**
  * Macro used to support synonym implementation. Creates a typedef which 
@@ -179,6 +180,7 @@ MAP_TYPE(HeaderSegment)
 MAP_TYPE(HeaderSegmentArray)
 MAP_TYPE(KeyValuePair)
 MAP_TYPE(HeaderID)
+MAP_TYPE(IndexPropertyProfile)
 
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */
 #define OverrideValuesAdd fiftyoneDegreesOverrideValuesAdd /**< Synonym for #fiftyoneDegreesOverrideValuesAdd function. */
@@ -187,10 +189,12 @@ MAP_TYPE(HeaderID)
 #define ProfileGetByIndex fiftyoneDegreesProfileGetByIndex /**< Synonym for #fiftyoneDegreesProfileGetByIndex function. */
 #define OverridesAdd fiftyoneDegreesOverridesAdd /**< Synonym for #fiftyoneDegreesOverridesAdd function. */
 #define OverrideProfileIds fiftyoneDegreesOverrideProfileIds /**< Synonym for #fiftyoneDegreesOverrideProfileIds function. */
+#define OverridePropertiesFree fiftyoneDegreesOverridePropertiesFree /**< Synonym for #fiftyoneDegreesOverridePropertiesFree function. */
 #define ComponentInitList fiftyoneDegreesComponentInitList /**< Synonym for #fiftyoneDegreesComponentInitList function. */
 #define CollectionGetInteger32 fiftyoneDegreesCollectionGetInteger32 /**< Synonym for #fiftyoneDegreesCollectionGetInteger32 function. */
 #define PropertyGet fiftyoneDegreesPropertyGet /**< Synonym for #fiftyoneDegreesPropertyGet function. */
 #define ProfileIterateValuesForProperty fiftyoneDegreesProfileIterateValuesForProperty /**< Synonym for #fiftyoneDegreesProfileIterateValuesForProperty function. */
+#define ProfileIterateValuesForPropertyWithIndex fiftyoneDegreesProfileIterateValuesForPropertyWithIndex /**< Synonym for #fiftyoneDegreesProfileIterateValuesForPropertyWithIndex function. */
 #define ProfileIterateProfilesForPropertyAndValue fiftyoneDegreesProfileIterateProfilesForPropertyAndValue /**< Synonym for #fiftyoneDegreesProfileIterateProfilesForPropertyAndValue function. */
 #define PropertiesGetPropertyIndexFromName fiftyoneDegreesPropertiesGetPropertyIndexFromName /**< Synonym for #fiftyoneDegreesPropertiesGetPropertyIndexFromName function. */
 #define TreeIterate fiftyoneDegreesTreeIterateNodes /**< Synonym for #fiftyoneDegreesTreeIterateNodes function. */
@@ -332,6 +336,9 @@ MAP_TYPE(HeaderID)
 #define ProcessGetId fiftyoneDegreesProcessGetId /**< Synonym for fiftyoneDegreesProcessGetId */
 #define YamlFileIterate fiftyoneDegreesYamlFileIterate /**< Synonym for fiftyoneDegreesYamlFileIterate */
 #define YamlFileIterateWithLimit fiftyoneDegreesYamlFileIterateWithLimit /**< Synonym for fiftyoneDegreesYamlFileIterateWithLimit */
+#define IndexPropertyProfileCreate fiftyoneDegreesIndexPropertyProfileCreate /**< Synonym for fiftyoneDegreesIndexPropertyProfileCreate */
+#define IndexPropertyProfileFree fiftyoneDegreesIndexPropertyProfileFree /**< Synonym for fiftyoneDegreesIndexPropertyProfileFree */
+#define IndexPropertyProfileLookup fiftyoneDegreesIndexPropertyProfileLookup /**< Synonym for fiftyoneDegreesIndexPropertyProfileLookup */
 
 /* <-- only one asterisk to avoid inclusion in documentation
  * Shortened macros.

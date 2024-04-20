@@ -23,74 +23,71 @@
 #include "indexes.h"
 #include "fiftyone.h"
 
-// State structure when building the index.
-typedef struct iterate_method_add_state_t {
-	IndexPropertyProfile* index;	// index in use or null if not available
-	fiftyoneDegreesCollection* values; // collection of values
-} iterateMethodAddState;
+typedef struct map_t {
+	uint32_t availableProperty; // available property index
+	int16_t propertyIndex; // index in the properties collection
+} map;
 
-// Callback method used when iterating the available profiles.
-typedef void(*iterateMethod)(
-	void* state, 
-	Profile* profile, 
-	Exception* exception);
+// Gets the index of the profile id in the property profile index.
+static uint32_t getProfileIndex(
+	IndexPropertyProfile* index, 
+	uint32_t profileId) {
+	return profileId - index->minProfileId;
+}
 
 // Loops through the values associated with the profile setting the index at 
 // the position for the property and profile to the first value index from the
 // profile.
 static void addProfileValuesMethod(
-	void* state, 
+	IndexPropertyProfile* index, // index in use or null if not available
+	map* propertyIndexes, // property indexes in ascending order
+	fiftyoneDegreesCollection* values, // collection of values
 	Profile* profile, 
 	Exception* exception) {
-	iterateMethodAddState* s = (iterateMethodAddState*)state;
+	uint32_t valueIndex;
 	Item valueItem; // The current value memory
 	Value* value; // The current value pointer
 	DataReset(&valueItem.data);
 	
 	uint32_t* first = (uint32_t*)(profile + 1); // First value for the profile
-	int16_t nextPropertyIndex = 0; // The next property index to find a value
-	uint32_t currentIndex = s->index->propertyCount * profile->profileId;
+	uint32_t base = getProfileIndex(index, profile->profileId) * 
+		index->availablePropertyCount;
 
 	// For each of the values associated with the profile check to see if it
 	// relates to a new property index. If it does then record the first value
 	// index and advance the current index to the next pointer.
-	for (uint32_t i = 0; i < profile->valueCount && EXCEPTION_OKAY; i++) {
-		value = s->values->get(s->values, *(first + i), &valueItem, exception);
+	for (uint32_t i = 0, p = 0;
+		i < profile->valueCount && EXCEPTION_OKAY; 
+		i++) {
+		value = values->get(values, *(first + i), &valueItem, exception);
 		if (value != NULL && EXCEPTION_OKAY) {
-			
-			// If the values skip property indexes then set the value to zero
-			// and move to the next one.
-			while (nextPropertyIndex < value->propertyIndex) {
-				s->index->valueIndexes[currentIndex] = 0;
-				currentIndex++;
-				nextPropertyIndex++;
+
+			// If the value doesn't relate to the next property index then 
+			// move to the next property index.
+			while (propertyIndexes[p].propertyIndex < value->propertyIndex) {
+				p++;
 			}
 
-			// If this is the first value for the property index then record
-			// the value.
-			if (value->propertyIndex == nextPropertyIndex) {
-				s->index->valueIndexes[currentIndex] = *(first + i);
-				currentIndex++;
-				nextPropertyIndex++;
-				s->index->filled++;
+			// If the value relates to the next property index being sought 
+			// then record the first value in the profile associated with the
+			// property.
+			if (value->propertyIndex == propertyIndexes[p].propertyIndex) {
+				valueIndex = base + propertyIndexes[p].availableProperty;
+				index->valueIndexes[valueIndex] = i;
+				p++;
+				index->filled++;
 			}
-			COLLECTION_RELEASE(s->values, &valueItem);
+			COLLECTION_RELEASE(values, &valueItem);
 		}
-	}
-
-	// Set any remaining values to zero.
-	while (nextPropertyIndex < (int16_t)s->index->propertyCount) {
-		s->index->valueIndexes[currentIndex] = 0;
-		currentIndex++;
-		nextPropertyIndex++;
 	}
 }
 
 static void iterateProfiles(
 	fiftyoneDegreesCollection* profiles,
 	fiftyoneDegreesCollection* profileOffsets,
-	iterateMethodAddState* state,
-	iterateMethod callback,
+	IndexPropertyProfile* index, // index in use or null if not available
+	map* propertyIndexes, // property indexes in ascending order
+	fiftyoneDegreesCollection* values, // collection of values
 	Exception *exception) {
 	Profile* profile; // The current profile pointer
 	Item profileItem; // The current profile memory
@@ -99,7 +96,7 @@ static void iterateProfiles(
 	DataReset(&profileItem.data);
 	DataReset(&profileOffsetItem.data);
 	for (uint32_t i = 0; 
-		i < state->index->profileCount && EXCEPTION_OKAY; 
+		i < index->profileCount && EXCEPTION_OKAY;
 		i++) {
 		profileOffset = profileOffsets->get(
 			profileOffsets,
@@ -113,7 +110,12 @@ static void iterateProfiles(
 				&profileItem,
 				exception);
 			if (profile != NULL && EXCEPTION_OKAY) {
-				callback(state, profile, exception);
+				addProfileValuesMethod(
+					index,
+					propertyIndexes,
+					values,
+					profile,
+					exception);
 				COLLECTION_RELEASE(profiles, &profileItem);
 			}
 			COLLECTION_RELEASE(profileOffsets, &profileOffsetItem);
@@ -121,50 +123,64 @@ static void iterateProfiles(
 	}
 }
 
-// Gets the last profile in the collection and returns the profile id. As the
-// profileOffsets collection is ordered in ascending profile id this is always
-// the maximum profile id.
-static uint32_t getMaxProfileId(
+// As the profileOffsets collection is ordered in ascending profile id the 
+// first and last entries are the min and max available profile ids.
+static uint32_t getProfileId(
 	fiftyoneDegreesCollection* profileOffsets,
-	uint32_t profileCount,
+	uint32_t index,
 	Exception* exception) {
-	uint32_t maxProfileId = 0;
+	uint32_t profileId = 0;
 	ProfileOffset* profileOffset; // The profile offset pointer
 	Item profileOffsetItem; // The profile offset memory
 	DataReset(&profileOffsetItem.data);
 	profileOffset = profileOffsets->get(
 		profileOffsets,
-		profileCount - 1,
+		index,
 		&profileOffsetItem,
 		exception);
 	if (profileOffset != NULL && EXCEPTION_OKAY) {
-		maxProfileId = profileOffset->profileId;
+		profileId = profileOffset->profileId;
 		COLLECTION_RELEASE(profileOffsets, &profileOffsetItem);
 	}
-	return maxProfileId;
+	return profileId;
+}
+
+static int comparePropertyIndexes(const void* a, const void* b) {
+	return ((map*)a)->propertyIndex - ((map*)b)->propertyIndex;
+}
+
+// Build an ascending ordered array of the property indexes.
+static map* createPropertyIndexes(
+	PropertiesAvailable* available,
+	Exception* exception) {
+	map* index = (map*)Malloc(sizeof(map) * available->count);
+	if (index == NULL) {
+		EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+		return NULL;
+	}
+	for (uint32_t i = 0; i < available->count; i++) {
+		index[i].availableProperty = i;
+		index[i].propertyIndex = (int16_t)available->items[i].propertyIndex;
+	}
+	qsort(index, available->count, sizeof(map*), comparePropertyIndexes);
+	return index;
 }
 
 fiftyoneDegreesIndexPropertyProfile*
 fiftyoneDegreesIndexPropertyProfileCreate(
 	fiftyoneDegreesCollection* profiles,
 	fiftyoneDegreesCollection* profileOffsets,
-	fiftyoneDegreesCollection* properties,
+	fiftyoneDegreesPropertiesAvailable* available,
 	fiftyoneDegreesCollection* values,
 	fiftyoneDegreesException* exception) {
 
-	// Get the count of available profiles.
-	uint32_t profileCount = CollectionGetCount(profileOffsets);
-
-	uint32_t maxProfileId = getMaxProfileId(
-		profileOffsets, 
-		profileCount,
-		exception);
-	if (!EXCEPTION_OKAY) {
+	// Create the ordered list of property indexes.
+	map* propertyIndexes = createPropertyIndexes(available, exception);
+	if (propertyIndexes == NULL) {
 		return NULL;
 	}
 
-	// Allocate memory for the number of properties multiplied by the maximum
-	// profile id.
+	// Allocate memory for the index and set the fields.
 	IndexPropertyProfile* index = (IndexPropertyProfile*)Malloc(
 		sizeof(IndexPropertyProfile));
 	if (index == NULL) {
@@ -172,25 +188,45 @@ fiftyoneDegreesIndexPropertyProfileCreate(
 		return NULL;
 	}
 	index->filled = 0;
-	index->profileCount = profileCount;
-	index->size = (maxProfileId + 1) * properties->count;
-	index->propertyCount = properties->count;
+	index->profileCount = CollectionGetCount(profileOffsets);
+	index->minProfileId = getProfileId(profileOffsets, 0, exception);
+	if (!EXCEPTION_OKAY) {
+		Free(index);
+		Free(propertyIndexes);
+		return NULL;
+	}
+	index->maxProfileId = getProfileId(
+		profileOffsets,
+		index->profileCount - 1,
+		exception);
+	if (!EXCEPTION_OKAY) {
+		Free(index);
+		Free(propertyIndexes);
+		return NULL;
+	}
+	index->availablePropertyCount = available->count;
+	index->size = (index->maxProfileId - index->minProfileId + 1) * 
+		available->count;
+	
+	// Allocate memory for the values index and set the fields.
 	index->valueIndexes =(uint32_t*)Malloc(sizeof(uint32_t) * index->size);
 	if (index->valueIndexes == NULL) {
 		EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
 		Free(index);
+		Free(propertyIndexes);
 		return NULL;
 	}
 
 	// For each of the profiles in the collection call add the property value
 	// indexes to the index array.
-	iterateMethodAddState state = { index, values };
 	iterateProfiles(
 		profiles, 
 		profileOffsets, 
-		&state, 
-		addProfileValuesMethod, 
+		index, 
+		propertyIndexes,
+		values,
 		exception);
+	Free(propertyIndexes);
 
 	// Return the index or free the memory if there was an exception.
 	if (EXCEPTION_OKAY) {
@@ -212,9 +248,10 @@ void fiftyoneDegreesIndexPropertyProfileFree(
 uint32_t fiftyoneDegreesIndexPropertyProfileLookup(
 	fiftyoneDegreesIndexPropertyProfile* index,
 	uint32_t profileId,
-	uint32_t propertyIndex) {
+	uint32_t availablePropertyIndex) {
 	uint32_t valueIndex = 
-		(profileId * index->propertyCount) + propertyIndex;
+		(getProfileIndex(index, profileId) * index->availablePropertyCount) + 
+		availablePropertyIndex;
 	assert(valueIndex < index->size);
 	return index->valueIndexes[valueIndex];
 }

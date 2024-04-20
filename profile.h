@@ -203,7 +203,7 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateValuesForProperty(
  * @param values collection containing all values
  * @param index array of property and profile first value indexes
  * @param profileIndex the index of the profile
- * @param propertyIndex the index of the property
+ * @param availablePropertyIndex the index of the available property
  * @param property which the values must relate to
  * @param state pointer containing data needed for the callback method
  * @param callback method to be called for each value
@@ -214,7 +214,7 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateValuesForProperty(
 EXTERNAL uint32_t fiftyoneDegreesProfileIterateValuesForPropertyWithIndex(
 	fiftyoneDegreesCollection* values,
 	fiftyoneDegreesIndexPropertyProfile* index,
-	uint32_t propertyIndex,
+	uint32_t availablePropertyIndex,
 	fiftyoneDegreesProfile* profile,
 	fiftyoneDegreesProperty* property,
 	void* state,

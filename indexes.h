@@ -46,6 +46,7 @@
 #include "exceptions.h"
 #include "collection.h"
 #include "property.h"
+#include "properties.h"
 #include "common.h"
 
 /**
@@ -55,19 +56,21 @@
  */
 typedef struct fiftyoneDegrees_index_property_profile{
 	uint32_t* valueIndexes; // array of value indexes
-	uint32_t propertyCount; // number of properties
-	uint32_t profileCount; // number of profiles in profileOffsets / profiles
+	uint32_t availablePropertyCount; // number of available properties
+	uint32_t minProfileId; // minimum profile id
+	uint32_t maxProfileId; // maximum profile id
+	uint32_t profileCount; // total number of profiles
 	uint32_t size; // number elements in the valueIndexes array
 	uint32_t filled; // number of elements with values
 } fiftyoneDegreesIndexPropertyProfile;
 
 /**
- * Create an index for the profiles, properties, and values provided such that
- * given the index to a property and profile the index of the first value can
- * be returned by calling fiftyoneDegreesIndexPropertyProfileLookup.
+ * Create an index for the profiles, available properties, and values provided 
+ * such that given the index to a property and profile the index of the first 
+ * value can be returned by calling fiftyoneDegreesIndexPropertyProfileLookup.
  * @param profiles collection of variable sized profiles to be indexed
  * @param profileOffsets collection of fixed offsets to profiles to be indexed
- * @param properties collection to be indexed
+ * @param available properties provided by the caller
  * @param values collection to be indexed
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h
@@ -77,7 +80,7 @@ EXTERNAL fiftyoneDegreesIndexPropertyProfile*
 fiftyoneDegreesIndexPropertyProfileCreate(
 	fiftyoneDegreesCollection* profiles,
 	fiftyoneDegreesCollection* profileOffsets,
-	fiftyoneDegreesCollection* properties,
+	fiftyoneDegreesPropertiesAvailable* available,
 	fiftyoneDegreesCollection* values,
 	fiftyoneDegreesException* exception);
 

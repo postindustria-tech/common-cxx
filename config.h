@@ -92,9 +92,9 @@ FIFTYONE_DEGREES_CONFIG_USE_TEMP_FILE_DEFAULT
 FIFTYONE_DEGREES_CONFIG_ALL_IN_MEMORY_DEFAULT
 
 /**
- * Default value for the #fiftyoneDegreesConfigBase structure.
+ * Default value for the #fiftyoneDegreesConfigBase structure with index.
  */
-#define FIFTYONE_DEGREES_CONFIG_DEFAULT \
+#define FIFTYONE_DEGREES_CONFIG_DEFAULT_WITH_INDEX \
 	FIFTYONE_DEGREES_CONFIG_ALL_IN_MEMORY, /* allInMemory */ \
 	true, /* usesUpperPrefixedHeaders */ \
 	false, /* freeData */ \
@@ -103,6 +103,19 @@ FIFTYONE_DEGREES_CONFIG_ALL_IN_MEMORY_DEFAULT
 	NULL, /* tempDirs */ \
 	0, /* tempDirCount */ \
 	true /* propertyValueIndex */
+
+ /**
+  * Default value for the #fiftyoneDegreesConfigBase structure without index.
+  */
+#define FIFTYONE_DEGREES_CONFIG_DEFAULT_NO_INDEX \
+	FIFTYONE_DEGREES_CONFIG_ALL_IN_MEMORY, /* allInMemory */ \
+	true, /* usesUpperPrefixedHeaders */ \
+	false, /* freeData */ \
+	FIFTYONE_DEGREES_CONFIG_USE_TEMP_FILE, /* useTempFile */ \
+	false, /* reuseTempFile */ \
+	NULL, /* tempDirs */ \
+	0, /* tempDirCount */ \
+	false /* propertyValueIndex */
 
 /**
  * @}

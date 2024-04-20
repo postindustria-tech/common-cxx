@@ -57,21 +57,25 @@ static void addProfileValuesMethod(
 	// relates to a new property index. If it does then record the first value
 	// index and advance the current index to the next pointer.
 	for (uint32_t i = 0, p = 0;
-		i < profile->valueCount && EXCEPTION_OKAY; 
+		i < profile->valueCount &&
+		p < index->availablePropertyCount &&
+		EXCEPTION_OKAY;
 		i++) {
 		value = values->get(values, *(first + i), &valueItem, exception);
 		if (value != NULL && EXCEPTION_OKAY) {
 
 			// If the value doesn't relate to the next property index then 
 			// move to the next property index.
-			while (propertyIndexes[p].propertyIndex < value->propertyIndex) {
+			while (propertyIndexes[p].propertyIndex < value->propertyIndex &&
+				p < index->availablePropertyCount) {
 				p++;
 			}
 
 			// If the value relates to the next property index being sought 
 			// then record the first value in the profile associated with the
 			// property.
-			if (value->propertyIndex == propertyIndexes[p].propertyIndex) {
+			if (p < index->availablePropertyCount &&
+				value->propertyIndex == propertyIndexes[p].propertyIndex) {
 				valueIndex = base + propertyIndexes[p].availableProperty;
 				index->valueIndexes[valueIndex] = i;
 				p++;

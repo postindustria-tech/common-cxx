@@ -321,7 +321,7 @@ uint32_t fiftyoneDegreesOverrideValuesAdd(
 	uint32_t i, count = 0;
 	OverrideValue *current;
 	Item valueItem;
-	if (values != NULL) {
+	if (values != NULL && values->count > 0) {
 
 		// Use a dummy collection so that the call to release will work
 		// if the client respects the collection pattern.

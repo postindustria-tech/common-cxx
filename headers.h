@@ -103,6 +103,11 @@
 #include "array.h"
 #include "common.h"
 
+#define FIFTYONE_DEGREES_PSEUDO_HEADER_SEP '\x1F' /** unit separator of headers
+													and headers' values that
+													form pseudo header and
+													its evidence */
+
 /**
  * The unique id for the header field string in the data set.
  */

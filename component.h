@@ -60,6 +60,7 @@
 #include "list.h"
 #include "string.h"
 #include "common.h"
+#include "headers.h"
 
 /**
  * Key value pair contained in each component. This can point to anything. For
@@ -117,7 +118,8 @@ EXTERNAL fiftyoneDegreesString* fiftyoneDegreesComponentGetName(
  * exception occurs. See exceptions.h
  * @return pointer to a key value pair
  */
-const fiftyoneDegreesComponentKeyValuePair* fiftyoneDegreesComponentGetKeyValuePair(
+const fiftyoneDegreesComponentKeyValuePair* 
+fiftyoneDegreesComponentGetKeyValuePair(
 	fiftyoneDegreesComponent *component,
 	uint16_t index,
 	fiftyoneDegreesException *exception);
@@ -169,6 +171,19 @@ EXTERNAL uint32_t fiftyoneDegreesComponentGetDefaultProfileId(
 	fiftyoneDegreesCollection *profiles,
 	fiftyoneDegreesComponent *component,
 	fiftyoneDegreesException *exception);
+
+/**
+ * Where the component's key value pairs relate to headers creates an array of
+ * pointers to the relevant headers in the same order as the key value pairs.
+ * @param component to get the headers for
+ * @param headers array to find the corresponding header in
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h
+ */
+EXTERNAL fiftyoneDegreesHeaderPtrs* fiftyoneDegreesComponentGetHeaders(
+	fiftyoneDegreesComponent* component,
+	fiftyoneDegreesHeaders* headers,
+	fiftyoneDegreesException* exception);
 
 /**
  * @}

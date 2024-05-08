@@ -212,6 +212,8 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitProperties(
  * @param state pointer to data which is needed by getPropertymethod
  * @param getHeaderMethod method used to retrieve the unique id and name of a
  * header at a specified index from the data set
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h.
  * @return the status associated with the header initialisation. Any value
  * other than #FIFTYONE_DEGREES_STATUS_SUCCESS  means the headers were not
  * initialised correctly
@@ -219,7 +221,8 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitProperties(
 fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitHeaders(
 	fiftyoneDegreesDataSetBase *dataSet,
 	void *state,
-	fiftyoneDegreesHeadersGetMethod getHeaderMethod);
+	fiftyoneDegreesHeadersGetMethod getHeaderMethod,
+	fiftyoneDegreesException* exception);
 
 /**
  * Initialses the data set from data stored on file.

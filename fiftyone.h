@@ -166,7 +166,10 @@ MAP_TYPE(PropertiesAvailable)
 MAP_TYPE(EvidencePropertyIndex)
 MAP_TYPE(EvidenceProperties)
 MAP_TYPE(Header)
-MAP_TYPE(HeaderArray)
+MAP_TYPE(Headers)
+MAP_TYPE(HeaderID)
+MAP_TYPE(HeaderPtr)
+MAP_TYPE(HeaderPtrs)
 MAP_TYPE(OverridesFilterMethod)
 MAP_TYPE(Mutex)
 MAP_TYPE(Signal)
@@ -176,8 +179,6 @@ MAP_TYPE(ProfileOffset)
 MAP_TYPE(ProfileIterateMethod)
 MAP_TYPE(Float)
 MAP_TYPE(Coordinate)
-MAP_TYPE(HeaderSegment)
-MAP_TYPE(HeaderSegmentArray)
 MAP_TYPE(KeyValuePair)
 MAP_TYPE(HeaderID)
 MAP_TYPE(IndexPropertyProfile)
@@ -191,6 +192,7 @@ MAP_TYPE(IndexPropertyProfile)
 #define OverrideProfileIds fiftyoneDegreesOverrideProfileIds /**< Synonym for #fiftyoneDegreesOverrideProfileIds function. */
 #define OverridePropertiesFree fiftyoneDegreesOverridePropertiesFree /**< Synonym for #fiftyoneDegreesOverridePropertiesFree function. */
 #define ComponentInitList fiftyoneDegreesComponentInitList /**< Synonym for #fiftyoneDegreesComponentInitList function. */
+#define ComponentGetHeaders fiftyoneDegreesComponentGetHeaders /**< Synonym for #fiftyoneDegreesComponentGetHeaders function. */
 #define CollectionGetInteger32 fiftyoneDegreesCollectionGetInteger32 /**< Synonym for #fiftyoneDegreesCollectionGetInteger32 function. */
 #define PropertyGet fiftyoneDegreesPropertyGet /**< Synonym for #fiftyoneDegreesPropertyGet function. */
 #define ProfileIterateValuesForProperty fiftyoneDegreesProfileIterateValuesForProperty /**< Synonym for #fiftyoneDegreesProfileIterateValuesForProperty function. */
@@ -215,6 +217,7 @@ MAP_TYPE(IndexPropertyProfile)
 #define StringSubString fiftyoneDegreesStringSubString /**< Synonym for #fiftyoneDegreesSubString function. */
 #define OverridesExtractFromEvidence fiftyoneDegreesOverridesExtractFromEvidence /**< Synonym for #fiftyoneDegreesOverridesExtractFromEvidence function. */
 #define EvidenceIterate fiftyoneDegreesEvidenceIterate /**< Synonym for #fiftyoneDegreesEvidenceIterate function. */
+#define EvidenceIterateForHeaders fiftyoneDegreesEvidenceIterateForHeaders /**< Synonym for #fiftyoneDegreesEvidenceIterateForHeaders function. */
 #define CacheRelease fiftyoneDegreesCacheRelease /**< Synonym for #fiftyoneDegreesCacheRelease function. */
 #define DataReset fiftyoneDegreesDataReset /**< Synonym for #fiftyoneDegreesDataReset function. */
 #define CacheFree fiftyoneDegreesCacheFree /**< Synonym for #fiftyoneDegreesCacheFree function. */

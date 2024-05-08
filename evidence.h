@@ -125,6 +125,7 @@
 #include "string.h"
 #include "array.h"
 #include "common.h"
+#include "headers.h"
 
 /**
  * Evidence prefixes used to determine the category a piece of evidence
@@ -161,18 +162,16 @@ typedef struct fiftyone_degrees_evidence_key_value_pair_t {
 	fiftyoneDegreesEvidencePrefix prefix; /**< e.g. #FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING */
 	const char *field; /**< e.g. User-Agent or ScreenPixelsWidth */
 	size_t fieldLength; /**< length of field */
-	void* relative; /**< optional pointer to a related entity */
-	const void *originalValue; /**< The original unparsed value */
-	const void *parsedValue; /**< The parsed value which may not be a string */
+	const void *originalValue; /**< original unparsed value */
+	const void *parsedValue; /**< parsed value which may not be a string */
+	size_t parsedLength; /**< length of parsedValue string */
+	fiftyoneDegreesHeader* header; /**< Unique header in the data set, or 
+								   null if not related to a header */
 } fiftyoneDegreesEvidenceKeyValuePair;
-
-#define EVIDENCE_KEY_VALUE_MEMBERS \
-struct fiftyone_degrees_array_fiftyoneDegreesEvidenceKeyValuePair_t* pseudoEvidence; /**< The pseudo evidence. #fiftyoneDegreesEvidenceKeyValuePairArray type */
 
 FIFTYONE_DEGREES_ARRAY_TYPE(
 	fiftyoneDegreesEvidenceKeyValuePair,
-	EVIDENCE_KEY_VALUE_MEMBERS)
-
+	)
 
 /**
  * Callback method used to iterate evidence key value pairs.
@@ -181,8 +180,23 @@ FIFTYONE_DEGREES_ARRAY_TYPE(
  * @return true if the iteration should continue otherwise false
  */
 typedef bool(*fiftyoneDegreesEvidenceIterateMethod)(
-	void *state, 
+	void *state,
 	fiftyoneDegreesEvidenceKeyValuePair *pair);
+
+/**
+ * Callback method used to iterate evidence key value pairs for an array of 
+ * headers.
+ * @param state pointer provided to the iterator
+ * @param header that the value is related to
+ * @param value from the evidence for the header
+ * @param length of the value
+ * @return true if the iteration should continue otherwise false
+ */
+typedef bool(*fiftyoneDegreesEvidenceIterateForHeadersMethod)(
+	void* state,
+	fiftyoneDegreesHeader* header,
+	const char* value,
+	size_t length);
 
 /**
  * Creates a new evidence array with the capacity requested.
@@ -246,6 +260,31 @@ EXTERNAL uint32_t fiftyoneDegreesEvidenceIterate(
 	int prefixes,
 	void *state,
 	fiftyoneDegreesEvidenceIterateMethod callback);
+
+/**
+ * Iterates over the headers assembling the evidence values, considering the 
+ * prefixes, in the buffer if available. The call back method is called for 
+ * each header or pseudo header available. The buffer is only used with pseudo
+ * headers where multiple header values need to be combined into a single 
+ * value.
+ *
+ * @param evidence key value pairs including prefixes
+ * @param prefixes one or more prefix flags to return values for
+ * @param state pointer passed to the callback method
+ * @param headers to return evidence for if available
+ * @param buffer that MIGHT be used with the callback
+ * @param length of the buffer
+ * @param callback method called when a matching prefix is found
+ * @return true if the callback was called successfully, otherwise false
+ */
+EXTERNAL bool fiftyoneDegreesEvidenceIterateForHeaders(
+	fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
+	int prefixes,
+	fiftyoneDegreesHeaderPtrs* headers,
+	char* buffer,
+	size_t length,
+	void* state,
+	fiftyoneDegreesEvidenceIterateForHeadersMethod callback);
 
 /**
  * @}

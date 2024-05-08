@@ -66,7 +66,8 @@
  * fiftyoneDegreesHeaders *headers = fiftyoneDegreesHeadersCreate(
  *     false,
  *     state,
- *     getHeaderId);
+ *     getHeaderId,
+ *     exception);
  *
  * // Get the index of a header
  * int index = fiftyoneDegreesHeaderGetIndex(
@@ -99,46 +100,61 @@
 #define _strnicmp strncasecmp
 #endif
 #include "list.h"
-#include "evidence.h"
 #include "array.h"
 #include "common.h"
 
 /**
- * Null or PSEUDO_HEADER_SEP terminated string segment within a header.
+ * The unique id for the header field string in the data set.
  */
-typedef struct fiftyone_degrees_header_segment_t {
-	const char* segment; /**< Segment in the name string */
-	size_t length; /**< Length of the segment in the name strings without the 
-				        terminating character */
-} fiftyoneDegreesHeaderSegment;
-
-FIFTYONE_DEGREES_ARRAY_TYPE(
-	fiftyoneDegreesHeaderSegment, 
-	);
-
 typedef uint32_t fiftyoneDegreesHeaderID;
 
 /**
- * Header structure to identify a header that either comes directly from the
- * data set, or one that forms a pseudo header.
+ * Forward declaration of the header structure.
  */
-typedef struct fiftyone_degrees_header_t {
+typedef struct fiftyone_degrees_header_t fiftyoneDegreesHeader;
+
+/**
+ * Pointer to a header structure. Used in an array of related headers.
+ */
+typedef fiftyoneDegreesHeader* fiftyoneDegreesHeaderPtr;
+
+/**
+ * Array of header indexes.
+ */
+FIFTYONE_DEGREES_ARRAY_TYPE(
+	fiftyoneDegreesHeaderPtr,
+	);
+typedef fiftyoneDegreesHeaderPtrArray fiftyoneDegreesHeaderPtrs;
+
+/**
+ * Structure for a header known to the corresponding data set.
+ */
+struct fiftyone_degrees_header_t {
+	uint32_t index; /**< Index of the header in the array of all headers */
 	const char* name; /**< Name of the header or pseudo header field as a
 					       null terminated string */
-	size_t nameLength; /**< Length of the name string excluding the
-							terminating null */
-	fiftyoneDegreesHeaderSegmentArray* segments; /**< Segments within the 
-												      name */
-	bool isDataSet; /**< True if the header originates from the data set */
-    fiftyoneDegreesHeaderID uniqueId; /** < Unique id provided by the data set */
-} fiftyoneDegreesHeader;
+	size_t length; /**< Length of the name string excluding the terminating 
+							null */
+	fiftyoneDegreesHeaderID headerId; /**< Unique id in the data set for this 
+									  full header */
+	bool isDataSet; /**< True if the header originates from the data set and 
+					the fullHeaderId is valid */
+	fiftyoneDegreesHeaderPtrs* pseudoHeaders; /**< Array of indexes to
+												 related pseudo headers */
+	fiftyoneDegreesHeaderPtrs* segmentHeaders; /**< Array of indexes to raw
+												  headers that form this pseudo
+												  header */
+};
 
 #define FIFTYONE_DEGREES_HEADERS_MEMBERS \
 bool expectUpperPrefixedHeaders; /**< True if the headers structure should
 								 expect input header to be prefixed with
-								 'HTTP_' */ \
-uint32_t pseudoHeadersCount; /**< Count of the number of pseudo headers */
+								 'HTTP_' */
 
+/**
+ * Array of Headers which should always be ordered in ascending order of 
+ * fullHeaderId.
+ */
 FIFTYONE_DEGREES_ARRAY_TYPE(
 	fiftyoneDegreesHeader, 
 	FIFTYONE_DEGREES_HEADERS_MEMBERS);
@@ -149,7 +165,8 @@ FIFTYONE_DEGREES_ARRAY_TYPE(
 typedef fiftyoneDegreesHeaderArray fiftyoneDegreesHeaders;
 
 /**
- * Gets the unique id and name of the header at the requested index.
+ * Gets the unique id and name of the header at the requested index. The caller
+ * must use COLLECTION_RELEASE on nameItem when finished with the result.
  * @param state pointer to data used by the method
  * @param index of the header to get
  * @param nameItem pointer to the collection item to populate with the name of
@@ -186,13 +203,15 @@ EXTERNAL bool fiftyoneDegreesHeadersIsPseudo(const char *headerName);
  * @param useUpperPrefixedHeaders true if HTTP_ prefixes should be checked
  * @param state pointer used by getHeaderMethod to retrieve the header integer
  * @param get used to return the HTTP header unique integer
+ * @param exception
  * @return a new instance of #fiftyoneDegreesHeaders ready to be used to filter 
  * HTTP headers.
  */
 EXTERNAL fiftyoneDegreesHeaders* fiftyoneDegreesHeadersCreate(
 	bool useUpperPrefixedHeaders,
 	void *state,
-	fiftyoneDegreesHeadersGetMethod get);
+	fiftyoneDegreesHeadersGetMethod get,
+	fiftyoneDegreesException* exception);
 
 /**
  * Provides the integer index of the HTTP header name, or -1 if there is no 
@@ -229,14 +248,16 @@ EXTERNAL fiftyoneDegreesHeader* fiftyoneDegreesHeadersGetHeaderFromUniqueId(
 EXTERNAL void fiftyoneDegreesHeadersFree(fiftyoneDegreesHeaders *headers);
 
 /**
- * Determines if the key of an evidence pair is an HTTP header.
+ * Determines if the field is an HTTP header.
  * @param state results instance to check against
- * @param pair the evidence pair to be checked
+ * @param field name from the evidence pair to be checked
+ * @param length of field string
  * @return true if the evidence relates to an HTTP header, otherwise false.
  */
 EXTERNAL bool fiftyoneDegreesHeadersIsHttp(
 	void *state,
-	fiftyoneDegreesEvidenceKeyValuePair *pair);
+	const char* field,
+	size_t length);
 
 /**
  * @}

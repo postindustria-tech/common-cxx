@@ -171,13 +171,15 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitProperties(
 fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitHeaders(
 	fiftyoneDegreesDataSetBase *dataSet,
 	void *state,
-	fiftyoneDegreesHeadersGetMethod getHeaderMethod) {
+	fiftyoneDegreesHeadersGetMethod getHeaderMethod,
+	fiftyoneDegreesException* exception) {
 
 	// Initialise the unique HTTP headers.
 	dataSet->uniqueHeaders = HeadersCreate(
 		CONFIG(dataSet)->usesUpperPrefixedHeaders,
 		state,
-		getHeaderMethod);
+		getHeaderMethod,
+		exception);
 
 	// Check both the headers and properties were initialised.
 	if (dataSet->uniqueHeaders == NULL) {

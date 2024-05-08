@@ -26,7 +26,8 @@
 
 static uint32_t getFinalComponentSize(void *initial) {
 	Component *component = (Component*)initial;
-	int32_t trailing = (component->keyValuesCount - 1) * sizeof(fiftyoneDegreesComponentKeyValuePair);
+	int32_t trailing = (component->keyValuesCount - 1) * 
+		sizeof(fiftyoneDegreesComponentKeyValuePair);
 	return (uint32_t)(sizeof(Component) + trailing);
 }
 
@@ -62,7 +63,8 @@ fiftyoneDegreesString* fiftyoneDegreesComponentGetName(
 		exception);
 }
 
-const fiftyoneDegreesComponentKeyValuePair* fiftyoneDegreesComponentGetKeyValuePair(
+const fiftyoneDegreesComponentKeyValuePair* 
+fiftyoneDegreesComponentGetKeyValuePair(
 	fiftyoneDegreesComponent *component,
 	uint16_t index,
 	fiftyoneDegreesException *exception) {
@@ -121,4 +123,37 @@ void fiftyoneDegreesComponentInitList(
 			}
 		}
 	}
+}
+
+fiftyoneDegreesHeaderPtrs* fiftyoneDegreesComponentGetHeaders(
+	fiftyoneDegreesComponent* component,
+	fiftyoneDegreesHeaders* headers,
+	fiftyoneDegreesException* exception) {
+	const ComponentKeyValuePair* keyValue;
+	HeaderPtrs* componentHeaders;
+	
+	// Create an array of header pointers.
+	FIFTYONE_DEGREES_ARRAY_CREATE(
+		fiftyoneDegreesHeaderPtr,
+		componentHeaders,
+		component->keyValuesCount);
+	if (componentHeaders == NULL) {
+		EXCEPTION_SET(INSUFFICIENT_MEMORY);
+		return NULL;
+	}
+
+	// Add the header from the headers array that relate to each header if the
+	// component considers.
+	for (uint32_t i = 0; i < component->keyValuesCount; i++) {
+		keyValue = ComponentGetKeyValuePair(
+			component, 
+			(uint16_t)i, 
+			exception);
+		componentHeaders->items[i] = 
+			HeadersGetHeaderFromUniqueId(headers, keyValue->key);
+		componentHeaders->count++;
+	}
+	assert(componentHeaders->count == componentHeaders->capacity);
+
+	return componentHeaders;
 }

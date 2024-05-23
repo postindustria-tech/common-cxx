@@ -262,7 +262,7 @@ uint32_t fiftyoneDegreesOverridesExtractFromEvidence(
 		state.properties = properties;
 		count = EvidenceIterate(
 			evidence,
-			FIFTYONE_DEGREES_EVIDENCE_COOKIE | 
+			FIFTYONE_DEGREES_EVIDENCE_COOKIE |
 			FIFTYONE_DEGREES_EVIDENCE_QUERY,
 			&state,
 			addOverrideToResults);

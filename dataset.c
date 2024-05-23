@@ -76,6 +76,12 @@ void fiftyoneDegreesDataSetFree(fiftyoneDegreesDataSetBase *dataSet) {
 		dataSet->indexPropertyProfile = NULL;
 	}
 
+	// Free the memory used for the index for profile values.
+	if (dataSet->indexProfileValues != NULL) {
+		IndexProfileValuesFree(dataSet->indexProfileValues);
+		dataSet->indexProfileValues = NULL;
+	}
+
 	// Free the memory used by the unique headers.
 	HeadersFree(dataSet->uniqueHeaders);
 	dataSet->uniqueHeaders = NULL;
@@ -116,6 +122,7 @@ void fiftyoneDegreesDataSetReset(fiftyoneDegreesDataSetBase *dataSet) {
 	dataSet->available = NULL;
 	dataSet->overridable = NULL;
 	dataSet->indexPropertyProfile = NULL;
+	dataSet->indexProfileValues = NULL;
 	dataSet->config = NULL;
 	dataSet->handle = NULL;
 }

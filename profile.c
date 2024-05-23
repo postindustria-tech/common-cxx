@@ -140,6 +140,17 @@ static uint32_t iterateValues(
 	return count;
 }
 
+static bool isAvailableProperty(
+	PropertiesAvailable* available, 
+	uint32_t propertyIndex) {
+	for (uint32_t i = 0; i < available->count; i++) {
+		if (available->items[i].propertyIndex == propertyIndex) {
+			return true;
+		}
+	}
+	return false;
+}
+
 uint32_t* fiftyoneDegreesProfileGetOffsetForProfileId(
 	fiftyoneDegreesCollection *profileOffsets,
 	const uint32_t profileId,
@@ -360,6 +371,43 @@ uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
 			}
 		}
 		COLLECTION_RELEASE(properties, &propertyItem);
+	}
+	return count;
+}
+
+uint32_t fiftyoneDegreesProfileIterateValueIndexes(
+	fiftyoneDegreesProfile* profile,
+	fiftyoneDegreesPropertiesAvailable* available,
+	fiftyoneDegreesCollection* values,
+	void* state,
+	fiftyoneDegreesProfileIterateValueIndexesMethod callback,
+	fiftyoneDegreesException* exception) {
+	Item valueItem;
+	Value* value;
+	bool cont = true;
+	uint32_t count = 0;
+	const uint32_t* valueIndexes = (const uint32_t*)(profile + 1);
+	uint32_t valueIndex;
+	DataReset(&valueItem.data);
+
+	// For all the possible values associated with the profile.
+	for (uint32_t i = 0; cont && i < profile->valueCount; i++) {
+
+		// Get the value to check if it relates to a required property.
+		valueIndex = *(valueIndexes + i);
+		value = values->get(values, valueIndex, &valueItem, exception);
+		if (value == NULL || EXCEPTION_FAILED) {
+			return count;
+		}
+
+		// If the value does relate to an available property then call the 
+		// callback.
+		if (isAvailableProperty(available, (uint32_t)value->propertyIndex)) {
+			cont = callback(state, valueIndex);
+			count++;
+		}
+
+		COLLECTION_RELEASE(values, &valueItem);
 	}
 	return count;
 }

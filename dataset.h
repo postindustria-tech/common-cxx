@@ -129,6 +129,10 @@ typedef struct fiftyone_degrees_dataset_base_t {
 													   overridden */
 	fiftyoneDegreesIndexPropertyProfile* indexPropertyProfile; /**< Index to 
 															   look up profile 
+															   values by 
+															   property */
+	fiftyoneDegreesIndexAllProfileValues* indexProfileValues; /**< Index to 
+															   look up profile 
 															   values */
     const void *config; /**< Pointer to the config used to create the dataset */
 } fiftyoneDegreesDataSetBase;

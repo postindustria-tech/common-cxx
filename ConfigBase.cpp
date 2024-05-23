@@ -56,6 +56,10 @@ void ConfigBase::setPropertyValueIndex(bool index) {
 	this->config->propertyValueIndex = index;
 }
 
+void ConfigBase::setProfileValuesIndex(bool index) {
+	this->config->profileValuesIndex = index;
+}
+
 bool ConfigBase::getUseUpperPrefixHeaders() const {
 	return config->usesUpperPrefixedHeaders;
 }
@@ -74,6 +78,10 @@ vector<string> ConfigBase::getTempDirectories() const {
 
 bool ConfigBase::getPropertyValueIndex() const {
 	return config->propertyValueIndex;
+}
+
+bool ConfigBase::getProfileValuesIndex() const {
+	return config->profileValuesIndex;
 }
 
 uint16_t ConfigBase::getConcurrency() const {

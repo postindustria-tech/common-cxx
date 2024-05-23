@@ -65,6 +65,8 @@ typedef struct fiftyone_degrees_config_base_t {
 	int tempDirCount; /**< Number of directories in the tempDirs array. */
 	bool propertyValueIndex; /**< Indicates if an index to values for property 
 							     and profiles should be created. */
+	bool profileValuesIndex; /**< Indicates if an index to get profile values 
+								should be created. */
 } fiftyoneDegreesConfigBase;
 
 /** Default value for the #FIFTYONE_DEGREES_CONFIG_USE_TEMP_FILE macro. */
@@ -102,7 +104,8 @@ FIFTYONE_DEGREES_CONFIG_ALL_IN_MEMORY_DEFAULT
 	false, /* reuseTempFile */ \
 	NULL, /* tempDirs */ \
 	0, /* tempDirCount */ \
-	true /* propertyValueIndex */
+	true, /* propertyValueIndex */ \
+	true /* profileValuesIndex */ 
 
  /**
   * Default value for the #fiftyoneDegreesConfigBase structure without index.
@@ -115,7 +118,8 @@ FIFTYONE_DEGREES_CONFIG_ALL_IN_MEMORY_DEFAULT
 	false, /* reuseTempFile */ \
 	NULL, /* tempDirs */ \
 	0, /* tempDirCount */ \
-	false /* propertyValueIndex */
+	false, /* propertyValueIndex */ \
+	false /* profileValuesIndex */ 
 
 /**
  * @}

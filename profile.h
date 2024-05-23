@@ -119,6 +119,17 @@ typedef bool(*fiftyoneDegreesProfileIterateMethod)(
 	fiftyoneDegreesCollectionItem *item);
 
 /**
+ * Definition of a callback function which is passed the next values index for
+ * the profile.
+ * @param state pointer to data needed by the method
+ * @param valueIndex for the next value
+ * @return true if the iteration should continue, otherwise false to stop
+ */
+typedef bool(*fiftyoneDegreesProfileIterateValueIndexesMethod)(
+	void* state,
+	uint32_t valueIndex);
+
+/**
  * Gets the profile associated with the profileId or NULL if there is no
  * corresponding profile.
  * @param profileOffsets collection containing the profile offsets
@@ -261,11 +272,30 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
  * exception occurs. See exceptions.h
  * @return pointer to the profile offset or NULL
  */
-uint32_t* fiftyoneDegreesProfileGetOffsetForProfileId(
+EXTERNAL uint32_t* fiftyoneDegreesProfileGetOffsetForProfileId(
 	fiftyoneDegreesCollection *profileOffsets,
 	const uint32_t profileId,
 	uint32_t *profileOffset,
 	fiftyoneDegreesException *exception);
+
+/**
+ * Calls the callback for every value index available for the profile.
+ * @param profile to return value indexes for
+ * @param available required properties
+ * @param values collection containing all values
+ * @param state pointer to data needed by the callback method
+ * @param callback method to be called for each value index
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h
+ * @return number of times the callback was called.
+ */
+EXTERNAL uint32_t fiftyoneDegreesProfileIterateValueIndexes(
+	fiftyoneDegreesProfile* profile,
+	fiftyoneDegreesPropertiesAvailable* available,
+	fiftyoneDegreesCollection* values,
+	void* state,
+	fiftyoneDegreesProfileIterateValueIndexesMethod callback,
+	fiftyoneDegreesException* exception);
 
 /**
  * @}

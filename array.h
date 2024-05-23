@@ -51,7 +51,7 @@
 typedef struct fiftyone_degrees_array_##t##_t { \
 	uint32_t count; /**< Number of used items */ \
 	uint32_t capacity; /**< Number of available items */ \
-	t *items; /**< Pointer to the first item */ \
+	t* items; /**< Pointer to the first item */ \
 	m /**< Add any members provided by the caller */ \
 } t##Array;
 

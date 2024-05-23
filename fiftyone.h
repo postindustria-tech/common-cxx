@@ -181,6 +181,11 @@ MAP_TYPE(Coordinate)
 MAP_TYPE(KeyValuePair)
 MAP_TYPE(HeaderID)
 MAP_TYPE(IndexPropertyProfile)
+MAP_TYPE(IndexProfileValue)
+MAP_TYPE(IndexProfileValueArray)
+MAP_TYPE(IndexProfileValuesPtr)
+MAP_TYPE(IndexProfileValuesPtrArray)
+MAP_TYPE(IndexAllProfileValues)
 
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */
 #define OverrideValuesAdd fiftyoneDegreesOverrideValuesAdd /**< Synonym for #fiftyoneDegreesOverrideValuesAdd function. */
@@ -196,6 +201,7 @@ MAP_TYPE(IndexPropertyProfile)
 #define PropertyGet fiftyoneDegreesPropertyGet /**< Synonym for #fiftyoneDegreesPropertyGet function. */
 #define ProfileIterateValuesForProperty fiftyoneDegreesProfileIterateValuesForProperty /**< Synonym for #fiftyoneDegreesProfileIterateValuesForProperty function. */
 #define ProfileIterateValuesForPropertyWithIndex fiftyoneDegreesProfileIterateValuesForPropertyWithIndex /**< Synonym for #fiftyoneDegreesProfileIterateValuesForPropertyWithIndex function. */
+#define ProfileIterateValueIndexes fiftyoneDegreesProfileIterateValueIndexes /**< Synonym for #fiftyoneDegreesProfileIterateValueIndexes function. */
 #define ProfileIterateProfilesForPropertyAndValue fiftyoneDegreesProfileIterateProfilesForPropertyAndValue /**< Synonym for #fiftyoneDegreesProfileIterateProfilesForPropertyAndValue function. */
 #define PropertiesGetPropertyIndexFromName fiftyoneDegreesPropertiesGetPropertyIndexFromName /**< Synonym for #fiftyoneDegreesPropertiesGetPropertyIndexFromName function. */
 #define TreeIterate fiftyoneDegreesTreeIterateNodes /**< Synonym for #fiftyoneDegreesTreeIterateNodes function. */
@@ -341,6 +347,10 @@ MAP_TYPE(IndexPropertyProfile)
 #define IndexPropertyProfileCreate fiftyoneDegreesIndexPropertyProfileCreate /**< Synonym for fiftyoneDegreesIndexPropertyProfileCreate */
 #define IndexPropertyProfileFree fiftyoneDegreesIndexPropertyProfileFree /**< Synonym for fiftyoneDegreesIndexPropertyProfileFree */
 #define IndexPropertyProfileLookup fiftyoneDegreesIndexPropertyProfileLookup /**< Synonym for fiftyoneDegreesIndexPropertyProfileLookup */
+#define IndexProfileValuesFree fiftyoneDegreesIndexProfileValuesFree /**< Synonym for fiftyoneDegreesIndexProfileValuesFree */
+#define IndexProfileValuesCreate fiftyoneDegreesIndexProfileValuesCreate /**< Synonym for fiftyoneDegreesIndexProfileValuesCreate */
+#define IndexProfileValuesIterate fiftyoneDegreesIndexProfileValuesIterate /**< Synonym for fiftyoneDegreesIndexProfileValuesIterate */
+
 
 /* <-- only one asterisk to avoid inclusion in documentation
  * Shortened macros.

@@ -68,6 +68,7 @@
     <ClInclude Include="..\..\float.h" />
     <ClInclude Include="..\..\headers.h" />
     <ClInclude Include="..\..\ip.h" />
+    <ClInclude Include="..\..\json.h" />
     <ClInclude Include="..\..\list.h" />
     <ClInclude Include="..\..\indexes.h" />
     <ClInclude Include="..\..\memory.h" />
@@ -102,6 +103,7 @@
     <ClCompile Include="..\..\float.c" />
     <ClCompile Include="..\..\headers.c" />
     <ClCompile Include="..\..\ip.c" />
+    <ClCompile Include="..\..\json.c" />
     <ClCompile Include="..\..\list.c" />
     <ClCompile Include="..\..\indexes.c" />
     <ClCompile Include="..\..\memory.c" />

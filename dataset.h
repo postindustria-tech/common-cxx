@@ -131,9 +131,6 @@ typedef struct fiftyone_degrees_dataset_base_t {
 															   look up profile 
 															   values by 
 															   property */
-	fiftyoneDegreesIndexAllProfileValues* indexProfileValues; /**< Index to 
-															   look up profile 
-															   values */
     const void *config; /**< Pointer to the config used to create the dataset */
 } fiftyoneDegreesDataSetBase;
 

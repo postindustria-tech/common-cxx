@@ -66,49 +66,6 @@ typedef struct fiftyone_degrees_index_property_profile{
 } fiftyoneDegreesIndexPropertyProfile;
 
 /**
- * The offset to a value
- */
-typedef uint32_t fiftyoneDegreesIndexProfileValue;
-
-/**
- * An array of profile value offsets. 
- */
-FIFTYONE_DEGREES_ARRAY_TYPE(
-	fiftyoneDegreesIndexProfileValue,
-	)
-
-/**
- * Shorter type for an array of profile values.
- */
-typedef fiftyoneDegreesIndexProfileValueArray*
-	fiftyoneDegreesIndexProfileValuesPtr;
-
-/**
- * Array where the index is the profile id and the value an array of required
- * values for the profile id to be returned.
- */
-FIFTYONE_DEGREES_ARRAY_TYPE(
-	fiftyoneDegreesIndexProfileValuesPtr,
-	uint32_t profileCount; /* total number of profiles */ \
-	uint32_t minProfileId; /* minimum profile id */ \
-	uint32_t maxProfileId; /* maximum profile id */
-)
-
-/**
- * Shorter type for the array of all profiles and values.
- */
-typedef fiftyoneDegreesIndexProfileValuesPtrArray 
-	fiftyoneDegreesIndexAllProfileValues;
-
-/**
- * Callback used with the iterate method to return value offsets for the 
- * profile.
- */
-typedef bool(*fiftyoneDegreesIndexProfileValuesMethod)(
-	uint32_t valueOffset,
-	void* state);
-
-/**
  * Create an index for the profiles, available properties, and values provided 
  * such that given the index to a property and profile the index of the first 
  * value can be returned by calling fiftyoneDegreesIndexPropertyProfileLookup.
@@ -152,45 +109,6 @@ EXTERNAL uint32_t fiftyoneDegreesIndexPropertyProfileLookup(
 	fiftyoneDegreesIndexPropertyProfile* index,
 	uint32_t profileId,
 	uint32_t propertyIndex);
-
-/**
- * Create an index for the required property values associated with a profile.
- * @param profiles collection of variable sized profiles to be indexed
- * @param profileOffsets collection of fixed offsets to profiles to be indexed
- * @param available properties provided by the caller
- * @param values collection to be indexed
- * @param exception pointer to an exception data structure to be used if an
- * exception occurs. See exceptions.h
- * @return pointer to the index memory structure
- */
-EXTERNAL fiftyoneDegreesIndexAllProfileValues*
-fiftyoneDegreesIndexProfileValuesCreate(
-	fiftyoneDegreesCollection* profiles,
-	fiftyoneDegreesCollection* profileOffsets,
-	fiftyoneDegreesPropertiesAvailable* available,
-	fiftyoneDegreesCollection* values,
-	fiftyoneDegreesException* exception);
-
-/**
- * Frees an index previously created by
- * fiftyoneDegreesIndexProfileValuesCreate.
- * @param index to be freed
- */
-EXTERNAL void fiftyoneDegreesIndexProfileValuesFree(
-	fiftyoneDegreesIndexAllProfileValues* index);
-
-/**
- * For each of the value indexes associated with the profile id calls the 
- * callback method with the value and state.
- * @param index to use for the values
- * @param profileId the values relate to
- * @return the number of values
- */
-EXTERNAL uint32_t fiftyoneDegreesIndexProfileValuesIterate(
-	fiftyoneDegreesIndexAllProfileValues* index,
-	uint32_t profileId,
-	void* state, 
-	fiftyoneDegreesIndexProfileValuesMethod callback);
 
 /**
  * @}

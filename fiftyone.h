@@ -85,6 +85,7 @@
 #include "pair.h"
 #include "yamlfile.h"
 #include "indexes.h"
+#include "json.h"
 
 /**
  * Macro used to support synonym implementation. Creates a typedef which 
@@ -181,11 +182,6 @@ MAP_TYPE(Coordinate)
 MAP_TYPE(KeyValuePair)
 MAP_TYPE(HeaderID)
 MAP_TYPE(IndexPropertyProfile)
-MAP_TYPE(IndexProfileValue)
-MAP_TYPE(IndexProfileValueArray)
-MAP_TYPE(IndexProfileValuesPtr)
-MAP_TYPE(IndexProfileValuesPtrArray)
-MAP_TYPE(IndexAllProfileValues)
 
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */
 #define OverrideValuesAdd fiftyoneDegreesOverrideValuesAdd /**< Synonym for #fiftyoneDegreesOverrideValuesAdd function. */
@@ -347,10 +343,12 @@ MAP_TYPE(IndexAllProfileValues)
 #define IndexPropertyProfileCreate fiftyoneDegreesIndexPropertyProfileCreate /**< Synonym for fiftyoneDegreesIndexPropertyProfileCreate */
 #define IndexPropertyProfileFree fiftyoneDegreesIndexPropertyProfileFree /**< Synonym for fiftyoneDegreesIndexPropertyProfileFree */
 #define IndexPropertyProfileLookup fiftyoneDegreesIndexPropertyProfileLookup /**< Synonym for fiftyoneDegreesIndexPropertyProfileLookup */
-#define IndexProfileValuesFree fiftyoneDegreesIndexProfileValuesFree /**< Synonym for fiftyoneDegreesIndexProfileValuesFree */
-#define IndexProfileValuesCreate fiftyoneDegreesIndexProfileValuesCreate /**< Synonym for fiftyoneDegreesIndexProfileValuesCreate */
-#define IndexProfileValuesIterate fiftyoneDegreesIndexProfileValuesIterate /**< Synonym for fiftyoneDegreesIndexProfileValuesIterate */
-
+#define JsonDocumentStart fiftyoneDegreesJsonDocumentStart /**< Synonym for fiftyoneDegreesJsonDocumentStart */
+#define JsonDocumentEnd fiftyoneDegreesJsonDocumentEnd /**< Synonym for fiftyoneDegreesJsonDocumentEnd */
+#define JsonPropertyStart fiftyoneDegreesJsonPropertyStart /**< Synonym for fiftyoneDegreesJsonPropertyStart */
+#define JsonPropertyEnd fiftyoneDegreesJsonPropertyEnd /**< Synonym for fiftyoneDegreesJsonPropertyEnd */
+#define JsonPropertyValues fiftyoneDegreesJsonPropertyValues /**< Synonym for fiftyoneDegreesJsonPropertyValues */
+#define JsonPropertySeparator fiftyoneDegreesJsonPropertySeparator /**< Synonym for fiftyoneDegreesJsonPropertySeparator */
 
 /* <-- only one asterisk to avoid inclusion in documentation
  * Shortened macros.

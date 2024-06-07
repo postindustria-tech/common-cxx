@@ -22,6 +22,8 @@
 
 #include "json.h"
 
+// Add one character to the buffer if space is available. Always advance 
+// charsAdded.
 static void addChar(fiftyoneDegreesJson* s, char a) {
 	if (s->bufferLength > 0) {
 		*s->buffer = a;
@@ -31,11 +33,13 @@ static void addChar(fiftyoneDegreesJson* s, char a) {
 	s->charsAdded++;
 }
 
+// Add two characters to the buffer if space is available.
 static void addTwo(fiftyoneDegreesJson* s, char a, char b) {
 	addChar(s, a);
 	addChar(s, b);
 }
 
+// Adds a string of characters escaping special characters.
 static void addStringEscape(
 	fiftyoneDegreesJson* s,
 	const char* value,
@@ -67,6 +71,8 @@ static void addStringEscape(
 	}
 }
 
+// Adds a string including surrounding double quotes and escaping special 
+// characters.
 static void addString(
 	fiftyoneDegreesJson* s,
 	const char* value,
@@ -76,6 +82,7 @@ static void addString(
 	addChar(s, '\"');
 }
 
+// Adds a comma separator.
 static void addSeparator(fiftyoneDegreesJson* s) {
 	addChar(s, ',');
 }
@@ -93,29 +100,37 @@ void fiftyoneDegreesJsonPropertySeparator(fiftyoneDegreesJson* s) {
 }
 
 void fiftyoneDegreesJsonPropertyStart(fiftyoneDegreesJson* s) {
-	String* name;
-	Item stringItem;
-	Exception* exception = s->exception;
+	fiftyoneDegreesString* name;
+	fiftyoneDegreesCollectionItem stringItem;
+	fiftyoneDegreesException* exception = s->exception;
 
-	// Get the property name.
-	DataReset(&stringItem.data);
-	name = StringGet(
+	// Check that the property is populated.
+	if (s->property == NULL) {
+		FIFTYONE_DEGREES_EXCEPTION_SET(
+			FIFTYONE_DEGREES_STATUS_NULL_POINTER)
+		return;
+	}
+
+	// Get the property name as a string.
+	fiftyoneDegreesDataReset(&stringItem.data);
+	name = fiftyoneDegreesStringGet(
 		s->strings,
 		s->property->nameOffset,
 		&stringItem,
 		exception);
-	if (name != NULL && EXCEPTION_OKAY) {
+	if (name != NULL && FIFTYONE_DEGREES_EXCEPTION_OKAY) {
 
 		// Add the property name to the JSON buffer considering whether 
 		// it's a list or single value property.
-		addString(s, STRING(name), strlen(STRING(name)));
+		const char* value = FIFTYONE_DEGREES_STRING(name);
+		addString(s, value, strlen(value));
 		addChar(s, ':');
 		if (s->property->isList) {
 			addChar(s, '[');
 		}
 
 		// Release the string.
-		COLLECTION_RELEASE(s->strings, &stringItem);
+		FIFTYONE_DEGREES_COLLECTION_RELEASE(s->strings, &stringItem);
 	}
 }
 
@@ -127,11 +142,21 @@ void fiftyoneDegreesJsonPropertyEnd(fiftyoneDegreesJson* s) {
 
 void fiftyoneDegreesJsonPropertyValues(fiftyoneDegreesJson* s) {
 	const char* value;
+	fiftyoneDegreesException* exception = s->exception;
+
+	// Check that the values is populated.
+	if (s->values == NULL) {
+		FIFTYONE_DEGREES_EXCEPTION_SET(
+			FIFTYONE_DEGREES_STATUS_NULL_POINTER)
+			return;
+	}
+
 	for (uint32_t i = 0; i < s->values->count; i++) {
 		if (i > 0) {
 			addSeparator(s);
 		}
-		value = STRING((String*)s->values->items[i].data.ptr);
+		value = FIFTYONE_DEGREES_STRING(
+			(fiftyoneDegreesString*)s->values->items[i].data.ptr);
 		if (value != NULL) {
 			addString(s, value, strlen(value));
 		}

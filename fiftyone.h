@@ -182,6 +182,7 @@ MAP_TYPE(Coordinate)
 MAP_TYPE(KeyValuePair)
 MAP_TYPE(HeaderID)
 MAP_TYPE(IndexPropertyProfile)
+MAP_TYPE(Json)
 
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */
 #define OverrideValuesAdd fiftyoneDegreesOverrideValuesAdd /**< Synonym for #fiftyoneDegreesOverrideValuesAdd function. */

@@ -24,7 +24,6 @@
 #include "../pseudoheader.h"
 #include "../fiftyone.h"
 
-#define PSEUDO_BUFFER_SIZE 100
 #define PSEUDO_HEADERS_SIZE 3
 #define HEADERS_SIZE 8
 #define HEADERS_DUPLICATE_SIZE 13
@@ -79,8 +78,7 @@ void PseudoHeaderTests::SetUp() {
 	evidence = EvidenceCreate(HEADERS_SIZE);
 	evidence->pseudoEvidence = EvidenceCreate(PSEUDO_HEADERS_SIZE);
 	for (int i = 0; i < PSEUDO_HEADERS_SIZE; i++) {
-		evidence->pseudoEvidence->items[i].originalValue =
-			Malloc(PSEUDO_BUFFER_SIZE);
+		evidence->pseudoEvidence->items[i].originalValue =			Malloc(PSEUDO_BUFFER_SIZE);
 		EXPECT_TRUE(evidence->pseudoEvidence->items[i].originalValue != NULL);
 		memset(
 			(void*)evidence->pseudoEvidence->items[i].originalValue,
@@ -88,7 +86,6 @@ void PseudoHeaderTests::SetUp() {
 			PSEUDO_BUFFER_SIZE);
 	}
 }
-
 void PseudoHeaderTests::TearDown() {
 	for (int i = 0; i < PSEUDO_HEADERS_SIZE; i++) {
 		fiftyoneDegreesFree(
@@ -152,7 +149,7 @@ void PseudoHeaderTests::checkResults(
 		EXPECT_EQ(0, strcmp(
 			expectedEvidence[i].result,
 			(const char*)evidence->pseudoEvidence->items[i].originalValue)) <<
-			"Pseudo Evidence is not the same where  it should be " <<
+			"i="<< i << " Pseudo Evidence " << evidence->pseudoEvidence->items[i].field << " is " << (const char *)evidence->pseudoEvidence->items[i].originalValue <<" is not the same where  it should be " <<
 			expectedEvidence[i].result << "\n";
 	}
 }
@@ -688,6 +685,7 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceTooLong) {
 	checkResults(expectedEvidence, 1);
 	removePseudoEvidence(10);
 }
+
 TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceTooLongReversed) {
 	// Expected value
 	const testExpectedResult expectedEvidence[1] =
@@ -718,4 +716,88 @@ TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceTooLongReversed) {
 
 	checkResults(expectedEvidence, 1);
 	removePseudoEvidence(10);
+}
+
+TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceHeapOverflow) {
+    // Expected value
+    const testExpectedResult expectedEvidence[3] =
+    {
+        {
+            "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901\x1F""Android",
+            FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
+        },
+        {
+            "Android\x1F?1",
+            FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
+        },
+        {
+            // here value1\x1Fvalue2\x1Fvalue3 are concatenated, the problem is that value1\x1Fvalue2\x1F is exactly the size of the
+            // buffer (which is 100 chars) and it may cause a heap overflow if separator \x1F overwrites the terminating \0
+            // this was a bug detected and fixed
+            "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901\x1F""Android",
+            FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
+        }
+    };
+
+    // Create headers
+    createHeaders(uniqueHeaders, HEADERS_SIZE, false);
+
+    testKeyValuePair evidenceList[3] =
+    { {"header3", "?1"}, {"header1", "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901"}, {"header2", "Android"} };
+    addEvidence(evidenceList, 3, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
+
+    EXCEPTION_CREATE;
+    PseudoHeadersAddEvidence(
+        evidence,
+        acceptedHeaders,
+        PSEUDO_BUFFER_SIZE,
+        orderOfPrecedence,
+        PREFIXES_SIZE,
+        exception);
+    EXCEPTION_THROW;
+
+    checkResults(expectedEvidence, 3);
+    removePseudoEvidence(PSEUDO_BUFFER_SIZE);
+}
+
+TEST_F(PseudoHeaderTests, EvidenceCreationPseudoEvidenceLastSeparator) {
+    // Expected value
+    const testExpectedResult expectedEvidence[3] =
+    {
+        {
+            "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\x1F""Android",
+            FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
+        },
+        {
+            "Android\x1F?1",
+            FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
+        },
+        {
+            // here value1\x1Fvalue2\x1Fvalue3 are concatenated, value1\x1Fvalue2\x1F is expected to be just 1 less 
+            // than the size of the buffer (which is 100 chars) we check that it does not overflow and terminating \0
+            // is added properly
+            "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\x1F""Android\x1F",
+            FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING
+        }
+    };
+
+    // Create headers
+    createHeaders(uniqueHeaders, HEADERS_SIZE, false);
+
+    testKeyValuePair evidenceList[3] =
+    { {"header3", "?1"}, {"header1", "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"}, {"header2", "Android"} };
+    addEvidence(evidenceList, 3, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
+
+    EXCEPTION_CREATE;
+    PseudoHeadersAddEvidence(
+        evidence,
+        acceptedHeaders,
+        PSEUDO_BUFFER_SIZE,
+        orderOfPrecedence,
+        PREFIXES_SIZE,
+        exception);
+    EXCEPTION_THROW;
+
+    checkResults(expectedEvidence, 3);
+    removePseudoEvidence(PSEUDO_BUFFER_SIZE);
 }

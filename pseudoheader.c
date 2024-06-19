@@ -98,7 +98,8 @@ static int constructPseudoEvidence(
         }
 
         // If this is a subsequent segment value then add the separator.
-        if (i != 0) {
+        // make sure that we don't cause heap overflow by overwriting the terminating \0 (at position max - 1)
+        if (i != 0 && current < max - 1) {
             *current = PSEUDO_HEADER_SEP;
             current++;
         }

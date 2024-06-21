@@ -24,8 +24,7 @@
 
 #include "fiftyone.h"
 
-typedef struct evidence_iterate_state_t {
-	fiftyoneDegreesEvidenceKeyValuePairArray *evidence;
+typedef struct evidence_iterate_state_t {	fiftyoneDegreesEvidenceKeyValuePairArray *evidence;
 	EvidencePrefix prefix;
 	void *state;
 	fiftyoneDegreesEvidenceIterateMethod callback;
@@ -175,4 +174,12 @@ EXTERNAL const char* fiftyoneDegreesEvidencePrefixString(
 		}
 	}
 	return NULL;
+}
+
+EXTERNAL fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddStringUnique(
+    fiftyoneDegreesEvidenceKeyValuePairArray *evidence,
+    fiftyoneDegreesEvidencePrefix prefix,
+    const char *field,
+    const char *originalValue) {
+    return NULL;
 }

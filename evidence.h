@@ -24,8 +24,7 @@
 #define FIFTYONE_DEGREES_EVIDENCE_H_INCLUDED
 
 /**
- * @ingroup FiftyOneDegreesCommon
- * @defgroup FiftyOneDegreesEvidence Evidence
+ * @ingroup FiftyOneDegreesCommon * @defgroup FiftyOneDegreesEvidence Evidence
  *
  * Contains key value pairs as evidence to be processed.
  *
@@ -245,6 +244,21 @@ EXTERNAL uint32_t fiftyoneDegreesEvidenceIterate(
 	void *state,
 	fiftyoneDegreesEvidenceIterateMethod callback);
 
+
+/**
+ * First checks if provided prefix+field are not already part of the 
+ * evidence array with the same parameters.
+ * If not calls fiftyoneDegreesEvidenceAddString.
+ * @param evidence pointer to the evidence array to add the entry to
+ * @param prefix enum indicating the category the entry belongs to
+ * @param field used as the key for the entry within its prefix
+ * @param originalValue the value to be parsed
+ */
+EXTERNAL fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddStringUnique(
+    fiftyoneDegreesEvidenceKeyValuePairArray *evidence,
+    fiftyoneDegreesEvidencePrefix prefix,
+    const char *field,
+    const char *originalValue);
 /**
  * @}
  */

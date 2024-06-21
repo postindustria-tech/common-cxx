@@ -24,7 +24,8 @@
 
 #include "fiftyone.h"
 
-typedef struct evidence_iterate_state_t {	fiftyoneDegreesEvidenceKeyValuePairArray *evidence;
+typedef struct evidence_iterate_state_t {	
+    fiftyoneDegreesEvidenceKeyValuePairArray *evidence;
 	EvidencePrefix prefix;
 	void *state;
 	fiftyoneDegreesEvidenceIterateMethod callback;

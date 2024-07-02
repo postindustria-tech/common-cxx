@@ -1,0 +1,33 @@
+name: Nightly Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      dryrun:
+        required: false
+        type: boolean
+        default: false
+  # schedule:
+  #   - cron: '5 0 * * *'
+
+jobs:
+  NightlyPullRequests:
+    name: Nightly Pull Requests
+    uses: postindustria-tech/common-ci/.github/workflows/nightly-pull-requests.yml@main
+    with:
+      repo-name: ${{ github.event.repository.name }}
+      org-name: ${{ github.event.repository.owner.login }}
+      dryrun: ${{ inputs.dryrun || false }}
+    secrets:
+      token: ${{ secrets.ACCESS_TOKEN }}
+
+  NightlyPublish:
+    if: ${{ !cancelled() }}
+    needs: NightlyPullRequests
+    name: Nightly Publish
+    uses: postindustria-tech/common-ci/.github/workflows/nightly-publish.yml@main
+    with:
+      repo-name: ${{ github.event.repository.name }}
+      dryrun: ${{ inputs.dryrun || false }}
+    secrets:
+      token: ${{ secrets.ACCESS_TOKEN }}

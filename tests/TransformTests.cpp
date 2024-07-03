@@ -24,69 +24,83 @@
 #include "../memory.h"
 #include "../transform.h"
 
-class TransformEvidence: public Evidence {
+class Transform: public Base {
 public:
+    virtual void SetUp();
+    
     static bool found;
+    static fiftyoneDegreesKeyValuePairArray *results;
+    static fiftyoneDegreesException exception;
     static const char *expectedFieldName;
     static const char *expectedFieldValue;
-    static bool onMatchIterateString(void *state, fiftyoneDegreesEvidenceKeyValuePair *pair)
-    {
-        if (strcmp((const char*)pair->field, expectedFieldName) == 0) {
-            EXPECT_TRUE(strcmp((const char*)pair->originalValue, expectedFieldValue) == 0) <<
-                L"Expected original value to be '" << expectedFieldValue << "' not '" <<
-            (const char*)pair->originalValue << "'";
-            found = true;
-            return false;
-        }
-        return true;
-    }
-    
     void checkFieldValue(const char *field, const char *value);
     void checkFieldAbsent(const char *field);
 };
 
-bool TransformEvidence::found = false;
-const char *TransformEvidence::expectedFieldName = NULL;
-const char *TransformEvidence::expectedFieldValue = NULL;
+bool Transform::found = false;
+const char *Transform::expectedFieldName = NULL;
+const char *Transform::expectedFieldValue = NULL;
+fiftyoneDegreesKeyValuePairArray *Transform::results = NULL;
+fiftyoneDegreesException Transform::exception;
 
-void TransformEvidence::checkFieldValue(const char *field, const char *value) {
+
+void Transform::checkFieldValue(const char *field, const char *value) {
     found = false;
     expectedFieldName = field;
     expectedFieldValue = value;
-    fiftyoneDegreesEvidenceIterate(
-        evidence,
-        FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING,
-        NULL,
-        onMatchIterateString);
+    for (int i = 0; i < results->count; ++i) {
+        fiftyoneDegreesKeyValuePair *pair = &results->items[i];
+        if (strcmp((const char*)pair->key, expectedFieldName) == 0) {
+                EXPECT_TRUE(strcmp((const char*)pair->value, expectedFieldValue) == 0) <<
+                    L"Expected value to be '" << expectedFieldValue << "' not '" <<
+            (const char*)pair->value << "'";
+            found = true;
+            break;
+        }
+    }
     ASSERT_TRUE(found) << "Field " << field << " was not found should be " << value;
 }
 
-void TransformEvidence::checkFieldAbsent(const char *field) {
+void Transform::checkFieldAbsent(const char *field) {
     found = false;
     expectedFieldName = field;
     expectedFieldValue = "";
-    fiftyoneDegreesEvidenceIterate(
-        evidence,
-        FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING,
-        NULL,
-        onMatchIterateString);
+    for (int i = 0; i < results->count; ++i) {
+        fiftyoneDegreesKeyValuePair *pair = &results->items[i];
+        if (strcmp((const char*)pair->key, expectedFieldName) == 0) {
+            found = true;
+            break;
+        }
+    }
     ASSERT_FALSE(found) << "Field " << field << " should be absent";
 }
 
-TEST_F(TransformEvidence, GHEVHappyPath) {
-    CreateEvidence(8); // some extra room for conversion
+bool fillResultsCallback(fiftyoneDegreesKeyValuePair pair) {
+    fiftyoneDegreesKeyValuePairArray *results = Transform::results;
+    if (results->count < results->capacity) {
+        results->items[results->count++] = pair;
+        return true;
+    }
+    return false;
+}
+
+void Transform::SetUp() {
+    FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, results, 8)
+}
+
+TEST_F(Transform, GHEVHappyPath) {
     const char *ghev = "{\"architecture\":\"x86\",\"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":\"126\"},{\"brand\":\"Google Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":\"126.0.6478.61\"},{\"brand\":\"Google Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":\"\",\"platform\":\"macOS\",\"platformVersion\":\"14.5.0\"}";
     
     size_t bufferLength = strlen(ghev);
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesHeadersFromGHEV(ghev, evidence, buffer, bufferLength);
+    size_t count = fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength, &Transform::exception, fillResultsCallback);
     
     // we expect to see these headers detected:
     // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
     // high entropy: sec-ch-ua-platform-version, sec-ch-ua-model, sec-ch-ua-arch, sec-ch-ua-full-version-list
     
-    ASSERT_EQ(evidence->count, 7);
+    ASSERT_EQ(results->count, count);
 
     checkFieldValue("sec-ch-ua", "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google Chrome\";v=\"126\"");
     checkFieldValue("sec-ch-ua-mobile", "?0");
@@ -97,15 +111,15 @@ TEST_F(TransformEvidence, GHEVHappyPath) {
     checkFieldValue("sec-ch-ua-full-version-list", "\"Not/A)Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"126.0.6478.61\", \"Google Chrome\";v=\"126.0.6478.61\"");
 }
 
-TEST_F(TransformEvidence, GHEVPartial) {
-    CreateEvidence(8); // some extra room for conversion
+TEST_F(Transform, GHEVPartial) {
     const char *ghev = "{\"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":\"126\"},{\"brand\":\"Google Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":\"126.0.6478.61\"},{\"brand\":\"Google Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":\"\",\"platform\":null}";
     
     size_t bufferLength = strlen(ghev);
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesStatusCode status = fiftyoneDegreesHeadersFromGHEV(ghev, evidence, buffer, bufferLength);
-    ASSERT_EQ(status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+    size_t count = fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength, &exception, fillResultsCallback);
+    ASSERT_EQ(count, 3);
+    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
     
     // we expect to see these headers detected:
     // low entropy: sec-ch-ua, sec-ch-ua-mobile
@@ -114,7 +128,7 @@ TEST_F(TransformEvidence, GHEVPartial) {
     // or entire absence of key (platformVersion) result in no header in the output
     // the policy is - we don't output empty data - no value == no evidence field
     
-    ASSERT_EQ(evidence->count, 3);
+    ASSERT_EQ(results->count, count);
 
     checkFieldValue("sec-ch-ua", "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google Chrome\";v=\"126\"");
     checkFieldValue("sec-ch-ua-mobile", "?0");
@@ -124,53 +138,50 @@ TEST_F(TransformEvidence, GHEVPartial) {
     checkFieldValue("sec-ch-ua-full-version-list", "\"Not/A)Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"126.0.6478.61\", \"Google Chrome\";v=\"126.0.6478.61\"");
 }
 
-TEST_F(TransformEvidence, GHEVCorruptInput) {
-    CreateEvidence(8); // some extra room for conversion
+TEST_F(Transform, GHEVCorruptInput) {
     const char *ghev = "{\"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":\"126\"},{\"brand\":\"Google Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":\"126.0.6478.61\"},{\"brand\":\"Google Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":\"\",\"platform\"";
     
     size_t bufferLength = strlen(ghev);
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesStatusCode status = fiftyoneDegreesHeadersFromGHEV(ghev, evidence, buffer, bufferLength);
-    ASSERT_EQ(status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    size_t count = fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength, &exception, fillResultsCallback);
+    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
 }
 
-TEST_F(TransformEvidence, GHEVBufferTooSmall) {
-    CreateEvidence(8); // some extra room for conversion
+TEST_F(Transform, GHEVBufferTooSmall) {
     const char *ghev = "{\"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":\"126\"},{\"brand\":\"Google Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":\"126.0.6478.61\"},{\"brand\":\"Google Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":\"\",\"platform\":\"macOS\"}";
     
     size_t bufferLength = 20;
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesStatusCode status = fiftyoneDegreesHeadersFromGHEV(ghev, evidence, buffer, bufferLength);
-    ASSERT_EQ(status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+    size_t count = fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength, &exception, fillResultsCallback);
+    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
 }
 
-TEST_F(TransformEvidence, GHEVEvidenceLowCapacity) {
-    CreateEvidence(3); // some extra room for conversion
+TEST_F(Transform, GHEVEvidenceLowCapacity) {
     const char *ghev = "{\"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":\"126\"},{\"brand\":\"Google Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":\"126.0.6478.61\"},{\"brand\":\"Google Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":\"\",\"platform\":\"macOS\"}";
     
     size_t bufferLength = 20;
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesStatusCode status = fiftyoneDegreesHeadersFromGHEV(ghev, evidence, buffer, bufferLength);
-    ASSERT_EQ(status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+    size_t count = fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength, &exception, fillResultsCallback);
+    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
 }
 
-TEST_F(TransformEvidence, SUAHappyPath) {
-    CreateEvidence(8); // some extra room for conversion
+TEST_F(Transform, SUAHappyPath) {
     const char *sua = "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\": [\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": {\"brand\": \"Android\",\"version\": [\"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": \"Pixel 6\"}";
     
     size_t bufferLength = strlen(sua);
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesHeadersFromSUA(sua, evidence, buffer, bufferLength);
+    size_t count = fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception, fillResultsCallback);
     
+    ASSERT_EQ(count, 7);
     // we expect to see these headers detected:
     // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
     // high entropy: sec-ch-ua-platform-version, sec-ch-ua-model, sec-ch-ua-arch, sec-ch-ua-full-version-list
     
-    ASSERT_EQ(evidence->count, 7);
+    ASSERT_EQ(results->count, count);
 
     // In device.sua representation there is no distinction between
     // sec-ch-ua and sec-ch-ua-full-version-list
@@ -184,20 +195,19 @@ TEST_F(TransformEvidence, SUAHappyPath) {
     checkFieldValue("sec-ch-ua-model", "\"Pixel 6\"");
 }
 
-TEST_F(TransformEvidence, SUAPartial1) {
-    CreateEvidence(8); // some extra room for conversion
+TEST_F(Transform, SUAPartial1) {
     const char *sua = "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\": [\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": {\"brand\": \"Android\"]},\"mobile\": 1,\"model\": \"\"}";
     
     size_t bufferLength = strlen(sua);
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesHeadersFromSUA(sua, evidence, buffer, bufferLength);
-    
+    size_t count = fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception, fillResultsCallback);
+    ASSERT_EQ(count, 4);
     // we expect to see these headers detected:
     // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
     // high entropy: sec-ch-ua-platform-version, sec-ch-ua-model, sec-ch-ua-arch, sec-ch-ua-full-version-list
     
-    ASSERT_EQ(evidence->count, 4);
+    ASSERT_EQ(results->count, count);
 
     checkFieldValue("sec-ch-ua", "\"Not A;Brand\";v=\"99.0.0.0\", \"Chromium\";v=\"99.0.4844.88\", \"Google Chrome\";v=\"99.0.4844.88\"");
     checkFieldValue("sec-ch-ua-full-version-list", "\"Not A;Brand\";v=\"99.0.0.0\", \"Chromium\";v=\"99.0.4844.88\", \"Google Chrome\";v=\"99.0.4844.88\"");
@@ -209,20 +219,19 @@ TEST_F(TransformEvidence, SUAPartial1) {
     checkFieldAbsent("sec-ch-ua-model");
 }
 
-TEST_F(TransformEvidence, SUAPartial2) {
-    CreateEvidence(8); // some extra room for conversion
+TEST_F(Transform, SUAPartial2) {
     const char *sua = "{\"source\": 2,\"platform\": {\"brand\": \"Android\",\"version\": [\"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": null}";
     
     size_t bufferLength = strlen(sua);
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesHeadersFromSUA(sua, evidence, buffer, bufferLength);
-    
+    size_t count = fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception, fillResultsCallback);
+    ASSERT_EQ(count, 2);
     // we expect to see these headers detected:
     // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
     // high entropy: sec-ch-ua-platform-version, sec-ch-ua-model, sec-ch-ua-arch, sec-ch-ua-full-version-list
     
-    ASSERT_EQ(evidence->count, 2);
+    ASSERT_EQ(results->count, count);
 
     checkFieldAbsent("sec-ch-ua");
     checkFieldAbsent("sec-ch-ua-full-version-list");
@@ -234,57 +243,52 @@ TEST_F(TransformEvidence, SUAPartial2) {
     checkFieldAbsent("sec-ch-ua-model");
 }
 
-TEST_F(TransformEvidence, SUACorrupt1) {
-    CreateEvidence(8); // some extra room for conversion
+TEST_F(Transform, SUACorrupt1) {
     const char *sua = "{\"source\": 2,,\"platform\": {\"brand\": \"Android\",\"version\": [\"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": null}";
     
     size_t bufferLength = strlen(sua);
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesStatusCode status = fiftyoneDegreesHeadersFromSUA(sua, evidence, buffer, bufferLength);
-    ASSERT_EQ(status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    size_t count = fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception, fillResultsCallback);
+    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
 }
 
-TEST_F(TransformEvidence, SUACorrupt2) {
-    CreateEvidence(8); // some extra room for conversion
+TEST_F(Transform, SUACorrupt2) {
     const char *sua = "{\"source\": 2,\"platform\": {\"brand\": \"Android\",\"version\": [12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": null}";
     
     size_t bufferLength = strlen(sua);
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesStatusCode status = fiftyoneDegreesHeadersFromSUA(sua, evidence, buffer, bufferLength);
-    ASSERT_EQ(status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    size_t count = fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception, fillResultsCallback);
+    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
 }
 
-TEST_F(TransformEvidence, SUACorrupt3) {
-    CreateEvidence(8); // some extra room for conversion
+TEST_F(Transform, SUACorrupt3) {
     const char *sua = "{\"source\": 2,\"platform\": {\"brand\": \"Android\",\"version\": \"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": null}";
     
     size_t bufferLength = strlen(sua);
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesStatusCode status = fiftyoneDegreesHeadersFromSUA(sua, evidence, buffer, bufferLength);
-    ASSERT_EQ(status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    size_t count = fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception, fillResultsCallback);
+    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
 }
 
-TEST_F(TransformEvidence, SUABufferTooSmall) {
-    CreateEvidence(8); // some extra room for conversion
+TEST_F(Transform, SUABufferTooSmall) {
     const char *sua = "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\": [\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": {\"brand\": \"Android\",\"version\": [\"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": \"Pixel 6\"}";
 
     size_t bufferLength = 15;
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesStatusCode status = fiftyoneDegreesHeadersFromSUA(sua, evidence, buffer, bufferLength);
-    ASSERT_EQ(status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+    size_t count = fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception, fillResultsCallback);
+    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
 }
 
-TEST_F(TransformEvidence, SUAEvidenceLowCapacity) {
-    CreateEvidence(2); // some extra room for conversion
+TEST_F(Transform, SUAEvidenceLowCapacity) {
     const char *sua = "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\": [\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": {\"brand\": \"Android\",\"version\": [\"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": \"Pixel 6\"}";
 
     size_t bufferLength = 15;
     char *buffer = (char *) fiftyoneDegreesMalloc(bufferLength);
     
-    fiftyoneDegreesStatusCode status = fiftyoneDegreesHeadersFromSUA(sua, evidence, buffer, bufferLength);
-    ASSERT_EQ(status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);  // 
+    size_t count = fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception, fillResultsCallback);
+    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
 }

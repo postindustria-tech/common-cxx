@@ -21,18 +21,51 @@
  * ********************************************************************* */
 
 #include "transform.h"
-#include "fiftyone.h"
 
-EXTERNAL fiftyoneDegreesStatusCode fiftyoneDegreesHeadersFromGHEV(const char *ghev,
-                                                                  fiftyoneDegreesEvidenceKeyValuePairArray *outEvidence,
-                                                                  char *buffer,
-                                                                  size_t length) {
-    return FIFTYONE_DEGREES_STATUS_SUCCESS;
+size_t fiftyoneDegreesTransformIterateGhevFromJson(const char *json,
+                                                            char * const buffer,
+                                                            size_t length,
+                                                            fiftyoneDegreesException * const exception,
+                                                   fiftyoneDegreesTransformCallback callback) {
+    return 0;
 }
 
-EXTERNAL fiftyoneDegreesStatusCode fiftyoneDegreesHeadersFromSUA(const char *sua,
-                                                                  fiftyoneDegreesEvidenceKeyValuePairArray *outEvidence,
-                                                                  char *buffer,
-                                                                 size_t length) {
-    return FIFTYONE_DEGREES_STATUS_SUCCESS;
+size_t fiftyoneDegreesTransformIterateGhevFromBase64(const char *base64,
+                                                              char *buffer,
+                                                              size_t length,
+                                                              fiftyoneDegreesException * const exception,
+                                                     fiftyoneDegreesTransformCallback callback) {
+    return 0;
+}
+
+size_t fiftyoneDegreesTransformIterateSua(const char *json,
+                                                   char *buffer,
+                                                   size_t length,
+                                                   fiftyoneDegreesException * const exception,
+                                          fiftyoneDegreesTransformCallback callback) {
+    return 0;
+}
+
+size_t fiftyoneDegreesTransformGhevFromJson(const char *json,
+                                                     char *buffer,
+                                                     size_t length,
+                                                     fiftyoneDegreesException * const exception,
+                                            fiftyoneDegreesKeyValuePairArray * const headers) {
+    return 0;
+}
+
+size_t fiftyoneDegreesTransformGhevFromBase64(const char *base64,
+                                                       char *buffer,
+                                                       size_t length,
+                                                       fiftyoneDegreesException * const exception,
+                                              fiftyoneDegreesKeyValuePairArray * const headers){
+    return 0;
+}
+
+size_t fiftyoneDegreesTransformSua(const char *json,
+                                            char *buffer,
+                                            size_t length,
+                                            fiftyoneDegreesException * const exception,
+                                   fiftyoneDegreesKeyValuePairArray * const headers) {
+    return 0;
 }

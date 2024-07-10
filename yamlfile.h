@@ -88,7 +88,7 @@ EXTERNAL fiftyoneDegreesStatusCode fiftyoneDegreesYamlFileIterateWithLimit(
  * @param length lengh of th buffer
  * @param keyValuePairs an array of key value pairs used to hold the document
  * key value pairs during the process. Each key and value length should be
- * big enough to hold the biggest  key or value. Else, insufficient memory error
+ * big enough to hold the biggest key or value. Else, insufficient memory error
  * will be thrown.
  * @param collectionSize size of the keyValuePairs array
  * @param state the state maintained externally. To be passed to the callback

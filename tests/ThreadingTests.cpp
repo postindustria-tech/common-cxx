@@ -29,7 +29,6 @@
  * to support interlocked operations that require double width data structures
  * and pointers to be aligned.
  */
-#ifndef FIFTYONE_DEGREES_NO_THREADING
 #if ((defined(_MSC_VER) && defined(_WIN64)) \
     || ((defined(__GNUC__) || defined(__clang__)) \
         && (defined(__x86_64__) || defined(__aarch64__))))
@@ -58,13 +57,6 @@ typedef union doubleWidth_u {
 #else
 typedef doubleWidth alignedDoubleWidth __attribute__ ((aligned (ALIGN_SIZE)));
 #define INTERLOCK_DOUBLE_WIDTH alignedDoubleWidth
-#endif
-#else
-typedef struct doubleWidth_t {
-	void* ptr;
-	int32_t inUse;
-} doubleWidth;
-#define INTERLOCK_DOUBLE_WIDTH InterlockDoubleWidth
 #endif
 
 class Threading : public Base

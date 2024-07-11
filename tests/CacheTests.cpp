@@ -284,6 +284,7 @@ public:
 	* returned by the cache.
 	* @param concurrency number of threads to run the test with
 	*/
+
 	void multiThreadRandom(uint16_t concurrency) {
 		if (fiftyoneDegreesThreadingGetIsThreadSafe() == false) {
 			return;
@@ -331,8 +332,6 @@ ASSERT_EQ((void*)cache, (void*)NULL) <<
 TEST_F(CacheTestOneHalf, Evict) {
 	evict(TEST_STRINGS_COUNT / 2, TEST_STRINGS_COUNT / 2);
 }
-
-#ifndef FIFTYONE_DEGREES_NO_THREADING
 
 /**
 * Multi threaded tests with higher concurrency.
@@ -409,5 +408,3 @@ TEST_F(CacheTestHalfFour, ThreadSafety2) { multiThreadRandom(2); }
 TEST_F(CacheTestHalfFour, ThreadSafety4) { multiThreadRandom(4); }
 
 TEST_F(CacheTestHalfTwo, ThreadSafety2) { multiThreadRandom(2); }
-
-#endif

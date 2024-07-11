@@ -73,9 +73,7 @@
     <ClCompile Include="..\..\yamlfile.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{8E1B0B4C-8220-4E7B-A838-B4B3DDB4CF15}</ProjectGuid>
     <RootNamespace>FiftyOneCommonC</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
  </Project>

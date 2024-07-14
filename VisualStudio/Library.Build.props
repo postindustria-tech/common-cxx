@@ -18,6 +18,10 @@
       <Configuration>Debug-Single</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-Single|Win32">
+      <Configuration>Debug-Single</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-MemoryOnly|Win32">
       <Configuration>Debug-MemoryOnly</Configuration>
       <Platform>Win32</Platform>
@@ -33,6 +37,10 @@
     <ProjectConfiguration Include="Release-Single|x64">
       <Configuration>Release-Single</Configuration>
       <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-Single|Win32">
+      <Configuration>Release-Single</Configuration>
+      <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-MemoryOnly|Win32">
       <Configuration>Release-MemoryOnly</Configuration>

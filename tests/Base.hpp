@@ -51,9 +51,9 @@ typedef struct memoryStates_t {
  * ensure that the macro will not fail if there is no release method in the
  * library that created the item being released.
  */
-#define TEST_COLLECTION_RELEASE(i) \
-if (i.collection->release != NULL) {\
-    FIFTYONE_DEGREES_COLLECTION_RELEASE(i.collection, &i);\
+#define TEST_COLLECTION_RELEASE(c,i) \
+if (c->release != NULL) {\
+    FIFTYONE_DEGREES_COLLECTION_RELEASE(c, &i);\
 }
 
 using std::stringstream;

@@ -44,6 +44,18 @@ typedef struct memoryStates_t {
 } memoryStates;
 #endif
 
+/**
+ * When used with the tests and configurations other than DEBUG and RELEASE the
+ * example might be compiled differently to the underlying library where
+ * NO_THREADING and MEMORY_ONLY might have been used. This check is needed to
+ * ensure that the macro will not fail if there is no release method in the
+ * library that created the item being released.
+ */
+#define TEST_COLLECTION_RELEASE(i) \
+if (i.collection->release != NULL) {\
+    FIFTYONE_DEGREES_COLLECTION_RELEASE(i.collection, &i);\
+}
+
 using std::stringstream;
 using std::cout;
 

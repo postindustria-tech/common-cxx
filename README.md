@@ -32,11 +32,12 @@ Finally, the optional last part completes the description of the method's use, e
 
 # Installing
 
-## Dependecies
+## Dependencies
 
 When compiling on Linux, there is a dependency on `libatomic`. This
 is usually already present as part of the C libraries, and is included
-as part of GCC 5 and abover. On other systems, can be installed with:
+as part of GCC 5 and above. On other systems, can be installed with:
+
 ```
 sudo apt-get install libatomic1
 ```
@@ -50,7 +51,8 @@ mkdir build
 cd build
 cmake .. 
 ```
-Note: on an x64 Windows system, it is neccessary to add `-A x64` as CMake will build a Win32 Solution by default.
+
+Note: on an x64 Windows system, it is necessary to add `-A x64` as CMake will build a Win32 Solution by default.
 
 Then build the whole solution with
 

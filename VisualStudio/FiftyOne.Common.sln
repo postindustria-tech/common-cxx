@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31205.134
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FiftyOne.Common.C", "FiftyOne.Common.C\FiftyOne.Common.C.vcxproj", "{8E1B0B4C-8220-4E7B-A838-B4B3DDB4CF15}"
 EndProject
@@ -14,6 +14,13 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Fiftyone.Common.Tests", "Fiftyone.Common.Tests\Fiftyone.Common.Tests.vcxproj", "{4804BAB6-CC3D-455A-B359-0ECA128FB245}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cache", "Cache\Cache.vcxproj", "{2F31DE2B-66C0-4968-81F6-95C559E981A4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{682A58D9-A253-4FD5-816A-205985DD5F29}"
+	ProjectSection(SolutionItems) = preProject
+		Library++.Build.props = Library++.Build.props
+		Library.Build.props = Library.Build.props
+		..\README.md = ..\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

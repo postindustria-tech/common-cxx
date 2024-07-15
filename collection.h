@@ -255,7 +255,6 @@
 #define FIFTYONE_DEGREES_COLLECTION_FREE(c) \
 if (c != NULL) { c->freeCollection(c); }
 
-
 /**
  * Collection release macro used to release a collection item. This should
  * always be used in place of the release method to enable methods to be
@@ -268,7 +267,6 @@ if (c != NULL) { c->freeCollection(c); }
 #else
 #define FIFTYONE_DEGREES_COLLECTION_RELEASE(c, i)
 #endif
-
 
 /**
  * Collection header structure which defines the size and location of the

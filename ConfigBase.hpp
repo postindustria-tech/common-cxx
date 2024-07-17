@@ -121,13 +121,6 @@ namespace FiftyoneDegrees {
 			void setPropertyValueIndex(bool index);
 
 			/**
-			 * Set whether or not an index to speed up the retrieval of 
-			 * required values for profiles is created.
-			 * @param index should create an index
-			 */
-			void setProfileValuesIndex(bool index);
-
-			/**
 			 * @}
 			 * @name Getters
 			 * @{
@@ -169,13 +162,6 @@ namespace FiftyoneDegrees {
 			 * @return true if an index should be created, or false if not.
 			 */
 			bool getPropertyValueIndex() const;
-
-			/**
-			 * Gets a flag indicating if an index of required values for 
-			 * profiles is created.
-			 * @return true if an index should be created, or false if not.
-			 */
-			bool getProfileValuesIndex() const;
 
 			/**
 			 * Get the expected number of concurrent accessors of the data set.

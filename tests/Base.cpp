@@ -116,8 +116,8 @@ size_t Base::PerformMemoryCheck() {
 }
 
 /**
- * Check if there is memory which has not been freed. If yes then fails the test
- * .
+ * Check if there is memory which has not been freed. If yes then fails the 
+ * test.
  */
 void Base::TearDown() {
 	if (PerformMemoryCheck()) {
@@ -134,7 +134,6 @@ void Base::TearDown() {
 void Base::runThreads(
 	int concurrency,
 	FIFTYONE_DEGREES_THREAD_ROUTINE runThread) {
-#ifndef FIFTYONE_DEGREES_NO_THREADING
 	int thread;
 	FIFTYONE_DEGREES_THREAD *threads =
 		(FIFTYONE_DEGREES_THREAD*)malloc(
@@ -153,8 +152,4 @@ void Base::runThreads(
 		FIFTYONE_DEGREES_THREAD_CLOSE(threads[thread]);
 	}
 	free((void*)threads);
-#else
-	// Do nothing. 
-	return;
-#endif
 }

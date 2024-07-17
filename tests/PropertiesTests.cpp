@@ -116,7 +116,19 @@ protected:
 			}
 		}
 		free(jsName);
-		FIFTYONE_DEGREES_COLLECTION_RELEASE(stringState->collection, &item);
+
+		// Only call the release macro if there is a release method. This check
+		// is needed because GTest does not support configurations other than
+		// DEBUG and RELEASE. Where 51Degrees uses MEMORY-ONLY and 
+		// SINGLE-THREADED suffixes these do not work with GTest. Therefore
+		// the macro might not reflect the implementation in the library that
+		// implements the collection and items that will have been compiled
+		// with the correct pre processor directive.
+		if (stringState->collection->release != NULL) {
+			FIFTYONE_DEGREES_COLLECTION_RELEASE(
+				stringState->collection, 
+				&item);
+		}
 		return count;
 	}
 

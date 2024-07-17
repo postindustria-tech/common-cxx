@@ -25,13 +25,14 @@
 #include "../evidence.h"
 #include "StringCollection.hpp"
 
+#define PSEUDO_BUFFER_SIZE 100
 typedef struct test_key_value_pair_t {
 	char key[50];
-	char value[50];
+	char value[PSEUDO_BUFFER_SIZE];
 } testKeyValuePair;
 
 typedef struct test_expected_result_t {
-	char result[50];
+	char result[PSEUDO_BUFFER_SIZE];
 	fiftyoneDegreesEvidencePrefix prefix;
 } testExpectedResult;
 

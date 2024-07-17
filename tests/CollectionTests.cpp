@@ -363,6 +363,7 @@ public:
 		FIFTYONE_DEGREES_THREAD_EXIT;
 	}
 
+
 	void randomMultiThreaded() {
 		if (fiftyoneDegreesThreadingGetIsThreadSafe() == false) {
 			return;

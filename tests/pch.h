@@ -26,8 +26,8 @@
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 
 #ifdef _MSC_VER
-// Any warnings generated in gtest.h can be suppressed as
-// not within our control.
+// Any warnings generated in gtest.h can be suppressed as not within our 
+// control.
 #pragma warning (disable: 4389)
 #endif
 #include "gtest/gtest.h"

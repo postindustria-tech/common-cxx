@@ -21,11 +21,10 @@
  * ********************************************************************* */
 
 #include "EngineTests.hpp"
-#ifdef FIFTYONEDEGREES_NO_THREADING
-#define THREAD_COUNT 1
-#else
-#define THREAD_COUNT 4
-#endif
+
+// If the library is thread safe then many threads can be run in parallel, if 
+// not then one.
+#define THREAD_COUNT (fiftyoneDegreesThreadingGetIsThreadSafe() ? 4 : 1)
 
 using std::hash;
 using std::thread;
@@ -515,6 +514,7 @@ public:
 		engine = nullptr;
 	}
 	MetaDataReloadState(EngineBase *engine, int tests) {
+		hashValues = new uint32_t[tests];
 		for (int i = 0; i < tests; i++) {
 			hashValues[i] = 0;
 		}
@@ -522,7 +522,10 @@ public:
 		this->tests = tests;
 		complete = false;
 	}
-	uint32_t hashValues[THREAD_COUNT];
+	~MetaDataReloadState() {
+		delete[] hashValues;
+	}
+	uint32_t* hashValues;
 	EngineBase *engine;
 	int tests;
 	volatile bool complete;
@@ -609,7 +612,7 @@ void EngineTests::verifyMetaDataReload(EngineBase *engine) {
 
 	// Multi threaded reload test.
 	if (fiftyoneDegreesThreadingGetIsThreadSafe()) {
-		thread threads[THREAD_COUNT];
+		thread* threads = new thread[THREAD_COUNT];
 		thread reloader(reloadRepeat, &state);
 		for (int i = 0; i < THREAD_COUNT; i++) {
 			threads[i] = thread(hashMetaData, &state, i);
@@ -619,6 +622,7 @@ void EngineTests::verifyMetaDataReload(EngineBase *engine) {
 		}
 		state.complete = true;
 		reloader.join();
+		delete[] threads;
 	}
 	
 	// Single threaded reload test.

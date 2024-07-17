@@ -44,7 +44,7 @@ static void addStringEscape(
 	fiftyoneDegreesJson* s,
 	const char* value,
 	size_t valueLength) {
-	for (int i = 0; i < valueLength; i++) {
+	for (size_t i = 0; i < valueLength; i++) {
 		switch (value[i]) {
 		case '\"':
 			addTwo(s, '\\', '\"');

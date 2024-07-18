@@ -24,6 +24,7 @@
 #include "EvidenceTests.hpp"
 #include "../evidence.h"
 #include "../headers.h"
+#include "../exceptions.h"
 
 // Header names
 const char* testEvidenceHeaders_Multiple[] = {
@@ -46,13 +47,16 @@ protected:
 	fiftyoneDegreesHeaders *headers;
 
 	void SetUp() {
+		FIFTYONE_DEGREES_EXCEPTION_CREATE
 		Evidence::SetUp();
 		count = sizeof(testEvidenceHeaders_Multiple) / sizeof(const char*);
 		strings = new StringCollection(testEvidenceHeaders_Multiple, count);
 		headers = fiftyoneDegreesHeadersCreate(
 			false,
 			strings->getState(),
-			getHeaderUniqueId);
+			getHeaderUniqueId,
+			exception);
+		FIFTYONE_DEGREES_EXCEPTION_THROW
 	}
 	void TearDown() {
 		fiftyoneDegreesHeadersFree(headers);

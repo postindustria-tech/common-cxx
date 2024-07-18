@@ -38,13 +38,16 @@ protected:
 	fiftyoneDegreesHeaders *headers;
 
 	void SetUp() {
+		FIFTYONE_DEGREES_EXCEPTION_CREATE
 		Evidence::SetUp();
 		count = 0;
 		strings = new StringCollection(testEvidenceHeaders_None, count);
 		headers = fiftyoneDegreesHeadersCreate(
 			false,
 			strings->getState(),
-			getHeaderUniqueId);
+			getHeaderUniqueId,
+			exception);
+		FIFTYONE_DEGREES_EXCEPTION_THROW
 	}
 	void TearDown() {
 		fiftyoneDegreesHeadersFree(headers);

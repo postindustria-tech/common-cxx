@@ -28,6 +28,26 @@
 #define HTTP_PREFIX_UPPER "HTTP_"
 
 /**
+ * True if the value is not null and not zero length.
+ */
+static bool isHeaderValid(const char* value) {
+	return value != NULL && *value != '\0';
+}
+
+/**
+ * True if the value does not exist in the headers collection already, 
+ * otherwise false.
+ */
+static bool isUnique(Headers* headers, const char* value) {
+	for (uint32_t i = 0; i < headers->count; i++) {
+		if (StringCompare(headers->items[i].name, value) == 0) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
  * Free the members of the header.
  */
 static void freeHeader(Header* header) {
@@ -91,20 +111,24 @@ static int countHeaderSegments(const char* name) {
  */
 static int countAllSegments(void* state, HeadersGetMethod get) {
 	uint32_t count = 0, index = 0, segments;
-	Item name;
-	DataReset(&name.data);
-	while (get(state, index, &name) >= 0) {
+	const char* name;
+	Item item;
+	DataReset(&item.data);
+	while (get(state, index, &item) >= 0) {
+		name = STRING(item.data.ptr);
+		if (isHeaderValid(name)) {
 
-		// Count the number of segments.
-		segments = countHeaderSegments(STRING(name.data.ptr));
-		count += segments;
+			// Count the number of segments.
+			segments = countHeaderSegments(STRING(item.data.ptr));
+			count += segments;
 
-		// If there are more than one segment then this is a pseudo header and 
-		// the count should also include the full header.
-		if (segments > 1) {
-			count++;
+			// If there are more than one segment then this is a pseudo header 
+			// and the count should also include the full header.
+			if (segments > 1) {
+				count++;
+			}
 		}
-		COLLECTION_RELEASE(name.collection, &name);
+		COLLECTION_RELEASE(item.collection, &item);
 		index++;
 	}
 	return count;
@@ -251,26 +275,30 @@ static bool addHeadersFromDataSet(
 	Item item;
     long headerId;
 	const char* name;
+	uint32_t index = 0;
 	DataReset(&item.data);
 
-	// Loop through all the available headers in the data set.
-	while ((headerId = get(state, headers->count, &item)) >= 0) {
-
-		// Set the next header from the data set name item aborting if there
-		// was a problem.
+	// Loop through all the available headers in the data set adding those that
+	// are valid and unique to the headers collection.
+	while ((headerId = get(state, index++, &item)) >= 0) {
 		name = STRING(item.data.ptr);
-		if (setHeaderFromDataSet(
-			&headers->items[headers->count],
-			name,
-			strlen(name),
-			(HeaderID)headerId,
-			headers->capacity,
-			exception) == false) {
-			return false;
-		}
+		if (isHeaderValid(name) && isUnique(headers, name)) {
 
-		// Move to the next available header.
-		headers->count++;
+			// Set the next header from the data set name item aborting if 
+			// there was a problem.
+			if (setHeaderFromDataSet(
+				&headers->items[headers->count],
+				name,
+				strlen(name),
+				(HeaderID)headerId,
+				headers->capacity,
+				exception) == false) {
+				return false;
+			}
+
+			// Move to the next available header to be populated.
+			headers->count++;
+		}
 
 		// Release the header name item before moving to the next one.
 		COLLECTION_RELEASE(item.collection, &item);

@@ -104,7 +104,7 @@ static EvidenceKeyValuePair* findHeaderEvidence(
 
 	// For each of the evidence pairs available.
 	for (uint32_t i = 0; i < evidence->count; i++) {
-		pair = &evidence->items[i++];
+		pair = &evidence->items[i];
 
 		// Check that the prefix is one that is being considered.
 		if ((pair->prefix & prefixes) == pair->prefix) {

@@ -143,7 +143,7 @@ struct fiftyone_degrees_header_t {
 	fiftyoneDegreesHeaderID headerId; /**< Unique id in the data set for this 
 									  full header */
 	bool isDataSet; /**< True if the header originates from the data set and 
-					the fullHeaderId is valid */
+					the headerId is valid */
 	fiftyoneDegreesHeaderPtrs* pseudoHeaders; /**< Array of indexes to
 												 related pseudo headers */
 	fiftyoneDegreesHeaderPtrs* segmentHeaders; /**< Array of indexes to raw

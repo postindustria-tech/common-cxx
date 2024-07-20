@@ -137,12 +137,14 @@ static char* addPairValueToBuffer(
 	char* buffer, 
 	size_t length, 
 	EvidenceKeyValuePair* pair) {
-	if (length < pair->parsedLength) {
-		return NULL;
+	if (length >= pair->parsedLength &&
+		memcpy(
+			buffer, 
+			(char*)pair->parsedValue, 
+			pair->parsedLength) == buffer) {
+		return buffer + pair->parsedLength;
 	}
-	else {
-		return memcpy(buffer, (char*)pair->parsedValue, pair->parsedLength);
-	}
+	return NULL;
 }
 
 // For the header finds the corresponding evidence in the array of evidence. If

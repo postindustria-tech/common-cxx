@@ -281,8 +281,8 @@ EXTERNAL bool fiftyoneDegreesEvidenceIterateForHeaders(
 	fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
 	int prefixes,
 	fiftyoneDegreesHeaderPtrs* headers,
-	char* buffer,
-	size_t length,
+	char* const buffer,
+	size_t const length,
 	void* state,
 	fiftyoneDegreesEvidenceIterateForHeadersMethod callback);
 

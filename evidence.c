@@ -132,18 +132,13 @@ static EvidenceKeyValuePair* findHeaderEvidence(
 // sufficient bytes remaining in the buffer for the parsed value. Returns NULL
 // if there is insufficient bytes remaining in the buffer, or the new pointer 
 // in buffer for the next character.
-static char* addPairValueToBuffer(
-	char* buffer, 
-	size_t length, 
+static StringBuilder* addPairValueToBuffer(
+	StringBuilder* builder, 
 	EvidenceKeyValuePair* pair) {
-	if (length >= pair->parsedLength &&
-		memcpy(
-			buffer, 
-			(char*)pair->parsedValue, 
-			pair->parsedLength) == buffer) {
-		return buffer + pair->parsedLength;
-	}
-	return NULL;
+	return StringBuilderAddChars(
+		builder, 
+		(char*)pair->parsedValue, 
+		pair->parsedLength);
 }
 
 // For the header finds the corresponding evidence in the array of evidence. If
@@ -151,13 +146,11 @@ static char* addPairValueToBuffer(
 // length available. Returns the next character in the buffer to add more 
 // characters, or NULL if either not found or insufficient buffer length 
 // remaining.
-static char* addHeaderValueToBuffer(
+static StringBuilder* addHeaderValueToBuilder(
 	fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
 	int prefixes,
 	fiftyoneDegreesHeader* header,
-	char* buffer,
-	size_t length) {
-	char* current = buffer;
+	StringBuilder* builder) {
 
 	// Get the evidence that corresponds to the header. If it doesn't exist
 	// then there is no evidence for the header and a call back will not be
@@ -172,26 +165,15 @@ static char* addHeaderValueToBuffer(
 
 	// Copy the value of the evidence pair in to the buffer advancing the 
 	// current character in the buffer.
-	current = addPairValueToBuffer(buffer, length, pair);
+	addPairValueToBuffer(builder, pair);
 
 	// If the buffer is not sufficiently large to hold the pair value then
 	// return.
-	if (current == NULL) {
+	if (builder->remaining <= 0) {
 		return NULL;
 	}
 
-	return current;
-}
-
-// Adds the character value checking sufficient capacity in the buffer is 
-// available. Returns the next character in the buffer to add more  characters, 
-// or NULL if either not found or insufficient buffer length remaining.
-static char* addCharacter(char* buffer, size_t length, char value) {
-	if (length == 0) {
-		return NULL;
-	}
-	*buffer = value;
-	return buffer + 1;
+	return builder;
 }
 
 // Assembles a pseudo header in the buffer. If this can not be achieved returns 
@@ -202,52 +184,47 @@ static bool processPseudoHeader(
 	EvidenceKeyValuePairArray* evidence,
 	int prefixes,
 	Header* header,
-	char* buffer,
-	size_t length,
+	StringBuilder* builder,
 	void* state,
 	fiftyoneDegreesEvidenceIterateForHeadersMethod callback) {
-	char* current = buffer;
-	size_t remaining = length;
 
 	// For each of the headers that form the pseudo header.
 	for (uint32_t i = 0; i < header->segmentHeaders->count; i++) {
 
 		// Add the header evidence that forms the segment if available updating
 		// the current buffer position if available.
-		current = addHeaderValueToBuffer(
+		addHeaderValueToBuilder(
 			evidence, 
 			prefixes, 
 			header->segmentHeaders->items[i], 
-			current, 
-			remaining);
+			builder);
 
 		// If the pseudo header wasn't found, or insufficient space was 
 		// available to copy it, then return.
-		if (current == NULL) {
+		if (builder->full) {
 			return true;
 		}
-
-		// Update the remaining capacity of the buffer.
-		remaining = length - (current - buffer);
 
 		// Add the pseudo header separator.
-		current = addCharacter(current, remaining, PSEUDO_HEADER_SEP);
+		StringBuilderAddChar(builder, PSEUDO_HEADER_SEP);
 		
 		// If there was insufficient space for the separator then return.
-		if (current == NULL) {
+		if (builder->full) {
 			return true;
 		}
-
-		// Update the remaining capacity of the buffer.
-		remaining = length - (current - buffer);
 	}
 
 	// Switch the last pseudo header separator to a null terminating character.
-	*(current - 1) = '\0';
+	StringBuilderComplete(builder);
+
+	// If there was insufficient space for the terminating character then return.
+	if (builder->full) {
+		return true;
+	}
 
 	// A full header has been formed so call the callback with the buffer and
 	// the number of characters populated.
-	return callback(state, header, (const char*)buffer, length - remaining);
+	return callback(state, header, builder->ptr, builder->added);
 }
 
 // Finds the header in the evidence, and if available calls the callback. 
@@ -365,11 +342,12 @@ bool fiftyoneDegreesEvidenceIterateForHeaders(
 	fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
 	int prefixes,
 	fiftyoneDegreesHeaderPtrs* headers,
-	char* buffer,
-	size_t length,
+	char* const buffer,
+	size_t const length,
 	void* state,
 	fiftyoneDegreesEvidenceIterateForHeadersMethod callback) {
 	Header* header;
+	StringBuilder builder = { buffer, length };
 
 	// For each of the headers process as either a standard header, or a pseudo
 	// header.
@@ -387,15 +365,18 @@ bool fiftyoneDegreesEvidenceIterateForHeaders(
 		}
 
 		// If the header is a pseudo header then attempt to assemble a complete
-		// value from the evidence and process it.
+		// value from the evidence and process it. Note: if there is only one
+		// segment then that will be the header that was already processed in 
+		// processHeader therefore there is no point processing the same value
+		// a second time as a pseudo header.
 		if (header->segmentHeaders != NULL &&
-			header->segmentHeaders->count > 0) {
+			header->segmentHeaders->count > 1) {
+			StringBuilderInit(&builder);
 			if (processPseudoHeader(
 				evidence,
 				prefixes,
 				header,
-				buffer,
-				length,
+				&builder,
 				state,
 				callback) == false) {
 				return true;

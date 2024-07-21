@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "textfile.h"
-
 #include "fiftyone.h"
 
 static char* returnNextLine(

@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "evidence.h"
-
 #include "fiftyone.h"
 
 typedef struct evidence_iterate_state_t {

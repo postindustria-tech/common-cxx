@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "data.h"
-
 #include "fiftyone.h"
 
 void fiftyoneDegreesDataReset(fiftyoneDegreesData *data) {

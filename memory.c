@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "memory.h"
-
 #include "fiftyone.h"
 
 #ifndef FIFTYONE_DEGREES_MEMORY_TRACKER_SHARDS

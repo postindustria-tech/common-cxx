@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "results.h"
-
 #include "fiftyone.h"
 
 fiftyoneDegreesResultsBase* fiftyoneDegreesResultsInit(

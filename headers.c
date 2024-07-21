@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "headers.h"
-
 #include "fiftyone.h"
 
 /* HTTP header prefix used when processing collections of parameters. */

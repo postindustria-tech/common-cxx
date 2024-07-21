@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "properties.h"
-
 #include "fiftyone.h"
 
 /* Array of valid property name separators */

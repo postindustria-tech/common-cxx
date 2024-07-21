@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "file.h"
-
 #include "fiftyone.h"
 
 #include <inttypes.h>

@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "pool.h"
-
 #include "fiftyone.h"
 
 fiftyoneDegreesPool* fiftyoneDegreesPoolInit(

@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "component.h"
-
 #include "fiftyone.h"
 
 static uint32_t getFinalComponentSize(void *initial) {

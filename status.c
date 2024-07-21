@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "status.h"
-
 #include "fiftyone.h"
 
 typedef struct fiftyone_degrees_status_message {

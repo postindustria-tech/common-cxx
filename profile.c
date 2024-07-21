@@ -156,25 +156,41 @@ uint32_t* fiftyoneDegreesProfileGetOffsetForProfileId(
 	const uint32_t profileId,
 	uint32_t *profileOffset,
 	fiftyoneDegreesException *exception) {
+	long index;
 	Item profileOffsetItem;
 	DataReset(&profileOffsetItem.data);
 
 	if (profileId == 0) {
 		EXCEPTION_SET(PROFILE_EMPTY);
 	}
-	else if (CollectionBinarySearch(
-		profileOffsets,
-		&profileOffsetItem,
-		0,
-		CollectionGetCount(profileOffsets) - 1,
-		(void*)&profileId,
-		compareProfileId,
-		exception) >= 0) {
-		*profileOffset = ((ProfileOffset*)profileOffsetItem.data.ptr)->offset;
+	else {
+		
+		// Get the index in the collection of profile offsets for the required
+		// profile id.
+		index = CollectionBinarySearch(
+			profileOffsets,
+			&profileOffsetItem,
+			0,
+			CollectionGetCount(profileOffsets) - 1,
+			(void*)&profileId,
+			compareProfileId,
+			exception);
+
+		// If the profile id is present then return the offset for it otherwise
+		// set the offset to NULL.
+		if (index >= 0 && EXCEPTION_OKAY) {
+			*profileOffset = 
+				((ProfileOffset*)profileOffsetItem.data.ptr)->offset;
+		}
+		else {
+			profileOffset = NULL;
+		}
+
+		// Release the item that contains the list profile offset found.
 		COLLECTION_RELEASE(profileOffsets, &profileOffsetItem);
-		return profileOffset;
 	}
-	return NULL;
+
+	return profileOffset;
 }
 
 fiftyoneDegreesProfile* fiftyoneDegreesProfileGetByProfileId(

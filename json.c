@@ -21,22 +21,12 @@
  * ********************************************************************* */
 
 #include "json.h"
-
-// Add one character to the buffer if space is available. Always advance 
-// charsAdded.
-static void addChar(fiftyoneDegreesJson* s, char a) {
-	if (s->bufferLength > 0) {
-		*s->buffer = a;
-		s->buffer++;
-		s->bufferLength--;
-	}
-	s->charsAdded++;
-}
+#include "fiftyone.h"
 
 // Add two characters to the buffer if space is available.
 static void addTwo(fiftyoneDegreesJson* s, char a, char b) {
-	addChar(s, a);
-	addChar(s, b);
+	StringBuilderAddChar(&s->buffer, a);
+	StringBuilderAddChar(&s->buffer, b);
 }
 
 // Adds a string of characters escaping special characters.
@@ -65,7 +55,7 @@ static void addStringEscape(
 			addTwo(s, '\\', 't');
 			break;
 		default:
-			addChar(s, value[i]);
+			StringBuilderAddChar(&s->buffer, value[i]);
 			break;
 		}
 	}
@@ -77,22 +67,24 @@ static void addString(
 	fiftyoneDegreesJson* s,
 	const char* value,
 	size_t length) {
-	addChar(s, '\"');
+	StringBuilderAddChar(&s->buffer, '\"');
 	addStringEscape(s, value, length);
-	addChar(s, '\"');
+	StringBuilderAddChar(&s->buffer, '\"');
 }
 
 // Adds a comma separator.
 static void addSeparator(fiftyoneDegreesJson* s) {
-	addChar(s, ',');
+	StringBuilderAddChar(&s->buffer, ',');
 }
 
 void fiftyoneDegreesJsonDocumentStart(fiftyoneDegreesJson* s) {
-	addChar(s, '{');
+	StringBuilderInit(&s->buffer);
+	StringBuilderAddChar(&s->buffer, '{');
 }
 
 void fiftyoneDegreesJsonDocumentEnd(fiftyoneDegreesJson* s) {
-	addChar(s, '}');
+	StringBuilderAddChar(&s->buffer, '}');
+	StringBuilderComplete(&s->buffer);
 }
 
 void fiftyoneDegreesJsonPropertySeparator(fiftyoneDegreesJson* s) {
@@ -124,9 +116,9 @@ void fiftyoneDegreesJsonPropertyStart(fiftyoneDegreesJson* s) {
 		// it's a list or single value property.
 		const char* value = FIFTYONE_DEGREES_STRING(name);
 		addString(s, value, strlen(value));
-		addChar(s, ':');
+		StringBuilderAddChar(&s->buffer, ':');
 		if (s->property->isList) {
-			addChar(s, '[');
+			StringBuilderAddChar(&s->buffer, '[');
 		}
 
 		// Release the string.
@@ -136,7 +128,7 @@ void fiftyoneDegreesJsonPropertyStart(fiftyoneDegreesJson* s) {
 
 void fiftyoneDegreesJsonPropertyEnd(fiftyoneDegreesJson* s) {
 	if (s->property->isList) {
-		addChar(s, ']');
+		StringBuilderAddChar(&s->buffer, ']');
 	}
 }
 

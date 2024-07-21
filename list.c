@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "list.h"
-
 #include "fiftyone.h"
 
 fiftyoneDegreesList* fiftyoneDegreesListInit(

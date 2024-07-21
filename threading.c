@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "threading.h"
-
 #include "fiftyone.h"
 
 #ifdef _MSC_VER

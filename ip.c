@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "ip.h"
-
 #include "fiftyone.h"
 
 typedef void(*parseIterator)(

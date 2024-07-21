@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "string.h"
-
 #include "fiftyone.h"
 
 static uint32_t getFinalStringSize(void *initial) {

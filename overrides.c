@@ -437,9 +437,7 @@ void fiftyoneDegreesOverrideProfileIds(
 	fiftyoneDegreesEvidenceKeyValuePairArray *evidence,
 	void *state,
 	fiftyoneDegreesOverrideProfileIdMethod override) {
-	overrideProfileIds callback;
-	callback.state = state;
-	callback.override = override;
+	overrideProfileIds callback = { override, state };
 	EvidenceIterate(
 		evidence,
 		FIFTYONE_DEGREES_EVIDENCE_COOKIE |

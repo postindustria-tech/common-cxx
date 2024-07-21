@@ -139,13 +139,13 @@ struct fiftyone_degrees_header_t {
 	const char* name; /**< Name of the header or pseudo header field as a
 					       null terminated string */
 	size_t length; /**< Length of the name string excluding the terminating 
-							null */
+						null */
 	fiftyoneDegreesHeaderID headerId; /**< Unique id in the data set for this 
 									  full header */
 	bool isDataSet; /**< True if the header originates from the data set and 
 					the headerId is valid */
 	fiftyoneDegreesHeaderPtrs* pseudoHeaders; /**< Array of indexes to
-												 related pseudo headers */
+												related pseudo headers */
 	fiftyoneDegreesHeaderPtrs* segmentHeaders; /**< Array of indexes to raw
 												  headers that form this pseudo
 												  header */

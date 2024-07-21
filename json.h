@@ -77,13 +77,11 @@
  * to determine when the buffer provided needs to be larger.
  */
 typedef struct fiftyone_degrees_json {
-	char* buffer; // Buffer to add characters to
-	size_t bufferLength; // Length of the buffer
-	size_t charsAdded; // Number of characters added or that could be added
-	fiftyoneDegreesCollection* strings; // Collection of strings
-	fiftyoneDegreesProperty* property; // The property being added
-	fiftyoneDegreesList* values; // The values for the property to be added
-	fiftyoneDegreesException* exception;
+	fiftyoneDegreesStringBuilder buffer; /**< Output buffer */
+	fiftyoneDegreesCollection* strings; /**< Collection of strings */
+	fiftyoneDegreesProperty* property; /**< The property being added */
+	fiftyoneDegreesList* values; /**< The values for the property */
+	fiftyoneDegreesException* exception; /**< Exception */
 } fiftyoneDegreesJson;
 
 /**

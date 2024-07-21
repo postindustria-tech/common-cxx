@@ -107,3 +107,55 @@ char *fiftyoneDegreesStringSubString(const char *a, const char *b) {
 	}
 	return NULL;
 }
+
+fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderInit(
+	fiftyoneDegreesStringBuilder* builder) {
+	builder->current = builder->ptr;
+	builder->remaining = builder->length;
+	builder->added = 0;
+	builder->full = false;
+	return builder;
+}
+
+fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChar(
+	fiftyoneDegreesStringBuilder* builder,
+	char const value) {
+	if (builder->remaining > 1) {
+		*builder->current = value;
+		builder->current++;
+		builder->remaining--;
+	}
+	else {
+		builder->full = true;
+	}
+	builder->added++;
+	return builder;
+}
+
+fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
+	fiftyoneDegreesStringBuilder* builder,
+	int const value) {
+	char temp[10];
+	if (snprintf(temp, sizeof(temp), "%d", value) > 0) {
+		StringBuilderAddChars(
+			builder,
+			temp,
+			strlen(temp));
+	}
+	return builder;
+}
+
+fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
+	fiftyoneDegreesStringBuilder* builder,
+	char* const value,
+	size_t const length) {
+	for (size_t i = 0; i < length; i++) {
+		StringBuilderAddChar(builder, value[i]);
+	}
+	return builder;
+}
+
+fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderComplete(
+	fiftyoneDegreesStringBuilder* builder) {
+	return StringBuilderAddChar(builder, '\0');
+}

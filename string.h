@@ -119,6 +119,17 @@ typedef struct fiftyone_degrees_string_t {
 } fiftyoneDegreesString;
 #pragma pack(pop)
 
+/** String buffer for building strings with memory checks */
+typedef struct fiftyone_degrees_string_buffer_t {
+	char* const ptr; /**< Pointer to the memory used by the buffer */
+	size_t const length; /**< Length of buffer */
+	char* current; /**</ Current position to add characters in the buffer */
+	size_t remaining; /**< Remaining characters in the buffer */
+	size_t added; /**< Characters added to the buffer or that would be 
+					  added if the buffer were long enough */
+	bool full; /**< True if the buffer is full, otherwise false */
+} fiftyoneDegreesStringBuilder;
+
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
 /**
@@ -182,6 +193,54 @@ EXTERNAL int fiftyoneDegreesStringCompare(const char *a, const char *b);
  * @return pointer to the first occurrence or NULL if not found
  */
 EXTERNAL char *fiftyoneDegreesStringSubString(const char *a, const char *b);
+
+/**
+ * Initializes the buffer.
+ * @param buffer to initialize
+ * @return pointer to the buffer passed
+ */
+EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderInit(
+	fiftyoneDegreesStringBuilder* builder);
+
+/**
+ * Adds the character to the buffer.
+ * @param buffer to add the character to
+ * @param value character to add
+ * @return pointer to the buffer passed
+ */
+EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChar(
+	fiftyoneDegreesStringBuilder* builder,
+	char const value);
+
+/**
+ * Adds the integer to the buffer.
+ * @param buffer to add the character to
+ * @param value integer to add
+ * @return pointer to the buffer passed
+ */
+EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
+	fiftyoneDegreesStringBuilder* builder,
+	int const value);
+
+/**
+ * Adds the string to the buffer.
+ * @param buffer to add the character to
+ * @param value of chars to add
+ * @param length of chars to add
+ * @return pointer to the buffer passed
+ */
+EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
+	fiftyoneDegreesStringBuilder* builder,
+	char* const value,
+	size_t const length);
+
+/**
+ * Adds a null terminating character to the buffer.
+ * @param buffer to terminate
+ * @return pointer to the buffer passed
+ */
+EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderComplete(
+	fiftyoneDegreesStringBuilder* builder);
 
 /**
  * @}

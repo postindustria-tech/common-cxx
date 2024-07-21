@@ -22,7 +22,6 @@
 
 #include <math.h>
 #include "fiftyone.h"
-#include "float.h"
 
 float fiftyoneDegreesFloatToNative(fiftyoneDegreesFloatInternal f) {
 	fiftyoneDegreesFloatU floatU;

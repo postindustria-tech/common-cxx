@@ -104,7 +104,10 @@ typedef enum fiftyone_degrees_string_format {
 		NULL : \
 		&((fiftyoneDegreesString*)s)->trail.secondValue)
 
-/** String structure containing its value and size. */
+/** 
+ * String structure containing its value and size which maps to the string 
+ * byte format used in data files. 
+ */
 #pragma pack(push, 1)
 typedef struct fiftyone_degrees_string_t {
 	int16_t size; /**< Size of the string in memory */
@@ -120,7 +123,7 @@ typedef struct fiftyone_degrees_string_t {
 #pragma pack(pop)
 
 /** String buffer for building strings with memory checks */
-typedef struct fiftyone_degrees_string_buffer_t {
+typedef struct fiftyone_degrees_string_builder_t {
 	char* const ptr; /**< Pointer to the memory used by the buffer */
 	size_t const length; /**< Length of buffer */
 	char* current; /**</ Current position to add characters in the buffer */

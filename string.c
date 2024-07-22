@@ -149,13 +149,33 @@ fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
 	fiftyoneDegreesStringBuilder* builder,
 	char* const value,
 	size_t const length) {
-	for (size_t i = 0; i < length; i++) {
-		StringBuilderAddChar(builder, value[i]);
+	assert(strlen(value) == length);
+	if (length < builder->remaining &&
+		memcpy(builder->current, value, length) == builder->current) {
+		builder->remaining -= length;
+		builder->current += length;
 	}
+	else {
+		builder->full = true;
+	}
+	builder->added += length;
 	return builder;
 }
 
 fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderComplete(
 	fiftyoneDegreesStringBuilder* builder) {
-	return StringBuilderAddChar(builder, '\0');
+
+	// Always ensures that the string is null terminated even if that means 
+	// overwriting the last character to turn it into a null.
+	if (builder->remaining >= 1) {
+		*builder->current = '\0';
+		builder->current++;
+		builder->remaining--;
+		builder->added++;
+	}
+	else {
+		*(builder->ptr + builder->length - 1) = '\0';
+		builder->full = true;
+	}
+	return builder;
 }

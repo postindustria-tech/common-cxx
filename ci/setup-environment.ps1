@@ -22,3 +22,7 @@ if ($IsLinux) {
     sudo apt-get install -y gcc-multilib
 
 }
+
+if ($IsLinux -or $IsMacOS) {
+    python -m pip install --user 'gcovr~=7.2' || $(throw "gcovr install failed")
+}

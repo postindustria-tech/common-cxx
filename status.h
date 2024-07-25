@@ -138,6 +138,7 @@ typedef enum e_fiftyone_degrees_status_code {
 	FIFTYONE_DEGREES_STATUS_INCORRECT_IP_ADDRESS_FORMAT, /**< IP address 
 														format is incorrect */
 	FIFTYONE_DEGREES_STATUS_TEMP_FILE_ERROR, /**< Error creating temp file */
+	FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY,
 } fiftyoneDegreesStatusCode;
 
 /**

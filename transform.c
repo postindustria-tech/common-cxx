@@ -1157,7 +1157,13 @@ size_t fiftyoneDegreesTransformIterateGhevFromJson(
           return iterations;
         }
 
-        strncpy_s(buffer, length, keys_src, offset);
+        for (size_t i = 0; i < offset; ++i) {
+            if (length <= offset) {
+                return iterations;
+            }
+
+            buffer[i] = keys_src[i];
+        }
 
         for (int i = 0, j = 0; i < 8; ++i) {
           out_keys[i].key = buffer + j;
@@ -1374,7 +1380,13 @@ size_t fiftyoneDegreesTransformIterateSua(
           return iterations;
         }
 
-        strncpy_s(buffer, length, keys_src, offset);
+        for (size_t i = 0; i < offset; ++i) {
+            if (length <= offset) {
+                return iterations;
+            }
+
+            buffer[i] = keys_src[i];
+        }
 
         for (int i = 0, j = 0; i < 8; ++i) {
           out_keys[i].key = buffer + j;
@@ -1629,7 +1641,13 @@ size_t fiftyoneDegreesTransformGhevFromJson(
           return headers->count;
         }
 
-        strncpy_s(buffer, length, keys_src, offset);
+        for (size_t i = 0; i < offset; ++i) {
+            if (length <= offset) {
+                return headers->count;
+            }
+
+            buffer[i] = keys_src[i];
+        }
 
         for (int i = 0, j = 0; i < 8; ++i) {
           out_keys[i].key = buffer + j;
@@ -1848,7 +1866,13 @@ size_t fiftyoneDegreesTransformSua(
           return headers->count;
         }
 
-        strncpy_s(buffer, length, keys_src, offset);
+        for (size_t i = 0; i < offset; ++i) {
+            if (length <= offset) {
+                return headers->count;
+            }
+
+            buffer[i] = keys_src[i];
+        }
 
         for (int i = 0, j = 0; i < 8; ++i) {
           out_keys[i].key = buffer + j;

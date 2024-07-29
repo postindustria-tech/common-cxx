@@ -332,7 +332,7 @@ static int skip_value(const char** json) {
 }
 
 static enum Key read_ghev_key(const char** json) {
-  enum ReadGhevKeyStates {
+  enum ReadKeyState {
     READ_KEY_INIT,
     ARCH,
     BRANDS_OR_BITNESS,
@@ -346,7 +346,7 @@ static enum Key read_ghev_key(const char** json) {
     READ_KEY_PLATFORMVERSION,
   };
 
-  for (enum ReadGhevKeyStates state = READ_KEY_INIT; *(*json); ++(*json)) {
+  for (enum ReadKeyState state = READ_KEY_INIT; *(*json); ++(*json)) {
     switch (state) {
       case READ_KEY_INIT: {
         switch (**json) {
@@ -532,7 +532,7 @@ static enum Key read_ghev_key(const char** json) {
 }
 
 static enum Key read_sua_key(const char** json) {
-  enum ReadSuaKeyStates {
+  enum ReadKeyState {
     READ_KEY_INIT,
     BROWSERS_OR_BITNESS,
     MOBILE_OR_MODEL,
@@ -544,7 +544,7 @@ static enum Key read_sua_key(const char** json) {
     READ_KEY_BROWSERS,
   };
 
-  for (enum ReadSuaKeyStates state = READ_KEY_INIT; *(*json); ++(*json)) {
+  for (enum ReadKeyState state = READ_KEY_INIT; *(*json); ++(*json)) {
     switch (state) {
       case READ_KEY_INIT: {
         switch (**json) {
@@ -690,6 +690,18 @@ static enum Key read_sua_key(const char** json) {
   return KEY_UNDEFINED;
 }
 
+static inline size_t safe_write_to_buffer(
+    char* buffer, size_t length, size_t offset, char symbol,
+    fiftyoneDegreesException* const exception) {
+  if (offset < length) {
+    buffer[offset] = symbol;
+  } else {
+    exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY;
+  }
+
+  return ++offset;
+}
+
 static size_t read_version_sua(const char** json, char* buffer, size_t length) {
   enum version_state {
     version_read,
@@ -761,24 +773,23 @@ static size_t read_version_sua(const char** json, char* buffer, size_t length) {
   }
 }
 
-static size_t read_string_value(const char** json, char* buffer,
-                                size_t length) {
-  *json = skip_to_next_char(*json, '"') + 1;
+static size_t read_string_value(const char** json, char* buffer, size_t length,
+                                fiftyoneDegreesException* const exception) {
+  *json = skip_to_next_char(*json, '"');
   if (**json == '\0') {
+    exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
     return 0;
   }
+  ++*json;
 
-  buffer[0] = '"';
-  for (size_t offset = 1;; ++(*json)) {
+  for (size_t offset = safe_write_to_buffer(buffer, length, 0, '"', exception);;
+       ++(*json)) {
     if (**json == '\0') {
+      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
       return offset;
     }
 
-    buffer[offset++] = **json;
-
-    if (offset >= length) {
-      return offset;
-    }
+    offset = safe_write_to_buffer(buffer, length, offset, **json, exception);
 
     switch (**json) {
       case '\"': {
@@ -790,102 +801,141 @@ static size_t read_string_value(const char** json, char* buffer,
           ++(*json);
 
           if (**json == '\0') {
+            exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
             return offset;
           }
 
-          buffer[offset++] = **json;
-
-          if (offset >= length) {
-            return offset;
-          }
+          offset =
+              safe_write_to_buffer(buffer, length, offset, **json, exception);
         }
       } break;
     }
   }
 }
 
-static size_t read_brands_ghev_value(const char** json, char* buffer,
-                                     size_t length) {
-  size_t offset = 0;
+static size_t read_brands_ghev_value(
+    const char** json, char* buffer, size_t length,
+    fiftyoneDegreesException* const exception) {
+  *json = skip_to_next_char(*json, '[');
+  if (**json == '\0') {
+    exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+    return 0;
+  }
+  ++*json;
 
-  *json = skip_to_next_char(*json, '[') + 1;
+  for (size_t offset = 0;; ++*json) {
+    if (**json == '\0') {
+      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+      return offset;
+    }
 
-  for (; **json; ++*json) {
-    *json = skip_to_next_char(*json, '{') + 1;
-    *json = skip_to_next_char(*json, '"') + 1;
+    *json = skip_to_next_char(*json, '{');
+    if (**json == '\0') {
+      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+      return offset;
+    }
 
-    for (const char* k = "brand\""; **json && *k; ++k, ++*json) {
+    *json = skip_to_next_char(*json + 1, '"');
+    if (**json == '\0') {
+      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+      return offset;
+    }
+    ++*json;
+
+    for (const char* k = "brand\""; *k != '\0'; ++k, ++*json) {
       if (*k != **json) {
+        exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
         return offset;
       }
     }
 
-    *json = skip_to_next_char(*json, ':') + 1;
+    *json = skip_to_next_char(*json, ':');
+    if (**json == '\0') {
+      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+      return offset;
+    }
+    ++*json;
 
     if (**json == '\0') {
+      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
       return offset;
     }
 
-    offset += read_string_value(json, buffer + offset, length - offset);
+    offset +=
+        read_string_value(json, buffer + offset, length - offset, exception);
 
-    if (length - offset < 4) {
+    offset = safe_write_to_buffer(buffer, length, offset, ';', exception);
+    offset = safe_write_to_buffer(buffer, length, offset, 'v', exception);
+    offset = safe_write_to_buffer(buffer, length, offset, '=', exception);
+
+    *json = skip_to_next_char(*json, ',');
+    if (**json == '\0') {
+      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
       return offset;
     }
 
-    buffer[offset++] = ';';
-    buffer[offset++] = 'v';
-    buffer[offset++] = '=';
+    *json = skip_to_next_char(*json + 1, '"');
+    if (**json == '\0') {
+      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+      return offset;
+    }
+    ++*json;
 
-    *json = skip_to_next_char(*json, ',') + 1;
-    *json = skip_to_next_char(*json, '"') + 1;
-
-    for (const char* k = "version\""; **json && *k; ++k, ++*json) {
+    for (const char* k = "version\""; *k != '\0'; ++k, ++*json) {
       if (*k != **json) {
+        exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
         return offset;
       }
     }
 
-    *json = skip_to_next_char(*json, ':') + 1;
+    *json = skip_to_next_char(*json, ':');
+    if (**json == '\0') {
+      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+      return offset;
+    }
+    ++*json;
 
     if (**json == '\0') {
+      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
       return offset;
     }
 
-    offset += read_string_value(json, buffer + offset, length - offset);
+    offset +=
+        read_string_value(json, buffer + offset, length - offset, exception);
 
-    if (offset >= length) {
+    *json = skip_to_next_char(*json, '}');
+    if (**json == '\0') {
+      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
       return offset;
     }
-
-    *json = skip_to_next_char(*json, '}') + 1;
+    ++*json;
+    if (**json == '\0') {
+      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+      return offset;
+    }
 
     *json = skip_whitespaces(*json);
 
     switch (**json) {
-      case '\0':
-      case ']': {
-        if (offset < length) {
-          buffer[offset++] = '\n';
-        }
+      case '\0': {
+        exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+        return offset;
+      } break;
 
+      case ']': {
+        offset = safe_write_to_buffer(buffer, length, offset, '\n', exception);
         return offset;
       } break;
 
       case ',': {
-        buffer[offset++] = ',';
-
-        if (offset >= length) {
-          return offset;
-        }
+        offset = safe_write_to_buffer(buffer, length, offset, ',', exception);
       } break;
     }
   }
-
-  return offset;
 }
 
 static size_t read_brands_sua_value(const char** json, char* buffer,
-                                    size_t length) {
+                                    size_t length, fiftyoneDegreesException* const exception) {
   size_t offset = 0;
 
   *json = skip_to_next_char(*json, '[') + 1;
@@ -906,7 +956,7 @@ static size_t read_brands_sua_value(const char** json, char* buffer,
       return offset;
     }
 
-    offset += read_string_value(json, buffer + offset, length - offset);
+    offset += read_string_value(json, buffer + offset, length - offset, exception);
 
     if (length - offset < 4) {
       return offset;
@@ -983,7 +1033,7 @@ static size_t read_brands_sua_value(const char** json, char* buffer,
 static size_t read_platform_sua_value(const char** json, char* buffer,
                                       size_t length, char** platform,
                                       size_t* platform_size, char** version,
-                                      size_t* version_size) {
+                                      size_t* version_size, fiftyoneDegreesException* const exception) {
   size_t offset = 0;
 
   *json = skip_to_next_char(*json, '{') + 1;
@@ -1002,7 +1052,7 @@ static size_t read_platform_sua_value(const char** json, char* buffer,
   }
 
   *platform = buffer;
-  offset += read_string_value(json, buffer + offset, length - offset);
+  offset += read_string_value(json, buffer + offset, length - offset, exception);
 
   if (offset >= length) {
     return offset;
@@ -1115,78 +1165,92 @@ static int read_bool_sua_value(const char** json) {
   return -1;
 }
 
+static int init_keys(char* const buffer, size_t length) {
+  size_t offset = sizeof(keys_src) - 1;
+
+  if (length < offset) {
+    return 0;
+  }
+
+  for (size_t i = 0; i < offset; ++i) {
+    buffer[i] = keys_src[i];
+  }
+
+  return offset;
+}
+
 // ------------------------------------------------------------------------------------------------
 
 size_t fiftyoneDegreesTransformIterateGhevFromJson(
     const char* json, char* const buffer, size_t length,
     fiftyoneDegreesException* const exception,
     fiftyoneDegreesTransformCallback callback) {
-  enum States {
-    INIT,        //
-    READ_KEY,    //
-    SKIP_VALUE,  //
-  };
+  exception->status = FIFTYONE_DEGREES_STATUS_SUCCESS;
 
-  static struct OutKey {
-    char* key;
-    size_t length;
-  } out_keys[] = {
-      {NULL, sizeof("sec-ch-ua-arch") - 1},
-      {NULL, sizeof("sec-ch-ua") - 1},
-      {NULL, sizeof("sec-ch-ua-bitness") - 1},
-      {NULL, sizeof("sec-ch-ua-full-version-list") - 1},
-      {NULL, sizeof("sec-ch-ua-mobile") - 1},
-      {NULL, sizeof("sec-ch-ua-model") - 1},
-      {NULL, sizeof("sec-ch-ua-platform") - 1},
-      {NULL, sizeof("sec-ch-ua-platform-version") - 1},
-  };
-
-  size_t iterations = 0;
-  size_t offset = sizeof(keys_src) - 1;
-
-  if (offset >= length) {
-    return iterations;
+  // init keys
+  size_t offset = init_keys(buffer, length);
+  if (offset == 0) {
+    exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY;
+    return 0;
   }
 
-  for (enum States state = INIT; '\0' != *json; ++json) {
+  fiftyoneDegreesKeyValuePair out_pairs[8] = {
+      {NULL, sizeof("sec-ch-ua-arch") - 1, NULL, 0},
+      {NULL, sizeof("sec-ch-ua") - 1, NULL, 0},
+      {NULL, sizeof("sec-ch-ua-bitness") - 1, NULL, 0},
+      {NULL, sizeof("sec-ch-ua-full-version-list") - 1, NULL, 0},
+      {NULL, sizeof("sec-ch-ua-mobile") - 1, NULL, 0},
+      {NULL, sizeof("sec-ch-ua-model") - 1, NULL, 0},
+      {NULL, sizeof("sec-ch-ua-platform") - 1, NULL, 0},
+      {NULL, sizeof("sec-ch-ua-platform-version") - 1, NULL, 0},
+  };
+
+  for (int i = 0, j = 0; i < 8; ++i) {
+    out_pairs[i].key = buffer + j;
+    j += out_pairs[i].keyLength;
+  }
+  // ---
+
+  size_t iterations = 0;
+
+  enum State {INIT, READ_KEY, SKIP_VALUE};
+
+  for (enum State state = INIT; '\0' != *json; ++json) {
     switch (state) {
       case INIT: {
         json = skip_whitespaces(json);
 
         if (*json != '{') {
-          return iterations;
-        }
-
-        for (size_t i = 0; i < offset; ++i) {
-            if (length <= offset) {
-                return iterations;
-            }
-
-            buffer[i] = keys_src[i];
-        }
-
-        for (int i = 0, j = 0; i < 8; ++i) {
-          out_keys[i].key = buffer + j;
-          j += out_keys[i].length;
+          exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+          return 0;
         }
 
         json = skip_to_next_char(json, '"');
         if (*json == '\0') {
-          return iterations;
+          return 0;
         }
+
         state = READ_KEY;
       } break;
 
       case READ_KEY: {
         enum Key key = read_ghev_key(&json);
+
+        if (*json == '\0') {
+          exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+          return iterations;
+        }
+
         json = skip_whitespaces(json + 1);
 
         if (*json != ':') {
+          exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
           return iterations;
         }
 
         json = skip_whitespaces(json);
         if (*json == '\0') {
+          exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
           return iterations;
         }
 
@@ -1197,35 +1261,24 @@ size_t fiftyoneDegreesTransformIterateGhevFromJson(
 
           case FULLVERSIONLIST:
           case BRANDS: {
-            size_t vlen =
-                read_brands_ghev_value(&json, buffer + offset, length - offset);
+            size_t vlen = read_brands_ghev_value(&json, buffer + offset,
+                                                 length - offset, exception);
 
-            if (*json == '\0') {
+            if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
               return iterations;
             }
 
-            if (vlen == 0) {
-              state = SKIP_VALUE;
-              break;
+            if (exception->status != FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY) {
+                out_pairs[key].value = buffer + offset;
             }
+            offset += vlen;
 
-            fiftyoneDegreesKeyValuePair key_value_pair = {
-                .key = out_keys[key].key,           //
-                .keyLength = out_keys[key].length,  //
-                .value = buffer + offset,           //
-                .valueLength = vlen,                //
-            };
+            out_pairs[key].valueLength = vlen;
 
-            callback(key_value_pair);
+            callback(out_pairs[key]);
             ++iterations;
 
-            offset += vlen;
-            if (offset >= length) {
-              return iterations;
-            }
-
             json = skip_to_next_char(json + 1, '"');
-
             if (*json == '\0') {
               return iterations;
             }
@@ -1237,36 +1290,28 @@ size_t fiftyoneDegreesTransformIterateGhevFromJson(
             int b = read_bool_ghev_value(&json);
 
             if (b == -1) {
-              state = SKIP_VALUE;
-              break;
-            }
-
-            if (length - offset < 3) {
+              exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
               return iterations;
             }
 
-            buffer[offset] = '?';
-            buffer[offset + 1] = b ? '1' : '0';
-            buffer[offset + 2] = '\n';
+            size_t tmp = offset;
 
-            fiftyoneDegreesKeyValuePair key_value_pair = {
-                .key = out_keys[key].key,           //
-                .keyLength = out_keys[key].length,  //
-                .value = buffer + offset,           //
-                .valueLength = 3                    //
-            };
+            offset =
+                safe_write_to_buffer(buffer, length, offset, '?', exception);
+            offset = safe_write_to_buffer(buffer, length, offset, b ? '1' : '0',
+                                          exception);
+            offset =
+                safe_write_to_buffer(buffer, length, offset, '\n', exception);
 
-            callback(key_value_pair);
+            if (exception->status != FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY) {
+                out_pairs[key].value = buffer + tmp;
+            }
+            out_pairs[key].valueLength = 3;
+
+            callback(out_pairs[key]);
             ++iterations;
 
-            offset += 3;
-
-            if (offset >= length) {
-              return iterations;
-            }
-
             json = skip_to_next_char(json, '"');
-
             if (*json == '\0') {
               return iterations;
             }
@@ -1279,35 +1324,25 @@ size_t fiftyoneDegreesTransformIterateGhevFromJson(
           case MODEL:
           case PLATFORM:
           case PLATFORMVERSION: {
-            size_t vlen =
-                read_string_value(&json, buffer + offset, length - offset);
+            size_t vlen = read_string_value(&json, buffer + offset,
+                                            length - offset, exception);
 
-            if (offset + vlen < length) {
-              buffer[offset + vlen] = '\n';
-              ++vlen;
-            }
-
-            if (*json == '\0') {
+            if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
               return iterations;
             }
 
-            fiftyoneDegreesKeyValuePair key_value_pair = {
-                .key = out_keys[key].key,           //
-                .keyLength = out_keys[key].length,  //
-                .value = buffer + offset,           //
-                .valueLength = vlen,                //
-            };
-
-            callback(key_value_pair);
-            ++iterations;
+            if (exception->status != FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY) {
+                out_pairs[key].value = buffer + offset;
+            }
 
             offset += vlen;
-            if (offset >= length) {
-              return iterations;
-            }
+            offset = safe_write_to_buffer(buffer, length, offset, '\n', exception);
+            out_pairs[key].valueLength = vlen + 1;
+
+            callback(out_pairs[key]);
+            ++iterations;
 
             json = skip_to_next_char(json + 1, '"');
-
             if (*json == '\0') {
               return iterations;
             }
@@ -1319,6 +1354,7 @@ size_t fiftyoneDegreesTransformIterateGhevFromJson(
 
       case SKIP_VALUE: {
         if (!skip_value(&json)) {
+          exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
           return iterations;
         }
 
@@ -1327,7 +1363,7 @@ size_t fiftyoneDegreesTransformIterateGhevFromJson(
     }
   }
 
-  return ++iterations;
+  return iterations;
 }
 
 size_t fiftyoneDegreesTransformIterateGhevFromBase64(
@@ -1381,11 +1417,11 @@ size_t fiftyoneDegreesTransformIterateSua(
         }
 
         for (size_t i = 0; i < offset; ++i) {
-            if (length <= offset) {
-                return iterations;
-            }
+          if (length <= offset) {
+            return iterations;
+          }
 
-            buffer[i] = keys_src[i];
+          buffer[i] = keys_src[i];
         }
 
         for (int i = 0, j = 0; i < 8; ++i) {
@@ -1420,7 +1456,7 @@ size_t fiftyoneDegreesTransformIterateSua(
 
           case FULLVERSIONLIST: {
             size_t vlen =
-                read_brands_sua_value(&json, buffer + offset, length - offset);
+                read_brands_sua_value(&json, buffer + offset, length - offset, exception);
 
             if (vlen == 0) {
               state = SKIP_VALUE;
@@ -1518,7 +1554,7 @@ size_t fiftyoneDegreesTransformIterateSua(
 
             size_t vlen = read_platform_sua_value(
                 &json, buffer + offset, length - offset, &platform.value,
-                &platform.valueLength, &version.value, &version.valueLength);
+                &platform.valueLength, &version.value, &version.valueLength, exception);
 
             if (*json == '\0') {
               return iterations;
@@ -1552,7 +1588,7 @@ size_t fiftyoneDegreesTransformIterateSua(
           case BITNESS:
           case MODEL: {
             size_t vlen =
-                read_string_value(&json, buffer + offset, length - offset);
+                read_string_value(&json, buffer + offset, length - offset, exception);
 
             if (offset + vlen < length) {
               buffer[offset + vlen] = '\n';
@@ -1642,11 +1678,11 @@ size_t fiftyoneDegreesTransformGhevFromJson(
         }
 
         for (size_t i = 0; i < offset; ++i) {
-            if (length <= offset) {
-                return headers->count;
-            }
+          if (length <= offset) {
+            return headers->count;
+          }
 
-            buffer[i] = keys_src[i];
+          buffer[i] = keys_src[i];
         }
 
         for (int i = 0, j = 0; i < 8; ++i) {
@@ -1682,7 +1718,7 @@ size_t fiftyoneDegreesTransformGhevFromJson(
           case FULLVERSIONLIST:
           case BRANDS: {
             size_t vlen =
-                read_brands_ghev_value(&json, buffer + offset, length - offset);
+                read_brands_ghev_value(&json, buffer + offset, length - offset, exception);
 
             if (*json == '\0') {
               return headers->count;
@@ -1766,7 +1802,7 @@ size_t fiftyoneDegreesTransformGhevFromJson(
           case PLATFORM:
           case PLATFORMVERSION: {
             size_t vlen =
-                read_string_value(&json, buffer + offset, length - offset);
+                read_string_value(&json, buffer + offset, length - offset, exception);
 
             if (offset + vlen < length) {
               buffer[offset + vlen] = '\n';
@@ -1867,11 +1903,11 @@ size_t fiftyoneDegreesTransformSua(
         }
 
         for (size_t i = 0; i < offset; ++i) {
-            if (length <= offset) {
-                return headers->count;
-            }
+          if (length <= offset) {
+            return headers->count;
+          }
 
-            buffer[i] = keys_src[i];
+          buffer[i] = keys_src[i];
         }
 
         for (int i = 0, j = 0; i < 8; ++i) {
@@ -1906,7 +1942,7 @@ size_t fiftyoneDegreesTransformSua(
 
           case FULLVERSIONLIST: {
             size_t vlen =
-                read_brands_sua_value(&json, buffer + offset, length - offset);
+                read_brands_sua_value(&json, buffer + offset, length - offset, exception);
 
             if (*json == '\0') {
               return headers->count;
@@ -2017,7 +2053,7 @@ size_t fiftyoneDegreesTransformSua(
                 &headers->items[headers->count - 2].value,
                 &headers->items[headers->count - 2].valueLength,
                 &headers->items[headers->count - 1].value,
-                &headers->items[headers->count - 1].valueLength);
+                &headers->items[headers->count - 1].valueLength, exception);
 
             if (*json == '\0') {
               return headers->count;
@@ -2046,7 +2082,7 @@ size_t fiftyoneDegreesTransformSua(
           case BITNESS:
           case MODEL: {
             size_t vlen =
-                read_string_value(&json, buffer + offset, length - offset);
+                read_string_value(&json, buffer + offset, length - offset, exception);
 
             if (offset + vlen < length) {
               buffer[offset + vlen] = '\n';

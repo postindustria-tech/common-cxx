@@ -1165,7 +1165,7 @@ static int read_bool_sua_value(const char** json) {
   return -1;
 }
 
-static int init_keys(char* const buffer, size_t length) {
+static size_t init_keys(char* const buffer, size_t length) {
   size_t offset = sizeof(keys_src) - 1;
 
   if (length < offset) {

@@ -173,7 +173,7 @@ TEST_F(Transform, GHEVIterativeJSON) {
   checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"\n");
 }
 
-TEST_F(Transform, GHEVBase64) {
+TEST_F(Transform, GHEVIterativeBase64) {
   const char *ghev =
       "eyJicmFuZHMiOlt7ImJyYW5kIjoiTm90L0EpQnJhbmQiLCJ2ZXJzaW9uIjoiOCJ9LHsiYnJh"
       "bmQiOiJDaHJvbWl1bSIsInZlcnNpb24iOiIxMjYifSx7ImJyYW5kIjoiR29vZ2xlIENocm9t"
@@ -211,63 +211,101 @@ TEST_F(Transform, GHEVBase64) {
   checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"\n");
 }
 
-TEST_F(Transform, GHEVBase64NotEnoughMemory) {
-    const char *ghev =
-        "eyJicmFuZHMiOlt7ImJyYW5kIjoiTm90L0EpQnJhbmQiLCJ2ZXJzaW9uIjoiOCJ9LHsiYnJh"
-        "bmQiOiJDaHJvbWl1bSIsInZlcnNpb24iOiIxMjYifSx7ImJyYW5kIjoiR29vZ2xlIENocm9t"
-        "ZSIsInZlcnNpb24iOiIxMjYifV0sImZ1bGxWZXJzaW9uTGlzdCI6W3siYnJhbmQiOiJOb3Qv"
-        "QSlCcmFuZCIsInZlcnNpb24iOiI4LjAuMC4wIn0seyJicmFuZCI6IkNocm9taXVtIiwidmVy"
-        "c2lvbiI6IjEyNi4wLjY0NzguMTI3In0seyJicmFuZCI6Ikdvb2dsZSBDaHJvbWUiLCJ2ZXJz"
-        "aW9uIjoiMTI2LjAuNjQ3OC4xMjcifV0sIm1vYmlsZSI6ZmFsc2UsIm1vZGVsIjoiIiwicGxh"
-        "dGZvcm0iOiJtYWNPUyIsInBsYXRmb3JtVmVyc2lvbiI6IjE0LjUuMCJ9";
+TEST_F(Transform, GHEVBase64) {
+  const char *ghev =
+      "eyJiaXRuZXNzIjoiNjQiLCJicmFuZHMiOlt7ImJyYW5kIjoiTm90L0EpQnJhbmQiLCJ2ZXJz"
+      "aW9uIjoiOCJ9LHsiYnJhbmQiOiJDaHJvbWl1bSIsInZlcnNpb24iOiIxMjYifSx7ImJyYW5k"
+      "IjoiR29vZ2xlIENocm9tZSIsInZlcnNpb24iOiIxMjYifV0sImZ1bGxWZXJzaW9uTGlzdCI6"
+      "W3siYnJhbmQiOiJOb3QvQSlCcmFuZCIsInZlcnNpb24iOiI4LjAuMC4wIn0seyJicmFuZCI6"
+      "IkNocm9taXVtIiwidmVyc2lvbiI6IjEyNi4wLjY0NzguMTI3In0seyJicmFuZCI6Ikdvb2ds"
+      "ZSBDaHJvbWUiLCJ2ZXJzaW9uIjoiMTI2LjAuNjQ3OC4xMjcifV0sIm1vYmlsZSI6dHJ1ZSwi"
+      "bW9kZWwiOiIiLCJwbGF0Zm9ybSI6Im1hY09TIiwid293NjQiOmZhbHNlfQ==";
 
-    size_t bufferLength = strlen(ghev);
-    char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  size_t bufferLength = strlen(ghev) * 2;
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-    size_t count = fiftyoneDegreesTransformIterateGhevFromBase64(
-        ghev, buffer, bufferLength, &Transform::exception, fillResultsCallback);
+  size_t count = fiftyoneDegreesTransformGhevFromBase64(
+      ghev, buffer, bufferLength, &Transform::exception, results);
 
-    // ---
+  // ---
 
-    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
 
-    ASSERT_EQ(count, 6);
-    ASSERT_EQ(results->count, count);
+  ASSERT_EQ(count, 6);
+  ASSERT_EQ(results->count, count);
+
+  checkFieldAbsent("sec-ch-ua-arch");
+  checkFieldValue("sec-ch-ua",
+                  "\"Not/A)Brand\";v=\"8\",\"Chromium\";v=\"126\",\"Google "
+                  "Chrome\";v=\"126\"\n");
+  checkFieldValue("sec-ch-ua-bitness", "\"64\"\n");
+  checkFieldValue(
+      "sec-ch-ua-full-version-list",
+      "\"Not/A)Brand\";v=\"8.0.0.0\",\"Chromium\";v=\"126.0.6478.127\","
+      "\"Google Chrome\";v=\"126.0.6478.127\"\n");
+  checkFieldValue("sec-ch-ua-mobile", "?1\n");
+  checkFieldValue("sec-ch-ua-model", "\"\"\n");
+  checkFieldValue("sec-ch-ua-platform", "\"macOS\"\n");
+  checkFieldAbsent("sec-ch-ua-platform-version");
 }
 
-// TEST_F(Transform, GHEVArrayJSON) {
-//   const char *ghev =
-//       "{\"architecture\":\"x86\",\"bitness\":\"64\",\"brands\":[{\"brand\":"
-//       "\"Not/"
-//       "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
-//       "\"126\"},{\"brand\":\"Google Chrome\",\"version\":\"126\"}],\"mobile\"  "
-//       " :   false,  \"model\"  :   \"MacBook\" ,  \"platform\" : "
-//       "\"macOS\",\"platformVersion\":\"14.5.0\",\"wow64\":false}";
+TEST_F(Transform, GHEVBase64NotEnoughMemory) {
+  const char *ghev =
+      "eyJicmFuZHMiOlt7ImJyYW5kIjoiTm90L0EpQnJhbmQiLCJ2ZXJzaW9uIjoiOCJ9LHsiYnJh"
+      "bmQiOiJDaHJvbWl1bSIsInZlcnNpb24iOiIxMjYifSx7ImJyYW5kIjoiR29vZ2xlIENocm9t"
+      "ZSIsInZlcnNpb24iOiIxMjYifV0sImZ1bGxWZXJzaW9uTGlzdCI6W3siYnJhbmQiOiJOb3Qv"
+      "QSlCcmFuZCIsInZlcnNpb24iOiI4LjAuMC4wIn0seyJicmFuZCI6IkNocm9taXVtIiwidmVy"
+      "c2lvbiI6IjEyNi4wLjY0NzguMTI3In0seyJicmFuZCI6Ikdvb2dsZSBDaHJvbWUiLCJ2ZXJz"
+      "aW9uIjoiMTI2LjAuNjQ3OC4xMjcifV0sIm1vYmlsZSI6ZmFsc2UsIm1vZGVsIjoiIiwicGxh"
+      "dGZvcm0iOiJtYWNPUyIsInBsYXRmb3JtVmVyc2lvbiI6IjE0LjUuMCJ9";
 
-//   size_t bufferLength = strlen(ghev);
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  size_t bufferLength = strlen(ghev);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   size_t count = fiftyoneDegreesTransformGhevFromJson(
-//       ghev, buffer, bufferLength, &Transform::exception, results);
+  size_t count = fiftyoneDegreesTransformIterateGhevFromBase64(
+      ghev, buffer, bufferLength, &Transform::exception, fillResultsCallback);
 
-//   // ---
+  // ---
 
-//   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
 
-//   ASSERT_EQ(count, 7);
-//   ASSERT_EQ(results->count, count);
+  ASSERT_EQ(count, 6);
+  ASSERT_EQ(results->count, count);
+}
 
-//   checkFieldValue("sec-ch-ua-arch", "\"x86\"\n");
-//   checkFieldValue("sec-ch-ua",
-//                   "\"Not/A)Brand\";v=\"8\",\"Chromium\";v=\"126\",\"Google "
-//                   "Chrome\";v=\"126\"\n");
-//   checkFieldValue("sec-ch-ua-bitness", "\"64\"\n");
-//   checkFieldAbsent("sec-ch-ua-full-version-list");
-//   checkFieldValue("sec-ch-ua-mobile", "?0\n");
-//   checkFieldValue("sec-ch-ua-model", "\"\"\n");
-//   checkFieldValue("sec-ch-ua-platform", "\"macOS\"\n");
-//   checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"\n");
-// }
+TEST_F(Transform, GHEVArrayJSON) {
+  const char *ghev =
+      "{\"architecture\":\"x86\",\"bitness\":\"64\",\"brands\":[{\"brand\":"
+      "\"Not/"
+      "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126\"},{\"brand\":\"Google Chrome\",\"version\":\"126\"}],\"mobile\"  "
+      " :   false,  \"model\"  :   \"MacBook\" ,  \"platform\" : "
+      "\"macOS\",\"platformVersion\":\"14.5.0\",\"wow64\":false}";
+
+  size_t bufferLength = strlen(ghev);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+
+  size_t count = fiftyoneDegreesTransformGhevFromJson(
+      ghev, buffer, bufferLength, &Transform::exception, results);
+
+  // ---
+
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+
+  ASSERT_EQ(count, 7);
+  ASSERT_EQ(results->count, count);
+
+  checkFieldValue("sec-ch-ua-arch", "\"x86\"\n");
+  checkFieldValue("sec-ch-ua",
+                  "\"Not/A)Brand\";v=\"8\",\"Chromium\";v=\"126\",\"Google "
+                  "Chrome\";v=\"126\"\n");
+  checkFieldValue("sec-ch-ua-bitness", "\"64\"\n");
+  checkFieldAbsent("sec-ch-ua-full-version-list");
+  checkFieldValue("sec-ch-ua-mobile", "?0\n");
+  checkFieldValue("sec-ch-ua-model", "\"MacBook\"\n");
+  checkFieldValue("sec-ch-ua-platform", "\"macOS\"\n");
+  checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"\n");
+}
 
 // TEST_F(Transform, GHEVPartial) {
 //   const char *ghev =

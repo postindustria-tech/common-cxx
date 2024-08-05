@@ -27,6 +27,7 @@
 #include "Base.hpp"
 #include "StringCollection.hpp"
 #include "../evidence.h"
+#include "HeadersContainer.hpp"
 
 /**
  * Evidence test class used to test the functionality in evidence.c.
@@ -34,6 +35,9 @@
 class Evidence : public Base {
 protected:
 	fiftyoneDegreesEvidenceKeyValuePairArray *evidence = nullptr;
+    HeadersContainer headersContainer;
+    size_t bufferSize = 512;
+    char *buffer = nullptr;
 
 	/**
 	 * Calls the base setup method to enable memory leak checking and memory
@@ -41,6 +45,7 @@ protected:
 	 */
 	void SetUp() {
 		Base::SetUp();
+        buffer = (char *) fiftyoneDegreesMalloc(bufferSize);
 	}
 
 	/**
@@ -52,7 +57,12 @@ protected:
 		if (evidence != nullptr) {
 			fiftyoneDegreesEvidenceFree(evidence);
 		}
-		Base::TearDown();
+        headersContainer.Dealloc();
+        if (buffer != nullptr) {
+            fiftyoneDegreesFree(buffer);
+            buffer = nullptr;
+        }
+        Base::TearDown();
 	}
 
 	/**

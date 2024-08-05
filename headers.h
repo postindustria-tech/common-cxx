@@ -144,9 +144,9 @@ struct fiftyone_degrees_header_t {
 									  full header */
 	bool isDataSet; /**< True if the header originates from the data set and 
 					the headerId is valid */
-	fiftyoneDegreesHeaderPtrs* pseudoHeaders; /**< Array of indexes to
+	fiftyoneDegreesHeaderPtrs* pseudoHeaders; /**< Array of pointers to
 												related pseudo headers */
-	fiftyoneDegreesHeaderPtrs* segmentHeaders; /**< Array of indexes to raw
+	fiftyoneDegreesHeaderPtrs* segmentHeaders; /**< Array of pointers to raw
 												  headers that form this pseudo
 												  header */
 };
@@ -182,14 +182,6 @@ typedef long(*fiftyoneDegreesHeadersGetMethod)(
 	void *state,
 	uint32_t index, 
 	fiftyoneDegreesCollectionItem *nameItem);
-
-/**
- * Returns the number of bytes that will be allocated for a headers structure
- * created using the #fiftyoneDegreesHeadersCreate method.
- * @param count number of headers in the structure
- * @return number of bytes needed
- */
-EXTERNAL size_t fiftyoneDegreesHeadersSize(int count);
 
 /**
  * Check if a header is a pseudo header.

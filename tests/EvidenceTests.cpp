@@ -22,6 +22,7 @@
  
 #include "pch.h"
 #include "EvidenceTests.hpp"
+#include "memory.h"
 
 void assertStringHeaderAdded(
 	fiftyoneDegreesEvidenceKeyValuePair *pair,
@@ -201,3 +202,219 @@ TEST_F(Evidence, Iterate_String_without_pseudo_evidence) {
 	EXPECT_EQ(1, count) <<
 		"Number of evidence should be 1\n";
 }
+
+bool callback1(void* state, fiftyoneDegreesHeader*, const char* value, size_t) {
+    std::vector<std::string> *results = (std::vector<std::string> *) state;
+    results->push_back(value);
+    return true;
+}
+
+TEST_F(Evidence, MapPrefix) {
+    auto map = fiftyoneDegreesEvidenceMapPrefix("server.param1");
+    EXPECT_EQ(map->prefixEnum, FIFTYONE_DEGREES_EVIDENCE_SERVER);
+    map = fiftyoneDegreesEvidenceMapPrefix("query.PARAM");
+    EXPECT_EQ(map->prefixEnum, FIFTYONE_DEGREES_EVIDENCE_QUERY);
+    map = fiftyoneDegreesEvidenceMapPrefix("cookie.some_value");
+    EXPECT_EQ(map->prefixEnum, FIFTYONE_DEGREES_EVIDENCE_COOKIE);
+    map = fiftyoneDegreesEvidenceMapPrefix("header.HTTP_STRING");
+    EXPECT_EQ(map->prefixEnum, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING);
+    map = fiftyoneDegreesEvidenceMapPrefix("header."); // a string without a param does not have a prefix NULL
+    EXPECT_EQ(map, nullptr);
+    map = fiftyoneDegreesEvidenceMapPrefix("nonsense");
+    EXPECT_EQ(map, nullptr);
+    map = fiftyoneDegreesEvidenceMapPrefix("HEADER.something"); // case-sensitivity of the prefixes
+    EXPECT_EQ(map, nullptr);
+}
+                                                          
+TEST_F(Evidence, IterateForHeaders_Order) {
+    const char *headers[] = {
+        (char *)"Material",
+        (char *)"Size",
+        (char *)"Color"
+    };
+    headersContainer.CreateHeaders(headers, 3, false);
+    CreateEvidence(3);
+    
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Size", "Big");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Color", "Green");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Material", "Apple");
+    
+    std::vector<std::string> results;
+    bool res = fiftyoneDegreesEvidenceIterateForHeaders(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, headersContainer.headerPointers, buffer, bufferSize, &results, callback1);
+    EXPECT_FALSE(res);
+    EXPECT_EQ(results[0], "Apple");
+    EXPECT_EQ(results[1], "Big");
+    EXPECT_EQ(results[2], "Green");
+}
+
+TEST_F(Evidence, IterateForHeaders_NoMatchingPrefix) {
+    const char *headers[] = {
+        (char *)"Material",
+        (char *)"Size",
+        (char *)"Color"
+    };
+    headersContainer.CreateHeaders(headers, 3, false);
+    CreateEvidence(3);
+    
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_QUERY, "Size", "Big");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Color", "Green");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_QUERY, "Material", "Apple");
+    
+    std::vector<std::string> results;
+    bool res = fiftyoneDegreesEvidenceIterateForHeaders(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, headersContainer.headerPointers, buffer, bufferSize, &results, callback1);
+    EXPECT_FALSE(res);
+    EXPECT_EQ(results[0], "Green"); // only Color is the header string
+    EXPECT_EQ(results.size(), 1);
+}
+
+TEST_F(Evidence, IterateForHeaders_PrefixPrecedence) {
+    const char *headers[] = {
+        (char *)"Material",
+        (char *)"Size",
+        (char *)"Color"
+    };
+    headersContainer.CreateHeaders(headers, 3, false);
+    CreateEvidence(7);
+    
+    // at this level no prefix precedence is enforced -
+    // the first evidence matching the prefix mask will be used
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Size", "BigHeader");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_COOKIE, "Size", "BigCookie");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_QUERY, "Size", "BigQuery");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Color", "Green");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_QUERY, "Material", "AppleQuery");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_COOKIE, "Material", "AppleCookie");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Material", "AppleHeader");
+    
+    
+    std::vector<std::string> results;
+    uint32_t prefixMask = FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING | FIFTYONE_DEGREES_EVIDENCE_QUERY | FIFTYONE_DEGREES_EVIDENCE_COOKIE;
+    bool res = fiftyoneDegreesEvidenceIterateForHeaders(evidence, prefixMask, headersContainer.headerPointers, buffer, bufferSize, &results, callback1);
+    EXPECT_FALSE(res);
+    EXPECT_EQ(results.size(), 3);
+    EXPECT_EQ(results[0], "AppleQuery"); // only Color is the header string
+    EXPECT_EQ(results[1], "BigHeader"); // only Color is the header string
+    EXPECT_EQ(results[2], "Green"); // only Color is the header string
+}
+
+TEST_F(Evidence, IterateForHeaders_MissingOneEvidence) {
+    const char *headers[] = {
+        (char *)"Material",
+        (char *)"Size",
+        (char *)"Color"
+    };
+    headersContainer.CreateHeaders(headers, 3, false);
+    CreateEvidence(3);
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Color", "Green");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Material", "Apple");
+    
+    
+    std::vector<std::string> results;
+    bool res = fiftyoneDegreesEvidenceIterateForHeaders(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, headersContainer.headerPointers, buffer, bufferSize, &results, callback1);
+    EXPECT_FALSE(res);
+    EXPECT_EQ(results[0], "Apple");
+    EXPECT_EQ(results[1], "Green");
+}
+
+TEST_F(Evidence, IterateForHeaders_ConstructPseudoHeader) {
+    const char *headers[] = {
+        "Material",
+        "Size\x1FTaste", //Taste is a missing evidence, this pseudoheader should not be constructed
+        "Size\x1F""Color",
+        "Size\x1F""Color\x1F""Material",
+        
+    };
+    headersContainer.CreateHeaders(headers, 4, false);
+    CreateEvidence(3);
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Size", "Big");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Color", "Green");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Material", "Apple");
+    
+
+    std::vector<std::string> results;
+    bool res = fiftyoneDegreesEvidenceIterateForHeaders(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, headersContainer.headerPointers, buffer, bufferSize, &results, callback1);
+    EXPECT_FALSE(res);
+    EXPECT_EQ(results.size(), 3);
+    EXPECT_EQ(results[0], "Apple");
+    EXPECT_EQ(results[1], "Big\x1FGreen");
+    EXPECT_EQ(results[2], "Big\x1FGreen\x1F""Apple");
+}
+
+bool callback2(void* state, fiftyoneDegreesHeader* , const char* value, size_t ) {
+    std::vector<std::string> *results = (std::vector<std::string> *) state;
+    results->push_back(value);
+    return results->size() <= 1; // on the second header we signal early exit by returning false
+}
+
+TEST_F(Evidence, IterateForHeaders_CallbackSignalsEarlyExit) {
+    const char *headers[] = {
+        "Material",
+        "Size\x1FTaste", //Taste is a missing evidence, this pseudoheader should not be constructed
+        "Size\x1F""Color",
+        "Size\x1F""Color\x1F""Material",
+    };
+    headersContainer.CreateHeaders(headers, 4, false);
+    CreateEvidence(3);
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Size", "Big");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Color", "Green");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Material", "Apple");
+    
+    std::vector<std::string> results;
+    bool res = fiftyoneDegreesEvidenceIterateForHeaders(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, headersContainer.headerPointers, buffer, bufferSize, &results, callback2);
+    EXPECT_TRUE(res);
+    EXPECT_EQ(results.size(), 2);
+    EXPECT_EQ(results[0], "Apple");
+    EXPECT_EQ(results[1], "Big\x1FGreen");
+}
+
+bool callback_false(void* , fiftyoneDegreesHeader* , const char* , size_t ) {
+    return false;
+}
+
+TEST_F(Evidence, IterateForHeaders_CallbackSignalsEarlyExit_OrdinaryHeader) {
+    const char *headers[] = {
+        "Material"
+    };
+    headersContainer.CreateHeaders(headers, 1, false);
+    CreateEvidence(1);
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Material", "Apple");
+    bool res = fiftyoneDegreesEvidenceIterateForHeaders(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, headersContainer.headerPointers, buffer, bufferSize, NULL, callback_false);
+    EXPECT_TRUE(res);
+}
+
+TEST_F(Evidence, IterateForHeaders_SmallBuffer) {
+    const char *headers[] = {
+        "Size\x1F""Color",
+        "Size\x1F""Color\x1F""Material",
+    };
+    headersContainer.CreateHeaders(headers, 2, false);
+    CreateEvidence(3);
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Size", "Big");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Color", "Green");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Material", "Apple");
+
+    std::vector<std::string> results;
+    
+    // Big\x1FGreen\x1FApple => 15 characters, buffer size must be 16,
+    // let's make it exactly 15, and the last result should not be formed
+    
+    size_t length = 15;
+    char *buf = (char *) fiftyoneDegreesMalloc(length);
+    bool res = fiftyoneDegreesEvidenceIterateForHeaders(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, headersContainer.headerPointers, buf, length, &results, callback1);
+    EXPECT_FALSE(res);
+    EXPECT_EQ(results.size(), 1);
+    EXPECT_EQ(results[0], "Big\x1F""Green");
+    fiftyoneDegreesFree(buf);
+    
+    // now let's make it 16 and it should be formed
+    results.clear();
+    length = 16;
+    buf = (char *) fiftyoneDegreesMalloc(length);
+    res = fiftyoneDegreesEvidenceIterateForHeaders(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, headersContainer.headerPointers, buf, length, &results, callback1);
+    EXPECT_FALSE(res);
+    EXPECT_EQ(results.size(), 2);
+    EXPECT_EQ(results[1], "Big\x1F""Green\x1F""Apple");
+    fiftyoneDegreesFree(buf);
+}
+
+

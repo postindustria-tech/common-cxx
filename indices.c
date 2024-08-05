@@ -20,7 +20,7 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-#include "indexes.h"
+#include "indices.h"
 #include "fiftyone.h"
 
 typedef struct map_t {
@@ -67,8 +67,9 @@ static void addProfileValuesMethod(
 
 			// If the value doesn't relate to the next property index then 
 			// move to the next property index.
-			while (propertyIndexes[p].propertyIndex < value->propertyIndex &&
-				p < index->availablePropertyCount) {
+			while (p < index->availablePropertyCount && //first check validity of the subscript and then use it
+                   propertyIndexes[p].propertyIndex < value->propertyIndex
+				) {
 				p++;
 			}
 

@@ -100,7 +100,7 @@ char *fiftyoneDegreesStringSubString(const char *a, const char *b) {
 					break;
 				}
 			}
-			if (d == 0) {
+			if (d == 0 && *b1 == '\0') {
 				return (char *)a;
 			}
 		}
@@ -135,7 +135,8 @@ fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChar(
 fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
 	fiftyoneDegreesStringBuilder* builder,
 	int const value) {
-	char temp[10];
+    // 64-bit INT_MIN is  -9,223,372,036,854,775,807 => 21 characters
+	char temp[22];
 	if (snprintf(temp, sizeof(temp), "%d", value) > 0) {
 		StringBuilderAddChars(
 			builder,

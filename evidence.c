@@ -128,29 +128,22 @@ static EvidenceKeyValuePair* findHeaderEvidence(
 	return NULL;
 }
 
-// Copies the pair parsed value to the buffer checking that there are 
-// sufficient bytes remaining in the buffer for the parsed value. Returns NULL
-// if there is insufficient bytes remaining in the buffer, or the new pointer 
-// in buffer for the next character.
-static StringBuilder* addPairValueToBuffer(
-	StringBuilder* builder, 
-	EvidenceKeyValuePair* pair) {
-	return StringBuilderAddChars(
-		builder, 
-		(char*)pair->parsedValue, 
-		pair->parsedLength);
+// Safe-copies the pair parsed value to the buffer checking that there are
+// sufficient bytes remaining in the buffer for the parsed value.
+static void addPairValueToBuffer(StringBuilder* builder, EvidenceKeyValuePair* pair) {
+	StringBuilderAddChars(builder, (char*)pair->parsedValue, pair->parsedLength);
 }
 
 // For the header finds the corresponding evidence in the array of evidence. If
 // found then copies the parsed value into the buffer considering the remaining
-// length available. Returns the next character in the buffer to add more 
-// characters, or NULL if either not found or insufficient buffer length 
-// remaining.
-static StringBuilder* addHeaderValueToBuilder(
+// length available. Returns true if successful
+
+static bool addHeaderValueToBuilder(
 	fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
 	int prefixes,
 	fiftyoneDegreesHeader* header,
-	StringBuilder* builder) {
+	StringBuilder* builder,
+    bool prependSeparator) {
 
 	// Get the evidence that corresponds to the header. If it doesn't exist
 	// then there is no evidence for the header and a call back will not be
@@ -160,20 +153,20 @@ static StringBuilder* addHeaderValueToBuilder(
 		prefixes, 
 		header);
 	if (pair == NULL) {
-		return NULL;
+		return false;
 	}
 
-	// Copy the value of the evidence pair in to the buffer advancing the 
+    // Add the pseudo header separator.
+    if (prependSeparator) {
+        StringBuilderAddChar(builder, PSEUDO_HEADER_SEP);
+    }
+
+	// Copy the value of the evidence pair in to the buffer advancing the
 	// current character in the buffer.
 	addPairValueToBuffer(builder, pair);
-
-	// If the buffer is not sufficiently large to hold the pair value then
-	// return.
-	if (builder->remaining <= 0) {
-		return NULL;
-	}
-
-	return builder;
+    
+    // return false if we have overfilled the buffer
+    return !builder->full;
 }
 
 // Assembles a pseudo header in the buffer. If this can not be achieved returns 
@@ -190,37 +183,22 @@ static bool processPseudoHeader(
 
 	// For each of the headers that form the pseudo header.
 	for (uint32_t i = 0; i < header->segmentHeaders->count; i++) {
+        //if this is a subsequent segment - we prepend the separator
+        bool prependSeparator = i > 0;
 
 		// Add the header evidence that forms the segment if available updating
 		// the current buffer position if available.
-		addHeaderValueToBuilder(
-			evidence, 
-			prefixes, 
-			header->segmentHeaders->items[i], 
-			builder);
+		bool success = addHeaderValueToBuilder(evidence, prefixes, header->segmentHeaders->items[i], builder, prependSeparator);
 
 		// If the pseudo header wasn't found, or insufficient space was 
 		// available to copy it, then return.
-		if (builder->full) {
-			return true;
-		}
-
-		// Add the pseudo header separator.
-		StringBuilderAddChar(builder, PSEUDO_HEADER_SEP);
-		
-		// If there was insufficient space for the separator then return.
-		if (builder->full) {
-			return true;
+		if (!success) {
+			return true;  // which means continue iteration
 		}
 	}
 
-	// Switch the last pseudo header separator to a null terminating character.
+	// Append (or overwrite if it is the last character) a null terminating character.
 	StringBuilderComplete(builder);
-
-	// If there was insufficient space for the terminating character then return.
-	if (builder->full) {
-		return true;
-	}
 
 	// A full header has been formed so call the callback with the buffer and
 	// the number of characters populated.
@@ -315,27 +293,31 @@ fiftyoneDegreesEvidencePrefixMap* fiftyoneDegreesEvidenceMapPrefix(
 	uint32_t i;
 	size_t length = strlen(key);
 	EvidencePrefixMap *map;
+    EvidencePrefixMap *result = NULL;
 	for (i = 0; i < sizeof(_map) / sizeof(EvidencePrefixMap); i++) {
 		map = &_map[i];
 		if (map->prefixLength < length &&
 			strncmp(map->prefix, key, map->prefixLength) == 0) {
-			return map;
+			result = map;
+            break;
 		}
 	}
-	return NULL;
+	return result;
 }
 
 EXTERNAL const char* fiftyoneDegreesEvidencePrefixString(
 	fiftyoneDegreesEvidencePrefix prefix) {
 	uint32_t i;
 	EvidencePrefixMap* map;
+    const char *result = NULL;
 	for (i = 0; i < sizeof(_map) / sizeof(EvidencePrefixMap); i++) {
 		map = &_map[i];
 		if (map->prefixEnum == prefix) {
-			return map->prefix;
+            result = map->prefix;
+            break;
 		}
 	}
-	return NULL;
+	return result   ;
 }
 
 bool fiftyoneDegreesEvidenceIterateForHeaders(

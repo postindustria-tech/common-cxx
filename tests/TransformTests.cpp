@@ -119,12 +119,16 @@ void Transform::checkFieldAbsent(const char *field) {
   ASSERT_FALSE(found) << "Field " << field << " should be absent";
 }
 
-bool fillResultsCallback(fiftyoneDegreesKeyValuePair pair) {
-  fiftyoneDegreesKeyValuePairArray *results = Transform::results;
+bool fillResultsCallback(void *ctx, fiftyoneDegreesKeyValuePair pair,
+                         fiftyoneDegreesException *const exception) {
+  fiftyoneDegreesKeyValuePairArray *results =
+      (fiftyoneDegreesKeyValuePairArray *)ctx;
+
   if (results->count < results->capacity) {
     results->items[results->count++] = pair;
     return true;
   }
+
   return false;
 }
 
@@ -149,7 +153,8 @@ TEST_F(Transform, GHEVIterativeJSON) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
-      ghev, buffer, bufferLength, &Transform::exception, fillResultsCallback);
+      ghev, buffer, bufferLength, &Transform::exception, fillResultsCallback,
+      Transform::results);
 
   // ---
 
@@ -187,7 +192,8 @@ TEST_F(Transform, GHEVIterativeBase64) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateGhevFromBase64(
-      ghev, buffer, bufferLength, &Transform::exception, fillResultsCallback);
+      ghev, buffer, bufferLength, &Transform::exception, fillResultsCallback,
+      Transform::results);
 
   // ---
 
@@ -207,6 +213,80 @@ TEST_F(Transform, GHEVIterativeBase64) {
       "\"Google Chrome\";v=\"126.0.6478.127\"\n");
   checkFieldValue("sec-ch-ua-mobile", "?0\n");
   checkFieldValue("sec-ch-ua-model", "\"\"\n");
+  checkFieldValue("sec-ch-ua-platform", "\"macOS\"\n");
+  checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"\n");
+}
+
+TEST_F(Transform, GHEVIterativeSua) {
+  const char *sua =
+      "{\n        \"source\": 2,\n        \"platform\": {\n                "
+      "\"brand\": \"macOS\",\n                \"version\": [\"14\", \"5\", "
+      "\"0\"]\n        },\n        \"browsers\": [{\n                "
+      "\"brand\": \"Not/A)Brand\",\n                \"version\": [\"8\", "
+      "\"0\", \"0\", \"0\"]\n        }, {\n                \"brand\": "
+      "\"Chromium\",\n                \"version\": [\"126\", \"0\", \"6478\", "
+      "\"127\"]\n        }, {\n                \"brand\": \"Google Chrome\",\n "
+      "               \"version\": [\"126\", \"0\", \"6478\", \"127\"]\n       "
+      " }],\n        \"mobile\": 0,\n        \"model\": \"\",\n        "
+      "\"architecture\": \"x86\",\n        \"bitness\": \"64\"\n}";
+
+  size_t bufferLength = strlen(sua);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+
+  size_t count = fiftyoneDegreesTransformIterateSua(
+      sua, buffer, bufferLength, &Transform::exception, fillResultsCallback,
+      Transform::results);
+
+  // ---
+
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+
+  ASSERT_EQ(count, 7);
+  ASSERT_EQ(results->count, count);
+
+  checkFieldValue("sec-ch-ua-arch", "\"x86\"\n");
+  checkFieldAbsent("sec-ch-ua");
+  checkFieldValue("sec-ch-ua-bitness", "\"64\"\n");
+  checkFieldValue(
+      "sec-ch-ua-full-version-list",
+      "\"Not/A)Brand\";v=\"8.0.0.0\",\"Chromium\";v=\"126.0.6478.127\","
+      "\"Google Chrome\";v=\"126.0.6478.127\"\n");
+  checkFieldValue("sec-ch-ua-mobile", "?0\n");
+  checkFieldValue("sec-ch-ua-model", "\"\"\n");
+  checkFieldValue("sec-ch-ua-platform", "\"macOS\"\n");
+  checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"\n");
+}
+
+TEST_F(Transform, GHEVArrayJSON) {
+  const char *ghev =
+      "{\"architecture\":\"x86\",\"bitness\":\"64\",\"brands\":[{\"brand\":"
+      "\"Not/"
+      "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126\"},{\"brand\":\"Google Chrome\",\"version\":\"126\"}],\"mobile\"  "
+      " :   false,  \"model\"  :   \"MacBook\" ,  \"platform\" : "
+      "\"macOS\",\"platformVersion\":\"14.5.0\",\"wow64\":false}";
+
+  size_t bufferLength = strlen(ghev);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+
+  size_t count = fiftyoneDegreesTransformGhevFromJson(
+      ghev, buffer, bufferLength, &Transform::exception, results);
+
+  // ---
+
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+
+  ASSERT_EQ(count, 7);
+  ASSERT_EQ(results->count, count);
+
+  checkFieldValue("sec-ch-ua-arch", "\"x86\"\n");
+  checkFieldValue("sec-ch-ua",
+                  "\"Not/A)Brand\";v=\"8\",\"Chromium\";v=\"126\",\"Google "
+                  "Chrome\";v=\"126\"\n");
+  checkFieldValue("sec-ch-ua-bitness", "\"64\"\n");
+  checkFieldAbsent("sec-ch-ua-full-version-list");
+  checkFieldValue("sec-ch-ua-mobile", "?0\n");
+  checkFieldValue("sec-ch-ua-model", "\"MacBook\"\n");
   checkFieldValue("sec-ch-ua-platform", "\"macOS\"\n");
   checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"\n");
 }
@@ -263,7 +343,8 @@ TEST_F(Transform, GHEVBase64NotEnoughMemory) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateGhevFromBase64(
-      ghev, buffer, bufferLength, &Transform::exception, fillResultsCallback);
+      ghev, buffer, bufferLength, &Transform::exception, fillResultsCallback,
+      Transform::results);
 
   // ---
 
@@ -273,376 +354,373 @@ TEST_F(Transform, GHEVBase64NotEnoughMemory) {
   ASSERT_EQ(results->count, count);
 }
 
-TEST_F(Transform, GHEVArrayJSON) {
-  const char *ghev =
-      "{\"architecture\":\"x86\",\"bitness\":\"64\",\"brands\":[{\"brand\":"
-      "\"Not/"
-      "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
-      "\"126\"},{\"brand\":\"Google Chrome\",\"version\":\"126\"}],\"mobile\"  "
-      " :   false,  \"model\"  :   \"MacBook\" ,  \"platform\" : "
-      "\"macOS\",\"platformVersion\":\"14.5.0\",\"wow64\":false}";
+TEST_F(Transform, GHEVArraySua) {
+  const char *sua =
+      "{\"source\":2,\"platform\":{\"brand\":\"macOS\",\"version\":[\"14\","
+      "\"5\",\"0\"]},\"browsers\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":[\"8\",\"0\",\"0\",\"0\"]},{\"brand\":"
+      "\"Chromium\",\"version\":[\"126\",\"0\",\"6478\",\"127\"]},{\"brand\":"
+      "\"Google "
+      "Chrome\",\"version\":[\"126\",\"0\",\"6478\",\"127\"]}],\"mobile\":1,"
+      "\"model\":\"MacBook\",\"architecture\":\"x86\"}";
 
-  size_t bufferLength = strlen(ghev);
+  size_t bufferLength = strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-  size_t count = fiftyoneDegreesTransformGhevFromJson(
-      ghev, buffer, bufferLength, &Transform::exception, results);
+  size_t count = fiftyoneDegreesTransformSua(sua, buffer, bufferLength,
+                                             &Transform::exception, results);
 
   // ---
 
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
 
-  ASSERT_EQ(count, 7);
+  ASSERT_EQ(count, 6);
   ASSERT_EQ(results->count, count);
 
   checkFieldValue("sec-ch-ua-arch", "\"x86\"\n");
+  checkFieldValue("sec-ch-ua-model", "\"MacBook\"\n");
+  checkFieldValue("sec-ch-ua-mobile", "?1\n");
+  checkFieldValue("sec-ch-ua-platform", "\"macOS\"\n");
+  checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"\n");
+  checkFieldValue(
+      "sec-ch-ua-full-version-list",
+      "\"Not/"
+      "A)Brand\";v=\"8.0.0.0\",\"Chromium\";v=\"126.0.6478.127\",\"Google "
+      "Chrome\";v=\"126.0.6478.127\"\n");
+
+  checkFieldAbsent("sec-ch-ua-bitness");
+  checkFieldAbsent("sec-ch-ua");
+}
+
+// WARNING: discuss this empty and null behaviour
+TEST_F(Transform, GHEVPartial) {
+  const char *ghev =
+      "{\"brands\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126\"},{\"brand\":\"Google "
+      "Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126.0.6478.61\"},{\"brand\":\"Google "
+      "Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":"
+      "\"\",\"platform\":null}";
+
+  size_t bufferLength = strlen(ghev);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+
+  size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
+      ghev, buffer, bufferLength, &exception, fillResultsCallback,
+      Transform::results);
+  ASSERT_EQ(count, 3);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+
+  // we expect to see these headers detected:
+  // low entropy: sec-ch-ua, sec-ch-ua-mobile
+  // high entropy: sec-ch-ua-model, sec-ch-ua-full-version-list
+  // we check that either empty value (model), null-value (platform)
+  // or entire absence of key (platformVersion) result in no header in the
+  // output the policy is - we don't output empty data - no value == no evidence
+  // field
+
+  ASSERT_EQ(results->count, count);
+
   checkFieldValue("sec-ch-ua",
                   "\"Not/A)Brand\";v=\"8\",\"Chromium\";v=\"126\",\"Google "
                   "Chrome\";v=\"126\"\n");
-  checkFieldValue("sec-ch-ua-bitness", "\"64\"\n");
-  checkFieldAbsent("sec-ch-ua-full-version-list");
   checkFieldValue("sec-ch-ua-mobile", "?0\n");
-  checkFieldValue("sec-ch-ua-model", "\"MacBook\"\n");
-  checkFieldValue("sec-ch-ua-platform", "\"macOS\"\n");
-  checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"\n");
+  checkFieldValue(
+      "sec-ch-ua-full-version-list",
+      "\"Not/A)Brand\";v=\"8.0.0.0\",\"Chromium\";v=\"126.0.6478.61\","
+      "\"Google Chrome\";v=\"126.0.6478.61\"\n");
+  checkFieldValue("sec-ch-ua-model","\"\"\n");
+
+  checkFieldAbsent("sec-ch-ua-platform");
+  checkFieldAbsent("sec-ch-ua-arch");
 }
 
-// TEST_F(Transform, GHEVPartial) {
-//   const char *ghev =
+TEST_F(Transform, GHEVIgnoreUnused) {
+  const char *ghev =
+      "{       \"architecture\":\"x86\",\"bitness\":\"64\",\"brands\":[{    "
+      "\"brand\" :   "
+      "\"Not/"
+      "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126\"},{\"brand\":\"Google "
+      "Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\"   ,    "
+      "\"version\" : \"126.0.6478.127\"},{\"brand\":\"Google "
+      "Chrome\",\"version\":\"126.0.6478.127\"}],\"mobile\":false,\"model\":"
+      "\"\",\"platform\":\"macOS\",\"platformVersion\":\"14.5.0\",\"wow64\":"
+      "false}";
 
-//       "{\"brands\":[{\"brand\":\"Not/"
-//       "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
-//       "\"126\"},{\"brand\":\"Google "
-//       "Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/"
-//       "A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":"
-//       "\"126.0.6478.61\"},{\"brand\":\"Google "
-//       "Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":"
-//       "\"\",\"platform\":null}";
+  size_t bufferLength = strlen(ghev);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   size_t bufferLength = strlen(ghev);
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
+      ghev, buffer, bufferLength, &exception, fillResultsCallback, Transform::results);
 
-//   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
-//       ghev, buffer, bufferLength, &exception, fillResultsCallback);
-//   ASSERT_EQ(count, 3);
-//   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  ASSERT_EQ(count, 8);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
 
-//   // we expect to see these headers detected:
-//   // low entropy: sec-ch-ua, sec-ch-ua-mobile
-//   // high entropy: sec-ch-ua-model, sec-ch-ua-full-version-list
-//   // we check that either empty value (model), null-value (platform)
-//   // or entire absence of key (platformVersion) result in no header in the
-//   // output the policy is - we don't output empty data - no value == no
-//   evidence
-//   // field
+  // we expect to see these headers detected:
+  // low entropy: sec-ch-ua, sec-ch-ua-mobile
+  // high entropy: sec-ch-ua-model, sec-ch-ua-full-version-list
+  // we check that either empty value (model), null-value (platform)
+  // or entire absence of key (platformVersion) result in no header in the
+  // output the policy is - we don't output empty data - no value == no evidence
+  // field
 
-//   ASSERT_EQ(results->count, count);
+  checkFieldValue("sec-ch-ua",
+                  "\"Not/A)Brand\";v=\"8\",\"Chromium\";v=\"126\",\"Google Chrome\";v=\"126\"\n");
+  checkFieldValue("sec-ch-ua-mobile", "?0\n");
+  checkFieldValue(
+      "sec-ch-ua-full-version-list",
+      "\"Not/A)Brand\";v=\"8.0.0.0\",\"Chromium\";v=\"126.0.6478.127\","
+      "\"Google Chrome\";v=\"126.0.6478.127\"\n");
 
-//   checkFieldValue("sec-ch-ua",
-//                   "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google
-//                   " "Chrome\";v=\"126\"");
-//   checkFieldValue("sec-ch-ua-mobile", "?0");
-//   checkFieldAbsent("sec-ch-ua-platform");
-//   checkFieldAbsent("sec-ch-ua-model");
-//   checkFieldAbsent("sec-ch-ua-arch");
-//   checkFieldValue(
-//       "sec-ch-ua-full-version-list",
-//       "\"Not/A)Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"126.0.6478.61\", "
-//       "\"Google Chrome\";v=\"126.0.6478.61\"");
-// }
+  checkFieldValue("sec-ch-ua-platform", "\"macOS\"\n");
+  checkFieldValue("sec-ch-ua-model", "\"\"\n");
+  checkFieldValue("sec-ch-ua-arch", "\"x86\"\n");
+}
 
-// TEST_F(Transform, GHEVIgnoreUnused) {
-//   const char *ghev =
-//       "{       \"architecture\":\"x86\",\"bitness\":\"64\",\"brands\":[{    "
-//       "\"brand\" :   "
-//       "\"Not/"
-//       "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
-//       "\"126\"},{\"brand\":\"Google "
-//       "Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/"
-//       "A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\"   ,    "
-//       "\"version\" : \"126.0.6478.127\"},{\"brand\":\"Google "
-//       "Chrome\",\"version\":\"126.0.6478.127\"}],\"mobile\":false,\"model\":"
-//       "\"\",\"platform\":\"macOS\",\"platformVersion\":\"14.5.0\",\"wow64\":"
-//       "false}";
+TEST_F(Transform, GHEVCorruptInput) {
+  const char *ghev =
+      "{\"brands\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126\"},{\"brand\":\"Google "
+      "Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126.0.6478.61\"},{\"brand\":\"Google "
+      "Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":"
+      "\"\",\"platform\"";
 
-//   size_t bufferLength = strlen(ghev);
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  size_t bufferLength = strlen(ghev);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
-//       ghev, buffer, bufferLength, &exception, fillResultsCallback);
-//   ASSERT_EQ(count, 8);
-//   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
+      ghev, buffer, bufferLength, &exception, fillResultsCallback, Transform::results);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+}
 
-//   // we expect to see these headers detected:
-//   // low entropy: sec-ch-ua, sec-ch-ua-mobile
-//   // high entropy: sec-ch-ua-model, sec-ch-ua-full-version-list
-//   // we check that either empty value (model), null-value (platform)
-//   // or entire absence of key (platformVersion) result in no header in the
-//   // output the policy is - we don't output empty data - no value == no
-//   evidence
-//   // field
+TEST_F(Transform, GHEVBufferTooSmall) {
+  const char *ghev =
+      "{\"brands\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126\"},{\"brand\":\"Google "
+      "Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126.0.6478.61\"},{\"brand\":\"Google "
+      "Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":"
+      "\"\",\"platform\":\"macOS\"}";
 
-//   // ASSERT_EQ(results->count, count);
+  size_t bufferLength = 20;
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   checkFieldValue("sec-ch-ua",
-//                   "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google
-//                   " "Chrome\";v=\"126\"");
-//   checkFieldValue("sec-ch-ua-mobile", "?0");
-//   checkFieldAbsent("sec-ch-ua-platform");
-//   checkFieldAbsent("sec-ch-ua-model");
-//   checkFieldAbsent("sec-ch-ua-arch");
-//   checkFieldValue(
-//       "sec-ch-ua-full-version-list",
-//       "\"Not/A)Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"126.0.6478.61\", "
-//       "\"Google Chrome\";v=\"126.0.6478.61\"");
-// }
+  size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
+      ghev, buffer, bufferLength, &exception, fillResultsCallback, Transform::results);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+}
 
-// TEST_F(Transform, GHEVCorruptInput) {
-//   const char *ghev =
-//       "{\"brands\":[{\"brand\":\"Not/"
-//       "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
-//       "\"126\"},{\"brand\":\"Google "
-//       "Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/"
-//       "A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":"
-//       "\"126.0.6478.61\"},{\"brand\":\"Google "
-//       "Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":"
-//       "\"\",\"platform\"";
+TEST_F(Transform, GHEVEvidenceLowCapacity) {
+  const char *ghev =
+      "{\"brands\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126\"},{\"brand\":\"Google "
+      "Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126.0.6478.61\"},{\"brand\":\"Google "
+      "Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":"
+      "\"\",\"platform\":\"macOS\"}";
 
-//   size_t bufferLength = strlen(ghev);
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  size_t bufferLength = 20;
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
-//       ghev, buffer, bufferLength, &exception, fillResultsCallback);
-//   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
-// }
+  size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
+      ghev, buffer, bufferLength, &exception, fillResultsCallback, Transform::results);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+}
 
-// TEST_F(Transform, GHEVBufferTooSmall) {
-//   const char *ghev =
-//       "{\"brands\":[{\"brand\":\"Not/"
-//       "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
-//       "\"126\"},{\"brand\":\"Google "
-//       "Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/"
-//       "A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":"
-//       "\"126.0.6478.61\"},{\"brand\":\"Google "
-//       "Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":"
-//       "\"\",\"platform\":\"macOS\"}";
+TEST_F(Transform, SUAHappyPath) {
+  const char *sua =
+      "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\":"
+      "[\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": "
+      "[\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google "
+      "Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": "
+      "{\"brand\": \"Android\",\"version\": [\"12\"]},\"mobile\": "
+      "1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": \"Pixel6\"}";
 
-//   size_t bufferLength = 20;
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  size_t bufferLength = strlen(sua);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
-//       ghev, buffer, bufferLength, &exception, fillResultsCallback);
-//   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
-// }
+  size_t count = fiftyoneDegreesTransformIterateSua(
+      sua, buffer, bufferLength, &exception, fillResultsCallback, Transform::results);
 
-// TEST_F(Transform, GHEVEvidenceLowCapacity) {
-//   const char *ghev =
-//       "{\"brands\":[{\"brand\":\"Not/"
-//       "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
-//       "\"126\"},{\"brand\":\"Google "
-//       "Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/"
-//       "A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\",\"version\":"
-//       "\"126.0.6478.61\"},{\"brand\":\"Google "
-//       "Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":"
-//       "\"\",\"platform\":\"macOS\"}";
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
 
-//   size_t bufferLength = 20;
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  ASSERT_EQ(count, 7);
+  // we expect to see these headers detected:
+  // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
+  // high entropy: sec-ch-ua-platform-version, sec-ch-ua-model, sec-ch-ua-arch,
+  // sec-ch-ua-full-version-list
 
-//   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
-//       ghev, buffer, bufferLength, &exception, fillResultsCallback);
-//   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
-// }
+  ASSERT_EQ(results->count, count);
 
-// TEST_F(Transform, SUAHappyPath) {
-//   const char *sua =
-//       "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\":
-//       "
-//       "[\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": "
-//       "[\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google "
-//       "Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": "
-//       "{\"brand\": \"Android\",\"version\": [\"12\"]},\"mobile\": "
-//       "1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": \"Pixel
-//       6\"}";
+  // In device.sua representation there is no distinction between
+  // sec-ch-ua and sec-ch-ua-full-version-list
+  // checkFieldValue(
+  //     "sec-ch-ua",
+  //     "\"Not A;Brand\";v=\"99.0.0.0\",\"Chromium\";v=\"99.0.4844.88\","
+  //     "\"Google Chrome\";v=\"99.0.4844.88\"\n");
 
-//   size_t bufferLength = strlen(sua);
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  checkFieldValue(
+      "sec-ch-ua-full-version-list",
+      "\"Not A;Brand\";v=\"99.0.0.0\",\"Chromium\";v=\"99.0.4844.88\","
+      "\"Google Chrome\";v=\"99.0.4844.88\"\n");
 
-//   size_t count = fiftyoneDegreesTransformIterateSua(
-//       sua, buffer, bufferLength, &exception, fillResultsCallback);
+  checkFieldValue("sec-ch-ua-platform", "\"Android\"\n");
+  checkFieldValue("sec-ch-ua-platform-version", "\"12\"\n");
+  checkFieldValue("sec-ch-ua-mobile", "?1\n");
+  checkFieldValue("sec-ch-ua-arch", "\"arm\"\n");
+  // checkFieldAbsent("sec-ch-ua-bitness");  // we ignore bitness
+  checkFieldValue("sec-ch-ua-model", "\"Pixel6\"\n");
+}
 
-//   ASSERT_EQ(count, 7);
-//   // we expect to see these headers detected:
-//   // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
-//   // high entropy: sec-ch-ua-platform-version, sec-ch-ua-model,
-//   sec-ch-ua-arch,
-//   // sec-ch-ua-full-version-list
+TEST_F(Transform, SUAPartial1) {
+  const char *sua =
+      "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\": "
+      "[\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": "
+      "[\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google "
+      "Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": "
+      "{\"brand\": \"Android\"]},\"mobile\": 1,\"model\": \"\"}";
 
-//   ASSERT_EQ(results->count, count);
+  size_t bufferLength = strlen(sua);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   // In device.sua representation there is no distinction between
-//   // sec-ch-ua and sec-ch-ua-full-version-list
-//   checkFieldValue(
-//       "sec-ch-ua",
-//       "\"Not A;Brand\";v=\"99.0.0.0\", \"Chromium\";v=\"99.0.4844.88\", "
-//       "\"Google Chrome\";v=\"99.0.4844.88\"");
-//   checkFieldValue(
-//       "sec-ch-ua-full-version-list",
-//       "\"Not A;Brand\";v=\"99.0.0.0\", \"Chromium\";v=\"99.0.4844.88\", "
-//       "\"Google Chrome\";v=\"99.0.4844.88\"");
-//   checkFieldValue("sec-ch-ua-platform", "\"Android\"");
-//   checkFieldValue("sec-ch-ua-platform-version", "\"12\"");
-//   checkFieldValue("sec-ch-ua-mobile", "?1");
-//   checkFieldValue("sec-ch-ua-arch", "\"arm\"");
-//   checkFieldAbsent("sec-ch-ua-bitness");  // we ignore bitness
-//   checkFieldValue("sec-ch-ua-model", "\"Pixel 6\"");
-// }
+  size_t count = fiftyoneDegreesTransformIterateSua(
+      sua, buffer, bufferLength, &exception, fillResultsCallback, Transform::results);
+  ASSERT_EQ(count, 4);
+  // we expect to see these headers detected:
+  // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
+  // high entropy: sec-ch-ua-platform-version, sec-ch-ua-model, sec-ch-ua-arch,
+  // sec-ch-ua-full-version-list
 
-// TEST_F(Transform, SUAPartial1) {
-//   const char *sua =
-//       "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\":
-//       "
-//       "[\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": "
-//       "[\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google "
-//       "Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": "
-//       "{\"brand\": \"Android\"]},\"mobile\": 1,\"model\": \"\"}";
+  ASSERT_EQ(results->count, count);
 
-//   size_t bufferLength = strlen(sua);
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  checkFieldValue(
+      "sec-ch-ua",
+      "\"Not A;Brand\";v=\"99.0.0.0\",\"Chromium\";v=\"99.0.4844.88\","
+      "\"Google Chrome\";v=\"99.0.4844.88\"\n");
+  checkFieldValue(
+      "sec-ch-ua-full-version-list",
+      "\"Not A;Brand\";v=\"99.0.0.0\",\"Chromium\";v=\"99.0.4844.88\","
+      "\"Google Chrome\";v=\"99.0.4844.88\"\n");
+  checkFieldValue("sec-ch-ua-platform", "\"Android\"\n");
+  checkFieldAbsent("sec-ch-ua-platform-version\n");
+  checkFieldValue("sec-ch-ua-mobile", "?1\n");
+  checkFieldAbsent("sec-ch-ua-arch");
+  checkFieldAbsent("sec-ch-ua-bitness");
+  checkFieldAbsent("sec-ch-ua-model");
+}
 
-//   size_t count = fiftyoneDegreesTransformIterateSua(
-//       sua, buffer, bufferLength, &exception, fillResultsCallback);
-//   ASSERT_EQ(count, 4);
-//   // we expect to see these headers detected:
-//   // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
-//   // high entropy: sec-ch-ua-platform-version, sec-ch-ua-model,
-//   sec-ch-ua-arch,
-//   // sec-ch-ua-full-version-list
+TEST_F(Transform, SUAPartial2) {
+  const char *sua =
+      "{\"source\": 2,\"platform\": {\"brand\": \"Android\",\"version\": "
+      "[\"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": "
+      "\"64\",\"model\": null}";
 
-//   ASSERT_EQ(results->count, count);
+  size_t bufferLength = strlen(sua);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   checkFieldValue(
-//       "sec-ch-ua",
-//       "\"Not A;Brand\";v=\"99.0.0.0\", \"Chromium\";v=\"99.0.4844.88\", "
-//       "\"Google Chrome\";v=\"99.0.4844.88\"");
-//   checkFieldValue(
-//       "sec-ch-ua-full-version-list",
-//       "\"Not A;Brand\";v=\"99.0.0.0\", \"Chromium\";v=\"99.0.4844.88\", "
-//       "\"Google Chrome\";v=\"99.0.4844.88\"");
-//   checkFieldValue("sec-ch-ua-platform", "\"Android\"");
-//   checkFieldAbsent("sec-ch-ua-platform-version");
-//   checkFieldValue("sec-ch-ua-mobile", "?1");
-//   checkFieldAbsent("sec-ch-ua-arch");
-//   checkFieldAbsent("sec-ch-ua-bitness");
-//   checkFieldAbsent("sec-ch-ua-model");
-// }
+  size_t count = fiftyoneDegreesTransformIterateSua(
+      sua, buffer, bufferLength, &exception, fillResultsCallback, Transform::results);
+  ASSERT_EQ(count, 2);
+  // we expect to see these headers detected:
+  // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
+  // high entropy: sec-ch-ua-platform-version, sec-ch-ua-model, sec-ch-ua-arch,
+  // sec-ch-ua-full-version-list
 
-// TEST_F(Transform, SUAPartial2) {
-//   const char *sua =
-//       "{\"source\": 2,\"platform\": {\"brand\": \"Android\",\"version\": "
-//       "[\"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": "
-//       "\"64\",\"model\": null}";
+  ASSERT_EQ(results->count, count);
 
-//   size_t bufferLength = strlen(sua);
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  checkFieldAbsent("sec-ch-ua");
+  checkFieldAbsent("sec-ch-ua-full-version-list");
+  checkFieldValue("sec-ch-ua-platform", "\"Android\"\n");
+  checkFieldAbsent("sec-ch-ua-platform-version");
+  checkFieldValue("sec-ch-ua-mobile", "?1\n");
+  checkFieldAbsent("sec-ch-ua-arch");
+  checkFieldAbsent("sec-ch-ua-bitness");
+  checkFieldAbsent("sec-ch-ua-model");
+}
 
-//   size_t count = fiftyoneDegreesTransformIterateSua(
-//       sua, buffer, bufferLength, &exception, fillResultsCallback);
-//   ASSERT_EQ(count, 2);
-//   // we expect to see these headers detected:
-//   // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
-//   // high entropy: sec-ch-ua-platform-version, sec-ch-ua-model,
-//   sec-ch-ua-arch,
-//   // sec-ch-ua-full-version-list
+TEST_F(Transform, SUACorrupt1) {
+  const char *sua =
+      "{\"source\": 2,,\"platform\": {\"brand\": \"Android\",\"version\": "
+      "[\"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": "
+      "\"64\",\"model\": null}";
 
-//   ASSERT_EQ(results->count, count);
+  size_t bufferLength = strlen(sua);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   checkFieldAbsent("sec-ch-ua");
-//   checkFieldAbsent("sec-ch-ua-full-version-list");
-//   checkFieldValue("sec-ch-ua-platform", "\"Android\"");
-//   checkFieldAbsent("sec-ch-ua-platform-version");
-//   checkFieldValue("sec-ch-ua-mobile", "?1");
-//   checkFieldAbsent("sec-ch-ua-arch");
-//   checkFieldAbsent("sec-ch-ua-bitness");
-//   checkFieldAbsent("sec-ch-ua-model");
-// }
+  size_t count = fiftyoneDegreesTransformIterateSua(
+      sua, buffer, bufferLength, &exception, fillResultsCallback, Transform::results);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+}
 
-// TEST_F(Transform, SUACorrupt1) {
-//   const char *sua =
-//       "{\"source\": 2,,\"platform\": {\"brand\": \"Android\",\"version\": "
-//       "[\"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": "
-//       "\"64\",\"model\": null}";
+TEST_F(Transform, SUACorrupt2) {
+  const char *sua =
+      "{\"source\": 2,\"platform\": {\"brand\": \"Android\",\"version\": "
+      "[12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": "
+      "\"64\",\"model\": null}";
 
-//   size_t bufferLength = strlen(sua);
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  size_t bufferLength = strlen(sua);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   size_t count = fiftyoneDegreesTransformIterateSua(
-//       sua, buffer, bufferLength, &exception, fillResultsCallback);
-//   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
-// }
+  size_t count = fiftyoneDegreesTransformIterateSua(
+      sua, buffer, bufferLength, &exception, fillResultsCallback, Transform::results);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+}
 
-// TEST_F(Transform, SUACorrupt2) {
-//   const char *sua =
-//       "{\"source\": 2,\"platform\": {\"brand\": \"Android\",\"version\": "
-//       "[12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": "
-//       "\"64\",\"model\": null}";
+TEST_F(Transform, SUACorrupt3) {
+  const char *sua =
+      "{\"source\": 2,\"platform\": {\"brand\": \"Android\",\"version\": "
+      "\"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": "
+      "\"64\",\"model\": null}";
 
-//   size_t bufferLength = strlen(sua);
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  size_t bufferLength = strlen(sua);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   size_t count = fiftyoneDegreesTransformIterateSua(
-//       sua, buffer, bufferLength, &exception, fillResultsCallback);
-//   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
-// }
+  size_t count = fiftyoneDegreesTransformIterateSua(
+      sua, buffer, bufferLength, &exception, fillResultsCallback, Transform::results);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+}
 
-// TEST_F(Transform, SUACorrupt3) {
-//   const char *sua =
-//       "{\"source\": 2,\"platform\": {\"brand\": \"Android\",\"version\": "
-//       "\"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": "
-//       "\"64\",\"model\": null}";
+TEST_F(Transform, SUABufferTooSmall) {
+  const char *sua =
+      "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\": "
+      "[\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": "
+      "[\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google "
+      "Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": "
+      "{\"brand\": \"Android\",\"version\": [\"12\"]},\"mobile\": "
+      "1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": \"Pixel 6\"}";
 
-//   size_t bufferLength = strlen(sua);
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  size_t bufferLength = 15;
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   size_t count = fiftyoneDegreesTransformIterateSua(
-//       sua, buffer, bufferLength, &exception, fillResultsCallback);
-//   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
-// }
+  size_t count = fiftyoneDegreesTransformIterateSua(
+      sua, buffer, bufferLength, &exception, fillResultsCallback, Transform::results);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+}
 
-// TEST_F(Transform, SUABufferTooSmall) {
-//   const char *sua =
-//       "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\":
-//       "
-//       "[\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": "
-//       "[\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google "
-//       "Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": "
-//       "{\"brand\": \"Android\",\"version\": [\"12\"]},\"mobile\": "
-//       "1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": \"Pixel
-//       6\"}";
+TEST_F(Transform, SUAEvidenceLowCapacity) {
+  const char *sua =
+      "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\": "
+      "[\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": "
+      "[\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google "
+      "Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": "
+      "{\"brand\": \"Android\",\"version\": [\"12\"]},\"mobile\": "
+      "1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": \"Pixel 6\"}";
 
-//   size_t bufferLength = 15;
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+  size_t bufferLength = 15;
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-//   size_t count = fiftyoneDegreesTransformIterateSua(
-//       sua, buffer, bufferLength, &exception, fillResultsCallback);
-//   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
-// }
-
-// TEST_F(Transform, SUAEvidenceLowCapacity) {
-//   const char *sua =
-//       "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\":
-//       "
-//       "[\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": "
-//       "[\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google "
-//       "Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": "
-//       "{\"brand\": \"Android\",\"version\": [\"12\"]},\"mobile\": "
-//       "1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": \"Pixel
-//       6\"}";
-
-//   size_t bufferLength = 15;
-//   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
-
-//   size_t count = fiftyoneDegreesTransformIterateSua(
-//       sua, buffer, bufferLength, &exception, fillResultsCallback);
-//   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
-// }
+  size_t count = fiftyoneDegreesTransformIterateSua(
+      sua, buffer, bufferLength, &exception, fillResultsCallback, Transform::results);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+}

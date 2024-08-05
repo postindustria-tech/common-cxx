@@ -79,7 +79,7 @@
 #include "property.h"
 #include "value.h"
 #include "common.h"
-#include "indexes.h"
+#include "indices.h"
 
 /**
  * Encapsulates a profile stored within a data set. A profile pertains to a

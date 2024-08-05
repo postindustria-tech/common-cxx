@@ -199,9 +199,8 @@ TEST_F(ResourceManager, ResourceReplace_HandleInUse) {
 static void runResourceInc(void *state) {
 	fiftyoneDegreesResourceManager *manager =
 		(fiftyoneDegreesResourceManager *)state;
-	fiftyoneDegreesResourceHandle *handle;
 	for (int i = 0; i < NUMBER_OF_UPDATES; i++) {
-		handle = fiftyoneDegreesResourceHandleIncUse(manager);
+		fiftyoneDegreesResourceHandleIncUse(manager);
 	}
 }
 

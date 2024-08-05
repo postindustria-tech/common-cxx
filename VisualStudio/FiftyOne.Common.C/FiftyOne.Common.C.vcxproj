@@ -21,7 +21,7 @@
     <ClInclude Include="..\..\ip.h" />
     <ClInclude Include="..\..\json.h" />
     <ClInclude Include="..\..\list.h" />
-    <ClInclude Include="..\..\indexes.h" />
+    <ClInclude Include="..\..\indices.h" />
     <ClInclude Include="..\..\memory.h" />
     <ClInclude Include="..\..\overrides.h" />
     <ClInclude Include="..\..\pair.h" />
@@ -56,7 +56,7 @@
     <ClCompile Include="..\..\ip.c" />
     <ClCompile Include="..\..\json.c" />
     <ClCompile Include="..\..\list.c" />
-    <ClCompile Include="..\..\indexes.c" />
+    <ClCompile Include="..\..\indices.c" />
     <ClCompile Include="..\..\memory.c" />
     <ClCompile Include="..\..\overrides.c" />
     <ClCompile Include="..\..\pool.c" />

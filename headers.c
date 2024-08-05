@@ -27,10 +27,17 @@
 #define HTTP_PREFIX_UPPER "HTTP_"
 
 /**
- * True if the value is not null and not zero length.
+ * True if the value is not null, not zero length
+ * and contains at least something meaningful besides pseudoheader separator characters
  */
 static bool isHeaderValid(const char* value) {
-	return value != NULL && *value != '\0';
+    bool valid = false;
+    
+    while (value && *value != '\0' && !valid) {
+        valid = *value != PSEUDO_HEADER_SEP;
+        value++;
+    }
+    return valid;
 }
 
 /**
@@ -233,21 +240,6 @@ static bool setHeaderFromDataSet(
 }
 
 /**
- * Returns the index to the header if it exits, or -1 if it doesn't.
- */
-static int getHeaderIndex(Headers *headers, const char *name, size_t length) {
-	Header item;
-	for (uint32_t i = 0; i < headers->count; i++) {
-		item = headers->items[i];
-		if (item.length == length &&
-			StringCompareLength(name, item.name, length) == 0) {
-			return (int)i;
-		}
-	}
-	return -1;
-}
-
-/**
  * Returns a pointer to the header if it exits, or NULL if it doesn't.
  */
 static Header* getHeader(Headers* headers, const char* name, size_t length) {
@@ -376,7 +368,7 @@ static Header* copyHeader(
  */
 static bool addHeadersFromHeaderSegment(
 	Headers* headers,
-	Header* psuedoHeader,
+	Header* pseudoHeader,
 	const char* name,
 	size_t length,
 	Exception* exception) {
@@ -390,10 +382,10 @@ static bool addHeadersFromHeaderSegment(
 	}
 
 	// Relate the segment header to the pseudo header.
-	relateSegmentHeaderToPseudoHeader(segmentHeader, psuedoHeader);
+	relateSegmentHeaderToPseudoHeader(segmentHeader, pseudoHeader);
 
 	// Relate the pseudo header to the segment header.
-	relatePseudoHeaderToSegmentHeader(psuedoHeader, segmentHeader);
+	relatePseudoHeaderToSegmentHeader(pseudoHeader, segmentHeader);
 
 	return true;
 }
@@ -404,36 +396,40 @@ static bool addHeadersFromHeaderSegment(
  */
 static bool addHeadersFromHeader(
 	Headers* headers, 
-	Header* psuedoHeader, 
+	Header* pseudoHeader, 
 	Exception* exception) {
 	uint32_t start = 0;
 	uint32_t end = 0;
-	for (;end < psuedoHeader->length; end++) {
+    bool separatorEncountered = false;
+	for (;end < pseudoHeader->length; end++) {
 
 		// If a header has been found then either get the existing header with
 		// this name, or add a new header.
-		if (psuedoHeader->name[end] == PSEUDO_HEADER_SEP &&
-			end - start > 0) {
-			if (addHeadersFromHeaderSegment(
-				headers,
-				psuedoHeader,
-				psuedoHeader->name + start,
-				end - start,
-				exception) == false) {
-				return false;
-			}
+		if (pseudoHeader->name[end] == PSEUDO_HEADER_SEP) {
+            separatorEncountered = true;
+            if (end - start > 0) {
+                if (addHeadersFromHeaderSegment(
+                                                headers,
+                                                pseudoHeader,
+                                                pseudoHeader->name + start,
+                                                end - start,
+                                                exception) == false) {
+                                                    return false;
+                                                }
+            }
 
 			// Move to the next segment.
 			start = end + 1;
 		}
 	}
 
-	// If there is a final segment then process this.
-	if (end - start > 0) {
+	// If there is a final segment then process this, but only if it is a pseudoheader
+    // (i.e. separator was encountered) - do not do this for ordinary headers
+	if (separatorEncountered && end - start > 0) {
 		if (addHeadersFromHeaderSegment(
 			headers,
-			psuedoHeader,
-			psuedoHeader->name + start,
+			pseudoHeader,
+			pseudoHeader->name + start,
 			end - start,
 			exception) == false) {
 			return false;
@@ -444,7 +440,11 @@ static bool addHeadersFromHeader(
 }
 
 static bool addHeadersFromHeaders(Headers* headers, Exception* exception) {
-	for (uint32_t i = 0; i < headers->count; i++) {
+    // cache count here, for it may change if headers are added
+    // and thus loop may process additional headers which were not intended
+    uint32_t count = headers->count;
+
+	for (uint32_t i = 0; i < count; i++) {
 		if (addHeadersFromHeader(
 			headers, 
 			&headers->items[i], 
@@ -623,13 +623,4 @@ bool fiftyoneDegreesHeadersIsHttp(
 	const char* field,
 	size_t length) {
 	return HeaderGetIndex((Headers*)state, field, length) >= 0;
-}
-
-/**
- * SIZE CALCULATION METHODS
- */
-
-size_t fiftyoneDegreesHeadersSize(int count) {
-	return sizeof(Headers) + // Headers structure
-		(count * sizeof(Header)); // Header names
 }

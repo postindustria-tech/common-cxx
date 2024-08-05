@@ -140,14 +140,13 @@ TEST_F(Pool, PoolInit) {
  */
 TEST_F(Pool, PoolResourcesCreated) {
 	// Arrange
-	void* result;
 	testResourceCounter counter;
 	counter.count = 0;
 	counter.resources = resources;
 	FIFTYONE_DEGREES_EXCEPTION_CREATE;
 
 	// Act
-	result = fiftyoneDegreesPoolInit(
+	fiftyoneDegreesPoolInit(
 		&pool,
 		maxConcurrency,
 		&counter,
@@ -168,12 +167,11 @@ TEST_F(Pool, PoolResourcesCreated) {
  */
 TEST_F(Pool, PoolResourcesFreed) {
 	// Arrange
-	void* result;
 	testResourceCounter counter;
 	counter.count = 0;
 	counter.resources = resources;
 	FIFTYONE_DEGREES_EXCEPTION_CREATE;
-	result = fiftyoneDegreesPoolInit(
+    fiftyoneDegreesPoolInit(
 		&pool,
 		maxConcurrency,
 		&counter,
@@ -197,12 +195,11 @@ TEST_F(Pool, PoolResourcesFreed) {
  */
 TEST_F(Pool, PoolGet) {
 	// Arrange
-	void* result;
 	testResourceCounter counter;
 	counter.count = 0;
 	counter.resources = resources;
 	FIFTYONE_DEGREES_EXCEPTION_CREATE;
-	result = fiftyoneDegreesPoolInit(
+    fiftyoneDegreesPoolInit(
 		&pool,
 		1,
 		&counter,
@@ -230,12 +227,11 @@ TEST_F(Pool, PoolGet) {
  */
 TEST_F(Pool, PoolGetMultiple) {
 	// Arrange
-	void* result;
 	testResourceCounter counter;
 	counter.count = 0;
 	counter.resources = resources;
 	FIFTYONE_DEGREES_EXCEPTION_CREATE;
-	result = fiftyoneDegreesPoolInit(
+	fiftyoneDegreesPoolInit(
 		&pool,
 		2,
 		&counter,
@@ -268,12 +264,11 @@ TEST_F(Pool, PoolGetMultiple) {
  */
 TEST_F(Pool, PoolGetInsufficientHandles) {
 	// Arrange
-	void* result;
 	testResourceCounter counter;
 	counter.count = 0;
 	counter.resources = resources;
 	FIFTYONE_DEGREES_EXCEPTION_CREATE;
-	result = fiftyoneDegreesPoolInit(
+	fiftyoneDegreesPoolInit(
 		&pool,
 		1,
 		&counter,
@@ -305,12 +300,11 @@ TEST_F(Pool, PoolGetInsufficientHandles) {
  */
 TEST_F(Pool, PoolGetInsufficientHandlesMultiple) {
 	// Arrange
-	void* result;
 	testResourceCounter counter;
 	counter.count = 0;
 	counter.resources = resources;
 	FIFTYONE_DEGREES_EXCEPTION_CREATE;
-	result = fiftyoneDegreesPoolInit(
+	fiftyoneDegreesPoolInit(
 		&pool,
 		2,
 		&counter,
@@ -347,12 +341,11 @@ TEST_F(Pool, PoolGetInsufficientHandlesMultiple) {
  */
 TEST_F(Pool, PoolGetHandlesReturned) {
 	// Arrange
-	void* result;
 	testResourceCounter counter;
 	counter.count = 0;
 	counter.resources = resources;
 	FIFTYONE_DEGREES_EXCEPTION_CREATE;
-	result = fiftyoneDegreesPoolInit(
+	fiftyoneDegreesPoolInit(
 		&pool,
 		1,
 		&counter,

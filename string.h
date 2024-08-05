@@ -199,17 +199,17 @@ EXTERNAL char *fiftyoneDegreesStringSubString(const char *a, const char *b);
 
 /**
  * Initializes the buffer.
- * @param buffer to initialize
- * @return pointer to the buffer passed
+ * @param builder to initialize
+ * @return pointer to the builder passed
  */
 EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderInit(
 	fiftyoneDegreesStringBuilder* builder);
 
 /**
  * Adds the character to the buffer.
- * @param buffer to add the character to
+ * @param builder to add the character to
  * @param value character to add
- * @return pointer to the buffer passed
+ * @return pointer to the builder passed
  */
 EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChar(
 	fiftyoneDegreesStringBuilder* builder,
@@ -217,7 +217,7 @@ EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChar(
 
 /**
  * Adds the integer to the buffer.
- * @param buffer to add the character to
+ * @param builder to add the character to
  * @param value integer to add
  * @return pointer to the buffer passed
  */
@@ -227,7 +227,7 @@ EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
 
 /**
  * Adds the string to the buffer.
- * @param buffer to add the character to
+ * @param builder to add the character to
  * @param value of chars to add
  * @param length of chars to add
  * @return pointer to the buffer passed
@@ -239,7 +239,7 @@ EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
 
 /**
  * Adds a null terminating character to the buffer.
- * @param buffer to terminate
+ * @param builder to terminate
  * @return pointer to the buffer passed
  */
 EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderComplete(

@@ -8,7 +8,4 @@ param(
 )
 
 # This is common logic, so let's call the common script
-./cxx/run-unit-tests.ps1 -RepoName $RepoName -ProjectDir $ProjectDir -Name $Name -Configuration $Configuration -Arch $Arch -BuildMethod $BuildMethod `
-    -CoverageRegex "^fiftyone-common-c(xx)?-cov\.dir$"
-
-exit $LASTEXITCODE
+./cxx/run-unit-tests.ps1 -RepoName $RepoName -ProjectDir $ProjectDir -Name $Name -Configuration $Configuration -Arch $Arch -BuildMethod $BuildMethod

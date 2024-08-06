@@ -128,14 +128,14 @@ When building using CMake, static libraries are built in stages. These can be in
 
 The Visual Studio solution contains static libraries which have all the dependencies set up correctly, so referencing these in a Visual Studio solution should be fairly self explanatory.
 
-## Test Coverage
+## Code Coverage
 
 When the project files are generated for a non-MSVC compiler (gcc/clang) with `CMAKE_BUILD_TYPE=Debug` f.e. by running: 
 ```
 cmake . -DCMAKE_BUILD_TYPE=Debug
 ```
 
-the generated targets will contain code coverage instrumentation instructions to be added to the libraries with `-cov` suffix and `HashTests` target will be linked with them. During build time `*.gcno` and empty `*.gcda` files are generated.  
+the generated targets will contain code coverage instrumentation instructions to be added to the libraries with `-cov` suffix and `CommonTests` target will be linked with them. During build time `*.gcno` and empty `*.gcda` files are generated.  
 
 During the test run  `*.gcda` files will be filled with coverage data.  
 

@@ -74,12 +74,6 @@ static struct {
 
 // ----
 
-static inline size_t k_offset(size_t i) {
-  return (i > 0)
-             ? key_map[i - 1].len + k_offset(i - 1)  // recursive offset calc
-             : 0;                                    // exit from recursion
-}
-
 static inline char* safe_write_to_buffer(
     char* begin, const char* const end, char symbol,
     fiftyoneDegreesException* const exception) {
@@ -289,24 +283,29 @@ static const char* skip_value(const char* json) {
   return skip_to_next_char(json + 1, '"');
 }
 
-static inline void init_keys(char* const buffer,
-                             fiftyoneDegreesKeyValuePair* cache) {
-  for (int k = 0, j = 0; k < KEY_UNDEFINED; ++k) {
-    cache[k].key = buffer + j;
+static inline char* init_keys(char* const begin, const char* const end,
+                             fiftyoneDegreesKeyValuePair* cache,
+                             fiftyoneDegreesException* const exception) {
+  char* ptr = begin;
+
+  for (size_t k = 0; k < KEY_UNDEFINED; ++k) {
+    cache[k].key = ptr;
     cache[k].keyLength = key_map[k].len;
 
-    for (size_t i = 0; i < key_map[k].len; ++i, ++j) {
-      buffer[j] = key_map[k].key[i];
-    }
+   for (size_t i = 0; i < key_map[k].len; ++i) {
+      ptr = safe_write_to_buffer(ptr, end, key_map[k].key[i], exception);
+   }
   }
+
+  return ptr;
 }
 
-static const char* init_parsing(const char* json, char* const buffer,
+static const char* init_parsing(const char* json, char** begin, const char* const end,
                                 fiftyoneDegreesKeyValuePair* cache,
                                 fiftyoneDegreesException* const exception) {
   exception->status = FIFTYONE_DEGREES_STATUS_SUCCESS;
 
-  init_keys(buffer, cache);
+  *begin = init_keys(*begin, end, cache, exception);
 
   json = skip_whitespaces(json);
   ExpectSymbol(json, '{', return json);
@@ -1116,23 +1115,17 @@ static size_t main_parsing_body(const char* json, char* const buffer,
                                 int isSua,
                                 fiftyoneDegreesTransformCallback callback,
                                 void* ctx) {
-  // check if there's enough memory for keys
-  size_t keys_total_len = k_offset(KEY_UNDEFINED);
-  if (length < keys_total_len) {
-    exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY;
-  }
-
   fiftyoneDegreesKeyValuePair cache[KEY_UNDEFINED];
 
+  // define buffer range
+  char* begin = buffer;
+  const char* const end = buffer + length;
+
   // write keys to buffer, init cache and skip to the first key
-  json = init_parsing(json, buffer, cache, exception);
+  json = init_parsing(json, &begin, end, cache, exception);
   if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
     return 0;
   }
-
-  // define buffer range
-  char* begin = buffer + keys_total_len;
-  char* const end = buffer + length;
 
   size_t iterations = 0;  // total number of parsed key-value pairs
 

@@ -707,8 +707,6 @@ static char* read_bool_ghev_value(const char** json, char* begin,
     } break;
   }
 
-  ptr = safe_write_to_buffer(ptr, end, '\n', exception);
-
   cache[key].value = ValuePtr;
   cache[key].valueLength = ptr - begin;
 
@@ -732,7 +730,6 @@ static char* read_bool_sua_value(const char** json, char* begin,
 
   char* ptr = safe_write_to_buffer(begin, end, '?', exception);
   ptr = safe_write_to_buffer(ptr, end, **json, exception);
-  ptr = safe_write_to_buffer(ptr, end, '\n', exception);
 
   ++(*json);
 
@@ -867,8 +864,6 @@ static char* read_brands_ghev_value(const char** json, char* begin,
 
     switch (**json) {
       case ']': {
-        ptr = safe_write_to_buffer(ptr, end, '\n', exception);
-
         cache[key].value = ValuePtr;
         cache[key].valueLength = ptr - begin;
 
@@ -877,6 +872,7 @@ static char* read_brands_ghev_value(const char** json, char* begin,
 
       case ',': {
         ptr = safe_write_to_buffer(ptr, end, ',', exception);
+        ptr = safe_write_to_buffer(ptr, end, ' ', exception);
       } break;
 
       default: {
@@ -953,8 +949,6 @@ static char* read_brands_sua_value(const char** json, char* begin,
 
     switch (**json) {
       case ']': {
-        ptr = safe_write_to_buffer(ptr, end, '\n', exception);
-
         cache[key].value = ValuePtr;
         cache[key].valueLength = ptr - begin;
 
@@ -963,6 +957,7 @@ static char* read_brands_sua_value(const char** json, char* begin,
 
       case ',': {
         ptr = safe_write_to_buffer(ptr, end, ',', exception);
+        ptr = safe_write_to_buffer(ptr, end, ' ', exception);
       } break;
     }
   }
@@ -975,7 +970,6 @@ static char* read_pure_string_value(const char** json, char* begin,
                                     fiftyoneDegreesKeyValuePair* cache, Key key,
                                     fiftyoneDegreesException* const exception) {
   char* ptr = read_string_value(json, begin, end, exception);
-  ptr = safe_write_to_buffer(ptr, end, '\n', exception);
 
   cache[key].value = ValuePtr;
   cache[key].valueLength = ptr - begin;
@@ -1008,7 +1002,6 @@ static char* read_platform_sua_value(
   char* ptr = begin;
 
   ptr = read_string_value(json, ptr, end, exception);
-  ptr = safe_write_to_buffer(ptr, end, '\n', exception);
 
   cache[key].value = ValuePtr;
   cache[key].valueLength = ptr - begin;
@@ -1038,7 +1031,6 @@ static char* read_platform_sua_value(
 
   ptr = safe_write_to_buffer(ptr, end, '"', exception);
   ptr = read_version_sua(json, ptr, end, exception);
-  ptr = safe_write_to_buffer(ptr, end, '\n', exception);
 
   cache[PLATFORMVERSION].value = ValuePtr;
   cache[PLATFORMVERSION].valueLength = ptr - begin;

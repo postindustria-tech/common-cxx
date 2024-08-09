@@ -86,7 +86,8 @@ static inline char* safe_write_to_buffer(
   return ++begin;
 }
 
-static inline uint32_t base64_char_to_value(char c, fiftyoneDegreesException* const exception) {
+static inline uint32_t base64_char_to_value(
+    char c, fiftyoneDegreesException* const exception) {
   if ('A' <= c && c <= 'Z') return c - 'A';
   if ('a' <= c && c <= 'z') return c - 'a' + 26;
   if ('0' <= c && c <= '9') return c - '0' + 52;
@@ -111,21 +112,25 @@ static size_t base64_decode(const char* base64_input, char* const buffer,
   char* end = buffer + length;
 
   for (size_t i = 0; i < input_length;) {
-    uint32_t sextet_a = base64_input[i] == '='
-                       ? 0 & i++
-                       : base64_char_to_value(base64_input[i++], exception);
+    uint32_t sextet_a =
+        base64_input[i] == '='
+            ? 0 & i++
+            : base64_char_to_value(base64_input[i++], exception);
 
-    uint32_t sextet_b = base64_input[i] == '='
-                       ? 0 & i++
-                       : base64_char_to_value(base64_input[i++], exception);
+    uint32_t sextet_b =
+        base64_input[i] == '='
+            ? 0 & i++
+            : base64_char_to_value(base64_input[i++], exception);
 
-    uint32_t sextet_c = base64_input[i] == '='
-                       ? 0 & i++
-                       : base64_char_to_value(base64_input[i++], exception);
+    uint32_t sextet_c =
+        base64_input[i] == '='
+            ? 0 & i++
+            : base64_char_to_value(base64_input[i++], exception);
 
-    uint32_t sextet_d = base64_input[i] == '='
-                       ? 0 & i++
-                       : base64_char_to_value(base64_input[i++], exception);
+    uint32_t sextet_d =
+        base64_input[i] == '='
+            ? 0 & i++
+            : base64_char_to_value(base64_input[i++], exception);
 
     if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
       return 0;
@@ -284,23 +289,24 @@ static const char* skip_value(const char* json) {
 }
 
 static inline char* init_keys(char* const begin, const char* const end,
-                             fiftyoneDegreesKeyValuePair* cache,
-                             fiftyoneDegreesException* const exception) {
+                              fiftyoneDegreesKeyValuePair* cache,
+                              fiftyoneDegreesException* const exception) {
   char* ptr = begin;
 
   for (size_t k = 0; k < KEY_UNDEFINED; ++k) {
     cache[k].key = ptr;
     cache[k].keyLength = key_map[k].len;
 
-   for (size_t i = 0; i < key_map[k].len; ++i) {
+    for (size_t i = 0; i < key_map[k].len; ++i) {
       ptr = safe_write_to_buffer(ptr, end, key_map[k].key[i], exception);
-   }
+    }
   }
 
   return ptr;
 }
 
-static const char* init_parsing(const char* json, char** begin, const char* const end,
+static const char* init_parsing(const char* json, char** begin,
+                                const char* const end,
                                 fiftyoneDegreesKeyValuePair* cache,
                                 fiftyoneDegreesException* const exception) {
   exception->status = FIFTYONE_DEGREES_STATUS_SUCCESS;
@@ -646,8 +652,19 @@ static Key read_sua_key(const char** json,
 static char* read_string_value(const char** json, char* begin,
                                const char* const end,
                                fiftyoneDegreesException* const exception) {
-  *json = skip_to_next_char(*json, '"');
-  NotExpectSymbol(*json, '\0', return begin);
+  *json = skip_whitespaces(*json);
+  if (**json == 'n') {
+    ++(*json);
+    NotExpectSymbol(*json, '\0', return begin);
+
+    for (const char* i = "ull"; *i; ++(*json), ++i) {
+      ExpectSymbol(*json, *i, return begin);
+    }
+
+    return NULL;
+  }
+
+  ExpectSymbol(*json, '"', return begin);
 
   ++*json;
 
@@ -828,33 +845,44 @@ static char* read_brands_ghev_value(const char** json, char* begin,
     *json = skip_to_next_char(*json, ':');
     ExpectSymbol(*json, ':', return begin);
 
-    *json = skip_to_next_char(*json, '"');
-    ExpectSymbol(*json, '"', return begin);
-
-    ptr = read_string_value(json, ptr, end, exception);
-    ptr = safe_write_to_buffer(ptr, end, ';', exception);
-    ptr = safe_write_to_buffer(ptr, end, 'v', exception);
-    ptr = safe_write_to_buffer(ptr, end, '=', exception);
-
-    *json = skip_to_next_char(*json, ',');
-    ExpectSymbol(*json, ',', return begin);
-
-    *json = skip_to_next_char(*json + 1, '"');
-    ExpectSymbol(*json, '"', return begin);
-
     ++*json;
+    NotExpectSymbol(*json, '\0', return begin);
 
-    for (const char* k = "version\""; *k != '\0'; ++k, ++*json) {
-      ExpectSymbol(*json, *k, return begin);
+    char* ptr2 = read_string_value(json, ptr, end, exception);
+    if (ptr2 != NULL) {
+      ptr = safe_write_to_buffer(ptr2, end, ';', exception);
+      ptr = safe_write_to_buffer(ptr, end, 'v', exception);
+      ptr = safe_write_to_buffer(ptr, end, '=', exception);
+
+      *json = skip_to_next_char(*json, ',');
+      ExpectSymbol(*json, ',', return begin);
+
+      *json = skip_to_next_char(*json + 1, '"');
+      ExpectSymbol(*json, '"', return begin);
+
+      ++*json;
+
+      for (const char* k = "version\""; *k != '\0'; ++k, ++*json) {
+        ExpectSymbol(*json, *k, return begin);
+      }
+
+      *json = skip_to_next_char(*json, ':');
+      ExpectSymbol(*json, ':', return begin);
+
+      *json = skip_to_next_char(*json, '"');
+      ExpectSymbol(*json, '"', return begin);
+
+      // TODO: handle optional version
+      ptr2 = read_string_value(json, ptr, end, exception);
+      if (ptr2 == NULL) {
+        ptr = safe_write_to_buffer(ptr, end, 'n', exception);
+        ptr = safe_write_to_buffer(ptr, end, 'u', exception);
+        ptr = safe_write_to_buffer(ptr, end, 'l', exception);
+        ptr = safe_write_to_buffer(ptr, end, 'l', exception);
+      } else {
+        ptr = ptr2;
+      }
     }
-
-    *json = skip_to_next_char(*json, ':');
-    ExpectSymbol(*json, ':', return begin);
-
-    *json = skip_to_next_char(*json, '"');
-    ExpectSymbol(*json, '"', return begin);
-
-    ptr = read_string_value(json, ptr, end, exception);
 
     *json = skip_to_next_char(*json, '}');
     ExpectSymbol(*json, '}', return begin);
@@ -864,15 +892,21 @@ static char* read_brands_ghev_value(const char** json, char* begin,
 
     switch (**json) {
       case ']': {
-        cache[key].value = ValuePtr;
-        cache[key].valueLength = ptr - begin;
+        if (ptr != begin) {
+          cache[key].value = ValuePtr;
+          cache[key].valueLength = ptr - begin;
+          return ptr;
+        } else {
+          return NULL;
+        }
 
-        return ptr;
       } break;
 
       case ',': {
-        ptr = safe_write_to_buffer(ptr, end, ',', exception);
-        ptr = safe_write_to_buffer(ptr, end, ' ', exception);
+        if (ptr != begin) {
+          ptr = safe_write_to_buffer(ptr, end, ',', exception);
+          ptr = safe_write_to_buffer(ptr, end, ' ', exception);
+        }
       } break;
 
       default: {
@@ -913,33 +947,35 @@ static char* read_brands_sua_value(const char** json, char* begin,
     *json = skip_to_next_char(*json, '"');
     ExpectSymbol(*json, '"', return begin);
 
-    ptr = read_string_value(json, ptr, end, exception);
-    ptr = safe_write_to_buffer(ptr, end, ';', exception);
-    ptr = safe_write_to_buffer(ptr, end, 'v', exception);
-    ptr = safe_write_to_buffer(ptr, end, '=', exception);
+    char* ptr2 = read_string_value(json, ptr, end, exception);
+    if (ptr2 != NULL) {
+      ptr = safe_write_to_buffer(ptr2, end, ';', exception);
+      ptr = safe_write_to_buffer(ptr, end, 'v', exception);
+      ptr = safe_write_to_buffer(ptr, end, '=', exception);
 
-    *json = skip_to_next_char(*json, ',');
-    ExpectSymbol(*json, ',', return begin);
+      *json = skip_to_next_char(*json, ',');
+      ExpectSymbol(*json, ',', return begin);
 
-    *json = skip_to_next_char(*json + 1, '"');
-    ExpectSymbol(*json, '"', return begin);
+      *json = skip_to_next_char(*json + 1, '"');
+      ExpectSymbol(*json, '"', return begin);
 
-    ++*json;
+      ++*json;
 
-    for (const char* k = "version\""; *k != '\0'; ++k, ++*json) {
-      ExpectSymbol(*json, *k, return begin);
+      for (const char* k = "version\""; *k != '\0'; ++k, ++*json) {
+        ExpectSymbol(*json, *k, return begin);
+      }
+
+      *json = skip_to_next_char(*json, ':');
+      ExpectSymbol(*json, ':', return begin);
+
+      *json = skip_to_next_char(*json, '[');
+      ExpectSymbol(*json, '[', return begin);
+
+      ++*json;
+
+      ptr = safe_write_to_buffer(ptr, end, '"', exception);
+      ptr = read_version_sua(json, ptr, end, exception);
     }
-
-    *json = skip_to_next_char(*json, ':');
-    ExpectSymbol(*json, ':', return begin);
-
-    *json = skip_to_next_char(*json, '[');
-    ExpectSymbol(*json, '[', return begin);
-
-    ++*json;
-
-    ptr = safe_write_to_buffer(ptr, end, '"', exception);
-    ptr = read_version_sua(json, ptr, end, exception);
 
     *json = skip_to_next_char(*json, '}');
     ExpectSymbol(*json, '}', return begin);
@@ -949,15 +985,26 @@ static char* read_brands_sua_value(const char** json, char* begin,
 
     switch (**json) {
       case ']': {
-        cache[key].value = ValuePtr;
-        cache[key].valueLength = ptr - begin;
+        if (ptr != begin) {
+          cache[key].value = ValuePtr;
+          cache[key].valueLength = ptr - begin;
+          return ptr;
+        } else {
+          return NULL;
+        }
 
-        return ptr;
       } break;
 
       case ',': {
-        ptr = safe_write_to_buffer(ptr, end, ',', exception);
-        ptr = safe_write_to_buffer(ptr, end, ' ', exception);
+        if (ptr != begin) {
+          ptr = safe_write_to_buffer(ptr, end, ',', exception);
+          ptr = safe_write_to_buffer(ptr, end, ' ', exception);
+        }
+      } break;
+
+      default: {
+        exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+        return begin;
       } break;
     }
   }
@@ -971,8 +1018,10 @@ static char* read_pure_string_value(const char** json, char* begin,
                                     fiftyoneDegreesException* const exception) {
   char* ptr = read_string_value(json, begin, end, exception);
 
-  cache[key].value = ValuePtr;
-  cache[key].valueLength = ptr - begin;
+  if (ptr != NULL) {
+    cache[key].value = ValuePtr;
+    cache[key].valueLength = ptr - begin;
+  }
 
   return ptr;
 }
@@ -999,9 +1048,10 @@ static char* read_platform_sua_value(
   *json = skip_to_next_char(*json + 1, '"');
   ExpectSymbol(*json, '"', return begin);
 
-  char* ptr = begin;
-
-  ptr = read_string_value(json, ptr, end, exception);
+  char* ptr = read_string_value(json, begin, end, exception);
+  if (ptr == NULL) {
+    return NULL;
+  }
 
   cache[key].value = ValuePtr;
   cache[key].valueLength = ptr - begin;
@@ -1031,6 +1081,10 @@ static char* read_platform_sua_value(
 
   ptr = safe_write_to_buffer(ptr, end, '"', exception);
   ptr = read_version_sua(json, ptr, end, exception);
+  if (ptr == NULL) {
+    cache[PLATFORMVERSION].valueLength = 0;
+    return begin;
+  }
 
   cache[PLATFORMVERSION].value = ValuePtr;
   cache[PLATFORMVERSION].valueLength = ptr - begin;
@@ -1081,7 +1135,7 @@ static inline readValueCallback read_value_switch(Key key, int isSua) {
 }
 
 static bool pushToHeaders(void* ctx, fiftyoneDegreesKeyValuePair header,
-                         fiftyoneDegreesException* const exception) {
+                          fiftyoneDegreesException* const exception) {
   fiftyoneDegreesKeyValuePairArray* const headers =
       (fiftyoneDegreesKeyValuePairArray* const)ctx;
   ++headers->count;
@@ -1139,17 +1193,21 @@ static size_t main_parsing_body(const char* json, char* const buffer,
     json = skip_whitespaces(json + 1);
     NotExpectSymbol(json, '\0', break);
 
-    begin = read_value(&json, begin, end, cache, key, exception);
+    char* ptr = read_value(&json, begin, end, cache, key, exception);
     if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
       break;
     }
 
-    callback(ctx, cache[key], exception);
-    ++iterations;
+    if (ptr != NULL) {
+      begin = ptr;
 
-    if (key == PLATFORM && isSua) {
-      callback(ctx, cache[PLATFORMVERSION], exception);
+      callback(ctx, cache[key], exception);
       ++iterations;
+
+      if (key == PLATFORM && isSua && cache[PLATFORMVERSION].valueLength != 0) {
+        callback(ctx, cache[PLATFORMVERSION], exception);
+        ++iterations;
+      }
     }
 
     json = skip_to_next_char(json, '"');

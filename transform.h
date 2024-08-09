@@ -32,13 +32,13 @@
  *
  * 3 common ways to represent UACH are:
  * - [HTTP header map](https://wicg.github.io/ua-client-hints/)
- * -
- * [getHighEntropyValues()](https://developer.mozilla.org/en-US/docs/Web/API/NavigatorUAData/getHighEntropyValues)
- * JavaScript API result as a JSON string
- * -
- * [OpenRTB](https://iabtechlab.com/wp-content/uploads/2022/04/OpenRTB-2-6_FINAL.pdf)
- * [device.sua](https://51degrees.com/blog/openrtb-structured-user-agent-and-user-agent-client-hints)
- * field as a JSON string
+ * - getHighEntropyValues() JS API call result in JSON format
+ * - Structured User Agent Object from OpenRTB 2.6
+ *
+ * Links:
+ * - [getHighEntropyValues()](https://developer.mozilla.org/en-US/docs/Web/API/NavigatorUAData/getHighEntropyValues)
+ * - [device.sua](https://51degrees.com/blog/openrtb-structured-user-agent-and-user-agent-client-hints)
+ * - [OpenRTB 2.6 spec](https://iabtechlab.com/wp-content/uploads/2022/04/OpenRTB-2-6_FINAL.pdf)
  *
  * 51degrees uses HTTP header map to represent UACH and expects the evidence to
  * be provided as HTTP headers (or same name query parameters).  The header
@@ -52,10 +52,12 @@
  * - Sec-CH-UA-Arch
  * - Sec-CH-UA-Bitness
  *
- * The conversion routines are provided in 2 styles: iterative (for potentially
- * lazy consumption) and eager.  The former uses callback to iteratively provide
+ * The conversion routines transform the GHEV or SUA input into the HTTP header maps
+ * Routines are provided in 2 styles: iterative (for potentially
+ * lazy consumption) and array-results (for eager consumption).
+ * The former uses callback to iteratively provide
  * header name-value pairs to the caller, the latter provides the whole header
- * map as output. In addition 2 variants of GHEV routine is provided: one that
+ * map array as output. In addition 2 variants of GHEV routine is provided: one that
  * accepts a raw JSON string and one that accepts a base64 encoded JSON string
  * as input parameter.
  *
@@ -70,28 +72,19 @@
  * name-value pair is formed and allows the caller to decide how to handle the
  * output. The callback function must be provided as a param to the
  * Iterate-style conversion routines.
- * @param name the name of the discovered HTTP header
- * @param value the value of the discoverd HTTP header, may be NULL if buffer
- * had insufficient space to store the value, the valueLength will still be
- * passed and will indicate the necessary length of the buffer to store the
- * value
- * @param nameLength the length of the name string
- * @param valueLength the lengh of the value string written or that should have
- * been written in case buffer was of insufficietn capacity
+ * @param state - arbitrary context object - f.e. external state or a structure to accumulate output
+ * @param header - a header key value pair containing the pointer to the header name and value
  * @return the implementer returns true to continue the iteration or false to
  * stop
  */
-EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)(
-    void *ctx, fiftyoneDegreesKeyValuePair headerfiftyoneDegrees,
-    Exception *const exception);
+EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)(void *state, fiftyoneDegreesKeyValuePair header, Exception *const exception);
 
 /**
  * Iteratively convert getHighEntropyValue() API result JSON string to HTTP
  * header representation.
  * @param json a JSON string with the getHighEntropyValue() API result
  * @param buffer preallocated working memory buffer used to store the converted
- * HTTP header names and values with a new line separator (\n) between each
- * header key-value pair. The lifetime of this buffer is managed by the caller
+ * HTTP header names and values. The lifetime of this buffer is managed by the caller
  * @param length length of the buffer
  * @param exception - a constant pointer to a (preallocated) exception object
  * that is filled in case any errors occurred. must be checked by the caller
@@ -102,20 +95,21 @@ EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)(
  * will be NULL and valueLength will indicate the length necessary to store the
  * value in the buffer - this info can be then used by the caller to allocate
  * the buffer of sufficient size and execute another call - essentially
- * resulting in a dry run before allocation...
+ * resulting in a dry run before allocation.
  * - FIFTYONE_DEGREES_STATUS_CORRUPT_DATA if f.e. JSON was malformed - in that
  * case callback will likely not be called, or will be called a limited number
  * of times until the corruption becomes obvious to the iterator as no lookahead
- * logic is intended
- * @param callback a function that is called whenever a header is extracted with
- * header name and value passed as params if the function returns true,
+ * logic is implemented
+ * @param callback a function that is called whenever a header key value is extracted
+ * header key value pair is passed as a param; if callback returns true,
  * iteration continues, otherwise halts
- * @return the number of iterations (callback calls) made
+ * @param state an external context state to pass to be used by the callback function
+ * @return the number of iterations / header pairs detected (callback calls made)
  */
 EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromJson(
     const char *json, char *const buffer, size_t length,
     fiftyoneDegreesException *const exception,
-    fiftyoneDegreesTransformCallback callback, void *ctx);
+    fiftyoneDegreesTransformCallback callback, void *state);
 
 /**
  * Iteratively convert getHighEntropyValue() API result base64 encoded JSON
@@ -143,12 +137,13 @@ EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromJson(
  * @param callback a function that is called whenever a header is extracted with
  * header name and value passed as params if the function returns true,
  * iteration continues, otherwise halts
- * @return the number of iterations (callback calls) made
+ * @param state an external context state to pass to be used by the callback function
+ * @return the number of iterations / header pairs detected (callback calls made)
  */
 EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromBase64(
     const char *base64, char *buffer, size_t length,
     fiftyoneDegreesException *const exception,
-    fiftyoneDegreesTransformCallback callback, void *ctx);
+    fiftyoneDegreesTransformCallback callback, void *state);
 
 /**
  * Iteratively convert device.sua JSON string to HTTP header representation.
@@ -174,12 +169,14 @@ EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromBase64(
  * @param callback a function that is called whenever a header is extracted with
  * header name and value passed as params if the function returns true,
  * iteration continues, otherwise halts
- * @return the number of iterations (callback calls) made
+ * @param state an external context state to pass to be used by the callback function
+ * @return the number of iterations / header pairs detected (callback calls made)
  */
 EXTERNAL size_t fiftyoneDegreesTransformIterateSua(
     const char *json, char *buffer, size_t length,
     fiftyoneDegreesException *const exception,
-    fiftyoneDegreesTransformCallback callback, void *ctx);
+    fiftyoneDegreesTransformCallback callback, void *state);
+
 /**
  * A preallocated array of key-value pairs intended to be an array of HTTP
  * headers
@@ -306,9 +303,5 @@ EXTERNAL size_t
 fiftyoneDegreesTransformSua(const char *json, char *buffer, size_t length,
                             fiftyoneDegreesException *const exception,
                             fiftyoneDegreesKeyValuePairArray *const headers);
-
-// TODO: TDD for iterative style functions
-// TODO: C++ wrappers for the non-iterative style functions: hpp + cpp and
-// corresponding tests that are testing CPP wrappers
 
 #endif /* FIFTYONE_DEGREES_TRANSFORM_H_INCLUDED */

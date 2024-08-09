@@ -120,8 +120,10 @@ static uint32_t iterateValues(
 	// Loop through until the last value for the property has been returned
 	// or the callback doesn't need to continue.
 	while (cont == true &&
-		*valueIndex <= property->lastValueIndex &&
-		valueIndex < maxValueIndex &&
+           //first check the address validity, before dereferencing to prevent potential segfault on deref
+           valueIndex < maxValueIndex &&
+           *valueIndex <= property->lastValueIndex &&
+		
 		EXCEPTION_OKAY) {
 
 		// Reset the items as they should never share the same memory.

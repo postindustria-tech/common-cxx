@@ -1,7 +1,35 @@
-name: Nightly Pipeline (dummy)
-on: workflow_dispatch
+name: Nightly Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      dryrun:
+        type: boolean
+        default: false
+  schedule:
+    - cron: '5 0 * * *'
+
 jobs:
-  dummy:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "This is a dummy action to allow actions with the same filename to run from other branches"
+  PullRequests:
+    name: Nightly Pull Requests
+    uses: postindustria-tech/common-ci/.github/workflows/nightly-pull-requests.yml@nightly-pipeline
+    with:
+      common-ci-ref: nightly-pipeline
+      repo-name: ${{ github.event.repository.name }}
+      org-name: ${{ github.event.repository.owner.login }}
+      dryrun: ${{ inputs.dryrun || false }}
+    secrets:
+      token: ${{ secrets.ACCESS_TOKEN }}
+
+  Publish:
+    if: ${{ !cancelled() }}
+    needs: PullRequests
+    name: Nightly Publish
+    uses: postindustria-tech/common-ci/.github/workflows/nightly-publish.yml@nightly-pipeline
+    with:
+      common-ci-ref: nightly-pipeline
+      repo-name: ${{ github.event.repository.name }}
+      org-name: ${{ github.event.repository.owner.login }}
+      dryrun: ${{ inputs.dryrun || false }}
+    secrets:
+      token: ${{ secrets.ACCESS_TOKEN }}

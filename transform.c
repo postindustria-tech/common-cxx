@@ -333,7 +333,7 @@ static Key read_ghev_key(const char** json,
   ++*json;
   NotExpectSymbol(*json, '\0', return KEY_UNDEFINED);
 
-  for (enum ReadKeyState state = READ_KEY_INIT; *(*json); ++(*json)) {
+  for (enum ReadKeyState state = READ_KEY_INIT; **json != '\0'; ++(*json)) {
     switch (state) {
       case READ_KEY_INIT: {
         switch (**json) {
@@ -515,7 +515,7 @@ static Key read_sua_key(const char** json,
   ++*json;
   NotExpectSymbol(*json, '\0', return KEY_UNDEFINED);
 
-  for (enum ReadKeyState state = READ_KEY_INIT; *(*json); ++(*json)) {
+  for (enum ReadKeyState state = READ_KEY_INIT; **json != '\0'; ++(*json)) {
     switch (state) {
       case READ_KEY_INIT: {
         switch (**json) {
@@ -597,11 +597,11 @@ static Key read_sua_key(const char** json,
 
       case READ_KEY_PLATFORM: {
         for (const char* i = "latform"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
+          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, ':');
                        return KEY_UNDEFINED);
         }
 
-        return PLATFORM;
+        return **json == '\"' ? PLATFORM : KEY_UNDEFINED;
       } break;
 
       case READ_KEY_BROWSERS: {
@@ -865,11 +865,12 @@ static char* read_brands_ghev_value(const char** json, char* begin,
       *json = skip_to_next_char(*json, ':');
       ExpectSymbol(*json, ':', return begin);
 
-      *json = skip_to_next_char(*json, '"');
-      ExpectSymbol(*json, '"', return begin);
+      ++*json;
 
       ptr2 = read_string_value(json, ptr, end, exception);
       if (ptr2 == NULL) {
+        ptr2 = ptr;
+
         ptr = safe_write_to_buffer(ptr, end, 'n', exception);
         ptr = safe_write_to_buffer(ptr, end, 'u', exception);
         ptr = safe_write_to_buffer(ptr, end, 'l', exception);
@@ -898,7 +899,7 @@ static char* read_brands_ghev_value(const char** json, char* begin,
       } break;
 
       case ',': {
-        if (ptr != begin) {
+        if (ptr2 != NULL) {
           ptr = safe_write_to_buffer(ptr, end, ',', exception);
           ptr = safe_write_to_buffer(ptr, end, ' ', exception);
         }
@@ -939,8 +940,7 @@ static char* read_brands_sua_value(const char** json, char* begin,
     *json = skip_to_next_char(*json, ':');
     ExpectSymbol(*json, ':', return begin);
 
-    *json = skip_to_next_char(*json, '"');
-    ExpectSymbol(*json, '"', return begin);
+    ++*json;
 
     char* ptr2 = read_string_value(json, ptr, end, exception);
     if (ptr2 != NULL) {
@@ -1040,8 +1040,7 @@ static char* read_platform_sua_value(
   *json = skip_to_next_char(*json, ':');
   ExpectSymbol(*json, ':', return begin);
 
-  *json = skip_to_next_char(*json + 1, '"');
-  ExpectSymbol(*json, '"', return begin);
+  ++*json;
 
   char* ptr = read_string_value(json, begin, end, exception);
   if (ptr == NULL) {
@@ -1084,9 +1083,6 @@ static char* read_platform_sua_value(
 
   ptr = safe_write_to_buffer(ptr, end, '"', exception);
   ptr = read_version_sua(json, ptr, end, exception);
-  if (ptr == NULL) {
-    return begin;
-  }
 
   cache[PLATFORMVERSION].value = ValuePtr;
   cache[PLATFORMVERSION].valueLength = ptr - begin;
@@ -1132,8 +1128,6 @@ static inline readValueCallback read_value_switch(Key key, int isSua) {
       return NULL;
     }
   }
-
-  return NULL;
 }
 
 static bool pushToHeaders(void* ctx, fiftyoneDegreesKeyValuePair header,

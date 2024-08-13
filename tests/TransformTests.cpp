@@ -626,15 +626,53 @@ TEST_F(Transform, SUAHappyPath) {
   checkFieldValue("sec-ch-ua-model", "\"Pixel6\"");
 }
 
+TEST_F(Transform, SUAPlatformExt) {
+  const char *sua =
+      "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\": "
+      "[\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": "
+      "[\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google "
+      "Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": "
+      "{\"brand\": \"Android\", \"version\": [\"13\"], "
+      "\"ext\": { \"some_random_key\" : [ \"some\", \"random\", \"\", \" values \" ], "
+      "\"another_random_key\": null}},"
+      "\"mobile\": 1,\"model\": \"\"}";
+
+  size_t bufferLength = strlen(sua);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+
+  size_t count = fiftyoneDegreesTransformIterateSua(
+      sua, buffer, bufferLength, &exception, fillResultsCallback,
+      Transform::results);
+  ASSERT_EQ(count, 5);
+  // we expect to see these headers detected:
+  // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
+  // high entropy: sec-ch-ua-platform-version, sec-ch-ua-model, sec-ch-ua-arch,
+  // sec-ch-ua-full-version-list
+
+  ASSERT_EQ(results->count, count);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+
+  checkFieldAbsent("sec-ch-ua");
+  checkFieldValue(
+      "sec-ch-ua-full-version-list",
+      "\"Not A;Brand\";v=\"99.0.0.0\", \"Chromium\";v=\"99.0.4844.88\", "
+      "\"Google Chrome\";v=\"99.0.4844.88\"");
+  checkFieldValue("sec-ch-ua-platform", "\"Android\"");
+  checkFieldValue("sec-ch-ua-platform-version", "\"13\"");
+  checkFieldValue("sec-ch-ua-mobile", "?1");
+  checkFieldAbsent("sec-ch-ua-arch");
+  checkFieldAbsent("sec-ch-ua-bitness");
+  checkFieldValue("sec-ch-ua-model", "\"\"");
+}
+
 TEST_F(Transform, SUAPartial1) {
   const char *sua =
       "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\": "
       "[\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": "
       "[\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google "
       "Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": "
-      "{\"brand\": \"Android\"]},\"mobile\": 1,\"model\": \"\"}";
+      "{\"brand\": \"Android\"},\"mobile\": 1,\"model\": \"\"}";
 
-  // TODO: support optional version field
   size_t bufferLength = strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
@@ -648,11 +686,9 @@ TEST_F(Transform, SUAPartial1) {
   // sec-ch-ua-full-version-list
 
   ASSERT_EQ(results->count, count);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
 
-  checkFieldValue(
-      "sec-ch-ua",
-      "\"Not A;Brand\";v=\"99.0.0.0\", \"Chromium\";v=\"99.0.4844.88\", "
-      "\"Google Chrome\";v=\"99.0.4844.88\"");
+  checkFieldAbsent("sec-ch-ua");
   checkFieldValue(
       "sec-ch-ua-full-version-list",
       "\"Not A;Brand\";v=\"99.0.0.0\", \"Chromium\";v=\"99.0.4844.88\", "
@@ -662,7 +698,7 @@ TEST_F(Transform, SUAPartial1) {
   checkFieldValue("sec-ch-ua-mobile", "?1");
   checkFieldAbsent("sec-ch-ua-arch");
   checkFieldAbsent("sec-ch-ua-bitness");
-  checkFieldAbsent("sec-ch-ua-model");
+  checkFieldValue("sec-ch-ua-model", "\"\"");
 }
 
 TEST_F(Transform, SUAPartial2) {
@@ -697,9 +733,7 @@ TEST_F(Transform, SUAPartial2) {
   checkFieldAbsent("sec-ch-ua-model");
 }
 
-TEST_F(Transform, SUACorrupt1) {
-  // TODO: handle this double comma as corrupt data (now parsed correctly)
-
+TEST_F(Transform, SUATolerableCorrupt) {
   const char *sua =
       "{\"source\": 2,,\"platform\": {\"brand\": \"Android\",\"version\": "
       "[\"12\"]},\"mobile\": 1,\"architecture\": \"arm\",\"bitness\": "
@@ -708,9 +742,22 @@ TEST_F(Transform, SUACorrupt1) {
   size_t bufferLength = 2 * strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-  fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception,
+  size_t count = fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception,
                                      fillResultsCallback, Transform::results);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+
+  ASSERT_EQ(count, 5);
+  ASSERT_EQ(results->count, count);
+
+  checkFieldAbsent("sec-ch-ua");
+  checkFieldAbsent("sec-ch-ua-full-version-list");
+
+  checkFieldValue("sec-ch-ua-arch", "\"arm\"");
+  checkFieldValue("sec-ch-ua-bitness", "\"64\"");
+  checkFieldValue("sec-ch-ua-mobile", "?1");
+  checkFieldAbsent("sec-ch-ua-model");
+  checkFieldValue("sec-ch-ua-platform", "\"Android\"");
+  checkFieldValue("sec-ch-ua-platform-version", "\"12\"");
 }
 
 TEST_F(Transform, SUACorrupt2) {

@@ -223,8 +223,6 @@ static const char* skip_value(const char* json) {
           } break;
         }
       }
-
-      json = skip_to_next_char(json, ',');
     } break;
 
     case '[': {
@@ -252,29 +250,27 @@ static const char* skip_value(const char* json) {
           } break;
         }
       }
-
-      json = skip_to_next_char(json, ',');
     } break;
 
     case '"': {
       json = skip_to_next_char(json + 1, '"');
-      json = skip_to_next_char(json, ',');
     } break;
 
     default: {
-      for (int flag = 1; flag; ++json) {
+      for (int flag = 1; flag; ) {
         switch (*json) {
           case '\0': {
             return json;
           } break;
 
-          case ',': {
-            return skip_to_next_char(json + 1, '"');
-          } break;
-
+          case ',':
           case '}':
           case ']': {
             flag = 0;
+          } break;
+
+          default: {
+            ++json;
           } break;
         }
       }
@@ -872,7 +868,6 @@ static char* read_brands_ghev_value(const char** json, char* begin,
       *json = skip_to_next_char(*json, '"');
       ExpectSymbol(*json, '"', return begin);
 
-      // TODO: handle optional version
       ptr2 = read_string_value(json, ptr, end, exception);
       if (ptr2 == NULL) {
         ptr = safe_write_to_buffer(ptr, end, 'n', exception);
@@ -1056,9 +1051,17 @@ static char* read_platform_sua_value(
   cache[key].value = ValuePtr;
   cache[key].valueLength = ptr - begin;
 
+  cache[PLATFORMVERSION].value = NULL;
+  cache[PLATFORMVERSION].valueLength = 0;
+
   begin = ptr;
 
-  *json = skip_to_next_char(*json, ',');
+  *json = skip_whitespaces(*json);
+
+  if (**json == '}') {
+    return begin;
+  }
+
   ExpectSymbol(*json, ',', return begin);
 
   *json = skip_to_next_char(*json + 1, '"');
@@ -1082,7 +1085,6 @@ static char* read_platform_sua_value(
   ptr = safe_write_to_buffer(ptr, end, '"', exception);
   ptr = read_version_sua(json, ptr, end, exception);
   if (ptr == NULL) {
-    cache[PLATFORMVERSION].valueLength = 0;
     return begin;
   }
 

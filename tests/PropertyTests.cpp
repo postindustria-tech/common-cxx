@@ -104,19 +104,19 @@ void PropertyTests::TearDown() {
     delete propertiesCollection;
 }
 
-void PropertyTests::assessProperty(fiftyoneDegreesProperty *property, int i) {
+void PropertyTests::assessProperty(fiftyoneDegreesProperty *p, int i) {
     EXCEPTION_CREATE
     
-    String *name = fiftyoneDegreesPropertyGetName(stringsCollection, property, &item, exception);
+    String *name = fiftyoneDegreesPropertyGetName(stringsCollection, p, &item, exception);
     EXPECT_STREQ(strings[i * N_PER_PROPERTY + 1], &name->value);
     
-    String *descr = fiftyoneDegreesPropertyGetDescription(stringsCollection, property, &item, exception);
+    String *descr = fiftyoneDegreesPropertyGetDescription(stringsCollection, p, &item, exception);
     EXPECT_STREQ(strings[i * N_PER_PROPERTY + 2], &descr->value);
     
-    String *cat = fiftyoneDegreesPropertyGetCategory(stringsCollection, property, &item, exception);
+    String *cat = fiftyoneDegreesPropertyGetCategory(stringsCollection, p, &item, exception);
     EXPECT_STREQ(strings[i * N_PER_PROPERTY + 3], &cat->value);
     
-    String *url = fiftyoneDegreesPropertyGetUrl(stringsCollection, property, &item, exception);
+    String *url = fiftyoneDegreesPropertyGetUrl(stringsCollection, p, &item, exception);
     EXPECT_STREQ(strings[i*N_PER_PROPERTY + 4], &url->value);
 }
 
@@ -126,12 +126,12 @@ TEST_F(PropertyTests, RetrievePropertyFromCollection) {
         EXCEPTION_CREATE
         EXPECT_EQ(types[i], fiftyoneDegreesPropertyGetValueType(propertiesCollection, i, exception));
         {
-            fiftyoneDegreesProperty *property = fiftyoneDegreesPropertyGet(propertiesCollection, i, &item, exception);
-            assessProperty(property, i);
+            fiftyoneDegreesProperty *p = fiftyoneDegreesPropertyGet(propertiesCollection, i, &item, exception);
+            assessProperty(p, i);
         }
         {
-            fiftyoneDegreesProperty *property = fiftyoneDegreesPropertyGetByName(propertiesCollection, stringsCollection, strings[i * N_PER_PROPERTY + 1], &item, exception);
-            assessProperty(property, i);
+            fiftyoneDegreesProperty *p = fiftyoneDegreesPropertyGetByName(propertiesCollection, stringsCollection, strings[i * N_PER_PROPERTY + 1], &item, exception);
+            assessProperty(p, i);
         }
     }
 }

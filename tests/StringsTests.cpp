@@ -10,12 +10,14 @@
 #include "Base.hpp"
 #include "limits.h"
 
+constexpr size_t bufferSize = 512;
+
 class Strings : public Base {
 public:
     virtual void SetUp();
     virtual void TearDown();
     StringBuilder *builder;
-    const size_t bufferSize = 512;
+    
 };
 
 void Strings::SetUp() {

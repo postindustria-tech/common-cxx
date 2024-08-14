@@ -203,7 +203,7 @@ TEST_F(Evidence, Iterate_String_without_pseudo_evidence) {
 		"Number of evidence should be 1\n";
 }
 
-bool callback1(void* state, fiftyoneDegreesHeader* header, const char* value, size_t length) {
+bool callback1(void* state, fiftyoneDegreesHeader*, const char* value, size_t) {
     std::vector<std::string> *results = (std::vector<std::string> *) state;
     results->push_back(value);
     return true;
@@ -340,7 +340,7 @@ TEST_F(Evidence, IterateForHeaders_ConstructPseudoHeader) {
     EXPECT_EQ(results[2], "Big\x1FGreen\x1F""Apple");
 }
 
-bool callback2(void* state, fiftyoneDegreesHeader* header, const char* value, size_t length) {
+bool callback2(void* state, fiftyoneDegreesHeader* , const char* value, size_t ) {
     std::vector<std::string> *results = (std::vector<std::string> *) state;
     results->push_back(value);
     return results->size() <= 1; // on the second header we signal early exit by returning false
@@ -367,7 +367,7 @@ TEST_F(Evidence, IterateForHeaders_CallbackSignalsEarlyExit) {
     EXPECT_EQ(results[1], "Big\x1FGreen");
 }
 
-bool callback_false(void* state, fiftyoneDegreesHeader* header, const char* value, size_t length) {
+bool callback_false(void* , fiftyoneDegreesHeader* , const char* , size_t ) {
     return false;
 }
 

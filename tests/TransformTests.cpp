@@ -56,8 +56,8 @@ void Transform::checkFieldValue(const char *field, const char *value) {
     if (expectedFieldName_len == pair->keyLength) {
       found = true;
 
-      for (size_t i = 0; i < pair->keyLength; ++i) {
-        if (pair->key[i] != expectedFieldName[i]) {
+      for (size_t j = 0; j < pair->keyLength; ++j) {
+        if (pair->key[j] != expectedFieldName[j]) {
           found = false;
           break;
         }
@@ -71,8 +71,8 @@ void Transform::checkFieldValue(const char *field, const char *value) {
         if (expectedFieldValue_len == pair->valueLength) {
           bool value_compare = true;
 
-          for (size_t i = 0; i < pair->valueLength; ++i) {
-            if (pair->value[i] != expectedFieldValue[i]) {
+          for (size_t j = 0; j < pair->valueLength; ++j) {
+            if (pair->value[j] != expectedFieldValue[j]) {
               value_compare = false;
               break;
             }
@@ -103,8 +103,8 @@ void Transform::checkFieldAbsent(const char *field) {
     if (expectedFieldName_len == pair->keyLength) {
       found = true;
 
-      for (size_t i = 0; i < pair->keyLength; ++i) {
-        if (pair->key[i] != expectedFieldName[i]) {
+      for (size_t j = 0; j < pair->keyLength; ++j) {
+        if (pair->key[j] != expectedFieldName[j]) {
           found = false;
           break;
         }
@@ -120,7 +120,7 @@ void Transform::checkFieldAbsent(const char *field) {
 }
 
 bool fillResultsCallback(void *ctx, fiftyoneDegreesKeyValuePair pair,
-                         fiftyoneDegreesException *const exception) {
+                         fiftyoneDegreesException *const ) {
   fiftyoneDegreesKeyValuePairArray *results =
       (fiftyoneDegreesKeyValuePairArray *)ctx;
 

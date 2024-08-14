@@ -240,21 +240,6 @@ static bool setHeaderFromDataSet(
 }
 
 /**
- * Returns the index to the header if it exits, or -1 if it doesn't.
- */
-static int getHeaderIndex(Headers *headers, const char *name, size_t length) {
-	Header item;
-	for (uint32_t i = 0; i < headers->count; i++) {
-		item = headers->items[i];
-		if (item.length == length &&
-			StringCompareLength(name, item.name, length) == 0) {
-			return (int)i;
-		}
-	}
-	return -1;
-}
-
-/**
  * Returns a pointer to the header if it exits, or NULL if it doesn't.
  */
 static Header* getHeader(Headers* headers, const char* name, size_t length) {

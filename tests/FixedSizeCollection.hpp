@@ -58,7 +58,6 @@ FixedSizeCollection<T>::~FixedSizeCollection() {
 
 template<typename T>
 FixedSizeCollection<T>::FixedSizeCollection(const std::vector<T> &values) {
-    int i, j;
     uint32_t currentOffsetIndex = 0;
     fiftyoneDegreesMemoryReader reader;
     size_t dataLength = values.size() * sizeof(T);
@@ -72,7 +71,7 @@ FixedSizeCollection<T>::FixedSizeCollection(const std::vector<T> &values) {
     reader.lastByte = reader.startByte + reader.length;
     reader.current = reader.startByte + sizeof(uint32_t);
     
-    for (i = 0; i < values.size(); i++) {
+    for (int i = 0; i < values.size(); i++) {
         T *element = (T*)reader.current;
         memcpy(element, &values[i], sizeof(T));
         state.offsets[currentOffsetIndex] =

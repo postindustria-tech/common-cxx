@@ -62,8 +62,7 @@ public:
     void indicesLookup(std::vector<std::string> &propertyNames);
     void iterateValueIndicesForAvailableProperties(std::vector<std::string> &propertyNames);
     void iterateValueIndicesForEachAvailableProperty(std::vector<std::string> &propertyNames);
-    
-    fiftyoneDegreesProperty *property;
+ 
     fiftyoneDegreesCollectionItem item;
     
     StringCollection *stringsCollectionHelper;
@@ -347,7 +346,6 @@ fiftyoneDegreesPropertyAvailableArray *ProfileTests::createAvailableProperties(s
     EXCEPTION_CREATE
     for (int j=0;j<propertyNames.size();++j) {
         string &propertyName = propertyNames[j];
-        fiftyoneDegreesProperty *property = fiftyoneDegreesPropertyGetByName(propertiesCollection, stringsCollection, propertyName.c_str(), &item, exception);
         int propIdx = propertyIndexFromPropertyName(propertyName);
         getStringValue(stringsCollectionHelper->getState(), N_PER_PROPERTY * propIdx, &item);
         propertiesAvailable->items[j].propertyIndex = propIdx;
@@ -429,7 +427,7 @@ void ProfileTests::indicesLookup(std::vector<std::string> &propertyNames) {
     for (int i=0;i<N_PROFILES;++i) {
         uint32_t profileId = profileIdFromProfileIndex(i);
         fiftyoneDegreesProfile *profile = fiftyoneDegreesProfileGetByProfileId(profileOffsetsCollection, profilesCollection, profileId, &item, exception);
-        for (int j=0;j<availableProperties->count;j++) {
+        for (uint32_t j=0;j<availableProperties->count;j++) {
             fiftyoneDegreesPropertyAvailable property = availableProperties->items[j];
             //lookup property value Index within the profile with profileId for the available property indexed at j in the array of availableProperties
             uint32_t valueIdxIdxWithinProfile = fiftyoneDegreesIndexPropertyProfileLookup(index, profileId, j);
@@ -458,6 +456,7 @@ TEST_F(ProfileTests, indicesLookup) {
 bool collectValues(void *state, fiftyoneDegreesCollectionItem *item) {
     std::vector<fiftyoneDegreesValue *> *values = (std::vector<fiftyoneDegreesValue *> *)state;
     values->push_back((fiftyoneDegreesValue *)item->data.ptr);
+    return true;
 }
 
 void ProfileTests::iterateValueIndicesForEachAvailableProperty(std::vector<std::string> &propertyNames) {
@@ -476,10 +475,10 @@ void ProfileTests::iterateValueIndicesForEachAvailableProperty(std::vector<std::
             EXPECT_EQ(values.size(), 1);
             fiftyoneDegreesValue *expectedValue = NULL;
             uint32_t *first = (uint32_t *) (profile + 1);
-            for (int k=0;k<profile->valueCount;++k) {
+            for (uint32_t k=0;k<profile->valueCount;++k) {
                 uint32_t valueIdx = *(first + k);
                 fiftyoneDegreesValue *candidate = fiftyoneDegreesValueGet(valuesCollection, valueIdx, &item, exception);
-                if (candidate->propertyIndex == availableProperties->items[j].propertyIndex) {
+                if ((uint32_t) candidate->propertyIndex == availableProperties->items[j].propertyIndex) {
                     expectedValue = candidate;
                     break;
                 }

@@ -27,7 +27,7 @@
 class Transform : public Base {
  public:
   virtual void SetUp();
-
+  virtual void TearDown();
   static bool found;
   static fiftyoneDegreesKeyValuePairArray *results;
   static fiftyoneDegreesException exception;
@@ -133,8 +133,12 @@ bool fillResultsCallback(void *ctx, fiftyoneDegreesKeyValuePair pair,
 }
 
 void Transform::SetUp(){
-    FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, results, 8)}
+    FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, results, 8)
+}
 
+void Transform::TearDown() {
+    fiftyoneDegreesFree(results);
+}
 // Tests
 // ------------------------------------------------------------------------------------------
 

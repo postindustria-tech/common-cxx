@@ -810,8 +810,6 @@ static char* read_version_sua(const char** json, char* begin,
       } break;
     }
   }
-
-  return begin;
 }
 
 static char* read_brands_ghev_value(const char** json, char* begin,
@@ -911,8 +909,6 @@ static char* read_brands_ghev_value(const char** json, char* begin,
       } break;
     }
   }
-
-  return begin;
 }
 
 static char* read_brands_sua_value(const char** json, char* begin,
@@ -987,7 +983,6 @@ static char* read_brands_sua_value(const char** json, char* begin,
         } else {
           return NULL;
         }
-
       } break;
 
       case ',': {
@@ -1003,8 +998,6 @@ static char* read_brands_sua_value(const char** json, char* begin,
       } break;
     }
   }
-
-  return begin;
 }
 
 static char* read_pure_string_value(const char** json, char* begin,

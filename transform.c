@@ -257,7 +257,7 @@ static const char* skip_value(const char* json) {
     } break;
 
     default: {
-      for (int flag = 1; flag; ) {
+      for (int flag = 1; flag;) {
         switch (*json) {
           case '\0': {
             return json;
@@ -1091,43 +1091,47 @@ static char* read_platform_sua_value(
 }
 
 static inline readValueCallback read_value_switch(Key key, int isSua) {
+  readValueCallback res = NULL;
+
   switch (key) {
     case ARCHITECTURE: {
-      return read_pure_string_value;
-    }
+      res = read_pure_string_value;
+    } break;
 
     case BITNESS: {
-      return read_pure_string_value;
-    }
+      res = read_pure_string_value;
+    } break;
 
     case BRANDS: {
-      return isSua ? NULL : read_brands_ghev_value;
-    }
+      res = isSua ? NULL : read_brands_ghev_value;
+    } break;
 
     case FULLVERSIONLIST: {
-      return isSua ? read_brands_sua_value : read_brands_ghev_value;
-    }
+      res = isSua ? read_brands_sua_value : read_brands_ghev_value;
+    } break;
 
     case MOBILE: {
-      return isSua ? read_bool_sua_value : read_bool_ghev_value;
-    }
+      res = isSua ? read_bool_sua_value : read_bool_ghev_value;
+    } break;
 
     case MODEL: {
-      return read_pure_string_value;
-    }
+      res = read_pure_string_value;
+    } break;
 
     case PLATFORM: {
-      return isSua ? read_platform_sua_value : read_pure_string_value;
-    }
+      res = isSua ? read_platform_sua_value : read_pure_string_value;
+    } break;
 
     case PLATFORMVERSION: {
-      return isSua ? NULL : read_pure_string_value;
-    }
+      res = isSua ? NULL : read_pure_string_value;
+    } break;
 
     case KEY_UNDEFINED: {
-      return NULL;
-    }
+      res = NULL;
+    } break;
   }
+
+  return res;
 }
 
 static bool pushToHeaders(void* ctx, fiftyoneDegreesKeyValuePair header,

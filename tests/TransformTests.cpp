@@ -133,11 +133,13 @@ bool fillResultsCallback(void *ctx, fiftyoneDegreesKeyValuePair pair,
 }
 
 void Transform::SetUp(){
+    Base::SetUp();
     FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, results, 8)
 }
 
 void Transform::TearDown() {
     fiftyoneDegreesFree(results);
+    Base::TearDown();
 }
 // Tests
 // ------------------------------------------------------------------------------------------
@@ -180,6 +182,7 @@ TEST_F(Transform, GHEVIterativeJSON) {
   checkFieldValue("sec-ch-ua-model", "\"\"");
   checkFieldValue("sec-ch-ua-platform", "\"macOS\"");
   checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"");
+  fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, IncompleteJSON) {
@@ -242,6 +245,7 @@ TEST_F(Transform, IncompleteJSON) {
 
     ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   }
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, IncompleteSUA) {
@@ -303,6 +307,7 @@ TEST_F(Transform, IncompleteSUA) {
 
     ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   }
+    fiftyoneDegreesFree(buffer);
 }
 
 
@@ -326,6 +331,7 @@ TEST_F(Transform, GHEVIncorrectBool) {
   // ---
 
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, SUAIncorrectBool) {
@@ -342,6 +348,7 @@ TEST_F(Transform, SUAIncorrectBool) {
   // ---
 
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVIterativeNULLBrandJSON) {
@@ -375,6 +382,7 @@ TEST_F(Transform, GHEVIterativeNULLBrandJSON) {
   checkFieldValue("sec-ch-ua-model", "\"\"");
   checkFieldValue("sec-ch-ua-platform", "\"macOS\"");
   checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVIterativeNULLBrandVersionJSON) {
@@ -408,6 +416,7 @@ TEST_F(Transform, GHEVIterativeNULLBrandVersionJSON) {
   checkFieldValue("sec-ch-ua-model", "\"\"");
   checkFieldValue("sec-ch-ua-platform", "\"macOS\"");
   checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVIterativeBase64) {
@@ -447,6 +456,7 @@ TEST_F(Transform, GHEVIterativeBase64) {
   checkFieldValue("sec-ch-ua-model", "\"\"");
   checkFieldValue("sec-ch-ua-platform", "\"macOS\"");
   checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVBase64CorruptedLen) {
@@ -468,6 +478,7 @@ TEST_F(Transform, GHEVBase64CorruptedLen) {
       Transform::results);
 
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVBase64CorruptedSymbol) {
@@ -489,6 +500,7 @@ TEST_F(Transform, GHEVBase64CorruptedSymbol) {
       Transform::results);
 
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVBase64CorruptedSymbol2) {
@@ -510,6 +522,7 @@ TEST_F(Transform, GHEVBase64CorruptedSymbol2) {
       Transform::results);
 
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVIterativeSua) {
@@ -550,6 +563,7 @@ TEST_F(Transform, GHEVIterativeSua) {
   checkFieldValue("sec-ch-ua-model", "\"\"");
   checkFieldValue("sec-ch-ua-platform", "\"macOS\"");
   checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, SuaWeirdPlatformVersion) {
@@ -590,6 +604,7 @@ TEST_F(Transform, SuaWeirdPlatformVersion) {
   checkFieldValue("sec-ch-ua-model", "\"\"");
   checkFieldValue("sec-ch-ua-platform", "\"macOS\"");
   checkFieldValue("sec-ch-ua-platform-version", "\"\\\"x\\\".\\\"y\\\".\\\"z\\\"\"");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, SuaNullBrandPlatform) {
@@ -630,6 +645,7 @@ TEST_F(Transform, SuaNullBrandPlatform) {
   checkFieldValue("sec-ch-ua-model", "\"\"");
   checkFieldAbsent("sec-ch-ua-platform");
   checkFieldAbsent("sec-ch-ua-platform-version");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVArrayJSON) {
@@ -664,6 +680,7 @@ TEST_F(Transform, GHEVArrayJSON) {
   checkFieldValue("sec-ch-ua-model", "\"MacBook\"");
   checkFieldValue("sec-ch-ua-platform", "\"macOS\"");
   checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVArrayInsufficientCapacity) {
@@ -690,6 +707,8 @@ TEST_F(Transform, GHEVArrayInsufficientCapacity) {
 
   ASSERT_EQ(count, 7);
   ASSERT_EQ(headers->count, count);
+    fiftyoneDegreesFree(buffer);
+    fiftyoneDegreesFree(headers);
 }
 
 TEST_F(Transform, GHEVBase64) {
@@ -728,6 +747,7 @@ TEST_F(Transform, GHEVBase64) {
   checkFieldValue("sec-ch-ua-model", "\"\"");
   checkFieldValue("sec-ch-ua-platform", "\"macOS\"");
   checkFieldAbsent("sec-ch-ua-platform-version");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVBase64NotEnoughMemory) {
@@ -753,6 +773,7 @@ TEST_F(Transform, GHEVBase64NotEnoughMemory) {
 
   ASSERT_EQ(count, 6);
   ASSERT_EQ(results->count, count);
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVArraySua) {
@@ -791,6 +812,7 @@ TEST_F(Transform, GHEVArraySua) {
 
   checkFieldAbsent("sec-ch-ua-bitness");
   checkFieldAbsent("sec-ch-ua");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVPartial) {
@@ -837,6 +859,7 @@ TEST_F(Transform, GHEVPartial) {
   checkFieldAbsent("sec-ch-ua-platform-version");
   checkFieldAbsent("sec-ch-ua-arch");
   checkFieldAbsent("sec-ch-ua-bitness");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVIgnoreUnused) {
@@ -886,6 +909,7 @@ TEST_F(Transform, GHEVIgnoreUnused) {
   checkFieldValue("sec-ch-ua-model", "\"\"");
   checkFieldValue("sec-ch-ua-arch", "\"x86\"");
   checkFieldValue("sec-ch-ua-bitness", "\"64\"");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVCorruptInput) {
@@ -906,6 +930,7 @@ TEST_F(Transform, GHEVCorruptInput) {
                                               &exception, fillResultsCallback,
                                               Transform::results);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVBufferTooSmall) {
@@ -926,6 +951,7 @@ TEST_F(Transform, GHEVBufferTooSmall) {
                                               &exception, fillResultsCallback,
                                               Transform::results);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, GHEVEvidenceLowCapacity) {
@@ -946,6 +972,7 @@ TEST_F(Transform, GHEVEvidenceLowCapacity) {
                                               &exception, fillResultsCallback,
                                               Transform::results);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, SUAHappyPath) {
@@ -992,6 +1019,7 @@ TEST_F(Transform, SUAHappyPath) {
   checkFieldValue("sec-ch-ua-arch", "\"arm\"");
   checkFieldValue("sec-ch-ua-bitness", "\"64\"");
   checkFieldValue("sec-ch-ua-model", "\"Pixel6\"");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, SUAPlatformExt) {
@@ -1032,6 +1060,7 @@ TEST_F(Transform, SUAPlatformExt) {
   checkFieldAbsent("sec-ch-ua-arch");
   checkFieldAbsent("sec-ch-ua-bitness");
   checkFieldValue("sec-ch-ua-model", "\"\"");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, SUAPartial1) {
@@ -1068,6 +1097,7 @@ TEST_F(Transform, SUAPartial1) {
   checkFieldAbsent("sec-ch-ua-arch");
   checkFieldAbsent("sec-ch-ua-bitness");
   checkFieldValue("sec-ch-ua-model", "\"\"");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, SUAPartial2) {
@@ -1100,6 +1130,7 @@ TEST_F(Transform, SUAPartial2) {
   checkFieldValue("sec-ch-ua-arch", "\"arm\"");
   checkFieldValue("sec-ch-ua-bitness", "\"64\"");
   checkFieldAbsent("sec-ch-ua-model");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, SUATolerableCorrupt) {
@@ -1128,6 +1159,7 @@ TEST_F(Transform, SUATolerableCorrupt) {
   checkFieldAbsent("sec-ch-ua-model");
   checkFieldValue("sec-ch-ua-platform", "\"Android\"");
   checkFieldValue("sec-ch-ua-platform-version", "\"12\"");
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, SUACorrupt2) {
@@ -1142,6 +1174,7 @@ TEST_F(Transform, SUACorrupt2) {
   fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception,
                                      fillResultsCallback, Transform::results);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, SUACorrupt3) {
@@ -1156,6 +1189,7 @@ TEST_F(Transform, SUACorrupt3) {
   fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception,
                                      fillResultsCallback, Transform::results);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, SUABufferTooSmall) {
@@ -1173,6 +1207,7 @@ TEST_F(Transform, SUABufferTooSmall) {
   fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception,
                                      fillResultsCallback, Transform::results);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+    fiftyoneDegreesFree(buffer);
 }
 
 TEST_F(Transform, SUAEvidenceLowCapacity) {
@@ -1190,4 +1225,5 @@ TEST_F(Transform, SUAEvidenceLowCapacity) {
   fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength, &exception,
                                      fillResultsCallback, Transform::results);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+    fiftyoneDegreesFree(buffer);
 }

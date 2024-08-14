@@ -344,7 +344,7 @@ fiftyoneDegreesPropertyAvailableArray *ProfileTests::createAvailableProperties(s
     //random set of 5 available properties
     fiftyoneDegreesPropertyAvailableArray * FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesPropertyAvailable, propertiesAvailable, N_PROPERTIES);
     EXCEPTION_CREATE
-    for (int j=0;j<propertyNames.size();++j) {
+    for (size_t j=0;j<propertyNames.size();++j) {
         string &propertyName = propertyNames[j];
         int propIdx = propertyIndexFromPropertyName(propertyName);
         getStringValue(stringsCollectionHelper->getState(), N_PER_PROPERTY * propIdx, &item);
@@ -467,7 +467,7 @@ void ProfileTests::iterateValueIndicesForEachAvailableProperty(std::vector<std::
     for (int i=0;i<N_PROFILES;++i) {
         fiftyoneDegreesProfile *profile = fiftyoneDegreesProfileGetByIndex(profileOffsetsCollection, profilesCollection, i, &item, exception);
         
-        for (int j=0;j<propertyNames.size();++j) {
+        for (size_t j=0;j<propertyNames.size();++j) {
             fiftyoneDegreesProperty *property = fiftyoneDegreesPropertyGetByName(propertiesCollection, stringsCollection, propertyNames[j].c_str(), &item, exception);
             
             std::vector<fiftyoneDegreesValue *> values;

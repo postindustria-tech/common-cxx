@@ -71,9 +71,9 @@ FixedSizeCollection<T>::FixedSizeCollection(const std::vector<T> &values) {
     reader.lastByte = reader.startByte + reader.length;
     reader.current = reader.startByte + sizeof(uint32_t);
     
-    for (int i = 0; i < values.size(); i++) {
+    for (size_t i = 0; i < values.size(); i++) {
         T *element = (T*)reader.current;
-        memcpy(element, &values[i], sizeof(T));
+        memcpy((void *) element, (void *) &values[i], sizeof(T));
         state.offsets[currentOffsetIndex] =
             (uint32_t)(reader.current - (reader.startByte + sizeof(uint32_t)));
         reader.current += sizeof(T);

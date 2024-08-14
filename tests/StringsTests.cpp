@@ -70,7 +70,7 @@ TEST_F(Strings, StringBuilderAddChar) {
 
 TEST_F(Strings, StringBuilderAddCharPastTheEnd) {
     fiftyoneDegreesStringBuilderInit(builder);
-    for (int i=0; i < bufferSize + 3; ++i) {
+    for (size_t i=0; i < bufferSize + 3; ++i) {
         fiftyoneDegreesStringBuilderAddChar(builder, 'a');
     }
     

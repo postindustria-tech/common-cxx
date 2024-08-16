@@ -126,7 +126,7 @@
     <ClInclude Include="..\..\yamlfile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\indexes.h">
+    <ClInclude Include="..\..\indices.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

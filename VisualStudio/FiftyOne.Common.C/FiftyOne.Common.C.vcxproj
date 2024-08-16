@@ -37,6 +37,7 @@
     <ClInclude Include="..\..\string.h" />
     <ClInclude Include="..\..\textfile.h" />
     <ClInclude Include="..\..\threading.h" />
+    <ClInclude Include="..\..\transform.h" />
     <ClInclude Include="..\..\tree.h" />
     <ClInclude Include="..\..\value.h" />
     <ClInclude Include="..\..\yamlfile.h" />
@@ -71,6 +72,7 @@
     <ClCompile Include="..\..\textfile.c" />
     <ClCompile Include="..\..\threading.c" />
     <ClCompile Include="..\..\tree.c" />
+    <ClCompile Include="..\..\transform.c" />
     <ClCompile Include="..\..\value.c" />
     <ClCompile Include="..\..\yamlfile.c" />
   </ItemGroup>

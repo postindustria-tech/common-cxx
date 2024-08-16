@@ -1144,7 +1144,12 @@ static bool pushToHeaders(void* ctx, fiftyoneDegreesKeyValuePair header,
     pair->value = header.value;
     pair->valueLength = header.valueLength;
   }
-
+  else {
+      // TODO set exception in the else clause
+      exception;
+  }
+  
+  exception;
   return (headers->count < headers->capacity);
 }
 // ------------------------------------------------------------------------------------------------

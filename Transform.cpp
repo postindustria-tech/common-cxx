@@ -29,7 +29,7 @@ Transform::Headers Transform::apiInvoker(CTransformAPI func,
       } break;
 
       case FIFTYONE_DEGREES_STATUS_SUCCESS: {
-        for (int i = 0; i < headers->count; ++i) {
+        for (uint32_t i = 0; i < headers->count; ++i) {
           fiftyoneDegreesKeyValuePair &pair = headers->items[i];
 
           res.emplace(std::string{pair.key, pair.keyLength},

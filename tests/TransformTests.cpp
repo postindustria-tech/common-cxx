@@ -787,7 +787,7 @@ TEST_F(Transform, GHEVBase64NotEnoughMemory) {
   size_t bufferLength = strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-  size_t count = fiftyoneDegreesTransformIterateGhevFromBase64(
+  fiftyoneDegreesTransformIterateGhevFromBase64(
       ghev, buffer, bufferLength, &Transform::exception, fillResultsCallback,
       Transform::results);
 

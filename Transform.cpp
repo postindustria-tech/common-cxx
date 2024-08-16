@@ -2,35 +2,51 @@
 
 using namespace FiftyoneDegrees::Common;
 
-// WARNING: tmp allocation
-Transform::Transform() : capacity(4096), buffer(new char[capacity]) {
-  // TODO: allocate memory in correct way
-}
+Transform::Transform(size_t capacity) : buffer(capacity) {}
 
-Transform::~Transform() {
-  // TODO: deallocate memory
-  // delete[] buffer;
-}
+Transform::Headers Transform::apiInvoker(CTransformAPI func,
+                                         const std::string &json) {
+  Transform::Headers res;
+  EXCEPTION_CREATE;
 
-size_t Transform::fromJsonGHEV(
-    const char *json, fiftyoneDegreesException *const exception,
-    fiftyoneDegreesKeyValuePairArray *const headers) {
-  return fiftyoneDegreesTransformGhevFromJson(
-      json, buffer + size, capacity - size, exception, headers);
-}
+  fiftyoneDegreesKeyValuePairArray *headers = NULL;
+  FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, headers, 8);
 
-size_t Transform::fromBase64GHEV(
-    const char *base64, fiftyoneDegreesException *const exception,
-    fiftyoneDegreesKeyValuePairArray *const headers) {
-  return fiftyoneDegreesTransformGhevFromBase64(
-      base64, buffer + size, capacity - size, exception, headers);
-}
+  while (1) {
+    func(json.c_str(), buffer.data(), buffer.size(), exception, headers);
 
-size_t Transform::fromSUA(const char *json,
-                          fiftyoneDegreesException *const exception,
-                          fiftyoneDegreesKeyValuePairArray *const headers) {
-  return fiftyoneDegreesTransformSua(json, buffer + size, capacity - size,
-                                     exception, headers);
-}
+    switch (exception->status) {
+      case FIFTYONE_DEGREES_STATUS_CORRUPT_DATA: {
+        fiftyoneDegreesFree(headers);
+        EXCEPTION_THROW;
+      } break;
 
-// NOTE: this wrapper potentially should implement reallocation logic, isn't it?
+      case FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY: {
+        headers->count = 0;
+        exception->status = FIFTYONE_DEGREES_STATUS_SUCCESS;
+        buffer.resize(buffer.size() * 2);
+        continue;
+      } break;
+
+      case FIFTYONE_DEGREES_STATUS_SUCCESS: {
+        for (int i = 0; i < headers->count; ++i) {
+          fiftyoneDegreesKeyValuePair &pair = headers->items[i];
+
+          res.emplace(std::string{pair.key, pair.keyLength},
+                      std::string{pair.value, pair.valueLength});
+        }
+
+        fiftyoneDegreesFree(headers);
+
+        return res;
+      } break;
+
+      default:
+        break;
+    }
+
+    break;
+  }
+
+  return res;
+}

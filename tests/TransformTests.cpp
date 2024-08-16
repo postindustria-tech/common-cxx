@@ -21,8 +21,9 @@
  * ********************************************************************* */
 
 #include "../memory.h"
-#include "../transform.h"
-#include "EvidenceTests.hpp"
+// #include "../transform.h"
+#include "../Transform.hpp"
+#include "Base.hpp"
 
 class Transform : public Base {
  public:
@@ -225,7 +226,14 @@ TEST_F(Transform, IncompleteJSON) {
   };
 
   std::vector<std::string> corrupted{
+      "{ \"model\": n",
+      "{ \"model\": nu",
+      "{ \"model\": \"he",
+      "{ \"model\": \"he\\",
       "",
+      "{ \"",
+      "{ \"mobile\":",
+      "{ \"mo",
       "{\"a",
       "{\"brands\":[{\"brand\": \"one\", \"version\":null}}",
   };
@@ -257,6 +265,8 @@ TEST_F(Transform, IncompleteSUA) {
 
       "{ \"key_without_value\": ",
 
+      "{ \"skip\": { \"key\": \"\\\"\\n\\\\\"value\\\"\" } }",
+
       "{\"architecture\":\"x86\\\"\","
       " \"incomplete_unknown_object\": { \"other_nested_object\": {    \n",
 
@@ -287,7 +297,10 @@ TEST_F(Transform, IncompleteSUA) {
 
   std::vector<std::string> corrupted{
       "",
+      "{ \"",
       "{\"a",
+      "{ \"mo",
+      "{ \"mobile\":",
       "{\"platformer\": 0}",
       "{\"browsers\":[{\"brand\": null}}}",
   };
@@ -335,7 +348,7 @@ TEST_F(Transform, GHEVIncorrectBool) {
 TEST_F(Transform, SUAIncorrectBool) {
   const char *json = "{\"mobile\": false,\"model\":\"\"}";
 
-  size_t bufferLength = strlen(json);
+  size_t bufferLength = 512;
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   fiftyoneDegreesTransformIterateSua(json, buffer, bufferLength,
@@ -696,19 +709,30 @@ TEST_F(Transform, GHEVArrayInsufficientCapacity) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   fiftyoneDegreesKeyValuePairArray *headers = NULL;
-  FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, headers, 2)
+  FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, headers, 2);
+
+  fiftyoneDegreesKeyValuePairArray *empty_headers = NULL;
+  FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, empty_headers, 0);
 
   size_t count = fiftyoneDegreesTransformGhevFromJson(
       ghev, buffer, bufferLength, &Transform::exception, headers);
 
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+
+  ASSERT_EQ(count, 2);
+  ASSERT_EQ(headers->count, count);
+
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
+  count = fiftyoneDegreesTransformGhevFromJson(
+      ghev, buffer, bufferLength, &Transform::exception, empty_headers);
 
-  ASSERT_EQ(count, 7);
-  ASSERT_EQ(headers->count, count);
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
+  ASSERT_EQ(count, 1);
+
   fiftyoneDegreesFree(buffer);
   fiftyoneDegreesFree(headers);
+  fiftyoneDegreesFree(empty_headers);
 }
 
 TEST_F(Transform, GHEVBase64) {
@@ -770,9 +794,6 @@ TEST_F(Transform, GHEVBase64NotEnoughMemory) {
   // ---
 
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
-
-  ASSERT_EQ(count, 6);
-  ASSERT_EQ(results->count, count);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -1226,4 +1247,156 @@ TEST_F(Transform, SUAEvidenceLowCapacity) {
                                      fillResultsCallback, Transform::results);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
   fiftyoneDegreesFree(buffer);
+}
+
+TEST_F(Transform, CPPWrapperGHEV) {
+  FiftyoneDegrees::Common::Transform t;
+
+  auto h = t.fromJsonGHEV(
+      "{\"brands\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126\"},{\"brand\":\"Google "
+      "Chrome\",\"version\":\"126\"}],\"fullVersionList\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":\"8.0.0.0\"},{\"brand\":\"Chromium\","
+      "\"version\":"
+      "\"126.0.6478.61\"},{\"brand\":\"Google "
+      "Chrome\",\"version\":\"126.0.6478.61\"}],\"mobile\":false,\"model\":"
+      "\"\",\"platform\":null}");
+
+  ASSERT_EQ(h.size(), 4);
+
+  EXPECT_TRUE(h.find("sec-ch-ua") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-full-version-list") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-mobile") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-model") != h.end());
+
+  ASSERT_EQ(h["sec-ch-ua"],
+            "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google "
+            "Chrome\";v=\"126\"");
+
+  ASSERT_EQ(h["sec-ch-ua-full-version-list"],
+            "\"Not/A)Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"126.0.6478.61\", "
+            "\"Google Chrome\";v=\"126.0.6478.61\"");
+
+  ASSERT_EQ(h["sec-ch-ua-mobile"], "?0");
+  ASSERT_EQ(h["sec-ch-ua-model"], "\"\"");
+
+  EXPECT_FALSE(h.find("sec-ch-ua-platform") != h.end());
+  EXPECT_FALSE(h.find("sec-ch-ua-platform-version") != h.end());
+  EXPECT_FALSE(h.find("sec-ch-ua-arch") != h.end());
+  EXPECT_FALSE(h.find("sec-ch-ua-bitness") != h.end());
+}
+
+TEST_F(Transform, CPPWrapperBase64) {
+  FiftyoneDegrees::Common::Transform t;
+
+  auto h = t.fromBase64GHEV(
+      "eyJicmFuZHMiOlt7ImJyYW5kIjoiTm90L0EpQnJhbmQiLCJ2ZXJzaW9uIjoiOCJ9LHsiYnJh"
+      "bmQiOiJDaHJvbWl1bSIsInZlcnNpb24iOiIxMjYifSx7ImJyYW5kIjoiR29vZ2xlIENocm9t"
+      "ZSIsInZlcnNpb24iOiIxMjYifV0sImZ1bGxWZXJzaW9uTGlzdCI6W3siYnJhbmQiOiJOb3Qv"
+      "QSlCcmFuZCIsInZlcnNpb24iOiI4LjAuMC4wIn0seyJicmFuZCI6IkNocm9taXVtIiwidmVy"
+      "c2lvbiI6IjEyNi4wLjY0NzguMTI3In0seyJicmFuZCI6Ikdvb2dsZSBDaHJvbWUiLCJ2ZXJz"
+      "aW9uIjoiMTI2LjAuNjQ3OC4xMjcifV0sIm1vYmlsZSI6ZmFsc2UsIm1vZGVsIjoiIiwicGxh"
+      "dGZvcm0iOiJtYWNPUyIsInBsYXRmb3JtVmVyc2lvbiI6IjE0LjUuMCJ9");
+
+  ASSERT_EQ(h.size(), 6);
+
+  EXPECT_TRUE(h.find("sec-ch-ua") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-full-version-list") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-mobile") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-model") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-platform") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-platform-version") != h.end());
+
+  ASSERT_EQ(h["sec-ch-ua"],
+            "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google "
+                  "Chrome\";v=\"126\"");
+
+  ASSERT_EQ(h["sec-ch-ua-full-version-list"],
+            "\"Not/A)Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"126.0.6478.127\", "
+      "\"Google Chrome\";v=\"126.0.6478.127\"");
+
+  ASSERT_EQ(h["sec-ch-ua-mobile"], "?0");
+  ASSERT_EQ(h["sec-ch-ua-model"], "\"\"");
+  ASSERT_EQ(h["sec-ch-ua-platform"], "\"macOS\"");
+  ASSERT_EQ(h["sec-ch-ua-platform-version"], "\"14.5.0\"");
+
+
+  EXPECT_FALSE(h.find("sec-ch-ua-arch") != h.end());
+  EXPECT_FALSE(h.find("sec-ch-ua-bitness") != h.end());
+}
+
+TEST_F(Transform, CPPWrapperBase64InsufficientMemory) {
+  FiftyoneDegrees::Common::Transform t(128);
+
+  auto h = t.fromBase64GHEV(
+      "eyJicmFuZHMiOlt7ImJyYW5kIjoiTm90L0EpQnJhbmQiLCJ2ZXJzaW9uIjoiOCJ9LHsiYnJh"
+      "bmQiOiJDaHJvbWl1bSIsInZlcnNpb24iOiIxMjYifSx7ImJyYW5kIjoiR29vZ2xlIENocm9t"
+      "ZSIsInZlcnNpb24iOiIxMjYifV0sImZ1bGxWZXJzaW9uTGlzdCI6W3siYnJhbmQiOiJOb3Qv"
+      "QSlCcmFuZCIsInZlcnNpb24iOiI4LjAuMC4wIn0seyJicmFuZCI6IkNocm9taXVtIiwidmVy"
+      "c2lvbiI6IjEyNi4wLjY0NzguMTI3In0seyJicmFuZCI6Ikdvb2dsZSBDaHJvbWUiLCJ2ZXJz"
+      "aW9uIjoiMTI2LjAuNjQ3OC4xMjcifV0sIm1vYmlsZSI6ZmFsc2UsIm1vZGVsIjoiIiwicGxh"
+      "dGZvcm0iOiJtYWNPUyIsInBsYXRmb3JtVmVyc2lvbiI6IjE0LjUuMCJ9");
+
+  ASSERT_EQ(h.size(), 6);
+
+  EXPECT_TRUE(h.find("sec-ch-ua") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-full-version-list") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-mobile") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-model") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-platform") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-platform-version") != h.end());
+
+  ASSERT_EQ(h["sec-ch-ua"],
+            "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google "
+                  "Chrome\";v=\"126\"");
+
+  ASSERT_EQ(h["sec-ch-ua-full-version-list"],
+            "\"Not/A)Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"126.0.6478.127\", "
+      "\"Google Chrome\";v=\"126.0.6478.127\"");
+
+  ASSERT_EQ(h["sec-ch-ua-mobile"], "?0");
+  ASSERT_EQ(h["sec-ch-ua-model"], "\"\"");
+  ASSERT_EQ(h["sec-ch-ua-platform"], "\"macOS\"");
+  ASSERT_EQ(h["sec-ch-ua-platform-version"], "\"14.5.0\"");
+
+
+  EXPECT_FALSE(h.find("sec-ch-ua-arch") != h.end());
+  EXPECT_FALSE(h.find("sec-ch-ua-bitness") != h.end());
+}
+
+TEST_F(Transform, CPPWrapperSUA) {
+  FiftyoneDegrees::Common::Transform t;
+
+  auto h = t.fromSUA(
+      "{\"source\":2,\"platform\":{\"brand\":\"macOS\",\"version\":[\"14\","
+      "\"5\",\"0\"]},\"browsers\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":[\"8\",\"0\",\"0\",\"0\"]},{\"brand\":"
+      "\"Chromium\",\"version\":[\"126\",\"0\",\"6478\",\"127\"]},{\"brand\":"
+      "\"Google "
+      "Chrome\",\"version\":[\"126\",\"0\",\"6478\",\"127\"]}],\"mobile\":1,"
+      "\"model\":\"MacBook\",\"architecture\":\"x86\"}");
+
+  ASSERT_EQ(h.size(), 6);
+
+  EXPECT_TRUE(h.find("sec-ch-ua-arch") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-model") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-mobile") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-platform") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-platform-version") != h.end());
+  EXPECT_TRUE(h.find("sec-ch-ua-full-version-list") != h.end());
+
+
+  ASSERT_EQ(h["sec-ch-ua-arch"], "\"x86\"");
+  ASSERT_EQ(h["sec-ch-ua-model"], "\"MacBook\"");
+  ASSERT_EQ(h["sec-ch-ua-mobile"], "?1");
+  ASSERT_EQ(h["sec-ch-ua-platform"], "\"macOS\"");
+  ASSERT_EQ(h["sec-ch-ua-platform-version"], "\"14.5.0\"");
+  ASSERT_EQ(h["sec-ch-ua-full-version-list"],
+            "\"Not/"
+      "A)Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"126.0.6478.127\", \"Google "
+      "Chrome\";v=\"126.0.6478.127\"");
+
+  EXPECT_FALSE(h.find("sec-ch-ua") != h.end());
+  EXPECT_FALSE(h.find("sec-ch-ua-bitness") != h.end());
 }

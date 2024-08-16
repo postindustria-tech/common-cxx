@@ -1,32 +1,42 @@
 #ifndef FIFTYONE_DEGREES_TRANSFORM_HPP
 #define FIFTYONE_DEGREES_TRANSFORM_HPP
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "transform.h"
 
 namespace FiftyoneDegrees {
 namespace Common {
+
 class Transform {
-  size_t capacity = 0;
-  size_t size = 0;
-  char *buffer = nullptr;
+  using Headers = std::map<std::string, std::string>;
+
+  using CTransformAPI =
+      size_t (*)(const char* base64, char* buffer, size_t length,
+                 fiftyoneDegreesException* const exception,
+                 fiftyoneDegreesKeyValuePairArray* const headers);
+
+  Headers apiInvoker(CTransformAPI func, const std::string& json);
 
  public:
-  Transform();  // TODO: define ctor signature
+  Transform(size_t capacity = 1024);
 
-  virtual ~Transform();
+  Headers fromJsonGHEV(const std::string& json) {
+    return apiInvoker(fiftyoneDegreesTransformGhevFromJson, json);
+  }
 
-  // NOTE: maybe use C++ signatures instead of C? I mean std::string,
-  // std::vector, throw exception?
-  size_t fromJsonGHEV(const char *json,
-                      fiftyoneDegreesException *const exception,
-                      fiftyoneDegreesKeyValuePairArray *const headers);
+  Headers fromBase64GHEV(const std::string& json) {
+    return apiInvoker(fiftyoneDegreesTransformGhevFromBase64, json);
+  }
 
-  size_t fromBase64GHEV(const char *base64,
-                        fiftyoneDegreesException *const exception,
-                        fiftyoneDegreesKeyValuePairArray *const headers);
+  Headers fromSUA(const std::string& json) {
+    return apiInvoker(fiftyoneDegreesTransformSua, json);
+  }
 
-  size_t fromSUA(const char *json, fiftyoneDegreesException *const exception,
-                 fiftyoneDegreesKeyValuePairArray *const headers);
+ private:
+  std::vector<char> buffer;
 };
 }  // namespace Common
 }  // namespace FiftyoneDegrees

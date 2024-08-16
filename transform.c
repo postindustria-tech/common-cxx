@@ -40,6 +40,9 @@
   (exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY ? NULL \
                                                                     : begin)
 
+#define GET_SEXTET(str, i) \
+  (str[i] == '=' ? 0 & i++ : base64_char_to_value(str[i++], exception))
+
 typedef enum {
   ARCHITECTURE,     // sec-ch-ua-arch
   BRANDS,           // sec-ch-ua
@@ -88,15 +91,31 @@ static inline char* safe_write_to_buffer(
 
 static inline uint32_t base64_char_to_value(
     char c, fiftyoneDegreesException* const exception) {
-  if ('A' <= c && c <= 'Z') return c - 'A';
-  if ('a' <= c && c <= 'z') return c - 'a' + 26;
-  if ('0' <= c && c <= '9') return c - '0' + 52;
-  if (c == '+') return 62;
-  if (c == '/') return 63;
+  static const uint32_t base64_lookup_table[256] = {
+      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 62,  255,
+      255, 255, 63,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  255, 255,
+      255, 255, 255, 255, 255, 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
+      10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,
+      25,  255, 255, 255, 255, 255, 255, 26,  27,  28,  29,  30,  31,  32,  33,
+      34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,  48,
+      49,  50,  51,  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+      255};
 
-  // Invalid character
-  exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
-  return 0;
+  if (base64_lookup_table[(uint8_t)c] == 255) {
+    exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+  }
+
+  return base64_lookup_table[(uint8_t)c];
 }
 
 static size_t base64_decode(const char* base64_input, char* const buffer,
@@ -112,25 +131,10 @@ static size_t base64_decode(const char* base64_input, char* const buffer,
   char* end = buffer + length;
 
   for (size_t i = 0; i < input_length;) {
-    uint32_t sextet_a =
-        base64_input[i] == '='
-            ? 0 & i++
-            : base64_char_to_value(base64_input[i++], exception);
-
-    uint32_t sextet_b =
-        base64_input[i] == '='
-            ? 0 & i++
-            : base64_char_to_value(base64_input[i++], exception);
-
-    uint32_t sextet_c =
-        base64_input[i] == '='
-            ? 0 & i++
-            : base64_char_to_value(base64_input[i++], exception);
-
-    uint32_t sextet_d =
-        base64_input[i] == '='
-            ? 0 & i++
-            : base64_char_to_value(base64_input[i++], exception);
+    uint32_t sextet_a = GET_SEXTET(base64_input, i);
+    uint32_t sextet_b = GET_SEXTET(base64_input, i);
+    uint32_t sextet_c = GET_SEXTET(base64_input, i);
+    uint32_t sextet_d = GET_SEXTET(base64_input, i);
 
     if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
       return 0;
@@ -1131,21 +1135,17 @@ static bool pushToHeaders(void* ctx, fiftyoneDegreesKeyValuePair header,
                           fiftyoneDegreesException* const exception) {
   fiftyoneDegreesKeyValuePairArray* const headers =
       (fiftyoneDegreesKeyValuePairArray* const)ctx;
-  ++headers->count;
 
-  if (headers->count > headers->capacity) {
-    exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY;
-    return 0;
+  if (headers->count < headers->capacity) {
+    fiftyoneDegreesKeyValuePair* pair = headers->items + headers->count++;
+
+    pair->key = header.key;
+    pair->keyLength = header.keyLength;
+    pair->value = header.value;
+    pair->valueLength = header.valueLength;
   }
 
-  fiftyoneDegreesKeyValuePair* pair = headers->items + headers->count - 1;
-
-  pair->key = header.key;
-  pair->keyLength = header.keyLength;
-  pair->value = header.value;
-  pair->valueLength = header.valueLength;
-
-  return 1;
+  return (headers->count < headers->capacity);
 }
 // ------------------------------------------------------------------------------------------------
 static size_t main_parsing_body(const char* json, char* const buffer,
@@ -1162,7 +1162,8 @@ static size_t main_parsing_body(const char* json, char* const buffer,
 
   // write keys to buffer, init cache and skip to the first key
   json = init_parsing(json, &begin, end, cache, exception);
-  if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
+  if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA ||
+      exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY) {
     return 0;
   }
 
@@ -1194,12 +1195,16 @@ static size_t main_parsing_body(const char* json, char* const buffer,
     if (ptr != NULL) {
       begin = ptr;
 
-      callback(ctx, cache[key], exception);
       ++iterations;
+      if (!callback(ctx, cache[key], exception)) {
+        return iterations;
+      }
 
       if (key == PLATFORM && isSua && cache[PLATFORMVERSION].valueLength != 0) {
-        callback(ctx, cache[PLATFORMVERSION], exception);
         ++iterations;
+        if (!callback(ctx, cache[PLATFORMVERSION], exception)) {
+          return iterations;
+        }
       }
     }
 
@@ -1223,7 +1228,8 @@ size_t fiftyoneDegreesTransformIterateGhevFromBase64(
     fiftyoneDegreesTransformCallback callback, void* ctx) {
   size_t offset = base64_decode(base64, buffer, length, exception);
 
-  if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
+  if (exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY ||
+      exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
     return 0;
   }
 
@@ -1243,22 +1249,40 @@ size_t fiftyoneDegreesTransformGhevFromJson(
     const char* json, char* buffer, size_t length,
     fiftyoneDegreesException* const exception,
     fiftyoneDegreesKeyValuePairArray* const headers) {
-  return fiftyoneDegreesTransformIterateGhevFromJson(
+  size_t calls = fiftyoneDegreesTransformIterateGhevFromJson(
       json, buffer, length, exception, pushToHeaders, headers);
+
+  if (calls != headers->count) {
+    exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY;
+  }
+
+  return calls;
 }
 
 size_t fiftyoneDegreesTransformGhevFromBase64(
     const char* base64, char* buffer, size_t length,
     fiftyoneDegreesException* const exception,
     fiftyoneDegreesKeyValuePairArray* const headers) {
-  return fiftyoneDegreesTransformIterateGhevFromBase64(
+  size_t calls = fiftyoneDegreesTransformIterateGhevFromBase64(
       base64, buffer, length, exception, pushToHeaders, headers);
+
+  if (calls != headers->count) {
+    exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY;
+  }
+
+  return calls;
 }
 
 size_t fiftyoneDegreesTransformSua(
     const char* json, char* buffer, size_t length,
     fiftyoneDegreesException* const exception,
     fiftyoneDegreesKeyValuePairArray* const headers) {
-  return fiftyoneDegreesTransformIterateSua(json, buffer, length, exception,
-                                            pushToHeaders, headers);
+  size_t calls = fiftyoneDegreesTransformIterateSua(
+      json, buffer, length, exception, pushToHeaders, headers);
+
+  if (calls != headers->count) {
+    exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY;
+  }
+
+  return calls;
 }

@@ -50,6 +50,8 @@
     <ClCompile Include="..\..\tests\ThreadingTests.cpp" />
     <ClCompile Include="..\..\tests\ValueTests.cpp" />
     <ClCompile Include="..\..\tests\YamlFileTests.cpp" />
+    <ClCompile Include="..\..\tests\TransformTests.cpp" />
+    <ClCompile Include="..\..\tests\HeadersContainer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\tests\Base.hpp" />
@@ -60,6 +62,9 @@
     <ClInclude Include="..\..\tests\pch.h" />
     <ClInclude Include="..\..\tests\StringCollection.hpp" />
     <ClInclude Include="..\..\tests\TestStrings.hpp" />
+    <ClInclude Include="..\..\tests\FixedSizeCollection.hpp" />
+    <ClInclude Include="..\..\tests\VariableSizeCollection.hpp" />
+    <ClInclude Include="..\..\tests\HeadersContainer.hpp" />
   </ItemGroup>
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets" Condition="Exists('..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets')" />

@@ -1131,8 +1131,7 @@ static inline readValueCallback read_value_switch(Key key, int isSua) {
   return res;
 }
 
-static bool pushToHeaders(void* ctx, fiftyoneDegreesKeyValuePair header,
-                          fiftyoneDegreesException* const exception) {
+static bool pushToHeaders(void* ctx, fiftyoneDegreesKeyValuePair header) {
   fiftyoneDegreesKeyValuePairArray* const headers =
       (fiftyoneDegreesKeyValuePairArray* const)ctx;
 
@@ -1144,7 +1143,6 @@ static bool pushToHeaders(void* ctx, fiftyoneDegreesKeyValuePair header,
     pair->value = header.value;
     pair->valueLength = header.valueLength;
   }
-
   return (headers->count < headers->capacity);
 }
 // ------------------------------------------------------------------------------------------------
@@ -1196,13 +1194,13 @@ static size_t main_parsing_body(const char* json, char* const buffer,
       begin = ptr;
 
       ++iterations;
-      if (!callback(ctx, cache[key], exception)) {
+      if (!callback(ctx, cache[key])) {
         return iterations;
       }
 
       if (key == PLATFORM && isSua && cache[PLATFORMVERSION].valueLength != 0) {
         ++iterations;
-        if (!callback(ctx, cache[PLATFORMVERSION], exception)) {
+        if (!callback(ctx, cache[PLATFORMVERSION])) {
           return iterations;
         }
       }

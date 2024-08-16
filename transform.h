@@ -83,8 +83,7 @@
  * stop
  */
 EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)(
-    void *state, fiftyoneDegreesKeyValuePair header,
-    Exception *const exception);
+    void *state, fiftyoneDegreesKeyValuePair header);
 
 /**
  * Iteratively convert getHighEntropyValue() API result JSON string to HTTP

@@ -58,7 +58,7 @@ fiftyoneDegreesStatusCode StatusCodeException::getCode() const noexcept {
 }
 
 FatalException::FatalException(
-	fiftyoneDegreesException *exception) : StatusCodeException() {
+    fiftyoneDegreesException *exception) : StatusCodeException(exception->status) {
 	const char *exceptionMessage = ExceptionGetMessage(exception);
 	if (exceptionMessage != nullptr) {
 		message.append(exceptionMessage);

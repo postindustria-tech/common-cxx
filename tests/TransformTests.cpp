@@ -1407,7 +1407,7 @@ TEST_F(Transform, emptycases) {
     bool thrown = false;
     try {
         t.fromJsonGHEV("");
-    } catch (FiftyoneDegrees::Common::FatalException e) {
+    } catch (const FiftyoneDegrees::Common::FatalException &e) {
         EXPECT_EQ(e.getCode(), FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
         thrown = true;
     }

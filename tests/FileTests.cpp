@@ -820,7 +820,7 @@ TEST_F(File, GetPath) {
 			sizeof(foundPath))) <<
 		"The file was not found.";
 	
-	GET_CURRENT_DIR(absolutePath, sizeof(absolutePath));
+    EXPECT_NE(GET_CURRENT_DIR(absolutePath, sizeof(absolutePath)), (char *)NULL);
 	
 	int written = Snprintf(absolutePath + strlen(absolutePath), FIFTYONE_DEGREES_FILE_MAX_PATH - strlen(absolutePath), "/%s", relativePath);
 	if (written < 0 || written >= (int)(FIFTYONE_DEGREES_FILE_MAX_PATH - strlen(absolutePath))) {

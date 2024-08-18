@@ -21,8 +21,8 @@
  * ********************************************************************* */
 
 #include "../memory.h"
-// #include "../transform.h"
 #include "../Transform.hpp"
+#include "../Exceptions.hpp"
 #include "Base.hpp"
 
 class Transform : public Base {
@@ -1398,4 +1398,19 @@ TEST_F(Transform, CPPWrapperSUA) {
 
   EXPECT_FALSE(h.find("sec-ch-ua") != h.end());
   EXPECT_FALSE(h.find("sec-ch-ua-bitness") != h.end());
+}
+
+TEST_F(Transform, emptycases) {
+    FiftyoneDegrees::Common::Transform t;
+    auto result = t.fromJsonGHEV("{}");
+    EXPECT_EQ(result.size(), 0);
+    bool thrown = false;
+    try {
+        t.fromJsonGHEV("");
+    } catch (FiftyoneDegrees::Common::FatalException e) {
+        EXPECT_EQ(e.getCode(), FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+        thrown = true;
+    }
+
+    EXPECT_TRUE(thrown);
 }

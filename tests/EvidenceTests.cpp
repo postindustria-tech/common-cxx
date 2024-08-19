@@ -340,6 +340,27 @@ TEST_F(Evidence, IterateForHeaders_ConstructPseudoHeader) {
     EXPECT_EQ(results[2], "Big\x1FGreen\x1F""Apple");
 }
 
+TEST_F(Evidence, IterateForHeaders_ConstructPseudoHeader_Missing_or_Empty) {
+    const char *headers[] = {
+        "Taste\x1FObject", //Taste is a missing evidence, this pseudoheader should not be constructed
+        "Size\x1FTaste", //Taste is a missing evidence, this pseudoheader should not be constructed
+        "Size\x1F""Color", //Color is going to be empty evidence, so this header is to be constructed
+        "Size\x1F""Color\x1F""Object",
+    };
+    
+    headersContainer.CreateHeaders(headers, 4, false);
+    CreateEvidence(3);
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Size", "");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Color", "Green");
+    fiftyoneDegreesEvidenceAddString(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, "Object", "Apple");
+    std::vector<std::string> results;
+    bool res = fiftyoneDegreesEvidenceIterateForHeaders(evidence, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING, headersContainer.headerPointers, buffer, bufferSize, &results, callback1);
+    EXPECT_FALSE(res);
+    EXPECT_EQ(results.size(), 2);
+    EXPECT_EQ(results[0], "\x1FGreen");
+    EXPECT_EQ(results[1], "\x1FGreen\x1F""Apple");
+}
+
 bool callback2(void* state, fiftyoneDegreesHeader* , const char* value, size_t ) {
     std::vector<std::string> *results = (std::vector<std::string> *) state;
     results->push_back(value);

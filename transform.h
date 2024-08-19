@@ -115,10 +115,14 @@ EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)(
  * @return the number of iterations / header pairs detected (callback calls
  * made)
  */
-EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromJson(
+EXTERNAL 
+size_t
+fiftyoneDegreesTransformIterateGhevFromJson
+(
     const char *json, char *const buffer, size_t length,
-    fiftyoneDegreesException *const exception,
-    fiftyoneDegreesTransformCallback callback, void *state);
+    fiftyoneDegreesTransformCallback callback, void *state,
+    fiftyoneDegreesException *const exception
+);
 
 /**
  * Iteratively convert getHighEntropyValue() API result base64 encoded JSON
@@ -151,10 +155,14 @@ EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromJson(
  * @return the number of iterations / header pairs detected (callback calls
  * made)
  */
-EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromBase64(
+EXTERNAL 
+size_t
+fiftyoneDegreesTransformIterateGhevFromBase64
+(
     const char *base64, char *buffer, size_t length,
-    fiftyoneDegreesException *const exception,
-    fiftyoneDegreesTransformCallback callback, void *state);
+    fiftyoneDegreesTransformCallback callback, void *state,
+    fiftyoneDegreesException *const exception
+);
 
 /**
  * Iteratively convert device.sua JSON string to HTTP header representation.
@@ -185,10 +193,14 @@ EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromBase64(
  * @return the number of iterations / header pairs detected (callback calls
  * made)
  */
-EXTERNAL size_t fiftyoneDegreesTransformIterateSua(
+EXTERNAL 
+size_t
+fiftyoneDegreesTransformIterateSua
+(
     const char *json, char *buffer, size_t length,
-    fiftyoneDegreesException *const exception,
-    fiftyoneDegreesTransformCallback callback, void *state);
+    fiftyoneDegreesTransformCallback callback, void *state,
+    fiftyoneDegreesException *const exception
+);
 
 /**
  * A preallocated array of key-value pairs intended to be an array of HTTP
@@ -232,10 +244,14 @@ FIFTYONE_DEGREES_ARRAY_TYPE(fiftyoneDegreesKeyValuePair, NONE);
  * status and the returned capacity will signal the array size that needs to be
  * allocated
  */
-EXTERNAL size_t fiftyoneDegreesTransformGhevFromJson(
-    const char *json, char *buffer, size_t length,
-    fiftyoneDegreesException *const exception,
-    fiftyoneDegreesKeyValuePairArray *const headers);
+EXTERNAL 
+size_t
+fiftyoneDegreesTransformGhevFromJson
+(
+  const char *json, char *buffer, size_t length,
+  fiftyoneDegreesKeyValuePairArray *const headers,
+  fiftyoneDegreesException *const exception
+);
 
 /**
  * Eagerly convert getHighEntropyValue() API result from base64-encoded JSON
@@ -273,10 +289,14 @@ EXTERNAL size_t fiftyoneDegreesTransformGhevFromJson(
  * status and the returned capacity will signal the array size that needs to be
  * allocated
  */
-EXTERNAL size_t fiftyoneDegreesTransformGhevFromBase64(
-    const char *base64, char *buffer, size_t length,
-    fiftyoneDegreesException *const exception,
-    fiftyoneDegreesKeyValuePairArray *const headers);
+EXTERNAL 
+size_t
+fiftyoneDegreesTransformGhevFromBase64
+(
+  const char *base64, char *buffer, size_t length,
+  fiftyoneDegreesKeyValuePairArray *const headers,
+  fiftyoneDegreesException *const exception
+);
 
 /**
  * Eagerly convert device.sua JSON string to HTTP header representation.
@@ -313,8 +333,11 @@ EXTERNAL size_t fiftyoneDegreesTransformGhevFromBase64(
  * allocated
  */
 EXTERNAL size_t
-fiftyoneDegreesTransformSua(const char *json, char *buffer, size_t length,
-                            fiftyoneDegreesException *const exception,
-                            fiftyoneDegreesKeyValuePairArray *const headers);
+fiftyoneDegreesTransformSua
+(
+    const char *json, char *buffer, size_t length,
+    fiftyoneDegreesKeyValuePairArray *const headers,
+    fiftyoneDegreesException *const exception
+);
 
 #endif /* FIFTYONE_DEGREES_TRANSFORM_H_INCLUDED */

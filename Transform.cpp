@@ -14,7 +14,7 @@ Transform::Headers Transform::apiInvoker(CTransformAPI func,
   FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, headers, 8);
 
   while (1) {
-    func(json.c_str(), buffer.data(), buffer.size(), exception, headers);
+    func(json.c_str(), buffer.data(), buffer.size(), headers, exception);
 
     switch (exception->status) {
       case FIFTYONE_DEGREES_STATUS_CORRUPT_DATA: {

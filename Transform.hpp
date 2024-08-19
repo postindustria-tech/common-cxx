@@ -15,8 +15,8 @@ class Transform {
 
   using CTransformAPI =
       size_t (*)(const char* base64, char* buffer, size_t length,
-                 fiftyoneDegreesException* const exception,
-                 fiftyoneDegreesKeyValuePairArray* const headers);
+                 fiftyoneDegreesKeyValuePairArray* const headers,
+                 fiftyoneDegreesException* const exception);
 
   Headers apiInvoker(CTransformAPI func, const std::string& json);
 

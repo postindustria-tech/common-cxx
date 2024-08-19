@@ -1215,15 +1215,15 @@ static size_t main_parsing_body(const char* json, char* const buffer,
 // ------------------------------------------------------------------------------------------------
 size_t fiftyoneDegreesTransformIterateGhevFromJson(
     const char* json, char* const buffer, size_t length,
-    fiftyoneDegreesException* const exception,
-    fiftyoneDegreesTransformCallback callback, void* ctx) {
+    fiftyoneDegreesTransformCallback callback, void* ctx,
+    fiftyoneDegreesException* const exception) {
   return main_parsing_body(json, buffer, length, exception, 0, callback, ctx);
 }
 
 size_t fiftyoneDegreesTransformIterateGhevFromBase64(
     const char* base64, char* buffer, size_t length,
-    fiftyoneDegreesException* const exception,
-    fiftyoneDegreesTransformCallback callback, void* ctx) {
+    fiftyoneDegreesTransformCallback callback, void* ctx,
+    fiftyoneDegreesException* const exception) {
   size_t offset = base64_decode(base64, buffer, length, exception);
 
   if (exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY ||
@@ -1232,23 +1232,23 @@ size_t fiftyoneDegreesTransformIterateGhevFromBase64(
   }
 
   return fiftyoneDegreesTransformIterateGhevFromJson(
-      buffer, buffer + offset, length > offset ? length - offset : 0, exception,
-      callback, ctx);
+      buffer, buffer + offset, length > offset ? length - offset : 0,
+      callback, ctx, exception);
 }
 
 size_t fiftyoneDegreesTransformIterateSua(
     const char* json, char* const buffer, size_t length,
-    fiftyoneDegreesException* const exception,
-    fiftyoneDegreesTransformCallback callback, void* ctx) {
+    fiftyoneDegreesTransformCallback callback, void* ctx,
+    fiftyoneDegreesException* const exception) {
   return main_parsing_body(json, buffer, length, exception, 1, callback, ctx);
 }
 
 size_t fiftyoneDegreesTransformGhevFromJson(
     const char* json, char* buffer, size_t length,
-    fiftyoneDegreesException* const exception,
-    fiftyoneDegreesKeyValuePairArray* const headers) {
+    fiftyoneDegreesKeyValuePairArray* const headers,
+    fiftyoneDegreesException* const exception) {
   size_t calls = fiftyoneDegreesTransformIterateGhevFromJson(
-      json, buffer, length, exception, pushToHeaders, headers);
+      json, buffer, length, pushToHeaders, headers, exception);
 
   if (calls != headers->count) {
     exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY;
@@ -1259,10 +1259,10 @@ size_t fiftyoneDegreesTransformGhevFromJson(
 
 size_t fiftyoneDegreesTransformGhevFromBase64(
     const char* base64, char* buffer, size_t length,
-    fiftyoneDegreesException* const exception,
-    fiftyoneDegreesKeyValuePairArray* const headers) {
+    fiftyoneDegreesKeyValuePairArray* const headers,
+    fiftyoneDegreesException* const exception) {
   size_t calls = fiftyoneDegreesTransformIterateGhevFromBase64(
-      base64, buffer, length, exception, pushToHeaders, headers);
+      base64, buffer, length, pushToHeaders, headers, exception);
 
   if (calls != headers->count) {
     exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY;
@@ -1273,10 +1273,10 @@ size_t fiftyoneDegreesTransformGhevFromBase64(
 
 size_t fiftyoneDegreesTransformSua(
     const char* json, char* buffer, size_t length,
-    fiftyoneDegreesException* const exception,
-    fiftyoneDegreesKeyValuePairArray* const headers) {
+    fiftyoneDegreesKeyValuePairArray* const headers,
+    fiftyoneDegreesException* const exception) {
   size_t calls = fiftyoneDegreesTransformIterateSua(
-      json, buffer, length, exception, pushToHeaders, headers);
+      json, buffer, length, pushToHeaders, headers, exception);
 
   if (calls != headers->count) {
     exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY;

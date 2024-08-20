@@ -155,3 +155,32 @@ To check the summary run:
 ```
 gcovr -r . --print-summary
 ```
+
+# Interoperability
+
+Under interoperability we understand the ability to use (explicitly) exposed and wrapped `common-cxx` code directly from higher-level languages.  For now C# is the primary target.
+
+## Approach 
+
+- SWIG interface definitions are in the `common.i` (and included files s.a. `Transform.i`).  
+- There is an `interop/dotnet` directory containing: 
+  - `CMakeLists.txt` file that would update SWIG generated wrapper files if SWIG is installed and build the native shared library exposing SWIG generated native interfaces
+  - The generated SWIG .cs (C#) wrapper files are output into the `interop/dotnet/FiftyoneDegrees.Common` directory that contains a project that one can reference in their C# project to use the native common-cxx routines
+  - The usage example is provided as part of the `examples/TransformExample`
+
+## Integration
+
+C# integration is as simple as adding `interop/dotnet/FiftyoneDegrees.Common/FiftyoneDegrees.Common.csproj` into your solution - so it becomes a project reference dependency.  Then you can refer to the exposed APIs in C# 
+by first `using FiftyoneDegrees.Common` namespace and then calling APIs s.a. f.e.:
+
+- `Transform` class
+- `MapStringStringSwig` - a simple Dictionary like container
+
+The `.csproj` includes a call to cmake to pre-build a native DLL and then copies that artifact into the output directory as needed.  This integration is demonstrated as parrt of the `interop/dotnet/examples/TransformExample`.  
+
+You can simply navigate into that directoy and run `dotnet run`.  
+
+**Note:** if you are using Visual Studio - sometimes it runs the pre-build targets behind the scenes - so it will invoke 
+`cmake` and your manual build will invoke it again - and concurrent cmake builds may cause some errors in the 
+build process.  They usually are resolved by closing Visual Studio, running `git clean -fdx` in the `common-cxx` 
+directory (so all CMake caches are removed), then doing a `dotnet run` once, so cmake creates correct artifacts. 

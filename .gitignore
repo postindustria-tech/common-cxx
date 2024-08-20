@@ -28,3 +28,15 @@ googletest*/
 *.CopyComplete
 *.iobj
 *.ipdb
+**/Debug
+**/Release
+**/bin
+**/CMakeFiles/
+**/CMakeCache.txt
+**/*.cmake
+**/DartConfiguration.tcl
+**/CMakeScripts/
+**/*.ninja*
+**/obj
+**/*.dll
+**/.vs

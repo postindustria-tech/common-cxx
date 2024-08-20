@@ -36,6 +36,12 @@
     exit;                                                     \
   }
 
+#define ExpectKeySymbol(json, ch)        \
+  if (*json != ch) {                     \
+    json = skip_to_next_char(json, '"'); \
+    return KEY_UNDEFINED;                \
+  }
+
 #define ValuePtr                                                           \
   (exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY ? NULL \
                                                                     : begin)
@@ -374,8 +380,7 @@ static Key read_ghev_key(const char** json,
 
       case ARCH: {
         for (const char* i = "rchitecture"; *i != '\0'; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         return ARCHITECTURE;
@@ -383,8 +388,7 @@ static Key read_ghev_key(const char** json,
 
       case FULL_VERSION_LIST: {
         for (const char* i = "ullVersionList"; *i != '\0'; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         return FULLVERSIONLIST;
@@ -408,8 +412,7 @@ static Key read_ghev_key(const char** json,
       } break;
 
       case MOBILE_OR_MODEL: {
-        ExpectSymbol(*json, 'o', *json = skip_to_next_char(*json, '"');
-                     return KEY_UNDEFINED);
+        ExpectKeySymbol(*json, 'o');
 
         ++(*json);
         NotExpectSymbol(*json, '\0', return KEY_UNDEFINED);
@@ -432,8 +435,7 @@ static Key read_ghev_key(const char** json,
 
       case PLATFORM_OR_VERSION: {
         for (const char* i = "latform"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         switch (**json) {
@@ -454,8 +456,7 @@ static Key read_ghev_key(const char** json,
 
       case READ_KEY_BRANDS: {
         for (const char* i = "ands"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         return BRANDS;
@@ -463,8 +464,7 @@ static Key read_ghev_key(const char** json,
 
       case READ_KEY_BITNESS: {
         for (const char* i = "tness"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         return BITNESS;
@@ -472,8 +472,7 @@ static Key read_ghev_key(const char** json,
 
       case READ_KEY_MOBILE: {
         for (const char* i = "ile"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         return MOBILE;
@@ -481,8 +480,7 @@ static Key read_ghev_key(const char** json,
 
       case READ_KEY_MODEL: {
         for (const char* i = "el"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         return MODEL;
@@ -490,8 +488,7 @@ static Key read_ghev_key(const char** json,
 
       case READ_KEY_PLATFORMVERSION: {
         for (const char* i = "ersion"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         return PLATFORMVERSION;
@@ -552,8 +549,7 @@ static Key read_sua_key(const char** json,
 
       case ARCH: {
         for (const char* i = "rchitecture"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         return ARCHITECTURE;
@@ -577,8 +573,7 @@ static Key read_sua_key(const char** json,
       } break;
 
       case MOBILE_OR_MODEL: {
-        ExpectSymbol(*json, 'o', *json = skip_to_next_char(*json, '"');
-                     return KEY_UNDEFINED);
+        ExpectKeySymbol(*json, 'o');
 
         ++(*json);
         NotExpectSymbol(*json, '\0', return KEY_UNDEFINED);
@@ -601,17 +596,17 @@ static Key read_sua_key(const char** json,
 
       case READ_KEY_PLATFORM: {
         for (const char* i = "latform"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, ':');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
-        return **json == '\"' ? PLATFORM : KEY_UNDEFINED;
+        ExpectKeySymbol(*json, '"');
+
+        return PLATFORM;
       } break;
 
       case READ_KEY_BROWSERS: {
         for (const char* i = "owsers"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         return FULLVERSIONLIST;
@@ -619,8 +614,7 @@ static Key read_sua_key(const char** json,
 
       case READ_KEY_BITNESS: {
         for (const char* i = "tness"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         return BITNESS;
@@ -628,8 +622,7 @@ static Key read_sua_key(const char** json,
 
       case READ_KEY_MOBILE: {
         for (const char* i = "ile"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         return MOBILE;
@@ -637,8 +630,7 @@ static Key read_sua_key(const char** json,
 
       case READ_KEY_MODEL: {
         for (const char* i = "el"; *i; ++(*json), ++i) {
-          ExpectSymbol(*json, *i, *json = skip_to_next_char(*json, '"');
-                       return KEY_UNDEFINED);
+          ExpectKeySymbol(*json, *i);
         }
 
         return MODEL;
@@ -683,7 +675,6 @@ static char* read_string_value(const char** json, char* begin,
         if ((*json)[1] == '\\' || (*json)[1] == '"') {
           ++(*json);
 
-          NotExpectSymbol(*json, '\0', return begin);
           begin = safe_write_to_buffer(begin, end, **json, exception);
         }
       } break;
@@ -780,8 +771,6 @@ static char* read_version_sua(const char** json, char* begin,
 
             if ((*json)[1] == '\\' || (*json)[1] == '"') {
               ++(*json);
-              NotExpectSymbol(*json, '\0', return begin);
-
               ptr = safe_write_to_buffer(ptr, end, **json, exception);
             }
           } break;
@@ -826,8 +815,6 @@ static char* read_brands_ghev_value(const char** json, char* begin,
   ++*json;
 
   for (char* ptr = begin;; ++*json) {
-    NotExpectSymbol(*json, '\0', return begin);
-
     *json = skip_to_next_char(*json, '{');
     ExpectSymbol(*json, '{', return begin);
 
@@ -844,7 +831,6 @@ static char* read_brands_ghev_value(const char** json, char* begin,
     ExpectSymbol(*json, ':', return begin);
 
     ++*json;
-    NotExpectSymbol(*json, '\0', return begin);
 
     char* ptr2 = read_string_value(json, ptr, end, exception);
     if (ptr2 != NULL) {
@@ -1232,8 +1218,8 @@ size_t fiftyoneDegreesTransformIterateGhevFromBase64(
   }
 
   return fiftyoneDegreesTransformIterateGhevFromJson(
-      buffer, buffer + offset, length > offset ? length - offset : 0,
-      callback, ctx, exception);
+      buffer, buffer + offset, length - offset, callback,
+      ctx, exception);
 }
 
 size_t fiftyoneDegreesTransformIterateSua(

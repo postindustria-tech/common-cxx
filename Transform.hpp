@@ -23,17 +23,9 @@ class Transform {
  public:
   Transform(size_t capacity = 1024);
 
-  Headers fromJsonGHEV(const std::string& json) {
-    return apiInvoker(fiftyoneDegreesTransformGhevFromJson, json);
-  }
-
-  Headers fromBase64GHEV(const std::string& json) {
-    return apiInvoker(fiftyoneDegreesTransformGhevFromBase64, json);
-  }
-
-  Headers fromSUA(const std::string& json) {
-    return apiInvoker(fiftyoneDegreesTransformSua, json);
-  }
+  Headers fromJsonGHEV(const std::string& json);
+  Headers fromBase64GHEV(const std::string& json);
+  Headers fromSUA(const std::string& json);
 
  private:
   std::vector<char> buffer;

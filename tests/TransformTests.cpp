@@ -20,9 +20,9 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-#include "../memory.h"
-#include "../Transform.hpp"
 #include "../Exceptions.hpp"
+#include "../Transform.hpp"
+#include "../memory.h"
 #include "Base.hpp"
 
 class Transform : public Base {
@@ -159,8 +159,8 @@ TEST_F(Transform, GHEVIterativeJSON) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
-      ghev, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &Transform::exception);
+      ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
 
   // ---
 
@@ -214,14 +214,28 @@ TEST_F(Transform, IncompleteJSON) {
 
       "{ \"incomplete_bool\": false",
 
+      "{ \"arch\": \"x86\" }",
+      "{ \"full\" : \"\" } ",
+      "{ \"min\": -1 }",
+      "{ \"placebo\": \"___\" }",
+      "{ \"bind\": true }",
+      "{ \"break\": true }",
+      "{ \"mode\": \"default\" }",
+
       "{ \"\": \"empty_key\" }",
 
       "{\"bool\": true}",
 
       "{\"more\": true}",
+      "{\"moby\": 1}",
 
       "{\"platformer\": 0}",
+      "{\"platformVer\": 0}",
 
+      "{ "
+      "\"brands\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":\"8\"},{\"brand\":\"Chromium\",\"version\":"
+      "\"126\"},{\"brand\":\"Google Chrome\",\"version\":\"126\"}]",
   };
 
   std::vector<std::string> corrupted{
@@ -232,23 +246,43 @@ TEST_F(Transform, IncompleteJSON) {
       "",
       "{ \"",
       "{ \"mobile\":",
+      "{ \"mobile\": t",
+      "{ \"mobile\": f",
       "{ \"mo",
       "{\"a",
       "{\"brands\":[{\"brand\": \"one\", \"version\":null}}",
+      "{ \"brands\":",
+      "{ \"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8\"},",
+      "{ \"brands\":{",
+      "{ \"brands\":[",
+      "{ \"brands\":[{",
+      "{ \"brands\":[{\"bra",
+      "{ \"brands\":[{\"brand\"",
+      "{ \"brands\":[{\"brand\":",
+      "{ \"brands\":[{\"brand\":\"Not/A)Brand\"",
+      "{ \"brands\":[{\"brand\":\"Not/A)Brand\",",
+      "{ \"brands\":[{\"brand\":\"Not/A)Brand\",\"",
+      "{ \"brands\":[{\"brand\":\"Not/A)Brand\",\"ver",
+      "{ \"brands\":[{\"brand\":\"Not/A)Brand\",\"version\"",
+      "{ \"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":",
+      "{ \"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":\"",
+      "{ \"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8\"",
+      "{ \"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8\"}",
+      "{ \"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8\"},",
   };
 
   for (const std::string &j : correct) {
     fiftyoneDegreesTransformIterateGhevFromJson(
-        j.c_str(), buffer, bufferLength,
-        fillResultsCallback, Transform::results, &Transform::exception);
+        j.c_str(), buffer, bufferLength, fillResultsCallback,
+        Transform::results, &Transform::exception);
 
     ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
   }
 
   for (const std::string &j : corrupted) {
     fiftyoneDegreesTransformIterateGhevFromJson(
-        j.c_str(), buffer, bufferLength,
-        fillResultsCallback, Transform::results, &Transform::exception);
+        j.c_str(), buffer, bufferLength, fillResultsCallback,
+        Transform::results, &Transform::exception);
 
     ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   }
@@ -260,6 +294,8 @@ TEST_F(Transform, IncompleteSUA) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   std::vector<std::string> correct{
+      "{\"browsers\":[{\"brand\": \"\", \"version\": [\"\\\"123\\\\\"]}]}",
+
       "{ \"key_without_value\" }",
 
       "{ \"key_without_value\": ",
@@ -290,8 +326,18 @@ TEST_F(Transform, IncompleteSUA) {
 
       "{\"bool\": true}",
 
+      "{ \"arch\": \"x86\" }",
+      "{ \"full\" : \"\" } ",
+      "{ \"min\": -1 }",
+      "{ \"placebo\": \"___\" }",
+      "{ \"bind\": true }",
+      "{ \"break\": true }",
+      "{ \"mode\": \"default\" }",
+
       "{\"more\": true}",
       "{\"browsers\":[{\"brand\": null}]}",
+      "{\"platformer\": 0}",
+      "{\"platformVer\": 0}",
   };
 
   std::vector<std::string> corrupted{
@@ -300,8 +346,37 @@ TEST_F(Transform, IncompleteSUA) {
       "{\"a",
       "{ \"mo",
       "{ \"mobile\":",
-      "{\"platformer\": 0}",
       "{\"browsers\":[{\"brand\": null}}}",
+
+      "{\n  \"browsers\"",
+      "{\n  \"browsers\":{",
+      "{\n  \"browsers\":[",
+      "{\n  \"browsers\":[{",
+      "{\n  \"browsers\":[{\"",
+      "{\n  \"browsers\":[{\"bra",
+      "{\n  \"browsers\":[{\"brand",
+      "{\n  \"browsers\":[{\"brand\"",
+      "{\n  \"browsers\":[{\"brand\":",
+      "{\n  \"browsers\":[{\"brand\":\"",
+      "{\n  \"browsers\":[{\"brand\":\"google",
+      "{\n  \"browsers\":[{\"brand\":\"google\"",
+      "{\n  \"browsers\":[{\"brand\":\"google\",",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"ver",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\"",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":[",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":[\"",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":[\"42",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":[\"42\"",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":[\"42\",",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":[\"42\",\"",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":[\"42\",\"0",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":[\"42\",\"0\"",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":[\"42\",\"0\"]",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":[\"42\",\"0\"]}",
+      "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":[\"42\",\"0\"]},",
   };
 
   for (const std::string &j : correct) {
@@ -335,8 +410,8 @@ TEST_F(Transform, GHEVIncorrectBool) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   fiftyoneDegreesTransformIterateGhevFromJson(
-      ghev, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &Transform::exception);
+      ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
 
   // ---
 
@@ -351,8 +426,7 @@ TEST_F(Transform, SUAIncorrectBool) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   fiftyoneDegreesTransformIterateSua(json, buffer, bufferLength,
-                                     fillResultsCallback,
-                                     Transform::results,
+                                     fillResultsCallback, Transform::results,
                                      &Transform::exception);
 
   // ---
@@ -374,8 +448,8 @@ TEST_F(Transform, GHEVIterativeNULLBrandJSON) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
-      ghev, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &Transform::exception);
+      ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
 
   // ---
 
@@ -408,8 +482,8 @@ TEST_F(Transform, GHEVIterativeNULLBrandVersionJSON) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
-      ghev, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &Transform::exception);
+      ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
 
   // ---
 
@@ -443,8 +517,8 @@ TEST_F(Transform, GHEVIterativeBase64) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateGhevFromBase64(
-      ghev, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &Transform::exception);
+      ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
 
   // ---
 
@@ -484,8 +558,8 @@ TEST_F(Transform, GHEVBase64CorruptedLen) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   fiftyoneDegreesTransformIterateGhevFromBase64(
-      ghev, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &Transform::exception);
+      ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
 
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
@@ -506,8 +580,8 @@ TEST_F(Transform, GHEVBase64CorruptedSymbol) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   fiftyoneDegreesTransformIterateGhevFromBase64(
-      ghev, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &Transform::exception);
+      ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
 
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
@@ -528,8 +602,8 @@ TEST_F(Transform, GHEVBase64CorruptedSymbol2) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   fiftyoneDegreesTransformIterateGhevFromBase64(
-      ghev, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &Transform::exception);
+      ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
 
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
@@ -552,8 +626,8 @@ TEST_F(Transform, GHEVIterativeSua) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateSua(
-      sua, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &Transform::exception);
+      sua, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
 
   // ---
 
@@ -594,8 +668,8 @@ TEST_F(Transform, SuaWeirdPlatformVersion) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateSua(
-      sua, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &Transform::exception);
+      sua, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
 
   // ---
 
@@ -637,8 +711,8 @@ TEST_F(Transform, SuaNullBrandPlatform) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateSua(
-      sua, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &Transform::exception);
+      sua, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
 
   // ---
 
@@ -735,6 +809,67 @@ TEST_F(Transform, GHEVArrayInsufficientCapacity) {
   fiftyoneDegreesFree(empty_headers);
 }
 
+TEST_F(Transform, GHEVBase64InsufficientCapacity) {
+  const char *ghev =
+      "eyJiaXRuZXNzIjoiNjQiLCJicmFuZHMiOlt7ImJyYW5kIjoiTm90L0EpQnJhbmQiLCJ2ZXJz"
+      "aW9uIjoiOCJ9LHsiYnJhbmQiOiJDaHJvbWl1bSIsInZlcnNpb24iOiIxMjYifSx7ImJyYW5k"
+      "IjoiR29vZ2xlIENocm9tZSIsInZlcnNpb24iOiIxMjYifV0sImZ1bGxWZXJzaW9uTGlzdCI6"
+      "W3siYnJhbmQiOiJOb3QvQSlCcmFuZCIsInZlcnNpb24iOiI4LjAuMC4wIn0seyJicmFuZCI6"
+      "IkNocm9taXVtIiwidmVyc2lvbiI6IjEyNi4wLjY0NzguMTI3In0seyJicmFuZCI6Ikdvb2ds"
+      "ZSBDaHJvbWUiLCJ2ZXJzaW9uIjoiMTI2LjAuNjQ3OC4xMjcifV0sIm1vYmlsZSI6dHJ1ZSwi"
+      "bW9kZWwiOiIiLCJwbGF0Zm9ybSI6Im1hY09TIiwid293NjQiOmZhbHNlfQ==";
+
+  size_t bufferLength = strlen(ghev) * 3;
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+
+  fiftyoneDegreesKeyValuePairArray *empty_headers = NULL;
+  FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, empty_headers, 0);
+
+  size_t count = fiftyoneDegreesTransformGhevFromBase64(
+      ghev, buffer, bufferLength, empty_headers, &Transform::exception);
+
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
+  ASSERT_EQ(count, 1);
+
+  fiftyoneDegreesFree(buffer);
+  fiftyoneDegreesFree(empty_headers);
+}
+
+TEST_F(Transform, SUAInsufficientCapacity) {
+  const char *sua =
+      "{\"source\": 2,\"browsers\": [{\"brand\": \"Not A;Brand\",\"version\":"
+      "[\"99\",\"0\",\"0\",\"0\"]},{\"brand\": \"Chromium\",\"version\": "
+      "[\"99\",\"0\",\"4844\",\"88\"]},{\"brand\": \"Google "
+      "Chrome\",\"version\": [\"99\",\"0\",\"4844\",\"88\"]}],\"platform\": "
+      "{\"brand\": \"Android\",\"version\": [\"12\"]},\"mobile\": "
+      "1,\"architecture\": \"arm\",\"bitness\": \"64\",\"model\": \"Pixel6\"}";
+
+  size_t bufferLength = strlen(sua);
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+
+  fiftyoneDegreesKeyValuePairArray *empty_headers = NULL;
+  FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, empty_headers, 0);
+
+  size_t count = fiftyoneDegreesTransformSua(
+      sua, buffer, bufferLength, empty_headers, &Transform::exception);
+
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
+  ASSERT_EQ(count, 1);
+
+  fiftyoneDegreesKeyValuePairArray *headers = NULL;
+  FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, headers, 3);
+
+  count = fiftyoneDegreesTransformSua(sua, buffer, bufferLength, headers,
+                                      &Transform::exception);
+
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  ASSERT_EQ(count, 3);
+
+  fiftyoneDegreesFree(headers);
+  fiftyoneDegreesFree(empty_headers);
+  fiftyoneDegreesFree(buffer);
+}
+
 TEST_F(Transform, GHEVBase64) {
   const char *ghev =
       "eyJiaXRuZXNzIjoiNjQiLCJicmFuZHMiOlt7ImJyYW5kIjoiTm90L0EpQnJhbmQiLCJ2ZXJz"
@@ -788,8 +923,31 @@ TEST_F(Transform, GHEVBase64NotEnoughMemory) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   fiftyoneDegreesTransformIterateGhevFromBase64(
-      ghev, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &Transform::exception);
+      ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
+
+  // ---
+
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+  fiftyoneDegreesFree(buffer);
+}
+
+TEST_F(Transform, SUANotEnoughMemory) {
+  const char *sua =
+      "{\"source\":2,\"platform\":{\"brand\":\"macOS\",\"version\":[\"14\","
+      "\"5\",\"0\"]},\"browsers\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":[\"8\",\"0\",\"0\",\"0\"]},{\"brand\":"
+      "\"Chromium\",\"version\":[\"126\",\"0\",\"6478\",\"127\"]},{\"brand\":"
+      "\"Google "
+      "Chrome\",\"version\":[\"126\",\"0\",\"6478\",\"127\"]}],\"mobile\":1,"
+      "\"model\":\"MacBook\",\"architecture\":\"x86\"}";
+
+  size_t bufferLength = 144;
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+
+  fiftyoneDegreesTransformIterateSua(
+      sua, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &Transform::exception);
 
   // ---
 
@@ -836,6 +994,27 @@ TEST_F(Transform, GHEVArraySua) {
   fiftyoneDegreesFree(buffer);
 }
 
+TEST_F(Transform, SUAArrayNotEnoughMemory) {
+  const char *sua =
+      "{\"source\":2,\"browsers\":[{\"brand\":\"Not/"
+      "A)Brand\",\"version\":[\"8\",\"0\",\"0\",\"0\"]},{\"brand\":"
+      "\"Chromium\",\"version\":[\"126\",\"0\",\"6478\",\"127\"]},{\"brand\":"
+      "\"Google "
+      "Chrome\",\"version\":[\"126\",\"0\",\"6478\",\"127\"]}],\"mobile\":1,"
+      "\"model\":\"MacBook\",\"architecture\":\"x86\"}";
+
+  size_t bufferLength = 142;
+  char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
+
+  fiftyoneDegreesTransformSua(sua, buffer, bufferLength, results,
+                                             &Transform::exception);
+
+  // ---
+
+  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+  fiftyoneDegreesFree(buffer);
+}
+
 TEST_F(Transform, GHEVPartial) {
   const char *ghev =
       "{\"brands\":[{\"brand\":\"Not/"
@@ -851,8 +1030,8 @@ TEST_F(Transform, GHEVPartial) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
-      ghev, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &exception);
+      ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &exception);
   ASSERT_EQ(count, 4);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
 
@@ -901,8 +1080,8 @@ TEST_F(Transform, GHEVIgnoreUnused) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
-      ghev, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &exception);
+      ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &exception);
 
   ASSERT_EQ(count, 8);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
@@ -947,9 +1126,9 @@ TEST_F(Transform, GHEVCorruptInput) {
   size_t bufferLength = strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-  fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength, fillResultsCallback,
-                                              Transform::results,
-                                              &exception);
+  fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength,
+                                              fillResultsCallback,
+                                              Transform::results, &exception);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
 }
@@ -968,9 +1147,9 @@ TEST_F(Transform, GHEVBufferTooSmall) {
   size_t bufferLength = 20;
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-  fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength, fillResultsCallback,
-                                              Transform::results,
-                                              &exception);
+  fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength,
+                                              fillResultsCallback,
+                                              Transform::results, &exception);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
   fiftyoneDegreesFree(buffer);
 }
@@ -989,9 +1168,9 @@ TEST_F(Transform, GHEVEvidenceLowCapacity) {
   size_t bufferLength = 20;
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
-  fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength, fillResultsCallback,
-                                              Transform::results,
-                                              &exception);
+  fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength,
+                                              fillResultsCallback,
+                                              Transform::results, &exception);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
   fiftyoneDegreesFree(buffer);
 }
@@ -1009,8 +1188,8 @@ TEST_F(Transform, SUAHappyPath) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateSua(
-      sua, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &exception);
+      sua, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &exception);
 
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
 
@@ -1059,8 +1238,8 @@ TEST_F(Transform, SUAPlatformExt) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateSua(
-      sua, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &exception);
+      sua, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &exception);
   ASSERT_EQ(count, 5);
   // we expect to see these headers detected:
   // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
@@ -1096,8 +1275,8 @@ TEST_F(Transform, SUAPartial1) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateSua(
-      sua, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &exception);
+      sua, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &exception);
   ASSERT_EQ(count, 4);
   // we expect to see these headers detected:
   // low entropy: sec-ch-ua-mobile, sec-ch-ua-platform
@@ -1131,8 +1310,8 @@ TEST_F(Transform, SUAPartial2) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateSua(
-      sua, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &exception);
+      sua, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &exception);
   ASSERT_EQ(count, 5);
 
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
@@ -1164,8 +1343,8 @@ TEST_F(Transform, SUATolerableCorrupt) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   size_t count = fiftyoneDegreesTransformIterateSua(
-      sua, buffer, bufferLength, fillResultsCallback,
-      Transform::results, &exception);
+      sua, buffer, bufferLength, fillResultsCallback, Transform::results,
+      &exception);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
 
   ASSERT_EQ(count, 5);
@@ -1193,7 +1372,8 @@ TEST_F(Transform, SUACorrupt2) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength,
-                                     fillResultsCallback, Transform::results, &exception);
+                                     fillResultsCallback, Transform::results,
+                                     &exception);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
 }
@@ -1208,7 +1388,8 @@ TEST_F(Transform, SUACorrupt3) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength,
-                                     fillResultsCallback, Transform::results, &exception);
+                                     fillResultsCallback, Transform::results,
+                                     &exception);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
 }
@@ -1226,7 +1407,8 @@ TEST_F(Transform, SUABufferTooSmall) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength,
-                                     fillResultsCallback, Transform::results, &exception);
+                                     fillResultsCallback, Transform::results,
+                                     &exception);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
   fiftyoneDegreesFree(buffer);
 }
@@ -1244,7 +1426,8 @@ TEST_F(Transform, SUAEvidenceLowCapacity) {
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
   fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength,
-                                     fillResultsCallback, Transform::results, &exception);
+                                     fillResultsCallback, Transform::results,
+                                     &exception);
   ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
   fiftyoneDegreesFree(buffer);
 }
@@ -1310,17 +1493,16 @@ TEST_F(Transform, CPPWrapperBase64) {
 
   ASSERT_EQ(h["sec-ch-ua"],
             "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google "
-                  "Chrome\";v=\"126\"");
+            "Chrome\";v=\"126\"");
 
   ASSERT_EQ(h["sec-ch-ua-full-version-list"],
             "\"Not/A)Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"126.0.6478.127\", "
-      "\"Google Chrome\";v=\"126.0.6478.127\"");
+            "\"Google Chrome\";v=\"126.0.6478.127\"");
 
   ASSERT_EQ(h["sec-ch-ua-mobile"], "?0");
   ASSERT_EQ(h["sec-ch-ua-model"], "\"\"");
   ASSERT_EQ(h["sec-ch-ua-platform"], "\"macOS\"");
   ASSERT_EQ(h["sec-ch-ua-platform-version"], "\"14.5.0\"");
-
 
   EXPECT_FALSE(h.find("sec-ch-ua-arch") != h.end());
   EXPECT_FALSE(h.find("sec-ch-ua-bitness") != h.end());
@@ -1349,17 +1531,16 @@ TEST_F(Transform, CPPWrapperBase64InsufficientMemory) {
 
   ASSERT_EQ(h["sec-ch-ua"],
             "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google "
-                  "Chrome\";v=\"126\"");
+            "Chrome\";v=\"126\"");
 
   ASSERT_EQ(h["sec-ch-ua-full-version-list"],
             "\"Not/A)Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"126.0.6478.127\", "
-      "\"Google Chrome\";v=\"126.0.6478.127\"");
+            "\"Google Chrome\";v=\"126.0.6478.127\"");
 
   ASSERT_EQ(h["sec-ch-ua-mobile"], "?0");
   ASSERT_EQ(h["sec-ch-ua-model"], "\"\"");
   ASSERT_EQ(h["sec-ch-ua-platform"], "\"macOS\"");
   ASSERT_EQ(h["sec-ch-ua-platform-version"], "\"14.5.0\"");
-
 
   EXPECT_FALSE(h.find("sec-ch-ua-arch") != h.end());
   EXPECT_FALSE(h.find("sec-ch-ua-bitness") != h.end());
@@ -1386,14 +1567,14 @@ TEST_F(Transform, CPPWrapperSUA) {
   EXPECT_TRUE(h.find("sec-ch-ua-platform-version") != h.end());
   EXPECT_TRUE(h.find("sec-ch-ua-full-version-list") != h.end());
 
-
   ASSERT_EQ(h["sec-ch-ua-arch"], "\"x86\"");
   ASSERT_EQ(h["sec-ch-ua-model"], "\"MacBook\"");
   ASSERT_EQ(h["sec-ch-ua-mobile"], "?1");
   ASSERT_EQ(h["sec-ch-ua-platform"], "\"macOS\"");
   ASSERT_EQ(h["sec-ch-ua-platform-version"], "\"14.5.0\"");
-  ASSERT_EQ(h["sec-ch-ua-full-version-list"],
-            "\"Not/"
+  ASSERT_EQ(
+      h["sec-ch-ua-full-version-list"],
+      "\"Not/"
       "A)Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"126.0.6478.127\", \"Google "
       "Chrome\";v=\"126.0.6478.127\"");
 
@@ -1402,16 +1583,16 @@ TEST_F(Transform, CPPWrapperSUA) {
 }
 
 TEST_F(Transform, emptycases) {
-    FiftyoneDegrees::Common::Transform t;
-    auto result = t.fromJsonGHEV("{}");
-    EXPECT_EQ(result.size(), 0);
-    bool thrown = false;
-    try {
-        t.fromJsonGHEV("");
-    } catch (const FiftyoneDegrees::Common::FatalException &e) {
-        EXPECT_EQ(e.getCode(), FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
-        thrown = true;
-    }
+  FiftyoneDegrees::Common::Transform t;
+  auto result = t.fromJsonGHEV("{}");
+  EXPECT_EQ(result.size(), 0);
+  bool thrown = false;
+  try {
+    t.fromJsonGHEV("");
+  } catch (const FiftyoneDegrees::Common::FatalException &e) {
+    EXPECT_EQ(e.getCode(), FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    thrown = true;
+  }
 
-    EXPECT_TRUE(thrown);
+  EXPECT_TRUE(thrown);
 }

@@ -143,21 +143,21 @@ else ()
 	endif()
 endif()
 
-# Examples
-
-add_executable(CachePerf ${CMAKE_CURRENT_LIST_DIR}/performance/CachePerf.c)
-target_link_libraries(CachePerf	fiftyone-common-c)
-if (MSVC)
-	target_compile_options(CachePerf PRIVATE "/D_CRT_SECURE_NO_WARNINGS" "/W4" "/WX")
-	target_link_options(CachePerf PRIVATE "/WX")
-else ()
-	target_compile_options(CachePerf PRIVATE ${COMPILE_OPTION_DEBUG} "-Werror")
-endif()
-set_target_properties(CachePerf	PROPERTIES FOLDER "Examples/Common") 
-
 # Tests
+# BUILD_TESTING is true by default, but in some cases it is desirable to turn off
 
 if(BUILD_TESTING)
+	# Examples
+	add_executable(CachePerf ${CMAKE_CURRENT_LIST_DIR}/performance/CachePerf.c)
+	target_link_libraries(CachePerf	fiftyone-common-c)
+	if (MSVC)
+		target_compile_options(CachePerf PRIVATE "/D_CRT_SECURE_NO_WARNINGS" "/W4" "/WX")
+		target_link_options(CachePerf PRIVATE "/WX")
+	else ()
+		target_compile_options(CachePerf PRIVATE ${COMPILE_OPTION_DEBUG} "-Werror")
+	endif()
+	set_target_properties(CachePerf	PROPERTIES FOLDER "Examples/Common") 
+
 	# Download and unpack googletest at configure time
 	configure_file(${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt.in googletest-download/CMakeLists.txt)
 	execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .

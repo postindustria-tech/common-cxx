@@ -25,8 +25,8 @@
 
 // Add two characters to the buffer if space is available.
 static void addTwo(fiftyoneDegreesJson* s, char a, char b) {
-	StringBuilderAddChar(&s->buffer, a);
-	StringBuilderAddChar(&s->buffer, b);
+	StringBuilderAddChar(&s->builder, a);
+	StringBuilderAddChar(&s->builder, b);
 }
 
 // Adds a string of characters escaping special characters.
@@ -55,7 +55,7 @@ static void addStringEscape(
 			addTwo(s, '\\', 't');
 			break;
 		default:
-			StringBuilderAddChar(&s->buffer, value[i]);
+			StringBuilderAddChar(&s->builder, value[i]);
 			break;
 		}
 	}
@@ -67,24 +67,24 @@ static void addString(
 	fiftyoneDegreesJson* s,
 	const char* value,
 	size_t length) {
-	StringBuilderAddChar(&s->buffer, '\"');
+	StringBuilderAddChar(&s->builder, '\"');
 	addStringEscape(s, value, length);
-	StringBuilderAddChar(&s->buffer, '\"');
+	StringBuilderAddChar(&s->builder, '\"');
 }
 
 // Adds a comma separator.
 static void addSeparator(fiftyoneDegreesJson* s) {
-	StringBuilderAddChar(&s->buffer, ',');
+	StringBuilderAddChar(&s->builder, ',');
 }
 
 void fiftyoneDegreesJsonDocumentStart(fiftyoneDegreesJson* s) {
-	StringBuilderInit(&s->buffer);
-	StringBuilderAddChar(&s->buffer, '{');
+	StringBuilderInit(&s->builder);
+	StringBuilderAddChar(&s->builder, '{');
 }
 
 void fiftyoneDegreesJsonDocumentEnd(fiftyoneDegreesJson* s) {
-	StringBuilderAddChar(&s->buffer, '}');
-	StringBuilderComplete(&s->buffer);
+	StringBuilderAddChar(&s->builder, '}');
+	StringBuilderComplete(&s->builder);
 }
 
 void fiftyoneDegreesJsonPropertySeparator(fiftyoneDegreesJson* s) {
@@ -116,9 +116,9 @@ void fiftyoneDegreesJsonPropertyStart(fiftyoneDegreesJson* s) {
 		// it's a list or single value property.
 		const char* value = FIFTYONE_DEGREES_STRING(name);
 		addString(s, value, strlen(value));
-		StringBuilderAddChar(&s->buffer, ':');
+		StringBuilderAddChar(&s->builder, ':');
 		if (s->property->isList) {
-			StringBuilderAddChar(&s->buffer, '[');
+			StringBuilderAddChar(&s->builder, '[');
 		}
 
 		// Release the string.
@@ -127,8 +127,14 @@ void fiftyoneDegreesJsonPropertyStart(fiftyoneDegreesJson* s) {
 }
 
 void fiftyoneDegreesJsonPropertyEnd(fiftyoneDegreesJson* s) {
+    if (s->property == NULL) {
+        fiftyoneDegreesException* exception = s->exception;
+        FIFTYONE_DEGREES_EXCEPTION_SET(
+            FIFTYONE_DEGREES_STATUS_NULL_POINTER)
+            return;
+    }
 	if (s->property->isList) {
-		StringBuilderAddChar(&s->buffer, ']');
+		StringBuilderAddChar(&s->builder, ']');
 	}
 }
 

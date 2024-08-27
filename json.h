@@ -77,7 +77,7 @@
  * to determine when the buffer provided needs to be larger.
  */
 typedef struct fiftyone_degrees_json {
-	fiftyoneDegreesStringBuilder buffer; /**< Output buffer */
+	fiftyoneDegreesStringBuilder builder; /**< Output buffer */
 	fiftyoneDegreesCollection* strings; /**< Collection of strings */
 	fiftyoneDegreesProperty* property; /**< The property being added */
 	fiftyoneDegreesList* values; /**< The values for the property */

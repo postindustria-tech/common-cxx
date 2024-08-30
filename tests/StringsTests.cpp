@@ -171,6 +171,37 @@ TEST_F(Strings, StringBuilderAddMaxInt) {
     ASSERT_FALSE(builder->full);
 }
 
+TEST_F(Strings, StringBuilderNullBuffer) {
+    StringBuilder *prev = builder;
+    StringBuilder local = {nullptr, 0};
+    builder = &local;
+    fiftyoneDegreesStringBuilderInit(builder);
+    EXPECT_EQ(builder->remaining, 0);
+    fiftyoneDegreesStringBuilderAddChars(builder, (char *) "asdf", 4);
+    fiftyoneDegreesStringBuilderComplete(builder);
+    EXPECT_EQ(builder->full, true);
+    builder = prev;
+}
+
+TEST_F(Strings, StringBuilderOneChar) {
+    StringBuilder *prev = builder;
+    StringBuilder local = {(char *) fiftyoneDegreesMalloc(1), 1};
+    builder = &local;
+    
+    fiftyoneDegreesStringBuilderInit(builder);
+    EXPECT_EQ(builder->remaining, 1);
+    EXPECT_EQ(builder->full, false);
+    fiftyoneDegreesStringBuilderAddChars(builder, (char *) "a", 1);
+    EXPECT_EQ(builder->full, true);
+    fiftyoneDegreesStringBuilderComplete(builder);
+    EXPECT_STREQ(builder->ptr, "");
+    EXPECT_EQ(builder->full, true);
+    
+    fiftyoneDegreesFree(local.ptr);
+    builder = prev;
+}
+
+
 //Some tests below were generated using OpenAI ChatGPT
 TEST_F(Strings, SubString) {
     // Basic Match Test

@@ -175,7 +175,9 @@ fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderComplete(
 		builder->added++;
 	}
 	else {
-		*(builder->ptr + builder->length - 1) = '\0';
+        if (builder->ptr && builder->length > 0) {
+            *(builder->ptr + builder->length - 1) = '\0';
+        }
 		builder->full = true;
 	}
 	return builder;

@@ -29,7 +29,6 @@
 
 #include "transform.h"
 
-
 /**
  * A C++ wrapper class for transform.h conversion routines.
  * Encapsulates a working memory buffer to be reused when invoking conversion functions.  The methods of a single instance can be invoked

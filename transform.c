@@ -21,19 +21,20 @@
  * ********************************************************************* */
 
 #include "transform.h"
+#include "fiftyone.h"
 
 #define initStaticKey(x) {x, sizeof(x) - 1}
 
-#define NotExpectSymbol(json, ch, exit)                       \
-  if (*json == ch) {                                          \
-    exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA; \
-    exit;                                                     \
+#define NotExpectSymbol(json, ch, exit) \
+  if (*json == ch) {                    \
+    exception->status = CORRUPT_DATA;   \
+    exit;                               \
   }
 
-#define ExpectSymbol(json, ch, exit)                          \
-  if (*json != ch) {                                          \
-    exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA; \
-    exit;                                                     \
+#define ExpectSymbol(json, ch, exit)  \
+  if (*json != ch) {                  \
+    exception->status = CORRUPT_DATA; \
+    exit;                             \
   }
 
 #define ExpectKeySymbol(json, ch)        \
@@ -42,9 +43,9 @@
     return KEY_UNDEFINED;                \
   }
 
-#define ValuePtr                                                           \
-  (exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY ? NULL \
-                                                                    : begin)
+#define ValuePtr \
+  (exception->status == INSUFFICIENT_MEMORY ? NULL \
+                                                  : begin)
 
 #define GET_SEXTET(str, i) \
   (str[i] == '=' ? 0 & i++ : base64_char_to_value(str[i++], exception))
@@ -61,11 +62,11 @@ typedef enum {
   KEY_UNDEFINED,    //
 } Key;
 
-typedef Key (*readKeyCallback)(const char**, fiftyoneDegreesException* const);
+typedef Key (*readKeyCallback)(const char**, Exception* const);
 typedef char* (*readValueCallback)(const char** json, char* begin,
                                    const char* const end,
-                                   fiftyoneDegreesKeyValuePair* cache, Key key,
-                                   fiftyoneDegreesException* const exception);
+                                   KeyValuePair* cache, Key key,
+                                   Exception* const exception);
 
 static struct {
   const char* key;
@@ -85,18 +86,18 @@ static struct {
 
 static inline char* safe_write_to_buffer(
     char* begin, const char* const end, char symbol,
-    fiftyoneDegreesException* const exception) {
+    Exception* const exception) {
   if (begin < end) {
     *begin = symbol;
   } else {
-    exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY;
+    exception->status = INSUFFICIENT_MEMORY;
   }
 
   return ++begin;
 }
 
 static inline uint32_t base64_char_to_value(
-    char c, fiftyoneDegreesException* const exception) {
+    char c, Exception* const exception) {
   static const uint32_t base64_lookup_table[256] = {
       255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
       255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -118,7 +119,7 @@ static inline uint32_t base64_char_to_value(
       255};
 
   if (base64_lookup_table[(uint8_t)c] == 255) {
-    exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+    exception->status = CORRUPT_DATA;
   }
 
   return base64_lookup_table[(uint8_t)c];
@@ -126,10 +127,10 @@ static inline uint32_t base64_char_to_value(
 
 static size_t base64_decode(const char* base64_input, char* const buffer,
                             size_t length,
-                            fiftyoneDegreesException* const exception) {
+                            Exception* const exception) {
   size_t input_length = strlen(base64_input);
   if (input_length % 4 != 0) {
-    exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+    exception->status = CORRUPT_DATA;
     return 0;  // Invalid base64 input length
   }
 
@@ -142,7 +143,7 @@ static size_t base64_decode(const char* base64_input, char* const buffer,
     uint32_t sextet_c = GET_SEXTET(base64_input, i);
     uint32_t sextet_d = GET_SEXTET(base64_input, i);
 
-    if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
+    if (exception->status == CORRUPT_DATA) {
       return 0;
     }
 
@@ -295,8 +296,8 @@ static const char* skip_value(const char* json) {
 }
 
 static inline char* init_keys(char* const begin, const char* const end,
-                              fiftyoneDegreesKeyValuePair* cache,
-                              fiftyoneDegreesException* const exception) {
+                              KeyValuePair* cache,
+                              Exception* const exception) {
   char* ptr = begin;
 
   for (size_t k = 0; k < KEY_UNDEFINED; ++k) {
@@ -313,9 +314,9 @@ static inline char* init_keys(char* const begin, const char* const end,
 
 static const char* init_parsing(const char* json, char** begin,
                                 const char* const end,
-                                fiftyoneDegreesKeyValuePair* cache,
-                                fiftyoneDegreesException* const exception) {
-  exception->status = FIFTYONE_DEGREES_STATUS_SUCCESS;
+                                KeyValuePair* cache,
+                                Exception* const exception) {
+  exception->status = SUCCESS;
 
   *begin = init_keys(*begin, end, cache, exception);
 
@@ -325,7 +326,7 @@ static const char* init_parsing(const char* json, char** begin,
 }
 
 static Key read_ghev_key(const char** json,
-                         fiftyoneDegreesException* const exception) {
+                         Exception* const exception) {
   enum ReadKeyState {
     READ_KEY_INIT,
     ARCH,
@@ -500,7 +501,7 @@ static Key read_ghev_key(const char** json,
 }
 
 static Key read_sua_key(const char** json,
-                        fiftyoneDegreesException* const exception) {
+                        Exception* const exception) {
   enum ReadKeyState {
     READ_KEY_INIT,
     BROWSERS_OR_BITNESS,
@@ -643,7 +644,7 @@ static Key read_sua_key(const char** json,
 
 static char* read_string_value(const char** json, char* begin,
                                const char* const end,
-                               fiftyoneDegreesException* const exception) {
+                               Exception* const exception) {
   *json = skip_whitespaces(*json);
   if (**json == 'n') {
     ++(*json);
@@ -684,8 +685,8 @@ static char* read_string_value(const char** json, char* begin,
 
 static char* read_bool_ghev_value(const char** json, char* begin,
                                   const char* const end,
-                                  fiftyoneDegreesKeyValuePair* cache, Key key,
-                                  fiftyoneDegreesException* const exception) {
+                                  KeyValuePair* cache, Key key,
+                                  Exception* const exception) {
   char* ptr = begin;
 
   switch (**json) {
@@ -710,7 +711,7 @@ static char* read_bool_ghev_value(const char** json, char* begin,
     } break;
 
     default: {
-      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+      exception->status = CORRUPT_DATA;
       return begin;
     } break;
   }
@@ -723,15 +724,15 @@ static char* read_bool_ghev_value(const char** json, char* begin,
 
 static char* read_bool_sua_value(const char** json, char* begin,
                                  const char* const end,
-                                 fiftyoneDegreesKeyValuePair* cache, Key key,
-                                 fiftyoneDegreesException* const exception) {
+                                 KeyValuePair* cache, Key key,
+                                 Exception* const exception) {
   switch (**json) {
     case '0':
     case '1': {
     } break;
 
     default: {
-      exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+      exception->status = CORRUPT_DATA;
       return begin;
     } break;
   }
@@ -749,7 +750,7 @@ static char* read_bool_sua_value(const char** json, char* begin,
 
 static char* read_version_sua(const char** json, char* begin,
                               const char* const end,
-                              fiftyoneDegreesException* const exception) {
+                              Exception* const exception) {
   enum version_state {
     version_read,
     version_skip,
@@ -807,8 +808,8 @@ static char* read_version_sua(const char** json, char* begin,
 
 static char* read_brands_ghev_value(const char** json, char* begin,
                                     const char* const end,
-                                    fiftyoneDegreesKeyValuePair* cache, Key key,
-                                    fiftyoneDegreesException* const exception) {
+                                    KeyValuePair* cache, Key key,
+                                    Exception* const exception) {
   *json = skip_to_next_char(*json, '[');
   ExpectSymbol(*json, '[', return begin);
 
@@ -894,7 +895,7 @@ static char* read_brands_ghev_value(const char** json, char* begin,
       } break;
 
       default: {
-        exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+        exception->status = CORRUPT_DATA;
         return begin;
       } break;
     }
@@ -903,8 +904,8 @@ static char* read_brands_ghev_value(const char** json, char* begin,
 
 static char* read_brands_sua_value(const char** json, char* begin,
                                    const char* const end,
-                                   fiftyoneDegreesKeyValuePair* cache, Key key,
-                                   fiftyoneDegreesException* const exception) {
+                                   KeyValuePair* cache, Key key,
+                                   Exception* const exception) {
   *json = skip_to_next_char(*json, '[');
   ExpectSymbol(*json, '[', return begin);
 
@@ -983,7 +984,7 @@ static char* read_brands_sua_value(const char** json, char* begin,
       } break;
 
       default: {
-        exception->status = FIFTYONE_DEGREES_STATUS_CORRUPT_DATA;
+        exception->status = CORRUPT_DATA;
         return begin;
       } break;
     }
@@ -992,8 +993,8 @@ static char* read_brands_sua_value(const char** json, char* begin,
 
 static char* read_pure_string_value(const char** json, char* begin,
                                     const char* const end,
-                                    fiftyoneDegreesKeyValuePair* cache, Key key,
-                                    fiftyoneDegreesException* const exception) {
+                                    KeyValuePair* cache, Key key,
+                                    Exception* const exception) {
   char* ptr = read_string_value(json, begin, end, exception);
 
   if (ptr != NULL) {
@@ -1006,8 +1007,8 @@ static char* read_pure_string_value(const char** json, char* begin,
 
 static char* read_platform_sua_value(
     const char** json, char* begin, const char* const end,
-    fiftyoneDegreesKeyValuePair* cache, Key key,
-    fiftyoneDegreesException* const exception) {
+    KeyValuePair* cache, Key key,
+    Exception* const exception) {
   *json = skip_to_next_char(*json, '{');
   ExpectSymbol(*json, '{', return begin);
 
@@ -1117,12 +1118,11 @@ static inline readValueCallback read_value_switch(Key key, int isSua) {
   return res;
 }
 
-static bool pushToHeaders(void* ctx, fiftyoneDegreesKeyValuePair header) {
-  fiftyoneDegreesKeyValuePairArray* const headers =
-      (fiftyoneDegreesKeyValuePairArray* const)ctx;
+static bool pushToHeaders(void* ctx, KeyValuePair header) {
+  KeyValuePairArray* const headers = (KeyValuePairArray* const)ctx;
 
   if (headers->count < headers->capacity) {
-    fiftyoneDegreesKeyValuePair* pair = headers->items + headers->count++;
+    KeyValuePair* pair = headers->items + headers->count++;
 
     pair->key = header.key;
     pair->keyLength = header.keyLength;
@@ -1134,11 +1134,11 @@ static bool pushToHeaders(void* ctx, fiftyoneDegreesKeyValuePair header) {
 // ------------------------------------------------------------------------------------------------
 static size_t main_parsing_body(const char* json, char* const buffer,
                                 size_t length,
-                                fiftyoneDegreesException* const exception,
+                                Exception* const exception,
                                 int isSua,
-                                fiftyoneDegreesTransformCallback callback,
+                                TransformCallback callback,
                                 void* ctx) {
-  fiftyoneDegreesKeyValuePair cache[KEY_UNDEFINED];
+  KeyValuePair cache[KEY_UNDEFINED];
 
   // define buffer range
   char* begin = buffer;
@@ -1146,8 +1146,8 @@ static size_t main_parsing_body(const char* json, char* const buffer,
 
   // write keys to buffer, init cache and skip to the first key
   json = init_parsing(json, &begin, end, cache, exception);
-  if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA ||
-      exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY) {
+  if (exception->status == CORRUPT_DATA ||
+      exception->status == INSUFFICIENT_MEMORY) {
     return 0;
   }
 
@@ -1172,7 +1172,7 @@ static size_t main_parsing_body(const char* json, char* const buffer,
     NotExpectSymbol(json, '\0', break);
 
     char* ptr = read_value(&json, begin, end, cache, key, exception);
-    if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
+    if (exception->status == CORRUPT_DATA) {
       break;
     }
 
@@ -1199,73 +1199,76 @@ static size_t main_parsing_body(const char* json, char* const buffer,
 }
 
 // ------------------------------------------------------------------------------------------------
-size_t fiftyoneDegreesTransformIterateGhevFromJson(
+size_t TransformIterateGhevFromJson(
     const char* json, char* const buffer, size_t length,
     fiftyoneDegreesTransformCallback callback, void* ctx,
     fiftyoneDegreesException* const exception) {
   return main_parsing_body(json, buffer, length, exception, 0, callback, ctx);
 }
 
-size_t fiftyoneDegreesTransformIterateGhevFromBase64(
+size_t TransformIterateGhevFromBase64(
     const char* base64, char* buffer, size_t length,
     fiftyoneDegreesTransformCallback callback, void* ctx,
     fiftyoneDegreesException* const exception) {
   size_t offset = base64_decode(base64, buffer, length, exception);
 
-  if (exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY ||
-      exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
+  if (exception->status == INSUFFICIENT_MEMORY ||
+      exception->status == CORRUPT_DATA) {
     return 0;
   }
 
-  return fiftyoneDegreesTransformIterateGhevFromJson(
+  return TransformIterateGhevFromJson(
       buffer, buffer + offset, length - offset, callback,
       ctx, exception);
 }
 
-size_t fiftyoneDegreesTransformIterateSua(
+size_t TransformIterateSua(
     const char* json, char* const buffer, size_t length,
     fiftyoneDegreesTransformCallback callback, void* ctx,
     fiftyoneDegreesException* const exception) {
   return main_parsing_body(json, buffer, length, exception, 1, callback, ctx);
 }
 
-size_t fiftyoneDegreesTransformGhevFromJson(
+size_t TransformGhevFromJson(
     const char* json, char* buffer, size_t length,
     fiftyoneDegreesKeyValuePairArray* const headers,
     fiftyoneDegreesException* const exception) {
-  size_t calls = fiftyoneDegreesTransformIterateGhevFromJson(
+  uint32_t initial = headers->count;
+  size_t calls = TransformIterateGhevFromJson(
       json, buffer, length, pushToHeaders, headers, exception);
 
-  if (calls != headers->count) {
-    exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY;
+  if (calls != headers->count - initial) {
+    exception->status = INSUFFICIENT_CAPACITY;
   }
 
   return calls;
 }
 
-size_t fiftyoneDegreesTransformGhevFromBase64(
+size_t TransformGhevFromBase64(
     const char* base64, char* buffer, size_t length,
     fiftyoneDegreesKeyValuePairArray* const headers,
     fiftyoneDegreesException* const exception) {
-  size_t calls = fiftyoneDegreesTransformIterateGhevFromBase64(
+  uint32_t initial = headers->count;
+  size_t calls = TransformIterateGhevFromBase64(
       base64, buffer, length, pushToHeaders, headers, exception);
 
-  if (calls != headers->count) {
-    exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY;
+  if (calls != headers->count - initial) {
+    exception->status = INSUFFICIENT_CAPACITY;
   }
 
   return calls;
 }
 
-size_t fiftyoneDegreesTransformSua(
+size_t TransformSua(
     const char* json, char* buffer, size_t length,
     fiftyoneDegreesKeyValuePairArray* const headers,
     fiftyoneDegreesException* const exception) {
-  size_t calls = fiftyoneDegreesTransformIterateSua(
+  uint32_t initial = headers->count;
+  size_t calls = TransformIterateSua(
       json, buffer, length, pushToHeaders, headers, exception);
 
-  if (calls != headers->count) {
-    exception->status = FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY;
+  if (calls != headers->count - initial) {
+    exception->status = INSUFFICIENT_CAPACITY;
   }
 
   return calls;

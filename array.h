@@ -40,6 +40,9 @@
  * @{
  */
 
+#include <stdint.h>
+#include "memory.h"
+
 /**
  * Simple array structure definition macro used for generic types.
  * @param t type of item
@@ -64,7 +67,7 @@ typedef struct fiftyone_degrees_array_##t##_t { \
  * Initialises the array.
  */
 #define FIFTYONE_DEGREES_ARRAY_CREATE(t, i, c) \
-i = (t##Array*)Malloc(FIFTYONE_DEGREES_ARRAY_SIZE(t,c)); \
+i = (t##Array*)fiftyoneDegreesMalloc(FIFTYONE_DEGREES_ARRAY_SIZE(t,c)); \
 if (i != NULL) { \
 i->items = (t*)(i + 1); \
 i->count = 0; \

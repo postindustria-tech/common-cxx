@@ -23,11 +23,16 @@
 #ifndef FIFTYONE_DEGREES_PAIR_H_INCLUDED
 #define FIFTYONE_DEGREES_PAIR_H_INCLUDED
 
+#include "array.h"
+#include <stddef.h>
+
 typedef struct fiftyone_degrees_key_value_pair_t {
 	char* key;
 	size_t keyLength;
 	char* value;
 	size_t valueLength;
 } fiftyoneDegreesKeyValuePair;
+
+FIFTYONE_DEGREES_ARRAY_TYPE(fiftyoneDegreesKeyValuePair, )
 
 #endif

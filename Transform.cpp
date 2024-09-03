@@ -20,8 +20,8 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-#include "Exceptions.hpp"
 #include "Transform.hpp"
+#include "fiftyone.h"
 
 using namespace FiftyoneDegrees::Common;
 

@@ -316,7 +316,6 @@ static const char* init_parsing(const char* json, char** begin,
                                 const char* const end,
                                 KeyValuePair* cache,
                                 Exception* const exception) {
-  exception->status = SUCCESS;
 
   *begin = init_keys(*begin, end, cache, exception);
 

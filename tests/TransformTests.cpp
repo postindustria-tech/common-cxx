@@ -22,8 +22,9 @@
 
 #include "../Exceptions.hpp"
 #include "../Transform.hpp"
-#include "../memory.h"
+#include "../fiftyone.h"
 #include "Base.hpp"
+
 
 class Transform : public Base {
  public:
@@ -31,7 +32,6 @@ class Transform : public Base {
   virtual void TearDown();
   static bool found;
   static fiftyoneDegreesKeyValuePairArray *results;
-  static fiftyoneDegreesException exception;
   static const char *expectedFieldName;
   static const char *expectedFieldValue;
   void checkFieldValue(const char *field, const char *value);
@@ -42,7 +42,6 @@ bool Transform::found = false;
 const char *Transform::expectedFieldName = NULL;
 const char *Transform::expectedFieldValue = NULL;
 fiftyoneDegreesKeyValuePairArray *Transform::results = NULL;
-fiftyoneDegreesException Transform::exception;
 
 void Transform::checkFieldValue(const char *field, const char *value) {
   found = false;
@@ -158,13 +157,14 @@ TEST_F(Transform, GHEVIterativeJSON) {
   size_t bufferLength = strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
       ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  ASSERT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 7);
   ASSERT_EQ(results->count, count);
@@ -183,6 +183,8 @@ TEST_F(Transform, GHEVIterativeJSON) {
   checkFieldValue("sec-ch-ua-platform", "\"macOS\"");
   checkFieldValue("sec-ch-ua-platform-version", "\"14.5.0\"");
   fiftyoneDegreesFree(buffer);
+    
+    EXPECT_TRUE((bool) FIFTYONE_DEGREES_EXCEPTION_OKAY);
 }
 
 TEST_F(Transform, IncompleteJSON) {
@@ -270,21 +272,23 @@ TEST_F(Transform, IncompleteJSON) {
       "{ \"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8\"}",
       "{ \"brands\":[{\"brand\":\"Not/A)Brand\",\"version\":\"8\"},",
   };
-
+    
+    EXCEPTION_CREATE;
   for (const std::string &j : correct) {
     fiftyoneDegreesTransformIterateGhevFromJson(
         j.c_str(), buffer, bufferLength, fillResultsCallback,
-        Transform::results, &Transform::exception);
+        Transform::results, exception);
 
-    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+    EXPECT_TRUE(EXCEPTION_OKAY);
   }
 
   for (const std::string &j : corrupted) {
     fiftyoneDegreesTransformIterateGhevFromJson(
         j.c_str(), buffer, bufferLength, fillResultsCallback,
-        Transform::results, &Transform::exception);
-
-    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+        Transform::results, exception);
+      EXPECT_FALSE(EXCEPTION_OKAY);
+      EXPECT_TRUE(EXCEPTION_FAILED);
+    EXPECT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   }
   fiftyoneDegreesFree(buffer);
 }
@@ -379,20 +383,21 @@ TEST_F(Transform, IncompleteSUA) {
       "{\n  \"browsers\":[{\"brand\":\"google\",\"version\":[\"42\",\"0\"]},",
   };
 
+    EXCEPTION_CREATE;
   for (const std::string &j : correct) {
     fiftyoneDegreesTransformIterateSua(j.c_str(), buffer, bufferLength,
                                        fillResultsCallback, Transform::results,
-                                       &Transform::exception);
+                                       exception);
 
-    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+      EXPECT_TRUE(EXCEPTION_OKAY);
   }
 
   for (const std::string &j : corrupted) {
     fiftyoneDegreesTransformIterateSua(j.c_str(), buffer, bufferLength,
                                        fillResultsCallback, Transform::results,
-                                       &Transform::exception);
+                                       exception);
 
-    ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+    EXPECT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   }
   fiftyoneDegreesFree(buffer);
 }
@@ -409,13 +414,14 @@ TEST_F(Transform, GHEVIncorrectBool) {
   size_t bufferLength = strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateGhevFromJson(
       ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -425,13 +431,14 @@ TEST_F(Transform, SUAIncorrectBool) {
   size_t bufferLength = 512;
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateSua(json, buffer, bufferLength,
                                      fillResultsCallback, Transform::results,
-                                     &Transform::exception);
+                                     exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -446,14 +453,14 @@ TEST_F(Transform, GHEVIterativeNULLBrandJSON) {
 
   size_t bufferLength = strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
-
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
       ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+    EXPECT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 6);
   ASSERT_EQ(results->count, count);
@@ -481,13 +488,14 @@ TEST_F(Transform, GHEVIterativeNULLBrandVersionJSON) {
   size_t bufferLength = strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
       ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+    EXPECT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 6);
   ASSERT_EQ(results->count, count);
@@ -516,13 +524,14 @@ TEST_F(Transform, GHEVIterativeBase64) {
   size_t bufferLength = 686;  // strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateGhevFromBase64(
       ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+    EXPECT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 6);
   ASSERT_EQ(results->count, count);
@@ -556,12 +565,13 @@ TEST_F(Transform, GHEVBase64CorruptedLen) {
 
   size_t bufferLength = 686;  // strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
-
+    
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateGhevFromBase64(
       ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -579,11 +589,12 @@ TEST_F(Transform, GHEVBase64CorruptedSymbol) {
   size_t bufferLength = 686;  // strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateGhevFromBase64(
       ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -601,11 +612,12 @@ TEST_F(Transform, GHEVBase64CorruptedSymbol2) {
   size_t bufferLength = 686;  // strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateGhevFromBase64(
       ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -625,13 +637,14 @@ TEST_F(Transform, GHEVIterativeSua) {
   size_t bufferLength = strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateSua(
       sua, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+    EXPECT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 7);
   ASSERT_EQ(results->count, count);
@@ -667,13 +680,14 @@ TEST_F(Transform, SuaWeirdPlatformVersion) {
   size_t bufferLength = strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateSua(
       sua, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+    EXPECT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 7);
   ASSERT_EQ(results->count, count);
@@ -710,13 +724,14 @@ TEST_F(Transform, SuaNullBrandPlatform) {
   size_t bufferLength = strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateSua(
       sua, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  EXPECT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 5);
   ASSERT_EQ(results->count, count);
@@ -747,12 +762,13 @@ TEST_F(Transform, GHEVArrayJSON) {
   size_t bufferLength = strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformGhevFromJson(
-      ghev, buffer, bufferLength, results, &Transform::exception);
+      ghev, buffer, bufferLength, results, exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  EXPECT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 7);
   ASSERT_EQ(results->count, count);
@@ -788,10 +804,11 @@ TEST_F(Transform, GHEVArrayInsufficientCapacity) {
   fiftyoneDegreesKeyValuePairArray *empty_headers = NULL;
   FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, empty_headers, 0);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformGhevFromJson(
-      ghev, buffer, bufferLength, headers, &Transform::exception);
+      ghev, buffer, bufferLength, headers, exception);
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  EXPECT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 2);
   ASSERT_EQ(headers->count, count);
@@ -799,9 +816,9 @@ TEST_F(Transform, GHEVArrayInsufficientCapacity) {
   // ---
 
   count = fiftyoneDegreesTransformGhevFromJson(
-      ghev, buffer, bufferLength, empty_headers, &Transform::exception);
+      ghev, buffer, bufferLength, empty_headers, exception);
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
   ASSERT_EQ(count, 1);
 
   fiftyoneDegreesFree(buffer);
@@ -825,10 +842,11 @@ TEST_F(Transform, GHEVBase64InsufficientCapacity) {
   fiftyoneDegreesKeyValuePairArray *empty_headers = NULL;
   FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, empty_headers, 0);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformGhevFromBase64(
-      ghev, buffer, bufferLength, empty_headers, &Transform::exception);
+      ghev, buffer, bufferLength, empty_headers, exception);
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
   ASSERT_EQ(count, 1);
 
   fiftyoneDegreesFree(buffer);
@@ -850,19 +868,21 @@ TEST_F(Transform, SUAInsufficientCapacity) {
   fiftyoneDegreesKeyValuePairArray *empty_headers = NULL;
   FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, empty_headers, 0);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformSua(
-      sua, buffer, bufferLength, empty_headers, &Transform::exception);
+      sua, buffer, bufferLength, empty_headers, exception);
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
   ASSERT_EQ(count, 1);
 
   fiftyoneDegreesKeyValuePairArray *headers = NULL;
   FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, headers, 3);
 
+    FIFTYONE_DEGREES_EXCEPTION_CLEAR;
   count = fiftyoneDegreesTransformSua(sua, buffer, bufferLength, headers,
-                                      &Transform::exception);
+                                      exception);
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  EXPECT_TRUE(EXCEPTION_OKAY);
   ASSERT_EQ(count, 3);
 
   fiftyoneDegreesFree(headers);
@@ -883,12 +903,13 @@ TEST_F(Transform, GHEVBase64) {
   size_t bufferLength = strlen(ghev) * 2;
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformGhevFromBase64(
-      ghev, buffer, bufferLength, results, &Transform::exception);
+      ghev, buffer, bufferLength, results, exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  EXPECT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 6);
   ASSERT_EQ(results->count, count);
@@ -922,13 +943,14 @@ TEST_F(Transform, GHEVBase64NotEnoughMemory) {
   size_t bufferLength = strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateGhevFromBase64(
       ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -945,13 +967,14 @@ TEST_F(Transform, SUANotEnoughMemory) {
   size_t bufferLength = 144;
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateSua(
       sua, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &Transform::exception);
+      exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -967,13 +990,13 @@ TEST_F(Transform, GHEVArraySua) {
 
   size_t bufferLength = strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
-
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformSua(sua, buffer, bufferLength, results,
-                                             &Transform::exception);
+                                             exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+    EXPECT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 6);
   ASSERT_EQ(results->count, count);
@@ -1006,12 +1029,13 @@ TEST_F(Transform, SUAArrayNotEnoughMemory) {
   size_t bufferLength = 142;
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformSua(sua, buffer, bufferLength, results,
-                                             &Transform::exception);
+                                             exception);
 
   // ---
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -1028,12 +1052,13 @@ TEST_F(Transform, GHEVPartial) {
 
   size_t bufferLength = strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
-
+    
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
       ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &exception);
+      exception);
   ASSERT_EQ(count, 4);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+    EXPECT_TRUE(EXCEPTION_OKAY);
 
   // we expect to see these headers detected:
   // low entropy: sec-ch-ua, sec-ch-ua-mobile
@@ -1079,12 +1104,13 @@ TEST_F(Transform, GHEVIgnoreUnused) {
   size_t bufferLength = strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateGhevFromJson(
       ghev, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &exception);
+      exception);
 
   ASSERT_EQ(count, 8);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+    EXPECT_TRUE(EXCEPTION_OKAY);
 
   // we expect to see these headers detected:
   // low entropy: sec-ch-ua, sec-ch-ua-mobile
@@ -1126,10 +1152,11 @@ TEST_F(Transform, GHEVCorruptInput) {
   size_t bufferLength = strlen(ghev);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength,
                                               fillResultsCallback,
-                                              Transform::results, &exception);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+                                              Transform::results, exception);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -1147,10 +1174,11 @@ TEST_F(Transform, GHEVBufferTooSmall) {
   size_t bufferLength = 20;
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength,
                                               fillResultsCallback,
-                                              Transform::results, &exception);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+                                              Transform::results, exception);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -1168,10 +1196,11 @@ TEST_F(Transform, GHEVEvidenceLowCapacity) {
   size_t bufferLength = 20;
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateGhevFromJson(ghev, buffer, bufferLength,
                                               fillResultsCallback,
-                                              Transform::results, &exception);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+                                              Transform::results, exception);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -1187,11 +1216,12 @@ TEST_F(Transform, SUAHappyPath) {
   size_t bufferLength = strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateSua(
       sua, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &exception);
+      exception);
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+    EXPECT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 7);
   // we expect to see these headers detected:
@@ -1237,9 +1267,10 @@ TEST_F(Transform, SUAPlatformExt) {
   size_t bufferLength = strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateSua(
       sua, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &exception);
+      exception);
   ASSERT_EQ(count, 5);
   // we expect to see these headers detected:
   // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
@@ -1247,7 +1278,7 @@ TEST_F(Transform, SUAPlatformExt) {
   // sec-ch-ua-full-version-list
 
   ASSERT_EQ(results->count, count);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  EXPECT_TRUE(EXCEPTION_OKAY);
 
   checkFieldAbsent("sec-ch-ua");
   checkFieldValue(
@@ -1274,9 +1305,10 @@ TEST_F(Transform, SUAPartial1) {
   size_t bufferLength = strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateSua(
       sua, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &exception);
+      exception);
   ASSERT_EQ(count, 4);
   // we expect to see these headers detected:
   // low entropy: sec-ch-ua-mobile, sec-ch-ua-platform
@@ -1284,7 +1316,7 @@ TEST_F(Transform, SUAPartial1) {
   // sec-ch-ua-full-version-list
 
   ASSERT_EQ(results->count, count);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  EXPECT_TRUE(EXCEPTION_OKAY);
 
   checkFieldAbsent("sec-ch-ua");
   checkFieldValue(
@@ -1309,12 +1341,13 @@ TEST_F(Transform, SUAPartial2) {
   size_t bufferLength = 2 * strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateSua(
       sua, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &exception);
+      exception);
   ASSERT_EQ(count, 5);
 
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+  EXPECT_TRUE(EXCEPTION_OKAY);
   // we expect to see these headers detected:
   // low entropy: sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform
   // high entropy: sec-ch-ua-platform-version, sec-ch-ua-model, sec-ch-ua-arch,
@@ -1342,10 +1375,11 @@ TEST_F(Transform, SUATolerableCorrupt) {
   size_t bufferLength = 2 * strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   size_t count = fiftyoneDegreesTransformIterateSua(
       sua, buffer, bufferLength, fillResultsCallback, Transform::results,
-      &exception);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_SUCCESS);
+      exception);
+  EXPECT_TRUE(EXCEPTION_OKAY);
 
   ASSERT_EQ(count, 5);
   ASSERT_EQ(results->count, count);
@@ -1371,10 +1405,11 @@ TEST_F(Transform, SUACorrupt2) {
   size_t bufferLength = 2 * strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength,
                                      fillResultsCallback, Transform::results,
-                                     &exception);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+                                     exception);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -1386,11 +1421,11 @@ TEST_F(Transform, SUACorrupt3) {
 
   size_t bufferLength = 2 * strlen(sua);
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
-
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength,
                                      fillResultsCallback, Transform::results,
-                                     &exception);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
+                                     exception);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -1406,10 +1441,11 @@ TEST_F(Transform, SUABufferTooSmall) {
   size_t bufferLength = 15;
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength,
                                      fillResultsCallback, Transform::results,
-                                     &exception);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+                                     exception);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
   fiftyoneDegreesFree(buffer);
 }
 
@@ -1425,10 +1461,11 @@ TEST_F(Transform, SUAEvidenceLowCapacity) {
   size_t bufferLength = 15;
   char *buffer = (char *)fiftyoneDegreesMalloc(bufferLength);
 
+    EXCEPTION_CREATE;
   fiftyoneDegreesTransformIterateSua(sua, buffer, bufferLength,
                                      fillResultsCallback, Transform::results,
-                                     &exception);
-  ASSERT_EQ(exception.status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
+                                     exception);
+  ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
   fiftyoneDegreesFree(buffer);
 }
 

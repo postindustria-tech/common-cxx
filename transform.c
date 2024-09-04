@@ -1199,14 +1199,14 @@ static size_t main_parsing_body(const char* json, char* const buffer,
 }
 
 // ------------------------------------------------------------------------------------------------
-size_t TransformIterateGhevFromJson(
+size_t fiftyoneDegreesTransformIterateGhevFromJson(
     const char* json, char* const buffer, size_t length,
     fiftyoneDegreesTransformCallback callback, void* ctx,
     fiftyoneDegreesException* const exception) {
   return main_parsing_body(json, buffer, length, exception, 0, callback, ctx);
 }
 
-size_t TransformIterateGhevFromBase64(
+size_t fiftyoneDegreesTransformIterateGhevFromBase64(
     const char* base64, char* buffer, size_t length,
     fiftyoneDegreesTransformCallback callback, void* ctx,
     fiftyoneDegreesException* const exception) {
@@ -1217,19 +1217,19 @@ size_t TransformIterateGhevFromBase64(
     return 0;
   }
 
-  return TransformIterateGhevFromJson(
+  return fiftyoneDegreesTransformIterateGhevFromJson(
       buffer, buffer + offset, length - offset, callback,
       ctx, exception);
 }
 
-size_t TransformIterateSua(
+size_t fiftyoneDegreesTransformIterateSua(
     const char* json, char* const buffer, size_t length,
     fiftyoneDegreesTransformCallback callback, void* ctx,
     fiftyoneDegreesException* const exception) {
   return main_parsing_body(json, buffer, length, exception, 1, callback, ctx);
 }
 
-size_t TransformGhevFromJson(
+size_t fiftyoneDegreesTransformGhevFromJson(
     const char* json, char* buffer, size_t length,
     fiftyoneDegreesKeyValuePairArray* const headers,
     fiftyoneDegreesException* const exception) {
@@ -1244,7 +1244,7 @@ size_t TransformGhevFromJson(
   return calls;
 }
 
-size_t TransformGhevFromBase64(
+size_t fiftyoneDegreesTransformGhevFromBase64(
     const char* base64, char* buffer, size_t length,
     fiftyoneDegreesKeyValuePairArray* const headers,
     fiftyoneDegreesException* const exception) {
@@ -1259,7 +1259,7 @@ size_t TransformGhevFromBase64(
   return calls;
 }
 
-size_t TransformSua(
+size_t fiftyoneDegreesTransformSua(
     const char* json, char* buffer, size_t length,
     fiftyoneDegreesKeyValuePairArray* const headers,
     fiftyoneDegreesException* const exception) {

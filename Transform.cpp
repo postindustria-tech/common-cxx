@@ -20,6 +20,9 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
+//Exceptions.hpp must be included before "exceptions.h" to switch to
+//C++ exceptions semantics - so the macros translate into throw 
+#include "Exceptions.hpp"
 #include "Transform.hpp"
 #include "fiftyone.h"
 

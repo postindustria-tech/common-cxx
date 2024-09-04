@@ -150,7 +150,6 @@ fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
 	fiftyoneDegreesStringBuilder* builder,
 	char* const value,
 	size_t const length) {
-	assert(strlen(value) == length);
 	if (length < builder->remaining &&
 		memcpy(builder->current, value, length) == builder->current) {
 		builder->remaining -= length;

@@ -301,6 +301,31 @@ EXTERNAL bool fiftyoneDegreesEvidenceIterateForHeaders(
 	fiftyoneDegreesEvidenceIterateForHeadersMethod callback);
 
 /**
+ * Iterates over the headers assembling the evidence values, considering the 
+ * prefixes, in the buffer if available. The call back method is called for 
+ * each header or pseudo header available. The buffer is only used with pseudo
+ * headers where multiple header values need to be combined into a single 
+ * value.
+ *
+ * @param evidence key value pairs including prefixes
+ * @param prefixes one or more prefix flags to return values for
+ * @param state pointer passed to the callback method
+ * @param headers to return evidence for if available
+ * @param buffer that MIGHT be used with the callback
+ * @param length of the buffer
+ * @param callback method called when a matching prefix is found
+ * @return true if the callback was called successfully, otherwise false
+ */
+EXTERNAL bool fiftyoneDegreesEvidenceIterateForHeaders(
+	fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
+	int prefixes,
+	fiftyoneDegreesHeaderPtrs* headers,
+	char* const buffer,
+	size_t const length,
+	void* state,
+	fiftyoneDegreesEvidenceIterateForHeadersMethod callback);
+
+/**
  * @}
  */
 

@@ -26,7 +26,6 @@
 #include <stdbool.h>
 #include "pair.h"
 #include "exceptions.h"
-#include "string.h"
 
 /**
  * User-Agent Client Hints (UACH) Representation Conversion Routines
@@ -91,12 +90,10 @@ EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)(
  * Iteratively convert getHighEntropyValue() API result JSON string to HTTP
  * header representation.
  * @param json a JSON string with the getHighEntropyValue() API result
- * @param builder - a StringBuilder object encapsulating a preallocated working
- * memory buffer used to store the converted HTTP header names and values.
- * The lifetime of this buffer and builder object is managed by the
- * caller.  Builder allows for safe buffer management and builder->added
- * will contain the needed size of the buffer if it was insufficient - check
- * if exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY
+ * @param buffer preallocated working memory buffer used to store the converted
+ * HTTP header names and values. The lifetime of this buffer is managed by the
+ * caller
+ * @param length length of the buffer
  * @param exception - a constant pointer to a (preallocated) exception object
  * that is filled in case any errors occurred. must be checked by the caller
  * upon routine exit. `exception.status` will be FIFTYONE_DEGREES_STATUS_SUCCESS
@@ -120,7 +117,7 @@ EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)(
  * made)
  */
 EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromJson(
-    const char *json, fiftyoneDegreesStringBuilder *builder,
+    const char *json, char *const buffer, size_t length,
     fiftyoneDegreesTransformCallback callback, void *state,
     fiftyoneDegreesException *const exception);
 
@@ -129,12 +126,10 @@ EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromJson(
  * string to HTTP header representation.
  * @param base64 a base64 encoded JSON string with the getHighEntropyValue() API
  * result
- * @param builder - a StringBuilder object encapsulating a preallocated working
- * memory buffer used to store the converted HTTP header names and values.
- * The lifetime of this buffer and builder object is managed by the
- * caller.  Builder allows for safe buffer management and builder->added
- * will contain the needed size of the buffer if it was insufficient - check
- * if exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY
+ * @param buffer preallocated working memory buffer used to store the converted
+ * HTTP header names and values with a new line separator (\n) between each
+ * header key-value pair. The lifetime of this buffer is managed by the caller
+ * @param length length of the buffer
  * @param exception - a constant pointer to a (preallocated) exception object
  * that is filled in case any errors occurred. must be checked by the caller
  * upon routine exit. `exception.status` will be FIFTYONE_DEGREES_STATUS_SUCCESS
@@ -158,19 +153,17 @@ EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromJson(
  * made)
  */
 EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromBase64(
-    const char *base64, fiftyoneDegreesStringBuilder *builder,
+    const char *base64, char *buffer, size_t length,
     fiftyoneDegreesTransformCallback callback, void *state,
     fiftyoneDegreesException *const exception);
 
 /**
  * Iteratively convert device.sua JSON string to HTTP header representation.
  * @param json a JSON string with the device.sua raw representation
- * @param builder - a StringBuilder object encapsulating a preallocated working
- * memory buffer used to store the converted HTTP header names and values.
- * The lifetime of this buffer and builder object is managed by the
- * caller.  Builder allows for safe buffer management and builder->added
- * will contain the needed size of the buffer if it was insufficient - check
- * if exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY
+ * @param buffer preallocated working memory buffer used to store the converted
+ * HTTP header names and values with a new line separator (\n) between each
+ * header key-value pair. The lifetime of this buffer is managed by the caller
+ * @param length length of the buffer
  * @param exception - a constant pointer to a (preallocated) exception object
  * that is filled in case any errors occurred. must be checked by the caller
  * upon routine exit. `exception.status` will be FIFTYONE_DEGREES_STATUS_SUCCESS
@@ -194,7 +187,7 @@ EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromBase64(
  * made)
  */
 EXTERNAL size_t fiftyoneDegreesTransformIterateSua(
-    const char *json, fiftyoneDegreesStringBuilder *builder,
+    const char *json, char *buffer, size_t length,
     fiftyoneDegreesTransformCallback callback, void *state,
     fiftyoneDegreesException *const exception);
 
@@ -202,12 +195,10 @@ EXTERNAL size_t fiftyoneDegreesTransformIterateSua(
  * Eagerly convert getHighEntropyValue() API result JSON string to HTTP header
  * representation.
  * @param json a JSON string with the getHighEntropyValue() API result
- * @param builder - a StringBuilder object encapsulating a preallocated working
- * memory buffer used to store the converted HTTP header names and values.
- * The lifetime of this buffer and builder object is managed by the
- * caller.  Builder allows for safe buffer management and builder->added
- * will contain the needed size of the buffer if it was insufficient - check
- * if exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY
+ * @param buffer preallocated working memory buffer used to store the converted
+ * HTTP header names and values with a new line separator (\n) between each
+ * header key-value pair. The lifetime of this buffer is managed by the caller
+ * @param length length of the buffer
  * @param exception - a constant pointer to a (preallocated) exception object
  * that is filled in case any errors occurred. must be checked by the caller
  * upon routine exit. `exception.status` will be FIFTYONE_DEGREES_STATUS_SUCCESS
@@ -236,7 +227,7 @@ EXTERNAL size_t fiftyoneDegreesTransformIterateSua(
  * allocated
  */
 EXTERNAL size_t fiftyoneDegreesTransformGhevFromJson(
-  const char *json, fiftyoneDegreesStringBuilder *builder,
+  const char *json, char *buffer, size_t length,
   fiftyoneDegreesKeyValuePairArray *const headers,
   fiftyoneDegreesException *const exception);
 
@@ -245,12 +236,10 @@ EXTERNAL size_t fiftyoneDegreesTransformGhevFromJson(
  * string to HTTP header representation.
  * @param base64 a base64-encoded JSON string with the getHighEntropyValue() API
  * result
- * @param builder - a StringBuilder object encapsulating a preallocated working
- * memory buffer used to store the converted HTTP header names and values.
- * The lifetime of this buffer and builder object is managed by the
- * caller.  Builder allows for safe buffer management and builder->added
- * will contain the needed size of the buffer if it was insufficient - check
- * if exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY
+ * @param buffer preallocated working memory buffer used to store the converted
+ * HTTP header names and values with a new line separator (\n) between each
+ * header key-value pair. The lifetime of this buffer is managed by the caller
+ * @param length length of the buffer
  * @param exception - a constant pointer to a (preallocated) exception object
  * that is filled in case any errors occurred. must be checked by the caller
  * upon routine exit. `exception.status` will be FIFTYONE_DEGREES_STATUS_SUCCESS
@@ -279,19 +268,17 @@ EXTERNAL size_t fiftyoneDegreesTransformGhevFromJson(
  * allocated
  */
 EXTERNAL size_t fiftyoneDegreesTransformGhevFromBase64(
-  const char *base64, fiftyoneDegreesStringBuilder *builder,
+  const char *base64, char *buffer, size_t length,
   fiftyoneDegreesKeyValuePairArray *const headers,
   fiftyoneDegreesException *const exception);
 
 /**
  * Eagerly convert device.sua JSON string to HTTP header representation.
  * @param json a raw JSON string with device.sua field contents
- * @param builder - a StringBuilder object encapsulating a preallocated working
- * memory buffer used to store the converted HTTP header names and values.
- * The lifetime of this buffer and builder object is managed by the
- * caller.  Builder allows for safe buffer management and builder->added
- * will contain the needed size of the buffer if it was insufficient - check
- * if exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY
+ * @param buffer preallocated working memory buffer used to store the converted
+ * HTTP header names and values with a new line separator (\n) between each
+ * header key-value pair. The lifetime of this buffer is managed by the caller
+ * @param length length of the buffer
  * @param exception - a constant pointer to a (preallocated) exception object
  * that is filled in case any errors occurred. must be checked by the caller
  * upon routine exit. `exception.status` will be FIFTYONE_DEGREES_STATUS_SUCCESS
@@ -320,7 +307,7 @@ EXTERNAL size_t fiftyoneDegreesTransformGhevFromBase64(
  * allocated
  */
 EXTERNAL size_t fiftyoneDegreesTransformSua(
-    const char *json, fiftyoneDegreesStringBuilder *builder,
+    const char *json, char *buffer, size_t length,
     fiftyoneDegreesKeyValuePairArray *const headers,
     fiftyoneDegreesException *const exception);
 

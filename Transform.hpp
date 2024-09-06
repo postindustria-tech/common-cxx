@@ -47,7 +47,7 @@ namespace FiftyoneDegrees {
             using Headers = std::map<std::string, std::string>;
             
             using CTransformAPI =
-            size_t (*)(const char* base64, fiftyoneDegreesStringBuilder *builder,
+            size_t (*)(const char* base64, char* buffer, size_t length,
                        fiftyoneDegreesKeyValuePairArray* const headers,
                        fiftyoneDegreesException* const exception);
             

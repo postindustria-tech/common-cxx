@@ -60,7 +60,7 @@ static void setPairHeader(EvidenceKeyValuePair* pair, Header* header) {
 	}
 }
 
-/*
+/**
  * Iterate through an evidence collection and perform callback on the evidence
  * whose prefix matches the input prefixes.
  *
@@ -71,24 +71,25 @@ static void setPairHeader(EvidenceKeyValuePair* pair, Header* header) {
  * @return number of evidence processed.
  */
 static uint32_t evidenceIterate(
-	fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
+	EvidenceKeyValuePairArray* evidence,
 	int prefixes,
 	void* state,
-	fiftyoneDegreesEvidenceIterateMethod callback) {
-	uint32_t i = 0, count = 0;
+	EvidenceIterateMethod callback) {
+	uint32_t i = 0, iterations = 0;
+	const uint32_t count = evidence->count;
 	EvidenceKeyValuePair* pair;
 	bool cont = true;
-	while (cont && i < evidence->count) {
+	while (cont && i < count) {
 		pair = &evidence->items[i++];
 		if ((pair->prefix & prefixes) == pair->prefix) {
 			if (pair->parsedValue == NULL) {
 				parsePair(pair);
 			}
 			cont = callback(state, pair);
-			count++;
+			iterations++;
 		}
 	}
-	return count;
+	return iterations;
 }
 
 /**

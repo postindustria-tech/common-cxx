@@ -365,6 +365,7 @@ MAP_TYPE(KeyValuePairArray)
 #define TransformIterateGhevFromBase64 fiftyoneDegreesTransformIterateGhevFromBase64 /**< Synonym for fiftyoneDegreesTransformIterateGhevFromBase64 */
 #define TransformIterateGhevFromJson fiftyoneDegreesTransformIterateGhevFromJson /**< Synonym for fiftyoneDegreesTransformIterateGhevFromJson */
 #define TransformCallback fiftyoneDegreesTransformCallback /**< Synonym for fiftyoneDegreesTransformCallback */
+#define EvidenceIterateMethod fiftyoneDegreesEvidenceIterateMethod /**< Synonym for fiftyoneDegreesEvidenceIterateMethod */
 
 /* <-- only one asterisk to avoid inclusion in documentation
  * Shortened macros.

@@ -41,4 +41,10 @@
 #define EXTERNAL_VAR extern
 #endif
 
+// The characters at the start of a cookie or other storage key that indicate
+// the item is related to 51Degrees.
+#ifndef FIFTYONE_DEGREES_COMMON_COOKIE_PREFIX
+#define FIFTYONE_DEGREES_COMMON_COOKIE_PREFIX "51D_"
+#endif
+
 #endif

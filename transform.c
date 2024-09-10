@@ -39,7 +39,7 @@
 
 #define ExpectKeySymbol(json, ch)        \
   if (*json != ch) {                     \
-    json = skip_to_next_char(json, '"'); \
+    json = skipToNextChar(json, '"'); \
     return KEY_UNDEFINED;                \
   }
 
@@ -48,7 +48,7 @@
                                                   : begin)
 
 #define GET_SEXTET(str, i) \
-  (str[i] == '=' ? 0 & i++ : base64_char_to_value(str[i++], exception))
+  (str[i] == '=' ? 0 & i++ : base64CharToValue(str[i++], exception))
 
 typedef enum {
   ARCHITECTURE,     // sec-ch-ua-arch
@@ -83,7 +83,7 @@ static struct {
 
 // ----
 
-static inline char* safe_write_to_buffer(StringBuilder *builder,
+static inline char* safeWriteToBuffer(StringBuilder *builder,
                                          char symbol,
                                          Exception* const exception) {
     StringBuilderAddChar(builder, symbol);
@@ -93,7 +93,7 @@ static inline char* safe_write_to_buffer(StringBuilder *builder,
     return builder->current;
 }
 
-static inline uint32_t base64_char_to_value(
+static inline uint32_t base64CharToValue(
     char c, Exception* const exception) {
   static const uint32_t base64_lookup_table[256] = {
       255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -122,7 +122,7 @@ static inline uint32_t base64_char_to_value(
   return base64_lookup_table[(uint8_t)c];
 }
 
-static size_t base64_decode(const char* base64_input, StringBuilder *builder,
+static size_t base64Decode(const char* base64_input, StringBuilder *builder,
                             Exception* const exception) {
     size_t before = builder->added;
   size_t input_length = strlen(base64_input);
@@ -144,17 +144,17 @@ static size_t base64_decode(const char* base64_input, StringBuilder *builder,
     uint32_t triple =
         (sextet_a << 18) + (sextet_b << 12) + (sextet_c << 6) + sextet_d;
 
-    safe_write_to_buffer(builder, (triple >> 16) & 0xFF, exception);
-    safe_write_to_buffer(builder, (triple >> 8) & 0xFF, exception);
-    safe_write_to_buffer(builder, triple & 0xFF, exception);
+    safeWriteToBuffer(builder, (triple >> 16) & 0xFF, exception);
+    safeWriteToBuffer(builder, (triple >> 8) & 0xFF, exception);
+    safeWriteToBuffer(builder, triple & 0xFF, exception);
   }
 
-  safe_write_to_buffer(builder, '\0', exception);
+  safeWriteToBuffer(builder, '\0', exception);
     size_t after = builder->added;
   return after - before;
 }
 
-static inline const char* skip_whitespaces(const char* json) {
+static inline const char* skipWhitespaces(const char* json) {
   for (;; ++json) {
     switch (*json) {
       case ' ':
@@ -171,7 +171,7 @@ static inline const char* skip_whitespaces(const char* json) {
   }
 }
 
-static inline const char* skip_to_next_char(const char* json,
+static inline const char* skipToNextChar(const char* json,
                                             const char target) {
   for (; *json != target; ++json) {
     switch (*json) {
@@ -190,13 +190,13 @@ static inline const char* skip_to_next_char(const char* json,
   return json;
 }
 
-static const char* skip_value(const char* json) {
-  json = skip_to_next_char(json, ':');
+static const char* skipValue(const char* json) {
+  json = skipToNextChar(json, ':');
   if (*json == '\0') {
     return json;
   }
 
-  json = skip_whitespaces(json + 1);
+  json = skipWhitespaces(json + 1);
 
   switch (*json) {
     case '\0': {
@@ -221,7 +221,7 @@ static const char* skip_value(const char* json) {
           } break;
 
           case '"': {
-            json = skip_to_next_char(json + 1, '"');
+            json = skipToNextChar(json + 1, '"');
             if (*json == '\0') {
               return json;
             }
@@ -248,7 +248,7 @@ static const char* skip_value(const char* json) {
           } break;
 
           case '"': {
-            json = skip_to_next_char(json + 1, '"');
+            json = skipToNextChar(json + 1, '"');
             if (*json == '\0') {
               return json;
             }
@@ -258,7 +258,7 @@ static const char* skip_value(const char* json) {
     } break;
 
     case '"': {
-      json = skip_to_next_char(json + 1, '"');
+      json = skipToNextChar(json + 1, '"');
     } break;
 
     default: {
@@ -286,10 +286,10 @@ static const char* skip_value(const char* json) {
     return json;
   }
 
-  return skip_to_next_char(json + 1, '"');
+  return skipToNextChar(json + 1, '"');
 }
 
-static inline void init_keys(StringBuilder *builder,
+static inline void initKeys(StringBuilder *builder,
                               KeyValuePair* cache,
                               Exception* const exception) {
   for (size_t k = 0; k < KEY_UNDEFINED; ++k) {
@@ -297,24 +297,24 @@ static inline void init_keys(StringBuilder *builder,
     cache[k].keyLength = key_map[k].len;
 
     for (size_t i = 0; i < key_map[k].len; ++i) {
-      safe_write_to_buffer(builder, key_map[k].key[i], exception);
+      safeWriteToBuffer(builder, key_map[k].key[i], exception);
     }
   }
 }
 
-static const char* init_parsing(const char* json, 
+static const char* initParsing(const char* json, 
                                 StringBuilder *builder,
                                 KeyValuePair* cache,
                                 Exception* const exception) {
 
-  init_keys(builder, cache, exception);
+  initKeys(builder, cache, exception);
 
-  json = skip_whitespaces(json);
+  json = skipWhitespaces(json);
   ExpectSymbol(json, '{', return json);
-  return skip_to_next_char(json, '"');
+  return skipToNextChar(json, '"');
 }
 
-static Key read_ghev_key(const char** json,
+static Key readGhevKey(const char** json,
                          Exception* const exception) {
   enum ReadKeyState {
     READ_KEY_INIT,
@@ -358,7 +358,7 @@ static Key read_ghev_key(const char** json,
           } break;
 
           default: {
-            *json = skip_to_next_char(*json, '"');
+            *json = skipToNextChar(*json, '"');
             return KEY_UNDEFINED;
           } break;
 
@@ -395,7 +395,7 @@ static Key read_ghev_key(const char** json,
           } break;
 
           default: {
-            *json = skip_to_next_char(*json, '"');
+            *json = skipToNextChar(*json, '"');
             return KEY_UNDEFINED;
           } break;
         }
@@ -417,7 +417,7 @@ static Key read_ghev_key(const char** json,
           } break;
 
           default: {
-            *json = skip_to_next_char(*json, '"');
+            *json = skipToNextChar(*json, '"');
             return KEY_UNDEFINED;
           } break;
         }
@@ -438,7 +438,7 @@ static Key read_ghev_key(const char** json,
           } break;
 
           default: {
-            *json = skip_to_next_char(*json, '"');
+            *json = skipToNextChar(*json, '"');
             return KEY_UNDEFINED;
           } break;
         }
@@ -489,7 +489,7 @@ static Key read_ghev_key(const char** json,
   return KEY_UNDEFINED;
 }
 
-static Key read_sua_key(const char** json,
+static Key readSuaKey(const char** json,
                         Exception* const exception) {
   enum ReadKeyState {
     READ_KEY_INIT,
@@ -527,7 +527,7 @@ static Key read_sua_key(const char** json,
           } break;
 
           default: {
-            *json = skip_to_next_char(*json, '"');
+            *json = skipToNextChar(*json, '"');
             return KEY_UNDEFINED;
           } break;
 
@@ -556,7 +556,7 @@ static Key read_sua_key(const char** json,
           } break;
 
           default: {
-            *json = skip_to_next_char(*json, '"');
+            *json = skipToNextChar(*json, '"');
             return KEY_UNDEFINED;
           } break;
         }
@@ -578,7 +578,7 @@ static Key read_sua_key(const char** json,
           } break;
 
           default: {
-            *json = skip_to_next_char(*json, '"');
+            *json = skipToNextChar(*json, '"');
             return KEY_UNDEFINED;
           } break;
         }
@@ -631,10 +631,10 @@ static Key read_sua_key(const char** json,
   return KEY_UNDEFINED;
 }
 
-static char* read_string_value(const char** json, StringBuilder *builder,
+static char* readStringValue(const char** json, StringBuilder *builder,
                                Exception* const exception) {
     char *begin = builder->current;
-  *json = skip_whitespaces(*json);
+  *json = skipWhitespaces(*json);
   if (**json == 'n') {
     ++(*json);
     NotExpectSymbol(*json, '\0', return begin);
@@ -650,10 +650,10 @@ static char* read_string_value(const char** json, StringBuilder *builder,
 
   ++*json;
 
-  for (begin = safe_write_to_buffer(builder, '"', exception);; ++(*json)) {
+  for (begin = safeWriteToBuffer(builder, '"', exception);; ++(*json)) {
     NotExpectSymbol(*json, '\0', return begin);
 
-    begin = safe_write_to_buffer(builder, **json, exception);
+    begin = safeWriteToBuffer(builder, **json, exception);
 
     switch (**json) {
       case '\"': {
@@ -665,14 +665,14 @@ static char* read_string_value(const char** json, StringBuilder *builder,
         if ((*json)[1] == '\\' || (*json)[1] == '"') {
           ++(*json);
 
-          safe_write_to_buffer(builder, **json, exception);
+          safeWriteToBuffer(builder, **json, exception);
         }
       } break;
     }
   }
 }
 
-static char* read_bool_ghev_value(const char** json,
+static char* readBoolGhevValue(const char** json,
                                   StringBuilder *builder,
                                   KeyValuePair* cache, Key key,
                                   Exception* const exception) {
@@ -686,8 +686,8 @@ static char* read_bool_ghev_value(const char** json,
         ExpectSymbol(*json, *i, return begin);
       }
 
-      ptr = safe_write_to_buffer(builder, '?', exception);
-      ptr = safe_write_to_buffer(builder, '1', exception);
+      ptr = safeWriteToBuffer(builder, '?', exception);
+      ptr = safeWriteToBuffer(builder, '1', exception);
     } break;
 
     case 'f': {
@@ -696,8 +696,8 @@ static char* read_bool_ghev_value(const char** json,
         ExpectSymbol(*json, *i, return begin);
       }
 
-      ptr = safe_write_to_buffer(builder, '?', exception);
-      ptr = safe_write_to_buffer(builder, '0', exception);
+      ptr = safeWriteToBuffer(builder, '?', exception);
+      ptr = safeWriteToBuffer(builder, '0', exception);
     } break;
 
     default: {
@@ -712,7 +712,7 @@ static char* read_bool_ghev_value(const char** json,
     return ptr;
 }
 
-static char* read_bool_sua_value(const char** json,
+static char* readBoolSuaValue(const char** json,
                                  StringBuilder *builder,
                                  KeyValuePair* cache, Key key,
                                  Exception* const exception) {
@@ -729,8 +729,8 @@ static char* read_bool_sua_value(const char** json,
     } break;
   }
 
-  char* ptr = safe_write_to_buffer(builder, '?', exception);
-  ptr = safe_write_to_buffer(builder, **json, exception);
+  char* ptr = safeWriteToBuffer(builder, '?', exception);
+  ptr = safeWriteToBuffer(builder, **json, exception);
 
   ++(*json);
 
@@ -741,7 +741,7 @@ static char* read_bool_sua_value(const char** json,
   return ptr;
 }
 
-static char* read_version_sua(const char** json,
+static char* readVersionSua(const char** json,
                               StringBuilder *builder,
                               Exception* const exception) {
   enum version_state {
@@ -762,16 +762,16 @@ static char* read_version_sua(const char** json,
           } break;
 
           case '\\': {
-            ptr = safe_write_to_buffer(builder, **json, exception);
+            ptr = safeWriteToBuffer(builder, **json, exception);
 
             if ((*json)[1] == '\\' || (*json)[1] == '"') {
               ++(*json);
-              ptr = safe_write_to_buffer(builder, **json, exception);
+              ptr = safeWriteToBuffer(builder, **json, exception);
             }
           } break;
 
           default: {
-            ptr = safe_write_to_buffer(builder, **json, exception);
+            ptr = safeWriteToBuffer(builder, **json, exception);
           } break;
         }
       } break;
@@ -783,7 +783,7 @@ static char* read_version_sua(const char** json,
           } break;
 
           case ',': {
-            ptr = safe_write_to_buffer(builder, '.', exception);
+            ptr = safeWriteToBuffer(builder, '.', exception);
           } break;
 
           case ']': {
@@ -793,27 +793,27 @@ static char* read_version_sua(const char** json,
       } break;
 
       case version_exit: {
-        ptr = safe_write_to_buffer(builder, '"', exception);
+        ptr = safeWriteToBuffer(builder, '"', exception);
           return ptr;
       } break;
     }
   }
 }
 
-static char* read_brands_ghev_value(const char** json, StringBuilder *builder,
+static char* readBrandsGhevValue(const char** json, StringBuilder *builder,
                                     KeyValuePair* cache, Key key,
                                     Exception* const exception) {
     char *begin = builder->current;
-  *json = skip_to_next_char(*json, '[');
+  *json = skipToNextChar(*json, '[');
   ExpectSymbol(*json, '[', return begin);
 
   ++*json;
 
   for (char* ptr = begin;; ++*json) {
-    *json = skip_to_next_char(*json, '{');
+    *json = skipToNextChar(*json, '{');
     ExpectSymbol(*json, '{', return begin);
 
-    *json = skip_to_next_char(*json + 1, '"');
+    *json = skipToNextChar(*json + 1, '"');
     ExpectSymbol(*json, '"', return begin);
 
     ++*json;
@@ -822,21 +822,21 @@ static char* read_brands_ghev_value(const char** json, StringBuilder *builder,
       ExpectSymbol(*json, *k, return begin);
     }
 
-    *json = skip_to_next_char(*json, ':');
+    *json = skipToNextChar(*json, ':');
     ExpectSymbol(*json, ':', return begin);
 
     ++*json;
 
-      char* ptr2 = read_string_value(json, builder, exception);
+      char* ptr2 = readStringValue(json, builder, exception);
     if (ptr2 != NULL) {
-      ptr = safe_write_to_buffer(builder, ';', exception);
-      ptr = safe_write_to_buffer(builder, 'v', exception);
-      ptr = safe_write_to_buffer(builder, '=', exception);
+      ptr = safeWriteToBuffer(builder, ';', exception);
+      ptr = safeWriteToBuffer(builder, 'v', exception);
+      ptr = safeWriteToBuffer(builder, '=', exception);
 
-      *json = skip_to_next_char(*json, ',');
+      *json = skipToNextChar(*json, ',');
       ExpectSymbol(*json, ',', return begin); //rollback
 
-      *json = skip_to_next_char(*json + 1, '"');
+      *json = skipToNextChar(*json + 1, '"');
       ExpectSymbol(*json, '"', return begin); //rollback
 
       ++*json;
@@ -845,28 +845,28 @@ static char* read_brands_ghev_value(const char** json, StringBuilder *builder,
         ExpectSymbol(*json, *k, return begin); //rollback
       }
 
-      *json = skip_to_next_char(*json, ':');
+      *json = skipToNextChar(*json, ':');
       ExpectSymbol(*json, ':', return begin); //rollback
 
       ++*json;
 
-      ptr2 = read_string_value(json, builder, exception);
+      ptr2 = readStringValue(json, builder, exception);
       if (ptr2 == NULL) {
         ptr2 = ptr;
 
-        ptr = safe_write_to_buffer(builder, 'n', exception);
-        ptr = safe_write_to_buffer(builder, 'u', exception);
-        ptr = safe_write_to_buffer(builder, 'l', exception);
-        ptr = safe_write_to_buffer(builder, 'l', exception);
+        ptr = safeWriteToBuffer(builder, 'n', exception);
+        ptr = safeWriteToBuffer(builder, 'u', exception);
+        ptr = safeWriteToBuffer(builder, 'l', exception);
+        ptr = safeWriteToBuffer(builder, 'l', exception);
       } else {
         ptr = ptr2;
       }
     }
 
-    *json = skip_to_next_char(*json, '}');
+    *json = skipToNextChar(*json, '}');
     ExpectSymbol(*json, '}', return begin);
 
-    *json = skip_whitespaces(*json + 1);
+    *json = skipWhitespaces(*json + 1);
     NotExpectSymbol(*json, '\0', return begin);
 
     switch (**json) {
@@ -883,8 +883,8 @@ static char* read_brands_ghev_value(const char** json, StringBuilder *builder,
 
       case ',': {
         if (ptr2 != NULL) {
-          ptr = safe_write_to_buffer(builder, ',', exception);
-          ptr = safe_write_to_buffer(builder, ' ', exception);
+          ptr = safeWriteToBuffer(builder, ',', exception);
+          ptr = safeWriteToBuffer(builder, ' ', exception);
         }
       } break;
 
@@ -896,20 +896,20 @@ static char* read_brands_ghev_value(const char** json, StringBuilder *builder,
   }
 }
 
-static char* read_brands_sua_value(const char** json, StringBuilder *builder,
+static char* readBrandsSuaValue(const char** json, StringBuilder *builder,
                                    KeyValuePair* cache, Key key,
                                    Exception* const exception) {
-  *json = skip_to_next_char(*json, '[');
+  *json = skipToNextChar(*json, '[');
     char *begin = builder->current;
   ExpectSymbol(*json, '[', return begin);
 
   for (char* ptr = begin;; ++*json) {
     NotExpectSymbol(*json, '\0', return begin);
 
-    *json = skip_to_next_char(*json, '{');
+    *json = skipToNextChar(*json, '{');
     ExpectSymbol(*json, '{', return begin);
 
-    *json = skip_to_next_char(*json, '"');
+    *json = skipToNextChar(*json, '"');
     ExpectSymbol(*json, '"', return begin);
 
     ++*json;
@@ -918,21 +918,21 @@ static char* read_brands_sua_value(const char** json, StringBuilder *builder,
       ExpectSymbol(*json, *k, return begin);
     }
 
-    *json = skip_to_next_char(*json, ':');
+    *json = skipToNextChar(*json, ':');
     ExpectSymbol(*json, ':', return begin);
 
     ++*json;
 
-    char* ptr2 = read_string_value(json, builder, exception);
+    char* ptr2 = readStringValue(json, builder, exception);
     if (ptr2 != NULL) {
-      ptr = safe_write_to_buffer(builder, ';', exception);
-      ptr = safe_write_to_buffer(builder, 'v', exception);
-      ptr = safe_write_to_buffer(builder, '=', exception);
+      ptr = safeWriteToBuffer(builder, ';', exception);
+      ptr = safeWriteToBuffer(builder, 'v', exception);
+      ptr = safeWriteToBuffer(builder, '=', exception);
 
-      *json = skip_to_next_char(*json, ',');
+      *json = skipToNextChar(*json, ',');
       ExpectSymbol(*json, ',', return begin);
 
-      *json = skip_to_next_char(*json + 1, '"');
+      *json = skipToNextChar(*json + 1, '"');
       ExpectSymbol(*json, '"', return begin);
 
       ++*json;
@@ -941,22 +941,22 @@ static char* read_brands_sua_value(const char** json, StringBuilder *builder,
         ExpectSymbol(*json, *k, return begin);
       }
 
-      *json = skip_to_next_char(*json, ':');
+      *json = skipToNextChar(*json, ':');
       ExpectSymbol(*json, ':', return begin);
 
-      *json = skip_to_next_char(*json, '[');
+      *json = skipToNextChar(*json, '[');
       ExpectSymbol(*json, '[', return begin);
 
       ++*json;
 
-      ptr = safe_write_to_buffer(builder, '"', exception);
-      ptr = read_version_sua(json, builder, exception);
+      ptr = safeWriteToBuffer(builder, '"', exception);
+      ptr = readVersionSua(json, builder, exception);
     }
 
-    *json = skip_to_next_char(*json, '}');
+    *json = skipToNextChar(*json, '}');
     ExpectSymbol(*json, '}', return begin);
 
-    *json = skip_whitespaces(*json + 1);
+    *json = skipWhitespaces(*json + 1);
     NotExpectSymbol(*json, '\0', return begin);
 
     switch (**json) {
@@ -972,8 +972,8 @@ static char* read_brands_sua_value(const char** json, StringBuilder *builder,
 
       case ',': {
         if (ptr != begin) {
-          ptr = safe_write_to_buffer(builder, ',', exception);
-          ptr = safe_write_to_buffer(builder, ' ', exception);
+          ptr = safeWriteToBuffer(builder, ',', exception);
+          ptr = safeWriteToBuffer(builder, ' ', exception);
         }
       } break;
 
@@ -985,11 +985,11 @@ static char* read_brands_sua_value(const char** json, StringBuilder *builder,
   }
 }
 
-static char* read_pure_string_value(const char** json, StringBuilder *builder,
+static char* readPureStringValue(const char** json, StringBuilder *builder,
                                     KeyValuePair* cache, Key key,
                                     Exception* const exception) {
     char *begin = builder->current;
-  char* ptr = read_string_value(json, builder, exception);
+  char* ptr = readStringValue(json, builder, exception);
 
   if (ptr != NULL) {
     cache[key].value = ValuePtr;
@@ -999,15 +999,15 @@ static char* read_pure_string_value(const char** json, StringBuilder *builder,
   return ptr;
 }
 
-static char* read_platform_sua_value(
+static char* readPlatformSuaValue(
     const char** json, StringBuilder *builder,
     KeyValuePair* cache, Key key,
     Exception* const exception) {
     char *begin = builder->current;
-  *json = skip_to_next_char(*json, '{');
+  *json = skipToNextChar(*json, '{');
   ExpectSymbol(*json, '{', return begin);
 
-  *json = skip_to_next_char(*json + 1, '"');
+  *json = skipToNextChar(*json + 1, '"');
   ExpectSymbol(*json, '"', return begin);
 
   ++*json;
@@ -1016,12 +1016,12 @@ static char* read_platform_sua_value(
     ExpectSymbol(*json, *k, return begin);
   }
 
-  *json = skip_to_next_char(*json, ':');
+  *json = skipToNextChar(*json, ':');
   ExpectSymbol(*json, ':', return begin);
 
   ++*json;
 
-  char* ptr = read_string_value(json, builder, exception);
+  char* ptr = readStringValue(json, builder, exception);
   if (ptr == NULL) {
     return NULL;
   }
@@ -1034,7 +1034,7 @@ static char* read_platform_sua_value(
 
   begin = ptr;
 
-  *json = skip_whitespaces(*json);
+  *json = skipWhitespaces(*json);
 
   if (**json == '}') {
     return begin;
@@ -1042,7 +1042,7 @@ static char* read_platform_sua_value(
 
   ExpectSymbol(*json, ',', return begin);
 
-  *json = skip_to_next_char(*json + 1, '"');
+  *json = skipToNextChar(*json + 1, '"');
   ExpectSymbol(*json, '"', return begin);
 
   ++*json;
@@ -1051,17 +1051,17 @@ static char* read_platform_sua_value(
     ExpectSymbol(*json, *k, return begin);
   }
 
-  *json = skip_to_next_char(*json, ':');
+  *json = skipToNextChar(*json, ':');
   ExpectSymbol(*json, ':', return begin);
 
-  *json = skip_to_next_char(*json + 1, '[');
+  *json = skipToNextChar(*json + 1, '[');
   ExpectSymbol(*json, '[', return begin);
 
   ++*json;
   NotExpectSymbol(*json, '\0', return begin);
 
-  ptr = safe_write_to_buffer(builder, '"', exception);
-  ptr = read_version_sua(json, builder, exception);
+  ptr = safeWriteToBuffer(builder, '"', exception);
+  ptr = readVersionSua(json, builder, exception);
 
   cache[PLATFORMVERSION].value = ValuePtr;
   cache[PLATFORMVERSION].valueLength = ptr - begin;
@@ -1069,40 +1069,40 @@ static char* read_platform_sua_value(
   return ptr;
 }
 
-static inline readValueCallback read_value_switch(Key key, int isSua) {
+static inline readValueCallback readValueSwitch(Key key, int isSua) {
   readValueCallback res = NULL;
 
   switch (key) {
     case ARCHITECTURE: {
-      res = read_pure_string_value;
+      res = readPureStringValue;
     } break;
 
     case BITNESS: {
-      res = read_pure_string_value;
+      res = readPureStringValue;
     } break;
 
     case BRANDS: {
-      res = isSua ? NULL : read_brands_ghev_value;
+      res = isSua ? NULL : readBrandsGhevValue;
     } break;
 
     case FULLVERSIONLIST: {
-      res = isSua ? read_brands_sua_value : read_brands_ghev_value;
+      res = isSua ? readBrandsSuaValue : readBrandsGhevValue;
     } break;
 
     case MOBILE: {
-      res = isSua ? read_bool_sua_value : read_bool_ghev_value;
+      res = isSua ? readBoolSuaValue : readBoolGhevValue;
     } break;
 
     case MODEL: {
-      res = read_pure_string_value;
+      res = readPureStringValue;
     } break;
 
     case PLATFORM: {
-      res = isSua ? read_platform_sua_value : read_pure_string_value;
+      res = isSua ? readPlatformSuaValue : readPureStringValue;
     } break;
 
     case PLATFORMVERSION: {
-      res = isSua ? NULL : read_pure_string_value;
+      res = isSua ? NULL : readPureStringValue;
     } break;
 
     case KEY_UNDEFINED: {
@@ -1127,7 +1127,7 @@ static bool pushToHeaders(void* ctx, KeyValuePair header) {
   return (headers->count < headers->capacity);
 }
 // ------------------------------------------------------------------------------------------------
-static uint32_t main_parsing_body(const char* json,
+static uint32_t mainParsingBody(const char* json,
                                 StringBuilder *builder,
                                 Exception* const exception,
                                 int isSua,
@@ -1139,7 +1139,7 @@ static uint32_t main_parsing_body(const char* json,
   // define buffer range
 
   // write keys to buffer, init cache and skip to the first key
-  json = init_parsing(json, builder, cache, exception);
+  json = initParsing(json, builder, cache, exception);
   if (EXCEPTION_CHECK(CORRUPT_DATA)) {
     return 0;
   }
@@ -1147,21 +1147,21 @@ static uint32_t main_parsing_body(const char* json,
 	uint32_t iterations = 0;  // total number of parsed key-value pairs
 
   // main reading loop
-  readKeyCallback read_key = isSua ? read_sua_key : read_ghev_key;
+  readKeyCallback read_key = isSua ? readSuaKey : readGhevKey;
   while (*json != '\0') {
     Key key = read_key(&json, exception);
     ExpectSymbol(json, '"', break);
 
-    readValueCallback read_value = read_value_switch(key, isSua);
+    readValueCallback read_value = readValueSwitch(key, isSua);
     if (key == KEY_UNDEFINED || read_value == NULL) {
-      json = skip_value(json + 1);
+      json = skipValue(json + 1);
       continue;
     }
 
-    json = skip_to_next_char(json, ':');
+    json = skipToNextChar(json, ':');
     ExpectSymbol(json, ':', break);
 
-    json = skip_whitespaces(json + 1);
+    json = skipWhitespaces(json + 1);
     NotExpectSymbol(json, '\0', break);
 
     char* ptr = read_value(&json, builder, cache, key, exception);
@@ -1185,7 +1185,7 @@ static uint32_t main_parsing_body(const char* json,
       }
     }
 
-    json = skip_to_next_char(json, '"');
+    json = skipToNextChar(json, '"');
   }
 
   return iterations;
@@ -1197,7 +1197,7 @@ static uint32_t main_parsing_body(const char* json,
 uint32_t TransformIterateGhevFromJsonPrivate(const char* json, StringBuilder *builder,
                                                           fiftyoneDegreesTransformCallback callback, void* ctx,
                                                           fiftyoneDegreesException* const exception) {
-    return main_parsing_body(json, builder, exception, 0, callback, ctx);
+    return mainParsingBody(json, builder, exception, 0, callback, ctx);
 }
 // ------------------------------------------------------------------------------------------------
 fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateGhevFromJson(
@@ -1218,7 +1218,7 @@ fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateGhevFromBas
     fiftyoneDegreesException* const exception) {
 	StringBuilder builder = {buffer, length};
     StringBuilderInit(&builder);
-    base64_decode(base64, &builder, exception);
+    base64Decode(base64, &builder, exception);
 	fiftyoneDegreesTransformIterateResult result = {0, builder.added, builder.added > builder.length};
   if (EXCEPTION_CHECK(CORRUPT_DATA) || EXCEPTION_CHECK(INSUFFICIENT_MEMORY)) {
     return result;
@@ -1239,7 +1239,7 @@ fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateSua(
     fiftyoneDegreesException* const exception) {
 	StringBuilder builder = {buffer, length};
     StringBuilderInit(&builder);
-	uint32_t iterations = main_parsing_body(json, &builder, exception, 1, callback, ctx);
+	uint32_t iterations = mainParsingBody(json, &builder, exception, 1, callback, ctx);
     StringBuilderComplete(&builder);
 	fiftyoneDegreesTransformIterateResult result = {iterations, builder.added, builder.added > builder.length};
     return result;

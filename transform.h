@@ -323,3 +323,4 @@ EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformSua(
 	fiftyoneDegreesException *const exception);
 
 #endif /* FIFTYONE_DEGREES_TRANSFORM_H_INCLUDED */
+	

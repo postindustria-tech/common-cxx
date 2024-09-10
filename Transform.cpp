@@ -30,37 +30,53 @@ using namespace FiftyoneDegrees::Common;
 
 Transform::Transform(size_t capacity) : buffer(capacity) {}
 
-Transform::Headers Transform::apiInvoker(CTransformAPI func,
-                                         const std::string& json) {
-  Transform::Headers res;
-  EXCEPTION_CREATE;
+Transform::Headers Transform::apiInvoker(CTransformAPI func, const std::string& json) {
+    class ArrayContainer {
+    public:
+        KeyValuePairArray* headers = NULL;
+        ArrayContainer() {
+            FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, headers, 8);
+        }
+        
+        ~ArrayContainer() {
+            Free(headers);
+        }
+    };
+    
+    // RAII
+    ArrayContainer container;
+    
+    bool first = true;
+    size_t written = 0;
+    EXCEPTION_CREATE;
+    while (first || EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY)) {
+      if (!first) {
+          container.headers->count = 0;
+          size_t bufferSize = std::max<size_t>(buffer.size() * 2, written + 1); //+1 to avoid 0 size
+          try {
+              buffer.resize(bufferSize);
+          } catch (const std::bad_alloc &) {
+              // reallocation failed - we just exit this loop by throwing an exception
+              EXCEPTION_THROW;
+          }
+      }
+      first = false;
+      EXCEPTION_CLEAR;
+      fiftyoneDegreesTransformIterateResult result = func(json.c_str(), buffer.data(), buffer.size(), container.headers, exception);
+		written = result.written;
+    }
 
-  fiftyoneDegreesKeyValuePairArray* headers = NULL;
-  FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, headers, 8);
-
-  func(json.c_str(), buffer.data(), buffer.size(), headers, exception);
-
-  while (EXCEPTION_CHECK(INSUFFICIENT_MEMORY)) {
-    headers->count = 0;
-    EXCEPTION_SET(SUCCESS);
-    buffer.resize(buffer.size() * 2);
-
-    func(json.c_str(), buffer.data(), buffer.size(), headers, exception);
-  }
-
-  if (EXCEPTION_CHECK(CORRUPT_DATA)) {
-    fiftyoneDegreesFree(headers);
+  if (EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_CORRUPT_DATA)) {
     EXCEPTION_THROW;
   }
 
-  for (uint32_t i = 0; i < headers->count; ++i) {
-    fiftyoneDegreesKeyValuePair& pair = headers->items[i];
+    Transform::Headers res;
+  for (uint32_t i = 0; i < container.headers->count; ++i) {
+    fiftyoneDegreesKeyValuePair& pair = container.headers->items[i];
 
     res.emplace(std::string{pair.key, pair.keyLength},
                 std::string{pair.value, pair.valueLength});
   }
-
-  fiftyoneDegreesFree(headers);
 
   return res;
 }

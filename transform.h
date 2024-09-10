@@ -55,10 +55,10 @@
  * - Sec-CH-UA-Arch
  * - Sec-CH-UA-Bitness
  *
- * The conversion routines transform the GetHighEntropyValues (GHEV) or 
+ * The conversion routines transform the GetHighEntropyValues (GHEV) or
  * Structured User Agent (SUA) SUA input into the HTTP header maps.
- * 
- * Routines are provided in 2 styles: iterative (for potentially lazy 
+ *
+ * Routines are provided in 2 styles: iterative (for potentially lazy
  * consumption) and array-results (for eager consumption). The former uses
  * callback to iteratively provide header name-value pairs to the caller, the
  * latter provides the whole header map array as output. In addition 2 variants
@@ -70,6 +70,17 @@
  * the null-terminated strings stored in that buffer.  Thus the buffer should
  * outlive the last output evidence use.
  */
+
+/**
+ * Used as a return type from the conversion routines to carry information about
+ * the operation results to the caller, allows the caller to f.e. judge about the buffer utilization,
+ * and whether the buffer was of sufficient size
+ */
+typedef struct {
+	uint32_t iterations; // number of pairs of evidence extracted or would have been extracted and correspondingly calls to the callback made
+	size_t written; // number of characters written or that would have been written to the buffer, reflects required buffer size
+	bool bufferTooSmall; // the caller should check this flag and reallocate the buffer to be of at least `written` size
+} fiftyoneDegreesTransformIterateResult;
 
 /**
  * A callback function type definition that is called every time a header
@@ -84,7 +95,7 @@
  * stop
  */
 EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)(
-    void *state, fiftyoneDegreesKeyValuePair header);
+	void *state, fiftyoneDegreesKeyValuePair header);
 
 /**
  * Iteratively convert getHighEntropyValue() API result JSON string to HTTP
@@ -114,12 +125,12 @@ EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)(
  * @param state an external context state to pass to be used by the callback
  * function
  * @return the number of iterations / header pairs detected (callback calls
- * made)
+ * made) and buffer utilization information
  */
-EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromJson(
-    const char *json, char *const buffer, size_t length,
-    fiftyoneDegreesTransformCallback callback, void *state,
-    fiftyoneDegreesException *const exception);
+EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateGhevFromJson(
+	const char *json, char *const buffer, size_t length,
+	fiftyoneDegreesTransformCallback callback, void *state,
+	fiftyoneDegreesException *const exception);
 
 /**
  * Iteratively convert getHighEntropyValue() API result base64 encoded JSON
@@ -150,12 +161,12 @@ EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromJson(
  * @param state an external context state to pass to be used by the callback
  * function
  * @return the number of iterations / header pairs detected (callback calls
- * made)
+ * made) and buffer utilization information
  */
-EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromBase64(
-    const char *base64, char *buffer, size_t length,
-    fiftyoneDegreesTransformCallback callback, void *state,
-    fiftyoneDegreesException *const exception);
+EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateGhevFromBase64(
+	const char *base64, char *buffer, size_t length,
+	fiftyoneDegreesTransformCallback callback, void *state,
+	fiftyoneDegreesException *const exception);
 
 /**
  * Iteratively convert device.sua JSON string to HTTP header representation.
@@ -184,12 +195,12 @@ EXTERNAL size_t fiftyoneDegreesTransformIterateGhevFromBase64(
  * @param state an external context state to pass to be used by the callback
  * function
  * @return the number of iterations / header pairs detected (callback calls
- * made)
+ * made) and buffer utilization information
  */
-EXTERNAL size_t fiftyoneDegreesTransformIterateSua(
-    const char *json, char *buffer, size_t length,
-    fiftyoneDegreesTransformCallback callback, void *state,
-    fiftyoneDegreesException *const exception);
+EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateSua(
+	const char *json, char *buffer, size_t length,
+	fiftyoneDegreesTransformCallback callback, void *state,
+	fiftyoneDegreesException *const exception);
 
 /**
  * Eagerly convert getHighEntropyValue() API result JSON string to HTTP header
@@ -220,13 +231,13 @@ EXTERNAL size_t fiftyoneDegreesTransformIterateSua(
  * on the heap.  must not be NULL and has to be memory managed outside of the
  * function, its lifetime should be long enough to survive the last use of the
  * returned headers
- * @return the number of headers that was written or should have been written to
- * the array in case this number is higher than headers->capacity in the latter
+ * @return result.iterations specifies the number of headers that was written or
+ * should have been written to the array.  in case this number is higher than headers->capacity
  * case the exception will have FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY
  * status and the returned capacity will signal the array size that needs to be
- * allocated
+ * allocated. result.written and result.bufferTooSmall provide buffer utilization information
  */
-EXTERNAL size_t fiftyoneDegreesTransformGhevFromJson(
+EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformGhevFromJson(
   const char *json, char *buffer, size_t length,
   fiftyoneDegreesKeyValuePairArray *const headers,
   fiftyoneDegreesException *const exception);
@@ -261,13 +272,13 @@ EXTERNAL size_t fiftyoneDegreesTransformGhevFromJson(
  * on the heap.  must not be NULL and has to be memory managed outside of the
  * function, its lifetime should be long enough to survive the last use of the
  * returned headers
- * @return the number of headers that was written or should have been written to
- * the array in case this number is higher than headers->capacity in the latter
+ * @return result.iterations specifies the number of headers that was written or
+ * should have been written to the array.  in case this number is higher than headers->capacity
  * case the exception will have FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY
  * status and the returned capacity will signal the array size that needs to be
- * allocated
+ * allocated. result.written and result.bufferTooSmall provide buffer utilization information
  */
-EXTERNAL size_t fiftyoneDegreesTransformGhevFromBase64(
+EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformGhevFromBase64(
   const char *base64, char *buffer, size_t length,
   fiftyoneDegreesKeyValuePairArray *const headers,
   fiftyoneDegreesException *const exception);
@@ -300,15 +311,15 @@ EXTERNAL size_t fiftyoneDegreesTransformGhevFromBase64(
  * on the heap.  must not be NULL and has to be memory managed outside of the
  * function, its lifetime should be long enough to survive the last use of the
  * returned headers
- * @return the number of headers that was written or should have been written to
- * the array in case this number is higher than headers->capacity in the latter
+ * @return result.iterations specifies the number of headers that was written or
+ * should have been written to the array.  in case this number is higher than headers->capacity
  * case the exception will have FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY
  * status and the returned capacity will signal the array size that needs to be
- * allocated
+ * allocated. result.written and result.bufferTooSmall provide buffer utilization information
  */
-EXTERNAL size_t fiftyoneDegreesTransformSua(
-    const char *json, char *buffer, size_t length,
-    fiftyoneDegreesKeyValuePairArray *const headers,
-    fiftyoneDegreesException *const exception);
+EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformSua(
+	const char *json, char *buffer, size_t length,
+	fiftyoneDegreesKeyValuePairArray *const headers,
+	fiftyoneDegreesException *const exception);
 
 #endif /* FIFTYONE_DEGREES_TRANSFORM_H_INCLUDED */

@@ -27,13 +27,13 @@
 
 #define NotExpectSymbol(json, ch, exit) \
   if (*json == ch) {                    \
-    exception->status = CORRUPT_DATA;   \
+    EXCEPTION_SET(CORRUPT_DATA);   \
     exit;                               \
   }
 
 #define ExpectSymbol(json, ch, exit)  \
   if (*json != ch) {                  \
-    exception->status = CORRUPT_DATA; \
+    EXCEPTION_SET(CORRUPT_DATA); \
     exit;                             \
   }
 
@@ -44,8 +44,7 @@
   }
 
 #define ValuePtr \
-  (exception->status == INSUFFICIENT_MEMORY ? NULL \
-                                                  : begin)
+  (EXCEPTION_CHECK(INSUFFICIENT_MEMORY) ? NULL : begin)
 
 #define GET_SEXTET(str, i) \
   (str[i] == '=' ? 0 & i++ : base64_char_to_value(str[i++], exception))
@@ -90,7 +89,7 @@ static inline char* safe_write_to_buffer(
   if (begin < end) {
     *begin = symbol;
   } else {
-    exception->status = INSUFFICIENT_MEMORY;
+    EXCEPTION_SET(INSUFFICIENT_MEMORY);
   }
 
   return ++begin;
@@ -119,7 +118,7 @@ static inline uint32_t base64_char_to_value(
       255};
 
   if (base64_lookup_table[(uint8_t)c] == 255) {
-    exception->status = CORRUPT_DATA;
+    EXCEPTION_SET(CORRUPT_DATA);
   }
 
   return base64_lookup_table[(uint8_t)c];
@@ -130,7 +129,7 @@ static size_t base64_decode(const char* base64_input, char* const buffer,
                             Exception* const exception) {
   size_t input_length = strlen(base64_input);
   if (input_length % 4 != 0) {
-    exception->status = CORRUPT_DATA;
+    EXCEPTION_SET(CORRUPT_DATA)
     return 0;  // Invalid base64 input length
   }
 
@@ -142,10 +141,6 @@ static size_t base64_decode(const char* base64_input, char* const buffer,
     uint32_t sextet_b = GET_SEXTET(base64_input, i);
     uint32_t sextet_c = GET_SEXTET(base64_input, i);
     uint32_t sextet_d = GET_SEXTET(base64_input, i);
-
-    if (exception->status == CORRUPT_DATA) {
-      return 0;
-    }
 
     uint32_t triple =
         (sextet_a << 18) + (sextet_b << 12) + (sextet_c << 6) + sextet_d;
@@ -710,7 +705,7 @@ static char* read_bool_ghev_value(const char** json, char* begin,
     } break;
 
     default: {
-      exception->status = CORRUPT_DATA;
+      EXCEPTION_SET(CORRUPT_DATA);
       return begin;
     } break;
   }
@@ -731,7 +726,7 @@ static char* read_bool_sua_value(const char** json, char* begin,
     } break;
 
     default: {
-      exception->status = CORRUPT_DATA;
+      EXCEPTION_SET(CORRUPT_DATA);
       return begin;
     } break;
   }
@@ -894,7 +889,7 @@ static char* read_brands_ghev_value(const char** json, char* begin,
       } break;
 
       default: {
-        exception->status = CORRUPT_DATA;
+        EXCEPTION_SET(CORRUPT_DATA);
         return begin;
       } break;
     }
@@ -983,7 +978,7 @@ static char* read_brands_sua_value(const char** json, char* begin,
       } break;
 
       default: {
-        exception->status = CORRUPT_DATA;
+        EXCEPTION_SET(CORRUPT_DATA);
         return begin;
       } break;
     }
@@ -1145,8 +1140,8 @@ static size_t main_parsing_body(const char* json, char* const buffer,
 
   // write keys to buffer, init cache and skip to the first key
   json = init_parsing(json, &begin, end, cache, exception);
-  if (exception->status == CORRUPT_DATA ||
-      exception->status == INSUFFICIENT_MEMORY) {
+  if (EXCEPTION_CHECK(CORRUPT_DATA) ||
+      EXCEPTION_CHECK(INSUFFICIENT_MEMORY)) {
     return 0;
   }
 
@@ -1171,7 +1166,7 @@ static size_t main_parsing_body(const char* json, char* const buffer,
     NotExpectSymbol(json, '\0', break);
 
     char* ptr = read_value(&json, begin, end, cache, key, exception);
-    if (exception->status == CORRUPT_DATA) {
+    if (EXCEPTION_CHECK(CORRUPT_DATA)) {
       break;
     }
 
@@ -1211,8 +1206,8 @@ size_t fiftyoneDegreesTransformIterateGhevFromBase64(
     fiftyoneDegreesException* const exception) {
   size_t offset = base64_decode(base64, buffer, length, exception);
 
-  if (exception->status == INSUFFICIENT_MEMORY ||
-      exception->status == CORRUPT_DATA) {
+  if (EXCEPTION_CHECK(INSUFFICIENT_MEMORY) ||
+      EXCEPTION_CHECK(CORRUPT_DATA)) {
     return 0;
   }
 
@@ -1237,7 +1232,7 @@ size_t fiftyoneDegreesTransformGhevFromJson(
       json, buffer, length, pushToHeaders, headers, exception);
 
   if (calls != headers->count - initial) {
-    exception->status = INSUFFICIENT_CAPACITY;
+    EXCEPTION_SET(INSUFFICIENT_CAPACITY);
   }
 
   return calls;
@@ -1252,7 +1247,7 @@ size_t fiftyoneDegreesTransformGhevFromBase64(
       base64, buffer, length, pushToHeaders, headers, exception);
 
   if (calls != headers->count - initial) {
-    exception->status = INSUFFICIENT_CAPACITY;
+    EXCEPTION_SET(INSUFFICIENT_CAPACITY);
   }
 
   return calls;
@@ -1267,7 +1262,7 @@ size_t fiftyoneDegreesTransformSua(
       json, buffer, length, pushToHeaders, headers, exception);
 
   if (calls != headers->count - initial) {
-    exception->status = INSUFFICIENT_CAPACITY;
+    EXCEPTION_SET(INSUFFICIENT_CAPACITY);
   }
 
   return calls;

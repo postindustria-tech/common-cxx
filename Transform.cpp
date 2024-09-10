@@ -40,15 +40,15 @@ Transform::Headers Transform::apiInvoker(CTransformAPI func,
 
   func(json.c_str(), buffer.data(), buffer.size(), headers, exception);
 
-  while (exception->status == FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY) {
+  while (EXCEPTION_CHECK(INSUFFICIENT_MEMORY)) {
     headers->count = 0;
-    exception->status = FIFTYONE_DEGREES_STATUS_SUCCESS;
+    EXCEPTION_SET(SUCCESS);
     buffer.resize(buffer.size() * 2);
 
     func(json.c_str(), buffer.data(), buffer.size(), headers, exception);
   }
 
-  if (exception->status == FIFTYONE_DEGREES_STATUS_CORRUPT_DATA) {
+  if (EXCEPTION_CHECK(CORRUPT_DATA)) {
     fiftyoneDegreesFree(headers);
     EXCEPTION_THROW;
   }

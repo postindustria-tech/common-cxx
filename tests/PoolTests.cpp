@@ -28,6 +28,8 @@
 #include "../exceptions.h"
 #include "../pool.h"
 
+// Note: fiftyone.h short names can't be used as conflicts with Pool class.
+
 #ifndef _MSC_VER
 #define _rmdir rmdir
 #endif
@@ -288,7 +290,7 @@ TEST_F(Pool, PoolGetInsufficientHandles) {
 	// Assert
 	ASSERT_EQ(NULL, item2);
 	ASSERT_FALSE(FIFTYONE_DEGREES_EXCEPTION_OKAY);
-	ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_HANDLES);
+	ASSERT_TRUE(FIFTYONE_DEGREES_EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_HANDLES));
 
 	// Cleanup
 	fiftyoneDegreesPoolItemRelease(item);
@@ -328,7 +330,7 @@ TEST_F(Pool, PoolGetInsufficientHandlesMultiple) {
 	// Assert
 	ASSERT_EQ(NULL, item3);
 	ASSERT_FALSE(FIFTYONE_DEGREES_EXCEPTION_OKAY);
-	ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_HANDLES);
+	ASSERT_TRUE(FIFTYONE_DEGREES_EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_HANDLES));
 
 	// Cleanup
 	fiftyoneDegreesPoolItemRelease(item);
@@ -363,7 +365,7 @@ TEST_F(Pool, PoolGetHandlesReturned) {
 		exception);
 	ASSERT_EQ(NULL, item2);
 	ASSERT_FALSE(FIFTYONE_DEGREES_EXCEPTION_OKAY);
-	ASSERT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_INSUFFICIENT_HANDLES);
+	ASSERT_TRUE(FIFTYONE_DEGREES_EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_HANDLES));
 	FIFTYONE_DEGREES_EXCEPTION_CLEAR;
 	fiftyoneDegreesPoolItemRelease(item);
 	item2 = fiftyoneDegreesPoolItemGet(

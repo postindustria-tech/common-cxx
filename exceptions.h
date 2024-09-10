@@ -137,10 +137,19 @@ exception->line = -1; \
 exception->status = FIFTYONE_DEGREES_STATUS_NOT_SET;
 
 /**
+* Macro used to check if an exception status equals the value of t.
+* Warning: this macro should be avoided in anything other than test code as 
+* when exceptions are disabled there will be unpredictable results. Using a
+* local status variable for checks is a better pattern.
+*/
+#define FIFTYONE_DEGREES_EXCEPTION_CHECK(t) \
+(exception == NULL || exception->status == t)
+
+/**
  * Macro used to check if there is no exception currently.
  */
 #define FIFTYONE_DEGREES_EXCEPTION_OKAY \
-(exception == NULL || exception->status == FIFTYONE_DEGREES_STATUS_NOT_SET)
+FIFTYONE_DEGREES_EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_NOT_SET)
 
 #ifdef FIFTYONE_DEGREES_EXCEPTIONS_HPP
 
@@ -167,13 +176,15 @@ fiftyoneDegreesExceptionCheckAndExit(exception);
 
 EXTERNAL typedef void* fiftyoneDegreesException;
 
-#define FIFTYONE_DEGREES_EXCEPTION_CLEAR exception = NULL;
+#define FIFTYONE_DEGREES_EXCEPTION_CLEAR
 
-#define FIFTYONE_DEGREES_EXCEPTION_SET(s) exception = NULL;
+#define FIFTYONE_DEGREES_EXCEPTION_SET(s)
 
-#define FIFTYONE_DEGREES_EXCEPTION_OKAY (exception == exception)
+#define FIFTYONE_DEGREES_EXCEPTION_OKAY true
 
 #define FIFTYONE_DEGREES_EXCEPTION_THROW
+
+#define FIFTYONE_DEGREES_EXCEPTION_CHECK(t) false
 
 #endif
 

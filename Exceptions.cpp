@@ -57,6 +57,7 @@ fiftyoneDegreesStatusCode StatusCodeException::getCode() const noexcept {
 	return statusCode;
 }
 
+#ifndef FIFTYONE_DEGREES_EXCEPTIONS_DISABLED 
 FatalException::FatalException(
     fiftyoneDegreesException *exception) : StatusCodeException(exception->status) {
 	const char *exceptionMessage = ExceptionGetMessage(exception);
@@ -65,6 +66,13 @@ FatalException::FatalException(
 		Free((void*)exceptionMessage);
 	}
 }
+#else 
+FatalException::FatalException(
+	fiftyoneDegreesException* exception) : StatusCodeException(NOT_SET) {
+	message.append(
+		"Exceptions disabled with FIFTYONE_DEGREES_EXCEPTIONS_DISABLED");
+}
+#endif
 
 NotImplementedException::NotImplementedException() 
 	: runtime_error("Function not yet implemented") { 

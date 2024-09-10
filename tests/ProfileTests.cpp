@@ -375,7 +375,7 @@ void ProfileTests::iterateValueIndicesForAvailableProperties(std::vector<std::st
             const char **found = std::find_if(&profileValueNames[i][0], &profileValueNames[i][0] + N_PROPERTIES, [s](const char *p){ return 0 == strcmp(&s->value, p); });
             EXPECT_NE(&profileValueNames[i][0] + N_PROPERTIES, found);  //belongs to current profile
         }
-        EXPECT_TRUE(EXCEPTION_OKAY) << exception->status;
+        EXPECT_TRUE(EXCEPTION_OKAY);
     }
     
     fiftyoneDegreesFree(propertiesAvailable);
@@ -422,7 +422,7 @@ TEST_F(ProfileTests, profileIterateForPropertyAndValue) {
 void ProfileTests::indicesLookup(std::vector<std::string> &propertyNames) {
     EXCEPTION_CREATE
     fiftyoneDegreesPropertiesAvailable *availableProperties = createAvailableProperties(propertyNames);
-    fiftyoneDegreesIndexPropertyProfile *index = fiftyoneDegreesIndexPropertyProfileCreate(profilesCollection, profileOffsetsCollection, availableProperties, valuesCollection, exception);
+    fiftyoneDegreesIndicesPropertyProfile *index = fiftyoneDegreesIndicesPropertyProfileCreate(profilesCollection, profileOffsetsCollection, availableProperties, valuesCollection, exception);
     
     for (int i=0;i<N_PROFILES;++i) {
         uint32_t profileId = profileIdFromProfileIndex(i);
@@ -430,7 +430,7 @@ void ProfileTests::indicesLookup(std::vector<std::string> &propertyNames) {
         for (uint32_t j=0;j<availableProperties->count;j++) {
             fiftyoneDegreesPropertyAvailable property = availableProperties->items[j];
             //lookup property value Index within the profile with profileId for the available property indexed at j in the array of availableProperties
-            uint32_t valueIdxIdxWithinProfile = fiftyoneDegreesIndexPropertyProfileLookup(index, profileId, j);
+            uint32_t valueIdxIdxWithinProfile = fiftyoneDegreesIndicesPropertyProfileLookup(index, profileId, j);
             //convert valueIdxIdxWithinProfile to the valueIndex in the actual values collection by looking it up with the profile collection
             uint32_t *first = (uint32_t*)(profile + 1);
             uint32_t valueIdx = *(first + valueIdxIdxWithinProfile);
@@ -440,7 +440,7 @@ void ProfileTests::indicesLookup(std::vector<std::string> &propertyNames) {
         }
     }
 
-    fiftyoneDegreesIndexPropertyProfileFree(index);
+    fiftyoneDegreesIndicesPropertyProfileFree(index);
     fiftyoneDegreesFree(availableProperties);
 }
 
@@ -462,7 +462,7 @@ bool collectValues(void *state, fiftyoneDegreesCollectionItem *item) {
 void ProfileTests::iterateValueIndicesForEachAvailableProperty(std::vector<std::string> &propertyNames) {
     EXCEPTION_CREATE
     fiftyoneDegreesPropertiesAvailable *availableProperties = createAvailableProperties(propertyNames);
-    fiftyoneDegreesIndexPropertyProfile *index = fiftyoneDegreesIndexPropertyProfileCreate(profilesCollection, profileOffsetsCollection, availableProperties, valuesCollection, exception);
+    fiftyoneDegreesIndicesPropertyProfile *index = fiftyoneDegreesIndicesPropertyProfileCreate(profilesCollection, profileOffsetsCollection, availableProperties, valuesCollection, exception);
 
     for (int i=0;i<N_PROFILES;++i) {
         fiftyoneDegreesProfile *profile = fiftyoneDegreesProfileGetByIndex(profileOffsetsCollection, profilesCollection, i, &item, exception);
@@ -490,7 +490,7 @@ void ProfileTests::iterateValueIndicesForEachAvailableProperty(std::vector<std::
         }
     }
 
-    fiftyoneDegreesIndexPropertyProfileFree(index);
+    fiftyoneDegreesIndicesPropertyProfileFree(index);
     fiftyoneDegreesFree(availableProperties);
 }
 
@@ -505,7 +505,7 @@ TEST_F(ProfileTests, unhappyPaths) {
     EXCEPTION_CREATE
     uint32_t *profileOffsetPtr = fiftyoneDegreesProfileGetOffsetForProfileId(profileOffsetsCollection, 0, &profileOffset, exception);
     EXPECT_FALSE(EXCEPTION_OKAY);
-    EXPECT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_PROFILE_EMPTY);
+    EXPECT_TRUE(FIFTYONE_DEGREES_EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_PROFILE_EMPTY));
 
     // non-existent profileId
     EXCEPTION_CLEAR

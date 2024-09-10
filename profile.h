@@ -224,7 +224,7 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateValuesForProperty(
  */
 EXTERNAL uint32_t fiftyoneDegreesProfileIterateValuesForPropertyWithIndex(
 	fiftyoneDegreesCollection* values,
-	fiftyoneDegreesIndexPropertyProfile* index,
+	fiftyoneDegreesIndicesPropertyProfile* index,
 	uint32_t availablePropertyIndex,
 	fiftyoneDegreesProfile* profile,
 	fiftyoneDegreesProperty* property,

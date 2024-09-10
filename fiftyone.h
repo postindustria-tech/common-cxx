@@ -182,7 +182,7 @@ MAP_TYPE(Float)
 MAP_TYPE(Coordinate)
 MAP_TYPE(KeyValuePair)
 MAP_TYPE(HeaderID)
-MAP_TYPE(IndexPropertyProfile)
+MAP_TYPE(IndicesPropertyProfile)
 MAP_TYPE(StringBuilder)
 MAP_TYPE(Json)
 MAP_TYPE(KeyValuePairArray)
@@ -344,9 +344,9 @@ MAP_TYPE(KeyValuePairArray)
 #define ProcessGetId fiftyoneDegreesProcessGetId /**< Synonym for fiftyoneDegreesProcessGetId */
 #define YamlFileIterate fiftyoneDegreesYamlFileIterate /**< Synonym for fiftyoneDegreesYamlFileIterate */
 #define YamlFileIterateWithLimit fiftyoneDegreesYamlFileIterateWithLimit /**< Synonym for fiftyoneDegreesYamlFileIterateWithLimit */
-#define IndexPropertyProfileCreate fiftyoneDegreesIndexPropertyProfileCreate /**< Synonym for fiftyoneDegreesIndexPropertyProfileCreate */
-#define IndexPropertyProfileFree fiftyoneDegreesIndexPropertyProfileFree /**< Synonym for fiftyoneDegreesIndexPropertyProfileFree */
-#define IndexPropertyProfileLookup fiftyoneDegreesIndexPropertyProfileLookup /**< Synonym for fiftyoneDegreesIndexPropertyProfileLookup */
+#define IndicesPropertyProfileCreate fiftyoneDegreesIndicesPropertyProfileCreate /**< Synonym for fiftyoneDegreesIndicesPropertyProfileCreate */
+#define IndicesPropertyProfileFree fiftyoneDegreesIndicesPropertyProfileFree /**< Synonym for fiftyoneDegreesIndicesPropertyProfileFree */
+#define IndicesPropertyProfileLookup fiftyoneDegreesIndicesPropertyProfileLookup /**< Synonym for fiftyoneDegreesIndicesPropertyProfileLookup */
 #define JsonDocumentStart fiftyoneDegreesJsonDocumentStart /**< Synonym for fiftyoneDegreesJsonDocumentStart */
 #define JsonDocumentEnd fiftyoneDegreesJsonDocumentEnd /**< Synonym for fiftyoneDegreesJsonDocumentEnd */
 #define JsonPropertyStart fiftyoneDegreesJsonPropertyStart /**< Synonym for fiftyoneDegreesJsonPropertyStart */

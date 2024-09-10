@@ -72,7 +72,7 @@ void fiftyoneDegreesDataSetFree(fiftyoneDegreesDataSetBase *dataSet) {
 
 	// Free the memory used for the index of property and profile values.
 	if (dataSet->indexPropertyProfile != NULL) {
-		IndexPropertyProfileFree(dataSet->indexPropertyProfile);
+		IndicesPropertyProfileFree(dataSet->indexPropertyProfile);
 		dataSet->indexPropertyProfile = NULL;
 	}
 

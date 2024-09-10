@@ -127,7 +127,7 @@ typedef struct fiftyone_degrees_dataset_base_t {
 	fiftyoneDegreesOverridePropertyArray *overridable; /**< Array of properties
 													   that can be 
 													   overridden */
-	fiftyoneDegreesIndexPropertyProfile* indexPropertyProfile; /**< Index to 
+	fiftyoneDegreesIndicesPropertyProfile* indexPropertyProfile; /**< Index to 
 															   look up profile 
 															   values by 
 															   property */

@@ -23,15 +23,15 @@
 #include "indices.h"
 #include "fiftyone.h"
 
+// Working data structure used to construct the index.
 typedef struct map_t {
 	uint32_t availableProperty; // available property index
 	int16_t propertyIndex; // index in the properties collection
 } map;
 
-
 // Gets the index of the profile id in the property profile index.
 static uint32_t getProfileIndex(
-	IndexPropertyProfile* index, 
+	IndicesPropertyProfile* index, 
 	uint32_t profileId) {
 	return profileId - index->minProfileId;
 }
@@ -40,7 +40,7 @@ static uint32_t getProfileIndex(
 // the position for the property and profile to the first value index from the
 // profile.
 static void addProfileValuesMethod(
-	IndexPropertyProfile* index, // index in use or null if not available
+	IndicesPropertyProfile* index, // index in use or null if not available
 	map* propertyIndexes, // property indexes in ascending order
 	fiftyoneDegreesCollection* values, // collection of values
 	Profile* profile, 
@@ -91,7 +91,7 @@ static void addProfileValuesMethod(
 static void iterateProfiles(
 	fiftyoneDegreesCollection* profiles,
 	fiftyoneDegreesCollection* profileOffsets,
-	IndexPropertyProfile* index, // index in use or null if not available
+	IndicesPropertyProfile* index, // index in use or null if not available
 	map* propertyIndexes, // property indexes in ascending order
 	fiftyoneDegreesCollection* values, // collection of values
 	Exception *exception) {
@@ -172,8 +172,8 @@ static map* createPropertyIndexes(
 	return index;
 }
 
-fiftyoneDegreesIndexPropertyProfile*
-fiftyoneDegreesIndexPropertyProfileCreate(
+fiftyoneDegreesIndicesPropertyProfile*
+fiftyoneDegreesIndicesPropertyProfileCreate(
 	fiftyoneDegreesCollection* profiles,
 	fiftyoneDegreesCollection* profileOffsets,
 	fiftyoneDegreesPropertiesAvailable* available,
@@ -187,8 +187,8 @@ fiftyoneDegreesIndexPropertyProfileCreate(
 	}
 
 	// Allocate memory for the index and set the fields.
-	IndexPropertyProfile* index = (IndexPropertyProfile*)Malloc(
-		sizeof(IndexPropertyProfile));
+	IndicesPropertyProfile* index = (IndicesPropertyProfile*)Malloc(
+		sizeof(IndicesPropertyProfile));
 	if (index == NULL) {
 		EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY);
 		return NULL;
@@ -245,14 +245,14 @@ fiftyoneDegreesIndexPropertyProfileCreate(
 	}
 }
 
-void fiftyoneDegreesIndexPropertyProfileFree(
-	fiftyoneDegreesIndexPropertyProfile* index) {
+void fiftyoneDegreesIndicesPropertyProfileFree(
+	fiftyoneDegreesIndicesPropertyProfile* index) {
 	Free(index->valueIndexes);
 	Free(index);
 }
 
-uint32_t fiftyoneDegreesIndexPropertyProfileLookup(
-	fiftyoneDegreesIndexPropertyProfile* index,
+uint32_t fiftyoneDegreesIndicesPropertyProfileLookup(
+	fiftyoneDegreesIndicesPropertyProfile* index,
 	uint32_t profileId,
 	uint32_t availablePropertyIndex) {
 	uint32_t valueIndex = 

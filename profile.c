@@ -291,14 +291,14 @@ uint32_t fiftyoneDegreesProfileIterateValuesForProperty(
 
 uint32_t fiftyoneDegreesProfileIterateValuesForPropertyWithIndex(
 	fiftyoneDegreesCollection* values,
-	fiftyoneDegreesIndexPropertyProfile* index,
+	fiftyoneDegreesIndicesPropertyProfile* index,
 	uint32_t availablePropertyIndex,
 	fiftyoneDegreesProfile* profile,
 	fiftyoneDegreesProperty* property,
 	void* state,
 	fiftyoneDegreesProfileIterateMethod callback,
 	fiftyoneDegreesException* exception) {
-	uint32_t i = IndexPropertyProfileLookup(
+	uint32_t i = IndicesPropertyProfileLookup(
 		index,
 		profile->profileId,
 		availablePropertyIndex);

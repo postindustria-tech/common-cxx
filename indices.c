@@ -67,9 +67,9 @@ static void addProfileValuesMethod(
 
 			// If the value doesn't relate to the next property index then 
 			// move to the next property index.
-			while (p < index->availablePropertyCount && //first check validity of the subscript and then use it
-                   propertyIndexes[p].propertyIndex < value->propertyIndex
-				) {
+			while (p < index->availablePropertyCount && // first check validity 
+				// of the subscript and then use it
+                propertyIndexes[p].propertyIndex < value->propertyIndex) {
 				p++;
 			}
 

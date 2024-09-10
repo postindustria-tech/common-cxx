@@ -61,7 +61,7 @@
  * exception message will be printed to standard output, then the process will
  * exit.
  *
- * **C++** : As C++ supports exceptions, an fatal exception with the message
+ * **C++** : As C++ supports exceptions, a fatal exception with the message
  * will be thrown. This can then be caught or handled in whichever way the
  * caller sees fit.
  *

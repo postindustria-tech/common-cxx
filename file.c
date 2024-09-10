@@ -723,7 +723,6 @@ bool fiftyoneDegreesFileGetExistingTempFile(
 	return false;
 }
 
-
 fiftyoneDegreesStatusCode fiftyoneDegreesFileAddTempFileName(
 	const char* masterFileName,
 	char* destination,
@@ -979,7 +978,9 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFilePoolInit(
 		}
 	}
 	else if (EXCEPTION_FAILED) {
+#ifndef FIFTYONE_DEGREES_EXCEPTIONS_DISABLED
 		status = exception->status;
+#endif
 	}
 	else {
 		status = INSUFFICIENT_MEMORY;

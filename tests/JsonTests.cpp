@@ -189,23 +189,23 @@ TEST_F(JsonTests, unhappyPaths) {
     {
         EXCEPTION_CLEAR;
         fiftyoneDegreesJsonDocumentStart(&json);
-        EXPECT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_NOT_SET);
+        EXPECT_TRUE(EXCEPTION_OKAY);
         
-            EXCEPTION_CLEAR;
-            fiftyoneDegreesJsonPropertyStart(&json);
-            EXPECT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_NULL_POINTER);
-                
-                EXCEPTION_CLEAR;
-                fiftyoneDegreesJsonPropertyValues(&json);
-                EXPECT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_NULL_POINTER);
-        
-            EXCEPTION_CLEAR;
-            fiftyoneDegreesJsonPropertyEnd(&json);
-            EXPECT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_NULL_POINTER);
+        EXCEPTION_CLEAR;
+        fiftyoneDegreesJsonPropertyStart(&json);
+        EXPECT_TRUE(EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_NULL_POINTER));
+            
+        EXCEPTION_CLEAR;
+        fiftyoneDegreesJsonPropertyValues(&json);
+        EXPECT_TRUE(EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_NULL_POINTER));
+    
+        EXCEPTION_CLEAR;
+        fiftyoneDegreesJsonPropertyEnd(&json);
+        EXPECT_TRUE(EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_NULL_POINTER));
         
         EXCEPTION_CLEAR;
         fiftyoneDegreesJsonDocumentEnd(&json);
-        EXPECT_EQ(exception->status, FIFTYONE_DEGREES_STATUS_NOT_SET);
+        EXPECT_TRUE(EXCEPTION_OKAY);
         
         EXPECT_STREQ(builder.ptr, "{}");
     }

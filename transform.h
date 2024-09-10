@@ -77,9 +77,22 @@
  * and whether the buffer was of sufficient size
  */
 typedef struct {
-	uint32_t iterations; // number of pairs of evidence extracted or would have been extracted and correspondingly calls to the callback made
-	size_t written; // number of characters written or that would have been written to the buffer, reflects required buffer size
-	bool bufferTooSmall; // the caller should check this flag and reallocate the buffer to be of at least `written` size
+	/**
+	 * number of pairs of evidence extracted or would have been extracted and correspondingly calls
+	 * to the callback made
+	 */
+	uint32_t iterations;
+	
+	/**
+	 * number of characters written or that would have been written to the buffer, reflects required buffer size
+	 */
+	size_t written;
+	
+	/**
+	 * the caller should check this flag and reallocate the buffer to be of at least `written` size
+	 * if this flag is set
+	 */
+	bool bufferTooSmall; //
 } fiftyoneDegreesTransformIterateResult;
 
 /**
@@ -94,8 +107,8 @@ typedef struct {
  * @return the implementer returns true to continue the iteration or false to
  * stop
  */
-EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)(
-	void *state, fiftyoneDegreesKeyValuePair header);
+EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)
+(void *state, fiftyoneDegreesKeyValuePair header);
 
 /**
  * Iteratively convert getHighEntropyValue() API result JSON string to HTTP
@@ -107,15 +120,15 @@ EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)(
  * @param length length of the buffer
  * @param exception - a constant pointer to a (preallocated) exception object
  * that is filled in case any errors occurred. must be checked by the caller
- * upon routine exit. `exception.status` will be FIFTYONE_DEGREES_STATUS_SUCCESS
+ * upon routine exit. `exception.status` will be `FIFTYONE_DEGREES_STATUS_SUCCESS`
  * if the conversion was successful, or will indicate error otherwise, s.a.
- * - FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY if provided buffer was of
+ * - `FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY` if provided buffer was of
  * insufficient size, in that case the callback will still be called, but value
  * will be NULL and valueLength will indicate the length necessary to store the
  * value in the buffer - this info can be then used by the caller to allocate
  * the buffer of sufficient size and execute another call - essentially
  * resulting in a dry run before allocation.
- * - FIFTYONE_DEGREES_STATUS_CORRUPT_DATA if f.e. JSON was malformed - in that
+ * - `FIFTYONE_DEGREES_STATUS_CORRUPT_DATA` if f.e. JSON was malformed - in that
  * case callback will likely not be called, or will be called a limited number
  * of times until the corruption becomes obvious to the iterator as no lookahead
  * logic is implemented
@@ -127,10 +140,11 @@ EXTERNAL typedef bool (*fiftyoneDegreesTransformCallback)(
  * @return the number of iterations / header pairs detected (callback calls
  * made) and buffer utilization information
  */
-EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateGhevFromJson(
-	const char *json, char *const buffer, size_t length,
-	fiftyoneDegreesTransformCallback callback, void *state,
-	fiftyoneDegreesException *const exception);
+EXTERNAL fiftyoneDegreesTransformIterateResult 
+fiftyoneDegreesTransformIterateGhevFromJson
+(const char *json, char *const buffer, size_t length,
+ fiftyoneDegreesTransformCallback callback, void *state,
+ fiftyoneDegreesException *const exception);
 
 /**
  * Iteratively convert getHighEntropyValue() API result base64 encoded JSON
@@ -143,15 +157,15 @@ EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateGh
  * @param length length of the buffer
  * @param exception - a constant pointer to a (preallocated) exception object
  * that is filled in case any errors occurred. must be checked by the caller
- * upon routine exit. `exception.status` will be FIFTYONE_DEGREES_STATUS_SUCCESS
+ * upon routine exit. `exception.status` will be `FIFTYONE_DEGREES_STATUS_SUCCESS`
  * if the conversion was successful, or will indicate error otherwise, s.a.
- * - FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY if provided buffer was of
+ * - `FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY` if provided buffer was of
  * insufficient size, in that case the callback will still be called, but value
  * will be NULL and valueLength will indicate the length necessary to store the
  * value in the buffer - this info can be then used by the caller to allocate
  * the buffer of sufficient size and execute another call - essentially
  * resulting in a dry run before allocation...
- * - FIFTYONE_DEGREES_STATUS_CORRUPT_DATA if f.e. JSON was malformed - in that
+ * - `FIFTYONE_DEGREES_STATUS_CORRUPT_DATA` if f.e. JSON was malformed - in that
  * case callback will likely not be called, or will be called a limited number
  * of times until the corruption becomes obvious to the iterator as no lookahead
  * logic is intended
@@ -163,10 +177,11 @@ EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateGh
  * @return the number of iterations / header pairs detected (callback calls
  * made) and buffer utilization information
  */
-EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateGhevFromBase64(
-	const char *base64, char *buffer, size_t length,
-	fiftyoneDegreesTransformCallback callback, void *state,
-	fiftyoneDegreesException *const exception);
+EXTERNAL fiftyoneDegreesTransformIterateResult 
+fiftyoneDegreesTransformIterateGhevFromBase64
+(const char *base64, char *buffer, size_t length,
+ fiftyoneDegreesTransformCallback callback, void *state,
+ fiftyoneDegreesException *const exception);
 
 /**
  * Iteratively convert device.sua JSON string to HTTP header representation.
@@ -177,15 +192,15 @@ EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateGh
  * @param length length of the buffer
  * @param exception - a constant pointer to a (preallocated) exception object
  * that is filled in case any errors occurred. must be checked by the caller
- * upon routine exit. `exception.status` will be FIFTYONE_DEGREES_STATUS_SUCCESS
+ * upon routine exit. `exception.status` will be `FIFTYONE_DEGREES_STATUS_SUCCESS`
  * if the conversion was successful, or will indicate error otherwise, s.a.
- * - FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY if provided buffer was of
+ * - `FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY` if provided buffer was of
  * insufficient size, in that case the callback will still be called, but value
  * will be NULL and valueLength will indicate the length necessary to store the
  * value in the buffer - this info can be then used by the caller to allocate
  * the buffer of sufficient size and execute another call - essentially
  * resulting in a dry run before allocation...
- * - FIFTYONE_DEGREES_STATUS_CORRUPT_DATA if f.e. JSON was malformed - in that
+ * - `FIFTYONE_DEGREES_STATUS_CORRUPT_DATA` if f.e. JSON was malformed - in that
  * case callback will likely not be called, or will be called a limited number
  * of times until the corruption becomes obvious to the iterator as no lookahead
  * logic is intended
@@ -197,10 +212,11 @@ EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateGh
  * @return the number of iterations / header pairs detected (callback calls
  * made) and buffer utilization information
  */
-EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateSua(
-	const char *json, char *buffer, size_t length,
-	fiftyoneDegreesTransformCallback callback, void *state,
-	fiftyoneDegreesException *const exception);
+EXTERNAL fiftyoneDegreesTransformIterateResult 
+fiftyoneDegreesTransformIterateSua
+(const char *json, char *buffer, size_t length,
+ fiftyoneDegreesTransformCallback callback, void *state,
+ fiftyoneDegreesException *const exception);
 
 /**
  * Eagerly convert getHighEntropyValue() API result JSON string to HTTP header
@@ -212,19 +228,19 @@ EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateSu
  * @param length length of the buffer
  * @param exception - a constant pointer to a (preallocated) exception object
  * that is filled in case any errors occurred. must be checked by the caller
- * upon routine exit. `exception.status` will be FIFTYONE_DEGREES_STATUS_SUCCESS
+ * upon routine exit. `exception.status` will be `FIFTYONE_DEGREES_STATUS_SUCCESS`
  * if the conversion was successful, or will indicate error otherwise, s.a.
- * - FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY if provided buffer was of
+ * - `FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY` if provided buffer was of
  * insufficient size, in that case the callback will still be called, but value
  * will be NULL and valueLength will indicate the length necessary to store the
  * value in the buffer - this info can be then used by the caller to allocate
  * the buffer of sufficient size and execute another call - essentially
  * resulting in a dry run before allocation...
- * - FIFTYONE_DEGREES_STATUS_CORRUPT_DATA if f.e. JSON was malformed - in that
+ * - `FIFTYONE_DEGREES_STATUS_CORRUPT_DATA` if f.e. JSON was malformed - in that
  * case callback will likely not be called, or will be called a limited number
  * of times until the corruption becomes obvious to the iterator as no lookahead
  * logic is intended
- * @param headers a preallocated (via FIFTYONE_DEGREES_ARRAY_CREATE macro) array
+ * @param headers a preallocated (via `FIFTYONE_DEGREES_ARRAY_CREATE` macro) array
  * of capacity enough to hold up to 8 UACH headers; upon function return will
  * contain the output http header names and value const char * pointers either
  * to the DATA segment allocated (names) string constants or preallocated buffer
@@ -233,14 +249,15 @@ EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformIterateSu
  * returned headers
  * @return result.iterations specifies the number of headers that was written or
  * should have been written to the array.  in case this number is higher than headers->capacity
- * case the exception will have FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY
+ * case the exception will have `FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY`
  * status and the returned capacity will signal the array size that needs to be
  * allocated. result.written and result.bufferTooSmall provide buffer utilization information
  */
-EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformGhevFromJson(
-  const char *json, char *buffer, size_t length,
-  fiftyoneDegreesKeyValuePairArray *const headers,
-  fiftyoneDegreesException *const exception);
+EXTERNAL fiftyoneDegreesTransformIterateResult 
+fiftyoneDegreesTransformGhevFromJson
+(const char *json, char *buffer, size_t length,
+ fiftyoneDegreesKeyValuePairArray *const headers,
+ fiftyoneDegreesException *const exception);
 
 /**
  * Eagerly convert getHighEntropyValue() API result from base64-encoded JSON
@@ -253,19 +270,19 @@ EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformGhevFromJ
  * @param length length of the buffer
  * @param exception - a constant pointer to a (preallocated) exception object
  * that is filled in case any errors occurred. must be checked by the caller
- * upon routine exit. `exception.status` will be FIFTYONE_DEGREES_STATUS_SUCCESS
+ * upon routine exit. `exception.status` will be `FIFTYONE_DEGREES_STATUS_SUCCESS`
  * if the conversion was successful, or will indicate error otherwise, s.a.
- * - FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY if provided buffer was of
+ * - `FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY` if provided buffer was of
  * insufficient size, in that case the callback will still be called, but value
  * will be NULL and valueLength will indicate the length necessary to store the
  * value in the buffer - this info can be then used by the caller to allocate
  * the buffer of sufficient size and execute another call - essentially
  * resulting in a dry run before allocation...
- * - FIFTYONE_DEGREES_STATUS_CORRUPT_DATA if f.e. JSON was malformed - in that
+ * - `FIFTYONE_DEGREES_STATUS_CORRUPT_DATA` if f.e. JSON was malformed - in that
  * case callback will likely not be called, or will be called a limited number
  * of times until the corruption becomes obvious to the iterator as no lookahead
  * logic is intended
- * @param headers a preallocated (via FIFTYONE_DEGREES_ARRAY_CREATE macro) array
+ * @param headers a preallocated (via `FIFTYONE_DEGREES_ARRAY_CREATE` macro) array
  * of capacity enough to hold up to 8 UACH headers; upon function return will
  * contain the output http header names and value const char * pointers either
  * to the DATA segment allocated (names) string constants or preallocated buffer
@@ -274,14 +291,15 @@ EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformGhevFromJ
  * returned headers
  * @return result.iterations specifies the number of headers that was written or
  * should have been written to the array.  in case this number is higher than headers->capacity
- * case the exception will have FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY
+ * case the exception will have `FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY`
  * status and the returned capacity will signal the array size that needs to be
  * allocated. result.written and result.bufferTooSmall provide buffer utilization information
  */
-EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformGhevFromBase64(
-  const char *base64, char *buffer, size_t length,
-  fiftyoneDegreesKeyValuePairArray *const headers,
-  fiftyoneDegreesException *const exception);
+EXTERNAL fiftyoneDegreesTransformIterateResult 
+fiftyoneDegreesTransformGhevFromBase64
+(const char *base64, char *buffer, size_t length,
+ fiftyoneDegreesKeyValuePairArray *const headers,
+ fiftyoneDegreesException *const exception);
 
 /**
  * Eagerly convert device.sua JSON string to HTTP header representation.
@@ -294,17 +312,17 @@ EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformGhevFromB
  * that is filled in case any errors occurred. must be checked by the caller
  * upon routine exit. `exception.status` will be FIFTYONE_DEGREES_STATUS_SUCCESS
  * if the conversion was successful, or will indicate error otherwise, s.a.
- * - FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY if provided buffer was of
+ * - `FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY` if provided buffer was of
  * insufficient size, in that case the callback will still be called, but value
  * will be NULL and valueLength will indicate the length necessary to store the
  * value in the buffer - this info can be then used by the caller to allocate
  * the buffer of sufficient size and execute another call - essentially
  * resulting in a dry run before allocation...
- * - FIFTYONE_DEGREES_STATUS_CORRUPT_DATA if f.e. JSON was malformed - in that
+ * - `FIFTYONE_DEGREES_STATUS_CORRUPT_DATA` if f.e. JSON was malformed - in that
  * case callback will likely not be called, or will be called a limited number
  * of times until the corruption becomes obvious to the iterator as no lookahead
  * logic is intended
- * @param headers a preallocated (via FIFTYONE_DEGREES_ARRAY_CREATE macro) array
+ * @param headers a preallocated (via `FIFTYONE_DEGREES_ARRAY_CREATE` macro) array
  * of capacity enough to hold up to 8 UACH headers; upon function return will
  * contain the output http header names and value const char * pointers either
  * to the DATA segment allocated (names) string constants or preallocated buffer
@@ -313,14 +331,14 @@ EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformGhevFromB
  * returned headers
  * @return result.iterations specifies the number of headers that was written or
  * should have been written to the array.  in case this number is higher than headers->capacity
- * case the exception will have FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY
+ * case the exception will have `FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY`
  * status and the returned capacity will signal the array size that needs to be
  * allocated. result.written and result.bufferTooSmall provide buffer utilization information
  */
-EXTERNAL fiftyoneDegreesTransformIterateResult fiftyoneDegreesTransformSua(
-	const char *json, char *buffer, size_t length,
-	fiftyoneDegreesKeyValuePairArray *const headers,
-	fiftyoneDegreesException *const exception);
+EXTERNAL fiftyoneDegreesTransformIterateResult 
+fiftyoneDegreesTransformSua
+(const char *json, char *buffer, size_t length,
+ fiftyoneDegreesKeyValuePairArray *const headers,
+ fiftyoneDegreesException *const exception);
 
 #endif /* FIFTYONE_DEGREES_TRANSFORM_H_INCLUDED */
-	

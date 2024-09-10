@@ -21,7 +21,7 @@
  * ********************************************************************* */
 
 //Exceptions.hpp must be included before "exceptions.h" to switch to
-//C++ exceptions semantics - so the macros translate into throw 
+//C++ exceptions semantics - so the macros translate into throw
 #include "Exceptions.hpp"
 #include "Transform.hpp"
 #include "fiftyone.h"
@@ -30,65 +30,73 @@ using namespace FiftyoneDegrees::Common;
 
 Transform::Transform(size_t capacity) : buffer(capacity) {}
 
-Transform::Headers Transform::apiInvoker(CTransformAPI func, const std::string& json) {
-    class ArrayContainer {
-    public:
-        KeyValuePairArray* headers = NULL;
-        ArrayContainer() {
-            FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, headers, 8);
-        }
-        
-        ~ArrayContainer() {
-            Free(headers);
-        }
-    };
-    
-    // RAII
-    ArrayContainer container;
-    
-    bool first = true;
-    size_t written = 0;
-    EXCEPTION_CREATE;
-    while (first || EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY)) {
-      if (!first) {
-          container.headers->count = 0;
-          size_t bufferSize = std::max<size_t>(buffer.size() * 2, written + 1); //+1 to avoid 0 size
-          try {
-              buffer.resize(bufferSize);
-          } catch (const std::bad_alloc &) {
-              // reallocation failed - we just exit this loop by throwing an exception
-              EXCEPTION_THROW;
-          }
-      }
-      first = false;
-      EXCEPTION_CLEAR;
-      fiftyoneDegreesTransformIterateResult result = func(json.c_str(), buffer.data(), buffer.size(), container.headers, exception);
+Transform::Headers Transform::apiInvoker(CTransformAPI func, 
+										 const std::string& json) {
+	class ArrayContainer {
+	public:
+		KeyValuePairArray* headers = NULL;
+		ArrayContainer() {
+			FIFTYONE_DEGREES_ARRAY_CREATE(fiftyoneDegreesKeyValuePair, 
+										  headers, 8);
+		}
+		
+		~ArrayContainer() {
+			Free(headers);
+		}
+	};
+	
+	// RAII
+	ArrayContainer container;
+	
+	bool first = true;
+	size_t written = 0;
+	EXCEPTION_CREATE;
+	while (first || 
+		   EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_MEMORY)) {
+		if (!first) {
+			container.headers->count = 0;
+			//+1 to avoid 0 size
+			size_t bufferSize = std::max<size_t>(buffer.size() * 2, 
+												 written + 1);
+			try {
+				buffer.resize(bufferSize);
+			} catch (const std::bad_alloc &) {
+				// reallocation failed - 
+				// we just exit this loop by throwing an exception
+				EXCEPTION_THROW;
+			}
+		}
+		first = false;
+		EXCEPTION_CLEAR;
+		fiftyoneDegreesTransformIterateResult result = 
+			func(json.c_str(), buffer.data(), buffer.size(), container.headers,
+				 exception);
 		written = result.written;
-    }
-
-  if (EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_CORRUPT_DATA)) {
-    EXCEPTION_THROW;
-  }
-
-    Transform::Headers res;
-  for (uint32_t i = 0; i < container.headers->count; ++i) {
-    fiftyoneDegreesKeyValuePair& pair = container.headers->items[i];
-
-    res.emplace(std::string{pair.key, pair.keyLength},
-                std::string{pair.value, pair.valueLength});
-  }
-
-  return res;
+	}
+	
+	if (EXCEPTION_CHECK(FIFTYONE_DEGREES_STATUS_CORRUPT_DATA)) {
+		EXCEPTION_THROW;
+	}
+	
+	Transform::Headers res;
+	for (uint32_t i = 0; i < container.headers->count; ++i) {
+		fiftyoneDegreesKeyValuePair& pair = container.headers->items[i];
+		
+		res.emplace(std::string{pair.key, pair.keyLength},
+					std::string{pair.value, pair.valueLength});
+	}
+	
+	return res;
 }
 
 Transform::Headers Transform::fromJsonGHEV(const std::string& json) {
-  return apiInvoker(fiftyoneDegreesTransformGhevFromJson, json);
+	return apiInvoker(fiftyoneDegreesTransformGhevFromJson, json);
 }
 
 Transform::Headers Transform::fromBase64GHEV(const std::string& json) {
-  return apiInvoker(fiftyoneDegreesTransformGhevFromBase64, json);
+	return apiInvoker(fiftyoneDegreesTransformGhevFromBase64, json);
 }
 
 Transform::Headers Transform::fromSUA(const std::string& json) {
-  return apiInvoker(fiftyoneDegreesTransformSua, json);
+	return apiInvoker(fiftyoneDegreesTransformSua, json);
 }

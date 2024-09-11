@@ -86,7 +86,6 @@
 #include "yamlfile.h"
 #include "indices.h"
 #include "json.h"
-#include "transform.h"
 
 /**
  * Macro used to support synonym implementation. Creates a typedef which 
@@ -358,13 +357,6 @@ MAP_TYPE(KeyValuePairArray)
 #define StringBuilderAddInteger fiftyoneDegreesStringBuilderAddInteger /**< Synonym for fiftyoneDegreesStringBuilderAddInteger */
 #define StringBuilderAddChars fiftyoneDegreesStringBuilderAddChars /**< Synonym for fiftyoneDegreesStringBuilderAddChars */
 #define StringBuilderComplete fiftyoneDegreesStringBuilderComplete /**< Synonym for fiftyoneDegreesStringBuilderComplete */
-#define TransformGhevFromJson fiftyoneDegreesTransformGhevFromJson /**< Synonym for fiftyoneDegreesTransformGhevFromJson */
-#define TransformGhevFromBase64 fiftyoneDegreesTransformGhevFromBase64 /**< Synonym for fiftyoneDegreesTransformGhevFromBase64 */
-#define TransformSua fiftyoneDegreesTransformSua /**< Synonym for fiftyoneDegreesTransformSua */
-#define TransformIterateSua fiftyoneDegreesTransformIterateSua /**< Synonym for fiftyoneDegreesTransformIterateSua */
-#define TransformIterateGhevFromBase64 fiftyoneDegreesTransformIterateGhevFromBase64 /**< Synonym for fiftyoneDegreesTransformIterateGhevFromBase64 */
-#define TransformIterateGhevFromJson fiftyoneDegreesTransformIterateGhevFromJson /**< Synonym for fiftyoneDegreesTransformIterateGhevFromJson */
-#define TransformCallback fiftyoneDegreesTransformCallback /**< Synonym for fiftyoneDegreesTransformCallback */
 #define EvidenceIterateMethod fiftyoneDegreesEvidenceIterateMethod /**< Synonym for fiftyoneDegreesEvidenceIterateMethod */
 
 /* <-- only one asterisk to avoid inclusion in documentation

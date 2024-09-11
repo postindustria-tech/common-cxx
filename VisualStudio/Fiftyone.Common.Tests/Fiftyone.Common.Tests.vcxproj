@@ -50,7 +50,6 @@
     <ClCompile Include="..\..\tests\ThreadingTests.cpp" />
     <ClCompile Include="..\..\tests\ValueTests.cpp" />
     <ClCompile Include="..\..\tests\YamlFileTests.cpp" />
-    <ClCompile Include="..\..\tests\TransformTests.cpp" />
     <ClCompile Include="..\..\tests\HeadersContainer.cpp" />
   </ItemGroup>
   <ItemGroup>

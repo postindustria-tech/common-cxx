@@ -264,12 +264,12 @@ EXTERNAL void fiftyoneDegreesOverrideValuesReset(
  * the override method supplied.
  * @param evidence to extract the profile ids from
  * @param state pointer to pass to the override method
- * @param override method called to override a profile id
+ * @param callback method called to override a profile id
  */
 EXTERNAL void fiftyoneDegreesOverrideProfileIds(
 	fiftyoneDegreesEvidenceKeyValuePairArray *evidence, 
 	void *state, 
-	fiftyoneDegreesOverrideProfileIdMethod override);
+	fiftyoneDegreesOverrideProfileIdMethod callback);
 
 /**
  * @}

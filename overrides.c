@@ -25,11 +25,11 @@
 
 MAP_TYPE(Collection)
 
-typedef struct override_profile_ids_t {
-	fiftyoneDegreesOverrideProfileIdMethod override; /* Method to call when
+typedef struct override_profile_ids_state_t {
+	fiftyoneDegreesOverrideProfileIdMethod callback; /* Method to call when
 													 a profile ids is found */
-	void *state; /* State to pass to the override method */
-} overrideProfileIds;
+	void *state; /* State to pass to the callback method */
+} overrideProfileIdsState;
 
 typedef struct add_state_t {
 	OverridePropertyArray *properties; /* Properties available to be
@@ -50,6 +50,15 @@ static void collectionRelease(Item *item) {
 
 /* Prefix to use when comparing property names. */
 #define OVERRIDE_PREFIX "51D_"
+
+/**
+ * Checks if the pair (p) have a field name that matches the target (t).
+ * The last byte of t is null where as fieldLength is the length of printable
+ * characters. Take 1 from the t to compare length.
+ */
+#define IS_HEADER_MATCH(t,p) \
+	(sizeof(t) - 1 == p->fieldLength && \
+	StringCompareLength(p->field, t, sizeof(t)) == 0)
 
 static const Collection dummyCollection = { 
 	NULL, 
@@ -403,16 +412,16 @@ void fiftyoneDegreesOverrideValuesReset(
 	}
 }
 
-static void extractProfileId(char *value, overrideProfileIds *state) {
+static void extractProfileId(char *value, overrideProfileIdsState *state) {
 	if (*value >= 0 && isdigit(*value) != 0) {
 		int profileId = atoi(value);
 		if (profileId >= 0) {
-			state->override(state->state, profileId);
+			state->callback(state->state, profileId);
 		}
 	}
 }
 
-static void extractProfileIds(overrideProfileIds *state, char *value) {
+static void extractProfileIds(overrideProfileIdsState *state, char *value) {
 	char *current = value, *previous = value;
 	while (*current != '\0') {
 		if (*current < 0 || isdigit(*current) == 0) {
@@ -425,10 +434,10 @@ static void extractProfileIds(overrideProfileIds *state, char *value) {
 }
 
 static bool iteratorProfileId(void *state, EvidenceKeyValuePair *pair) {
-	if (StringCompare(
-		skipPrefix(true, (char*)pair->field),
-		"ProfileIds") == 0) {
-		extractProfileIds((overrideProfileIds*)state, (char*)pair->parsedValue);
+	if (IS_HEADER_MATCH("ProfileIds", pair)) {
+		extractProfileIds(
+			(overrideProfileIdsState*)state, 
+			(char*)pair->parsedValue);
 	}
 	return true;
 }
@@ -436,12 +445,12 @@ static bool iteratorProfileId(void *state, EvidenceKeyValuePair *pair) {
 void fiftyoneDegreesOverrideProfileIds(
 	fiftyoneDegreesEvidenceKeyValuePairArray *evidence,
 	void *state,
-	fiftyoneDegreesOverrideProfileIdMethod override) {
-	overrideProfileIds callback = { override, state };
+	fiftyoneDegreesOverrideProfileIdMethod callback) {
+	overrideProfileIdsState iterateState = { callback, state };
 	EvidenceIterate(
 		evidence,
 		FIFTYONE_DEGREES_EVIDENCE_COOKIE |
 		FIFTYONE_DEGREES_EVIDENCE_QUERY,
-		&callback, 
+		&iterateState,
 		iteratorProfileId);
 }

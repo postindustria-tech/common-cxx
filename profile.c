@@ -101,17 +101,19 @@ static uint32_t* getFirstValueForProfileAndProperty(
 }
 
 /**
- * Retrieve the values between index and max index passing the item to the
- * callback method provided. The calling function is responsible for freeing
- * the items passed to the callback method.
+ * Starting at the value index pointed to by valIndexPtr iterates over the 
+ * value indexes checking that they relate to the property. maxValIndexPtr is
+ * used to prevent overrunning the memory used for values associated with the 
+ * profile. The value items are passed to the callback method which is 
+ * responsible for freeing these items.
  */
 static uint32_t iterateValues(
 	Collection *values,
 	Property *property,
 	void *state,
 	ProfileIterateMethod callback,
-	uint32_t *valueIndex,
-	uint32_t *maxValueIndex,
+	uint32_t *valIndexPtr,
+	uint32_t *maxValIndexPtr,
 	Exception *exception) {
 	Item valueItem;
 	uint32_t count = 0;
@@ -120,10 +122,13 @@ static uint32_t iterateValues(
 	// Loop through until the last value for the property has been returned
 	// or the callback doesn't need to continue.
 	while (cont == true &&
-           //first check the address validity, before dereferencing to prevent potential segfault on deref
-           valueIndex < maxValueIndex &&
-           *valueIndex <= property->lastValueIndex &&
-		
+        // Check the address validity, before dereferencing to prevent 
+		// potential memory fault on dereference.
+        valIndexPtr < maxValIndexPtr &&
+		// Check that the value index could relate to the property. Saves 
+		// having to retrieve the value item if it will never relate to the
+		// property.
+        *valIndexPtr <= property->lastValueIndex &&
 		EXCEPTION_OKAY) {
 
 		// Reset the items as they should never share the same memory.
@@ -131,12 +136,15 @@ static uint32_t iterateValues(
 
 		// Get the value from the value index and call the callback. Do not 
 		// free the item as the calling function is responsible for this.
-		if (values->get(values, *valueIndex, &valueItem, exception) != NULL &&
+		if (values->get(values, *valIndexPtr, &valueItem, exception) != NULL &&
 			EXCEPTION_OKAY) {
 			cont = callback(state, &valueItem);
 			count++;
 		}
-		valueIndex++;
+
+		// Move to the next value index pointer as this might relate to another
+		// value for the property.
+		valIndexPtr++;
 	}
 
 	return count;

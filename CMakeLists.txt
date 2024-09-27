@@ -214,7 +214,7 @@ if(BUILD_TESTING)
 		target_link_libraries(CommonTests fiftyone-common-cxx gtest_main)
 	endif()
 
-	gtest_discover_tests(CommonTests PROPERTIES TEST_DISCOVERY_TIMEOUT 600)
+	gtest_discover_tests(CommonTests PROPERTIES TEST_DISCOVERY_TIMEOUT 600 DISCOVERY_MODE PRE_TEST)
 	set_target_properties(CommonTests PROPERTIES FOLDER "Tests") 
 
 	if (CMAKE_COMPILER_IS_GNUCC)

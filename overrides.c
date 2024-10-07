@@ -57,8 +57,7 @@ static void collectionRelease(Item *item) {
  * characters. Take 1 from the t to compare length.
  */
 #define IS_HEADER_MATCH(t,p) \
-	(sizeof(t) - 1 == p->fieldLength && \
-	StringCompareLength(p->field, t, sizeof(t)) == 0)
+	(StringCompareLength(skipPrefix(true, (char*)pair->field), t, sizeof(t)) == 0)
 
 static const Collection dummyCollection = { 
 	NULL, 

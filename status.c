@@ -120,7 +120,8 @@ static StatusMessage messages[] = {
 		"string has correct format. If passing a byte array, verify the "
 		"associated input data is also consistent." },
 	{ TEMP_FILE_ERROR,
-		"Error occurs during the creation of a temporary file."}
+		"Error occurs during the creation of a temporary file."},
+    { INVALID_INPUT, "The input value is invalid: misformatted or semantically inconsistent."},
 };
 
 static char defaultMessage[] = "Status code %i does not have any message text.";

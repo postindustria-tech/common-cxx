@@ -275,3 +275,17 @@ TEST(Status, Get_NegativeCode) {
 	assertContains(message, code);
 	free((void*)message);
 }
+
+/**
+ * Check that a message is still returned for a negative status code which does
+ * not (and cannot) exist and the message contains the code as a string.
+ */
+TEST(Status, Get_InvalidInput) {
+    const char *message = fiftyoneDegreesStatusGetMessage(
+                                                          FIFTYONE_DEGREES_STATUS_INVALID_INPUT,
+                                                          NULL);
+    assertValidMessage(message);
+    assertContains(message, "invalid");
+    assertContains(message, "input value");
+    free((void*)message);
+}

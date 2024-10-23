@@ -275,6 +275,7 @@ EXTERNAL fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddStringUn
     fiftyoneDegreesEvidencePrefix prefix,
     const char *field,
     const char *originalValue);
+
 /**
  * Iterates over the headers assembling the evidence values, considering the 
  * prefixes, in the buffer if available. The call back method is called for 
@@ -286,7 +287,8 @@ EXTERNAL fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddStringUn
  * @param prefixes one or more prefix flags to return values for
  * @param state pointer passed to the callback method
  * @param headers to return evidence for if available
- * @param buffer that MIGHT be used with the callback
+ * @param buffer that MIGHT be used with the callback, null to disable 
+ * assembling headers
  * @param length of the buffer
  * @param callback method called when a matching prefix is found
  * @return true if the callback was called successfully, otherwise false

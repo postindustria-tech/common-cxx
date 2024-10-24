@@ -189,7 +189,12 @@ static bool processPseudoHeader(
 
 		// Add the header evidence that forms the segment if available updating
 		// the current buffer position if available.
-		bool success = addHeaderValueToBuilder(evidence, prefixes, header->segmentHeaders->items[i], builder, prependSeparator);
+		bool success = addHeaderValueToBuilder(
+			evidence, 
+			prefixes, 
+			header->segmentHeaders->items[i], 
+			builder, 
+			prependSeparator);
 
 		// If the pseudo header wasn't found, or insufficient space was 
 		// available to copy it, then return.
@@ -198,7 +203,8 @@ static bool processPseudoHeader(
 		}
 	}
 
-	// Append (or overwrite if it is the last character) a null terminating character.
+	// Append (or overwrite if it is the last character) a null terminating 
+	// character.
 	StringBuilderComplete(builder);
 
 	// A full header has been formed so call the callback with the buffer and
@@ -352,7 +358,8 @@ bool fiftyoneDegreesEvidenceIterateForHeaders(
 		// segment then that will be the header that was already processed in 
 		// processHeader therefore there is no point processing the same value
 		// a second time as a pseudo header.
-		if (header->segmentHeaders != NULL &&
+		if (buffer != NULL && 
+			header->segmentHeaders != NULL &&
 			header->segmentHeaders->count > 1) {
 			StringBuilderInit(&builder);
 			if (processPseudoHeader(

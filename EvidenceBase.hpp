@@ -65,6 +65,7 @@ namespace FiftyoneDegrees {
 		 * ```
 		 */
 		class EvidenceBase : public map<string, string> {
+            size_t additionalCapacity;
 		public:
 			/**
 			 * @name Constructors and Destructors
@@ -73,8 +74,18 @@ namespace FiftyoneDegrees {
 
 			/**
 			 * Construct a new instance containing no evidence.
+             * @param additionalCapacity - hint the additional capacity for the
+             *  dynamically allocated evidence array structure, to allow
+             *  derived evidence be added on the fly, when process() function is
+             *  called on the evidence.
+             *  The total capacity is the number of existing kv pairs plus this
+             *  additional capacity.
+             *  f.e. it may be necessary to expand 51d_gethighentropyvalues
+             *  into sec-ch-ua headers, thus the additional capacity must be 6.
+             *  If additional capacity is 0 - then the native evidence array will
+             *  have the capacity matching the number of key value pairs.
 			 */
-			EvidenceBase();
+			EvidenceBase(size_t additionalCapacity = 0);
 
 			/**
 			 * Free all the underlying memory containing the evidence.

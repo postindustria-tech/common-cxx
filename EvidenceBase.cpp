@@ -26,7 +26,7 @@
 
 using namespace FiftyoneDegrees::Common;
 
-EvidenceBase::EvidenceBase() {
+EvidenceBase::EvidenceBase(size_t additionalCapacity): additionalCapacity(additionalCapacity) {
 	evidence = NULL;
 }
 
@@ -42,7 +42,8 @@ fiftyoneDegreesEvidenceKeyValuePairArray* EvidenceBase::get() {
 		EvidenceFree(evidence);
 		evidence = NULL;
 	}
-	evidence = EvidenceCreate((uint32_t)size());
+    // in case capacity has been provided as a hint
+	evidence = EvidenceCreate((uint32_t)(size() + additionalCapacity));
 	if (evidence != NULL) {
 		for (map<string, string>::const_iterator iterator = begin();
 			iterator != end();

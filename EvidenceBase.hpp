@@ -65,27 +65,16 @@ namespace FiftyoneDegrees {
 		 * ```
 		 */
 		class EvidenceBase : public map<string, string> {
-            size_t additionalCapacity;
 		public:
 			/**
 			 * @name Constructors and Destructors
 			 * @{
 			 */
 
-			/**
-			 * Construct a new instance containing no evidence.
-             * @param additionalCapacity - hint the additional capacity for the
-             *  dynamically allocated evidence array structure, to allow
-             *  derived evidence be added on the fly, when process() function is
-             *  called on the evidence.
-             *  The total capacity is the number of existing kv pairs plus this
-             *  additional capacity.
-             *  f.e. it may be necessary to expand 51d_gethighentropyvalues
-             *  into sec-ch-ua headers, thus the additional capacity must be 6.
-             *  If additional capacity is 0 - then the native evidence array will
-             *  have the capacity matching the number of key value pairs.
-			 */
-			EvidenceBase(size_t additionalCapacity = 0);
+			 /**
+			  * Construct a new instance containing no evidence.
+			  */
+			EvidenceBase();
 
 			/**
 			 * Free all the underlying memory containing the evidence.
@@ -98,12 +87,12 @@ namespace FiftyoneDegrees {
 			 * @{
 			 */
 
-			/**
-			 * Get the underlying C structure containing the evidence. This
-			 * only includes evidence which is relevant to the engine. Any
-			 * evidence which is irrelevant will not be included in the result.
-			 * @return pointer to a populated C evidence structure
-			 */
+			 /**
+			  * Get the underlying C structure containing the evidence. This
+			  * only includes evidence which is relevant to the engine. Any
+			  * evidence which is irrelevant will not be included in the result.
+			  * @return pointer to a populated C evidence structure
+			  */
 			fiftyoneDegreesEvidenceKeyValuePairArray* get();
 
 			/**
@@ -112,9 +101,9 @@ namespace FiftyoneDegrees {
 			 * @{
 			 */
 
-			/**
-			 * Clear all evidence items from the instance.
-			 */
+			 /**
+			  * Clear all evidence items from the instance.
+			  */
 			void clear();
 
 			/**
@@ -129,7 +118,7 @@ namespace FiftyoneDegrees {
 			 * @param last item to remove
 			 */
 			void erase(iterator first, iterator last);
-			
+
 			/**
 			 * @}
 			 */
@@ -144,7 +133,7 @@ namespace FiftyoneDegrees {
 			virtual bool isRelevant(fiftyoneDegreesEvidencePrefix prefix);
 		private:
 			/** The underlying evidence structure. */
-			fiftyoneDegreesEvidenceKeyValuePairArray *evidence;
+			fiftyoneDegreesEvidenceKeyValuePairArray* evidence;
 		};
 	}
 }

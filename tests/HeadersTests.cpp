@@ -371,8 +371,8 @@ TEST_F(HeadersTests, PseudoHeadersPositive) {
 
 	EXPECT_STREQ("header1\x1Fheader2", headers->items[3].name);
 	EXPECT_EQ(2, headers->items[3].segmentHeaders->count);
-	EXPECT_EQ(7, headers->items[3].segmentHeaders->items[0]->length);
-	EXPECT_EQ(7, headers->items[3].segmentHeaders->items[1]->length);
+	EXPECT_EQ(7, headers->items[3].segmentHeaders->items[0]->nameLength);
+	EXPECT_EQ(7, headers->items[3].segmentHeaders->items[1]->nameLength);
 	EXPECT_EQ(0, StringCompareLength(
 		"header1", 
 		headers->items[3].segmentHeaders->items[0]->name,
@@ -387,8 +387,8 @@ TEST_F(HeadersTests, PseudoHeadersPositive) {
 
 	EXPECT_STREQ("header2\x1Fheader3", headers->items[4].name);
 	EXPECT_EQ(2, headers->items[4].segmentHeaders->count);
-	EXPECT_EQ(7, headers->items[4].segmentHeaders->items[0]->length);
-	EXPECT_EQ(7, headers->items[4].segmentHeaders->items[1]->length);
+	EXPECT_EQ(7, headers->items[4].segmentHeaders->items[0]->nameLength);
+	EXPECT_EQ(7, headers->items[4].segmentHeaders->items[1]->nameLength);
 	EXPECT_EQ(0, StringCompareLength(
 		"header2",
 		headers->items[4].segmentHeaders->items[0]->name,
@@ -403,9 +403,9 @@ TEST_F(HeadersTests, PseudoHeadersPositive) {
 
 	EXPECT_STREQ("header1\x1Fheader2\x1Fheader3", headers->items[5].name);
 	EXPECT_EQ(3, headers->items[5].segmentHeaders->count);
-	EXPECT_EQ(7, headers->items[5].segmentHeaders->items[0]->length);
-	EXPECT_EQ(7, headers->items[5].segmentHeaders->items[1]->length);
-	EXPECT_EQ(7, headers->items[5].segmentHeaders->items[2]->length);
+	EXPECT_EQ(7, headers->items[5].segmentHeaders->items[0]->nameLength);
+	EXPECT_EQ(7, headers->items[5].segmentHeaders->items[1]->nameLength);
+	EXPECT_EQ(7, headers->items[5].segmentHeaders->items[2]->nameLength);
 	
     EXPECT_EQ(0, StringCompareLength(
 		"header1",
@@ -445,11 +445,11 @@ TEST_F(HeadersTests, PseudoHeadersMissing) {
 	EXPECT_STREQ("header1\x1Fheader2", headers->items[0].name);
 	EXPECT_EQ(true, headers->items[0].isDataSet);
 	EXPECT_EQ(2, headers->items[0].segmentHeaders->count);
-	EXPECT_EQ(7, headers->items[0].segmentHeaders->items[0]->length);
+	EXPECT_EQ(7, headers->items[0].segmentHeaders->items[0]->nameLength);
     EXPECT_EQ(1, headers->items[0].segmentHeaders->items[0]->pseudoHeaders->count);
     EXPECT_EQ(&headers->items[0], headers->items[0].segmentHeaders->items[0]->pseudoHeaders->items[0]);
     
-	EXPECT_EQ(7, headers->items[0].segmentHeaders->items[1]->length);
+	EXPECT_EQ(7, headers->items[0].segmentHeaders->items[1]->nameLength);
     EXPECT_EQ(1, headers->items[0].segmentHeaders->items[1]->pseudoHeaders->count);
     EXPECT_EQ(&headers->items[0], headers->items[0].segmentHeaders->items[1]->pseudoHeaders->items[0]);
     
@@ -510,7 +510,7 @@ TEST_F(HeadersTests, PseudoHeadersSpecialCases) {
 
 	EXPECT_STREQ("\x1Fheader1", headers->items[2].name);
 	EXPECT_EQ(1, headers->items[2].segmentHeaders->count);
-	EXPECT_EQ(7, headers->items[2].segmentHeaders->items[0]->length);
+	EXPECT_EQ(7, headers->items[2].segmentHeaders->items[0]->nameLength);
 	EXPECT_EQ(0, StringCompareLength(
 		"header1",
 		headers->items[2].segmentHeaders->items[0]->name,
@@ -522,7 +522,7 @@ TEST_F(HeadersTests, PseudoHeadersSpecialCases) {
 
 	EXPECT_STREQ("header1\x1F", headers->items[3].name);
 	EXPECT_EQ(1, headers->items[3].segmentHeaders->count);
-	EXPECT_EQ(7, headers->items[3].segmentHeaders->items[0]->length);
+	EXPECT_EQ(7, headers->items[3].segmentHeaders->items[0]->nameLength);
 	EXPECT_EQ(0, StringCompareLength(
 		"header1",
 		headers->items[3].segmentHeaders->items[0]->name,
@@ -534,8 +534,8 @@ TEST_F(HeadersTests, PseudoHeadersSpecialCases) {
 
 	EXPECT_STREQ("header1\x1F\x1Fheader2", headers->items[4].name);
 	EXPECT_EQ(2, headers->items[4].segmentHeaders->count);
-	EXPECT_EQ(7, headers->items[4].segmentHeaders->items[0]->length);
-	EXPECT_EQ(7, headers->items[4].segmentHeaders->items[1]->length);
+	EXPECT_EQ(7, headers->items[4].segmentHeaders->items[0]->nameLength);
+	EXPECT_EQ(7, headers->items[4].segmentHeaders->items[1]->nameLength);
 	EXPECT_EQ(0, StringCompareLength(
 		"header1",
 		headers->items[4].segmentHeaders->items[0]->name,

@@ -111,8 +111,8 @@ TEST_F(EvidenceWithHeadersTest_SingleHeader, Intersection_sh_se_sm) {
 		evidenceHeaderIntersection_sh_se_sm);
 
 	ASSERT_EQ(1, result);
-	ASSERT_STREQ("Red", intersection_sh_se_sm[0].field);
-	ASSERT_STREQ("Value", (char*)intersection_sh_se_sm[0].originalValue);
+	ASSERT_STREQ("Red", intersection_sh_se_sm[0].item.key);
+	ASSERT_STREQ("Value", (char*)intersection_sh_se_sm[0].item.value);
 }
 
 
@@ -130,8 +130,8 @@ bool evidenceHeaderIntersection_sh_me_mm(void *state,
 	fiftyoneDegreesEvidenceKeyValuePair *pair) {
 	if (fiftyoneDegreesHeaderGetIndex(
 		(fiftyoneDegreesHeaders*)state,
-		pair->field,
-		strlen(pair->field)) >= 0) {
+		pair->item.key,
+		pair->item.keyLength) >= 0) {
 		intersection_sh_me_sm[intersection_multiple_sh_me_mm_count] = *pair;
 		intersection_multiple_sh_me_mm_count++;
 	}
@@ -162,8 +162,8 @@ TEST_F(EvidenceWithHeadersTest_SingleHeader, Intersection_sh_me_sm) {
 
 	ASSERT_EQ(2, result);
 	ASSERT_EQ(1, intersection_multiple_sh_me_mm_count);
-	EXPECT_STREQ("Red", intersection_sh_me_sm[0].field);
-	EXPECT_STREQ("Value2", (char*)intersection_sh_me_sm[0].originalValue);
+	EXPECT_STREQ("Red", intersection_sh_me_sm[0].item.key);
+	EXPECT_STREQ("Value2", (char*)intersection_sh_me_sm[0].item.value);
 }
 
 //------------------------------------------------------------------
@@ -181,8 +181,8 @@ bool evidenceHeaderIntersection_sh_me_nm(void *state,
 	fiftyoneDegreesEvidenceKeyValuePair *pair) {
 	if (fiftyoneDegreesHeaderGetIndex(
 		(fiftyoneDegreesHeaders*)state,
-		pair->field,
-		strlen(pair->field)) >= 0) {
+		pair->item.key,
+		pair->item.keyLength) >= 0) {
 		intersection_sh_me_nm[intersection_sh_me_nm_count] = *pair;
 		intersection_sh_me_nm_count++;
 	}

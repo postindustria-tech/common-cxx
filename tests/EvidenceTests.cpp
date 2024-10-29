@@ -30,10 +30,10 @@ void assertStringHeaderAdded(
 	const char *expectedValue) {
 	EXPECT_EQ((int)pair->prefix, (int)FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING) <<
 		L"Expected 'header' prefix.";
-	EXPECT_STREQ(pair->field, expectedField) <<
-		L"Expected name '" << expectedField << "' not '" << pair->field << "'";
-	EXPECT_TRUE(strcmp((const char*)pair->originalValue, expectedValue) == 0) <<
-		L"Expected value '" << expectedValue << "' not '" << pair->originalValue << "'";
+	EXPECT_STREQ(pair->item.key, expectedField) <<
+		L"Expected name '" << expectedField << "' not '" << pair->item.key << "'";
+	EXPECT_TRUE(strcmp((const char*)pair->item.value, expectedValue) == 0) <<
+		L"Expected value '" << expectedValue << "' not '" << pair->item.value << "'";
 }
 
 TEST_F(Evidence, Get_PrefixString) {
@@ -99,9 +99,9 @@ TEST_F(Evidence, Add_MultipleStrings)
 #endif
 bool onMatchIterateString(void *state, fiftyoneDegreesEvidenceKeyValuePair *pair)
 {
-	if (strcmp((const char*)pair->field, "some-header-name") == 0) {
-		EXPECT_TRUE(strcmp((const char*)pair->originalValue, (const char*)pair->parsedValue) == 0) <<
-			L"Expected parsed value to be '" << (const char*)pair->originalValue << "' not '" <<
+	if (strcmp((const char*)pair->item.key, "some-header-name") == 0) {
+		EXPECT_TRUE(strcmp((const char*)pair->item.value, (const char*)pair->parsedValue) == 0) <<
+			L"Expected parsed value to be '" << (const char*)pair->item.value << "' not '" <<
 			(const char*)pair->parsedValue << "'";
 	}
 	return true;
@@ -203,9 +203,9 @@ TEST_F(Evidence, Iterate_String_without_pseudo_evidence) {
 		"Number of evidence should be 1\n";
 }
 
-bool callback1(void* state, fiftyoneDegreesHeader*, const char* value, size_t) {
+bool callback1(void* state, fiftyoneDegreesEvidenceKeyValuePair* pair) {
     std::vector<std::string> *results = (std::vector<std::string> *) state;
-    results->push_back(value);
+    results->push_back(pair->item.value);
     return true;
 }
 
@@ -361,9 +361,9 @@ TEST_F(Evidence, IterateForHeaders_ConstructPseudoHeader_Missing_or_Empty) {
     EXPECT_EQ(results[1], "\x1FGreen\x1F""Apple");
 }
 
-bool callback2(void* state, fiftyoneDegreesHeader* , const char* value, size_t ) {
+bool callback2(void* state, fiftyoneDegreesEvidenceKeyValuePair *pair) {
     std::vector<std::string> *results = (std::vector<std::string> *) state;
-    results->push_back(value);
+    results->push_back(pair->item.value);
     return results->size() <= 1; // on the second header we signal early exit by returning false
 }
 
@@ -388,7 +388,7 @@ TEST_F(Evidence, IterateForHeaders_CallbackSignalsEarlyExit) {
     EXPECT_EQ(results[1], "Big\x1FGreen");
 }
 
-bool callback_false(void* , fiftyoneDegreesHeader* , const char* , size_t ) {
+bool callback_false(void*, fiftyoneDegreesEvidenceKeyValuePair*) {
     return false;
 }
 

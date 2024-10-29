@@ -81,8 +81,8 @@ bool evidenceHeaderIntersection_nh_se_nm(void *state,
 	fiftyoneDegreesEvidenceKeyValuePair *pair) {
 	if (fiftyoneDegreesHeaderGetIndex(
 		(fiftyoneDegreesHeaders*)state,
-		pair->field,
-		strlen(pair->field)) >= 0) {
+		pair->item.key,
+		pair->item.keyLength) >= 0) {
 		intersection_nh_se_nm[intersection_nh_se_nm_count] = *pair;
 		intersection_nh_se_nm_count++;
 	}
@@ -118,8 +118,8 @@ bool evidenceHeaderIntersection_nh_me_mm(void *state,
 	fiftyoneDegreesEvidenceKeyValuePair *pair) {
 	if (fiftyoneDegreesHeaderGetIndex(
 		(fiftyoneDegreesHeaders*)state,
-		pair->field,
-		strlen(pair->field)) >= 0) {
+		pair->item.key,
+		pair->item.keyLength) >= 0) {
 		intersection_nh_me_nm[intersection_multiple_nh_me_mm_count] = *pair;
 		intersection_multiple_nh_me_mm_count++;
 	}

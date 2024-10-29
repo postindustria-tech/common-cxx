@@ -57,7 +57,8 @@ static void collectionRelease(Item *item) {
  * characters. Take 1 from the t to compare length.
  */
 #define IS_HEADER_MATCH(t,p) \
-	(StringCompareLength(skipPrefix(true, (char*)pair->field), t, sizeof(t)) == 0)
+	(StringCompareLength(\
+	skipPrefix(true, (char*)pair->item.key), t, sizeof(t)) == 0)
 
 static const Collection dummyCollection = { 
 	NULL, 
@@ -183,7 +184,7 @@ static bool addOverrideToResults(void *state, EvidenceKeyValuePair *pair) {
 	// Find the required property index, if any for the field.
 	int requiredPropertyIndex = getRequiredPropertyIndexFromName(
 		add->properties,
-		pair->field);
+		pair->item.key);
 
 	return fiftyoneDegreesOverridesAdd(
 		add->values,

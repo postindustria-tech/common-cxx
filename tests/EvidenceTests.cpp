@@ -438,4 +438,7 @@ TEST_F(Evidence, IterateForHeaders_SmallBuffer) {
     fiftyoneDegreesFree(buf);
 }
 
-
+TEST_F(Evidence, freeNullEvidence) {
+    fiftyoneDegreesEvidenceKeyValuePairArray *evidence = NULL;
+    EvidenceFree(evidence);
+}

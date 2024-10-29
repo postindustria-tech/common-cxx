@@ -292,6 +292,9 @@ fiftyoneDegreesEvidenceCreate(uint32_t capacity) {
 
 void fiftyoneDegreesEvidenceFree(
 	fiftyoneDegreesEvidenceKeyValuePairArray *evidence) {
+    if (evidence == NULL) {
+        return;
+    }
 	EvidenceKeyValuePairArray* current = evidence;
 	while (current->next != NULL) {
 		current = current->next;

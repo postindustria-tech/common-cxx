@@ -24,15 +24,22 @@
 #include "fiftyone.h"
 
 typedef struct evidence_iterate_state_t {
-	fiftyoneDegreesEvidenceKeyValuePairArray *evidence;
+	EvidenceKeyValuePairArray *evidence;
 	EvidencePrefix prefix;
 	void *state;
-	fiftyoneDegreesEvidenceIterateMethod callback;
+	EvidenceIterateMethod callback;
 } evidenceIterateState;
 
+typedef struct evidence_find_state_t {
+	Header* header; // Header to find
+	EvidenceKeyValuePair* pair; // Pair found that matches the header
+} evidenceFindState;
+
 static EvidencePrefixMap _map[] = {
-	{ "server.", sizeof("server.") - 1, FIFTYONE_DEGREES_EVIDENCE_SERVER },
-	{ "header.", sizeof("header.") - 1, FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING },
+	{ "server.", sizeof("server.") - 1, 
+	FIFTYONE_DEGREES_EVIDENCE_SERVER },
+	{ "header.", sizeof("header.") - 1, 
+	FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING },
 	{ "query.", sizeof("query.") - 1, FIFTYONE_DEGREES_EVIDENCE_QUERY },
 	{ "cookie.", sizeof("cookie.") - 1, FIFTYONE_DEGREES_EVIDENCE_COOKIE }
 };
@@ -45,8 +52,9 @@ static void parsePair(EvidenceKeyValuePair *pair) {
 	case FIFTYONE_DEGREES_EVIDENCE_QUERY:
 	case FIFTYONE_DEGREES_EVIDENCE_COOKIE:
 	default:
-		pair->parsedValue = pair->originalValue;
-		pair->parsedLength = strlen(pair->parsedValue);
+		// These are string prefixes so just copy over the original values.
+		pair->parsedValue = pair->item.value;
+		pair->parsedLength = pair->item.valueLength;
 		break;
 	}
 }
@@ -54,15 +62,19 @@ static void parsePair(EvidenceKeyValuePair *pair) {
 // If a string comparison of the pair field and the header indicates a match
 // then set the header to avoid a string comparison in future iterations.
 static void setPairHeader(EvidenceKeyValuePair* pair, Header* header) {
-	if (pair->fieldLength == header->length &&
-		StringCompareLength(pair->field, header->name, header->length) == 0) {
+	if (pair->item.keyLength == header->nameLength &&
+		StringCompareLength(
+			pair->item.key, 
+			header->name, 
+			header->nameLength) == 0) {
 		pair->header = header;
 	}
 }
 
 /**
  * Iterate through an evidence collection and perform callback on the evidence
- * whose prefix matches the input prefixes.
+ * whose prefix matches the input prefixes. Checks the linked list of evidence
+ * arrays to ensure these are also processed.
  *
  * @param evidence the evidence collection to process
  * @param prefixes the accepted evidence prefixes
@@ -75,12 +87,14 @@ static uint32_t evidenceIterate(
 	int prefixes,
 	void* state,
 	EvidenceIterateMethod callback) {
-	uint32_t i = 0, iterations = 0;
-	const uint32_t count = evidence->count;
+	uint32_t index = 0, iterations = 0;
 	EvidenceKeyValuePair* pair;
 	bool cont = true;
-	while (cont && i < count) {
-		pair = &evidence->items[i++];
+	while (cont && evidence != NULL) {
+
+		// Check the current evidence item and call back if the right prefix
+		// after parsing the pair if not done so already.
+		pair = &evidence->items[index++];
 		if ((pair->prefix & prefixes) == pair->prefix) {
 			if (pair->parsedValue == NULL) {
 				parsePair(pair);
@@ -88,8 +102,34 @@ static uint32_t evidenceIterate(
 			cont = callback(state, pair);
 			iterations++;
 		}
+
+		// Check if the next evidence array needs to be moved to.
+		if (index >= evidence->count) {
+			evidence = evidence->next;
+			index = 0;
+		}
 	}
 	return iterations;
+}
+
+/**
+ * If the header name and pair key match then stop iterating having set the 
+ * found pair, otherwise return false.
+ */
+static bool findHeaderEvidenceCallback(
+	void* state,
+	EvidenceKeyValuePair* pair) {
+	evidenceFindState* findState = (evidenceFindState*)state;
+	if (findState->header == pair->header || (
+		findState->header->nameLength == pair->item.keyLength &&
+		StringCompareLength(
+			findState->header->name,
+			pair->item.key,
+			pair->item.keyLength) == 0)) {
+		findState->pair = pair;
+		return false;
+	}
+	return true;
 }
 
 /**
@@ -100,39 +140,20 @@ static EvidenceKeyValuePair* findHeaderEvidence(
 	EvidenceKeyValuePairArray* evidence,
 	int prefixes,
 	Header* header) {
-	EvidenceKeyValuePair* pair;
-
-	// For each of the evidence pairs available.
-	for (uint32_t i = 0; i < evidence->count; i++) {
-		pair = &evidence->items[i];
-
-		// Check that the prefix is one that is being considered.
-		if ((pair->prefix & prefixes) == pair->prefix) {
-
-			// If the header has been assigned to the pair check to see if this
-			// one is a match.
-			if (pair->header == NULL) {
-				setPairHeader(pair, header);
-			}
-
-			// If the pair's header and the required header are the same.
-			if (pair->header == header) {
-
-				// Ensure the parsed value is populated before returning.
-				if (pair->parsedValue == NULL) {
-					parsePair(pair);
-				}
-				return pair;
-			}
-		}
-	}
-	return NULL;
+	evidenceFindState state = { header, NULL };
+	evidenceIterate(evidence, prefixes, &state, findHeaderEvidenceCallback);
+	return state.pair;
 }
 
 // Safe-copies the pair parsed value to the buffer checking that there are
 // sufficient bytes remaining in the buffer for the parsed value.
-static void addPairValueToBuffer(StringBuilder* builder, EvidenceKeyValuePair* pair) {
-	StringBuilderAddChars(builder, (char*)pair->parsedValue, pair->parsedLength);
+static void addPairValueToBuffer(
+	StringBuilder* builder, 
+	EvidenceKeyValuePair* pair) {
+	StringBuilderAddChars(
+		builder, 
+		(char*)pair->parsedValue, 
+		pair->parsedLength);
 }
 
 // For the header finds the corresponding evidence in the array of evidence. If
@@ -166,8 +187,8 @@ static bool addHeaderValueToBuilder(
 	// current character in the buffer.
 	addPairValueToBuffer(builder, pair);
     
-    // return false if we have overfilled the buffer
-    return !builder->full;
+    // Return false if we have overfilled the buffer.
+    return builder->full == false;
 }
 
 // Assembles a pseudo header in the buffer. If this can not be achieved returns 
@@ -180,11 +201,13 @@ static bool processPseudoHeader(
 	Header* header,
 	StringBuilder* builder,
 	void* state,
-	fiftyoneDegreesEvidenceIterateForHeadersMethod callback) {
+	fiftyoneDegreesEvidenceIterateMethod callback) {
+	EvidenceKeyValuePair pair;
 
 	// For each of the headers that form the pseudo header.
 	for (uint32_t i = 0; i < header->segmentHeaders->count; i++) {
-        //if this is a subsequent segment - we prepend the separator
+        
+		// if this is a subsequent segment - we prepend the separator
         bool prependSeparator = i > 0;
 
 		// Add the header evidence that forms the segment if available updating
@@ -207,9 +230,17 @@ static bool processPseudoHeader(
 	// character.
 	StringBuilderComplete(builder);
 
-	// A full header has been formed so call the callback with the buffer and
-	// the number of characters populated.
-	return callback(state, header, builder->ptr, builder->added);
+	// A full header has been formed so call the callback with an evidence pair 
+	// containing the parsed value.
+	pair.item.key = NULL;
+	pair.item.keyLength = 0;
+	pair.header = header;
+	pair.item.value = builder->ptr;
+	pair.item.valueLength = builder->added;
+	pair.parsedValue = builder->ptr;
+	pair.parsedLength = builder->added;
+	pair.prefix = 0;
+	return callback(state, &pair);
 }
 
 // Finds the header in the evidence, and if available calls the callback. 
@@ -220,7 +251,7 @@ static bool processHeader(
 	int prefixes,
 	Header* header,
 	void* state,
-	fiftyoneDegreesEvidenceIterateForHeadersMethod callback) {
+	fiftyoneDegreesEvidenceIterateMethod callback) {
 
 	// Get the evidence that corresponds to the header. If it doesn't exist
 	// then there is no evidence for the header and a call back will not be
@@ -233,27 +264,26 @@ static bool processHeader(
 		return true;
 	}
 
-	// A full header has been formed so call the callback with the buffer and
-	// the number of characters populated.
-	return callback(
-		state, 
-		header, 
-		(const char*)pair->parsedValue, 
-		pair->parsedLength);
+	// A full header has been formed so call the callback with the pair.
+	return callback(state, pair);
 }
 
 fiftyoneDegreesEvidenceKeyValuePairArray*
 fiftyoneDegreesEvidenceCreate(uint32_t capacity) {
-	EvidenceKeyValuePairArray *evidence;
+	fiftyoneDegreesEvidenceKeyValuePairArray *evidence;
 	uint32_t i;
 	FIFTYONE_DEGREES_ARRAY_CREATE(EvidenceKeyValuePair, evidence, capacity);
 	if (evidence != NULL) {
+		evidence->next = NULL;
+		evidence->prev = NULL;
 		for (i = 0; i < evidence->capacity; i++) {
-			evidence->items[i].field = NULL;
-			evidence->items[i].fieldLength = 0;
+			evidence->items[i].item.key = NULL;
+			evidence->items[i].item.keyLength = 0;
+			evidence->items[i].item.value = NULL;
+			evidence->items[i].item.valueLength = 0;
 			evidence->items[i].header = NULL;
-			evidence->items[i].originalValue = NULL;
 			evidence->items[i].parsedValue = NULL;
+			evidence->items[i].parsedLength = 0;
 			evidence->items[i].prefix = FIFTYONE_DEGREES_EVIDENCE_IGNORE;
 		}
 	}
@@ -262,25 +292,53 @@ fiftyoneDegreesEvidenceCreate(uint32_t capacity) {
 
 void fiftyoneDegreesEvidenceFree(
 	fiftyoneDegreesEvidenceKeyValuePairArray *evidence) {
-	Free(evidence);
+	EvidenceKeyValuePairArray* current = evidence;
+	while (current->next != NULL) {
+		current = current->next;
+	}
+	while (current != NULL) {
+		evidence = current->prev;
+		Free(current);
+		current = evidence;
+	}
+}
+
+fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddPair(
+	fiftyoneDegreesEvidenceKeyValuePairArray *evidence,
+	fiftyoneDegreesEvidencePrefix prefix,
+	fiftyoneDegreesKeyValuePair value) {
+	EvidenceKeyValuePair *pair = NULL;
+	while (pair == NULL) {
+		if (evidence->count < evidence->capacity) {
+			// Use the next item in the allocated array.
+			pair = &evidence->items[evidence->count++];
+			pair->prefix = prefix;
+			pair->item = value;
+			pair->parsedValue = NULL;
+			pair->header = NULL;
+		}
+		else {
+			// If there is insufficient capacity in the evidence array then add
+			// a new array.
+			if (evidence->next == NULL) {
+				evidence->next = EvidenceCreate(
+					evidence->capacity == 0 ? 1 : evidence->capacity);
+				evidence->next->prev = evidence;
+			}
+			// Move to the next evidence array.
+			evidence = evidence->next;
+		}
+	}
+	return pair;
 }
 
 fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddString(
-	fiftyoneDegreesEvidenceKeyValuePairArray *evidence,
+	fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
 	fiftyoneDegreesEvidencePrefix prefix,
-	const char *field,
-	const char *originalValue) {
-	EvidenceKeyValuePair *pair = NULL;
-	if (evidence->count < evidence->capacity) {
-		pair = &evidence->items[evidence->count++];
-		pair->prefix = prefix;
-		pair->field = field;
-		pair->fieldLength = strlen(field);
-		pair->originalValue = (void*)originalValue;
-		pair->parsedValue = NULL;
-		pair->header = NULL;
-	}
-	return pair;
+	const char* key,
+	const char* value) {
+	KeyValuePair pair = { key, strlen(key), value, strlen(value) };
+	return EvidenceAddPair(evidence, prefix, pair);
 }
 
 uint32_t fiftyoneDegreesEvidenceIterate(
@@ -312,7 +370,7 @@ fiftyoneDegreesEvidencePrefixMap* fiftyoneDegreesEvidenceMapPrefix(
 	return result;
 }
 
-EXTERNAL const char* fiftyoneDegreesEvidencePrefixString(
+const char* fiftyoneDegreesEvidencePrefixString(
 	fiftyoneDegreesEvidencePrefix prefix) {
 	uint32_t i;
 	EvidencePrefixMap* map;
@@ -334,7 +392,7 @@ bool fiftyoneDegreesEvidenceIterateForHeaders(
 	char* const buffer,
 	size_t const length,
 	void* state,
-	fiftyoneDegreesEvidenceIterateForHeadersMethod callback) {
+	fiftyoneDegreesEvidenceIterateMethod callback) {
 	Header* header;
 	StringBuilder builder = { buffer, length };
 

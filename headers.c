@@ -77,7 +77,7 @@ static void initHeaders(Headers* headers) {
 		h->index = i;
 		h->headerId = 0;
 		h->isDataSet = false;
-		h->length = 0;
+		h->nameLength = 0;
 		h->name = NULL;
 		h->pseudoHeaders = NULL;
 		h->segmentHeaders = NULL;
@@ -181,7 +181,7 @@ static bool setHeaderName(
 		return false;
 	}
 	name[length] = '\0';
-	header->length = length;
+	header->nameLength = length;
 	return true;
 }
 
@@ -246,7 +246,7 @@ static Header* getHeader(Headers* headers, const char* name, size_t length) {
 	Header* item;
 	for (uint32_t i = 0; i < headers->count; i++) {
 		item = &headers->items[i];
-		if (item->length == length &&
+		if (item->nameLength == length &&
 			StringCompareLength(name, item->name, length) == 0) {
 			return item;
 		}
@@ -337,7 +337,7 @@ static Header* copyHeader(
 	if (setHeaderName(
 		copied, 
 		source->name, 
-		source->length, 
+		source->nameLength, 
 		exception) == false) {
 		return NULL;
 	}
@@ -401,7 +401,7 @@ static bool addHeadersFromHeader(
 	uint32_t start = 0;
 	uint32_t end = 0;
     bool separatorEncountered = false;
-	for (;end < pseudoHeader->length; end++) {
+	for (;end < pseudoHeader->nameLength; end++) {
 
 		// If a header has been found then either get the existing header with
 		// this name, or add a new header.
@@ -583,7 +583,7 @@ int fiftyoneDegreesHeaderGetIndex(
 	// Perform a case insensitive compare of the remaining characters.
 	for (i = 0; i < headers->count; i++) {
 		header = &headers->items[i];
-		if (header->length == length &&
+		if (header->nameLength == length &&
 			StringCompareLength(
 				httpHeaderName, 
 				header->name,

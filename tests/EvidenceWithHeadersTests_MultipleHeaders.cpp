@@ -114,8 +114,8 @@ TEST_F(EvidenceWithHeadersTest_MultipleHeaders, Intersection_mh_se_sm) {
 		evidenceHeaderIntersection_mh_se_sm);
 
 	ASSERT_EQ(1, result);
-	ASSERT_STREQ("Black", intersection_mh_se_sm[0].field);
-	ASSERT_STREQ("Value", (char*)intersection_mh_se_sm[0].originalValue);
+	ASSERT_STREQ("Black", intersection_mh_se_sm[0].item.key);
+	ASSERT_STREQ("Value", (char*)intersection_mh_se_sm[0].item.value);
 }
 
 
@@ -160,10 +160,10 @@ TEST_F(EvidenceWithHeadersTest_MultipleHeaders, Intersection_mh_me_mm) {
 		evidenceHeaderIntersection_mh_me_mm);
 
 	ASSERT_EQ(2, result);
-	EXPECT_STREQ("Black", intersection_mh_me_mm[0].field);
-	EXPECT_STREQ("Value", (char*)intersection_mh_me_mm[0].originalValue);
-	EXPECT_STREQ("Red", intersection_mh_me_mm[1].field);
-	EXPECT_STREQ("Value2", (char*)intersection_mh_me_mm[1].originalValue);
+	EXPECT_STREQ("Black", intersection_mh_me_mm[0].item.key);
+	EXPECT_STREQ("Value", (char*)intersection_mh_me_mm[0].item.value);
+	EXPECT_STREQ("Red", intersection_mh_me_mm[1].item.key);
+	EXPECT_STREQ("Value2", (char*)intersection_mh_me_mm[1].item.value);
 }
 
 //------------------------------------------------------------------
@@ -177,8 +177,8 @@ bool evidenceHeaderIntersection_mh_me_nm(void *state,
 	fiftyoneDegreesEvidenceKeyValuePair *pair) {
 	if (fiftyoneDegreesHeaderGetIndex(
 		(fiftyoneDegreesHeaders*)state,
-		pair->field,
-		strlen(pair->field)) >= 0) {
+		pair->item.key,
+		pair->item.keyLength) >= 0) {
 		intersection_mh_me_nm[intersection_mh_me_nm_count] = *pair;
 		intersection_mh_me_nm_count++;
 	}

@@ -27,10 +27,10 @@
 #include <stddef.h>
 
 typedef struct fiftyone_degrees_key_value_pair_t {
-	char* key;
-	size_t keyLength;
-	char* value;
-	size_t valueLength;
+	const char* key; /**< pointer to the key string */
+	size_t keyLength; /**< number of characters in key */
+	const char* value; /**< pointer to the value string */
+	size_t valueLength; /**< number of characters in value */
 } fiftyoneDegreesKeyValuePair;
 
 FIFTYONE_DEGREES_ARRAY_TYPE(fiftyoneDegreesKeyValuePair, )

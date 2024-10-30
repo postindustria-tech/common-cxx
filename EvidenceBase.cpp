@@ -47,7 +47,7 @@ fiftyoneDegreesEvidenceKeyValuePairArray* EvidenceBase::get() {
 		for (map<string, string>::const_iterator iterator = begin();
 			iterator != end();
 			iterator++) {
-			EvidencePrefixMap *map = 
+			EvidencePrefixMap* map =
 				EvidenceMapPrefix(iterator->first.c_str());
 			if (map != NULL && isRelevant(map->prefixEnum)) {
 				EvidenceAddString(

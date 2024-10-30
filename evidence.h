@@ -124,6 +124,7 @@
 #include "string.h"
 #include "array.h"
 #include "common.h"
+#include "pair.h"
 #include "headers.h"
 
 /**
@@ -159,18 +160,35 @@ typedef struct fiftyone_degrees_evidence_prefix_map_t {
  */
 typedef struct fiftyone_degrees_evidence_key_value_pair_t {
 	fiftyoneDegreesEvidencePrefix prefix; /**< e.g. #FIFTYONE_DEGREES_EVIDENCE_HTTP_HEADER_STRING */
-	const char *field; /**< e.g. User-Agent or ScreenPixelsWidth */
-	size_t fieldLength; /**< length of field */
-	const void *originalValue; /**< original unparsed value */
+	fiftyoneDegreesKeyValuePair item; /**< the field key and original value */
 	const void *parsedValue; /**< parsed value which may not be a string */
 	size_t parsedLength; /**< length of parsedValue string */
 	fiftyoneDegreesHeader* header; /**< Unique header in the data set, or 
 								   null if not related to a header */
 } fiftyoneDegreesEvidenceKeyValuePair;
 
+/**
+ * Forward declaration of the array so that it can point to an instance of the 
+ * same type.
+ */
+typedef struct fiftyone_degrees_array_fiftyoneDegreesEvidenceKeyValuePair_t 
+	fiftyoneDegreesEvidenceKeyValuePairArray;
+
+/**
+ * Pointers to the next and previous array of evidence key value pairs or 
+ * NULL if not present.
+ */
+#define FIFTYONE_DEGREES_ARRAY_EVIDENCE_MEMBER \
+	fiftyoneDegreesEvidenceKeyValuePairArray *next; \
+	fiftyoneDegreesEvidenceKeyValuePairArray *prev;
+
+/**
+ * Array of evidence key value pairs and a pointer to the next array if present
+ * or NULL of not present.
+ */
 FIFTYONE_DEGREES_ARRAY_TYPE(
 	fiftyoneDegreesEvidenceKeyValuePair,
-	)
+	FIFTYONE_DEGREES_ARRAY_EVIDENCE_MEMBER)
 
 /**
  * Callback method used to iterate evidence key value pairs.
@@ -183,30 +201,16 @@ typedef bool(*fiftyoneDegreesEvidenceIterateMethod)(
 	fiftyoneDegreesEvidenceKeyValuePair *pair);
 
 /**
- * Callback method used to iterate evidence key value pairs for an array of 
- * headers.
- * @param state pointer provided to the iterator
- * @param header that the value is related to
- * @param value from the evidence for the header
- * @param length of the value
- * @return true if the iteration should continue otherwise false
- */
-typedef bool(*fiftyoneDegreesEvidenceIterateForHeadersMethod)(
-	void* state,
-	fiftyoneDegreesHeader* header,
-	const char* value,
-	size_t length);
-
-/**
  * Creates a new evidence array with the capacity requested.
  * @param capacity maximum number of evidence items
  * @return pointer to the newly created array
  */
 EXTERNAL fiftyoneDegreesEvidenceKeyValuePairArray* 
-fiftyoneDegreesEvidenceCreate(uint32_t capacity);
+	fiftyoneDegreesEvidenceCreate(uint32_t capacity);
 
 /**
- * Frees the memory used by an evidence array.
+ * Frees the memory used by an evidence array and any other arrays pointed to
+ * by the instance passed via the next member.
  * @param evidence pointer to the array to be freed
  */
 EXTERNAL void fiftyoneDegreesEvidenceFree(
@@ -216,16 +220,37 @@ EXTERNAL void fiftyoneDegreesEvidenceFree(
  * Adds a new entry to the evidence. The memory associated with the 
  * field and original value parameters must not be freed until after the 
  * evidence collection has been freed. This method will NOT copy the values.
+ * If there is insufficient capacity in the evidence array then another array
+ * will be created and will be pointed to by the next member of the evidence 
+ * array passed.
  * @param evidence pointer to the evidence array to add the entry to
  * @param prefix enum indicating the category the entry belongs to
- * @param field used as the key for the entry within its prefix
- * @param originalValue the value to be parsed
+ * @param key string with null terminator
+ * @param value string with null terminator
+ * @returns the new evidence key value pair instance
  */
 EXTERNAL fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddString(
 	fiftyoneDegreesEvidenceKeyValuePairArray *evidence,
 	fiftyoneDegreesEvidencePrefix prefix,
-	const char *field,
-	const char *originalValue);
+	const char *key,
+	const char *value);
+
+/**
+ * Adds a new entry to the evidence. The memory associated with the
+ * field and original value parameters must not be freed until after the
+ * evidence collection has been freed. This method will NOT copy the values.
+ * If there is insufficient capacity in the evidence array then another array
+ * will be created and will be pointed to by the next member of the evidence
+ * array passed.
+ * @param evidence pointer to the evidence array to add the entry to
+ * @param prefix enum indicating the category the entry belongs to
+ * @param pair used as the key and value for the new entry
+ * @returns the new evidence key value pair instance
+ */
+EXTERNAL fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddPair(
+	fiftyoneDegreesEvidenceKeyValuePairArray* evidence,
+	fiftyoneDegreesEvidencePrefix prefix,
+	fiftyoneDegreesKeyValuePair pair);
 
 /**
  * Determines the evidence map prefix from the key.
@@ -260,22 +285,6 @@ EXTERNAL uint32_t fiftyoneDegreesEvidenceIterate(
 	void *state,
 	fiftyoneDegreesEvidenceIterateMethod callback);
 
-
-/**
- * First checks if provided prefix+field are not already part of the 
- * evidence array with the same parameters.
- * If not calls fiftyoneDegreesEvidenceAddString.
- * @param evidence pointer to the evidence array to add the entry to
- * @param prefix enum indicating the category the entry belongs to
- * @param field used as the key for the entry within its prefix
- * @param originalValue the value to be parsed
- */
-EXTERNAL fiftyoneDegreesEvidenceKeyValuePair* fiftyoneDegreesEvidenceAddStringUnique(
-    fiftyoneDegreesEvidenceKeyValuePairArray *evidence,
-    fiftyoneDegreesEvidencePrefix prefix,
-    const char *field,
-    const char *originalValue);
-
 /**
  * Iterates over the headers assembling the evidence values, considering the 
  * prefixes, in the buffer if available. The call back method is called for 
@@ -300,7 +309,7 @@ EXTERNAL bool fiftyoneDegreesEvidenceIterateForHeaders(
 	char* const buffer,
 	size_t const length,
 	void* state,
-	fiftyoneDegreesEvidenceIterateForHeadersMethod callback);
+	fiftyoneDegreesEvidenceIterateMethod callback);
 
 /**
  * @}

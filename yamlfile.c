@@ -85,15 +85,15 @@ static char* readNext(FileState* fileState) {
 // Sets the current and end pointers to the current key.
 static void setCurrentKey(PairState* state) {
 	KeyValuePair* current = state->pairs + state->index;
-	state->current = current->key;
-	state->end = current->key + current->keyLength - 1;
+	state->current = (char*)current->key;
+	state->end = (char*)(current->key + current->keyLength - 1);
 }
 
 // Sets the current and end pointers to the current value.
 static void setCurrentValue(PairState* state) {
 	KeyValuePair* current = state->pairs + state->index;
-	state->current = current->value;
-	state->end = current->value + current->valueLength - 1;
+	state->current = (char*)current->value;
+	state->end = (char*)current->value + current->valueLength - 1;
 }
 
 // Switches from writing to the current key to the current value. Ensures that
@@ -185,8 +185,8 @@ StatusCode fiftyoneDegreesYamlFileIterateWithLimit(
 		keyValuePairs,
 		collectionSize,
 		0,
-		keyValuePairs[0].key,
-		keyValuePairs[0].key + keyValuePairs[0].keyLength - 1 };
+		(char*)keyValuePairs[0].key,
+		(char*)(keyValuePairs[0].key + keyValuePairs[0].keyLength - 1) };
 
 	// If there is no limit then set the limit to the largest value to 
 	// avoid checking for negative values in the loop.
@@ -301,6 +301,5 @@ StatusCode fiftyoneDegreesYamlFileIterate(
 		collectionSize,
 		-1,
 		state,
-		callback
-	);
+		callback);
 }

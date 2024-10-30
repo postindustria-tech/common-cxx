@@ -71,9 +71,9 @@ namespace FiftyoneDegrees {
 			 * @{
 			 */
 
-			/**
-			 * Construct a new instance containing no evidence.
-			 */
+			 /**
+			  * Construct a new instance containing no evidence.
+			  */
 			EvidenceBase();
 
 			/**
@@ -87,12 +87,12 @@ namespace FiftyoneDegrees {
 			 * @{
 			 */
 
-			/**
-			 * Get the underlying C structure containing the evidence. This
-			 * only includes evidence which is relevant to the engine. Any
-			 * evidence which is irrelevant will not be included in the result.
-			 * @return pointer to a populated C evidence structure
-			 */
+			 /**
+			  * Get the underlying C structure containing the evidence. This
+			  * only includes evidence which is relevant to the engine. Any
+			  * evidence which is irrelevant will not be included in the result.
+			  * @return pointer to a populated C evidence structure
+			  */
 			fiftyoneDegreesEvidenceKeyValuePairArray* get();
 
 			/**
@@ -101,9 +101,9 @@ namespace FiftyoneDegrees {
 			 * @{
 			 */
 
-			/**
-			 * Clear all evidence items from the instance.
-			 */
+			 /**
+			  * Clear all evidence items from the instance.
+			  */
 			void clear();
 
 			/**
@@ -118,7 +118,7 @@ namespace FiftyoneDegrees {
 			 * @param last item to remove
 			 */
 			void erase(iterator first, iterator last);
-			
+
 			/**
 			 * @}
 			 */
@@ -133,7 +133,7 @@ namespace FiftyoneDegrees {
 			virtual bool isRelevant(fiftyoneDegreesEvidencePrefix prefix);
 		private:
 			/** The underlying evidence structure. */
-			fiftyoneDegreesEvidenceKeyValuePairArray *evidence;
+			fiftyoneDegreesEvidenceKeyValuePairArray* evidence;
 		};
 	}
 }

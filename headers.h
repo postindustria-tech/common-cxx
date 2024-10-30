@@ -138,7 +138,7 @@ struct fiftyone_degrees_header_t {
 	uint32_t index; /**< Index of the header in the array of all headers */
 	const char* name; /**< Name of the header or pseudo header field as a
 					       null terminated string */
-	size_t length; /**< Length of the name string excluding the terminating 
+	size_t nameLength; /**< Length of the name string excluding the terminating 
 						null */
 	fiftyoneDegreesHeaderID headerId; /**< Unique id in the data set for this 
 									  full header */
@@ -182,13 +182,6 @@ typedef long(*fiftyoneDegreesHeadersGetMethod)(
 	void *state,
 	uint32_t index, 
 	fiftyoneDegreesCollectionItem *nameItem);
-
-/**
- * Check if a header is a pseudo header.
- * @param headerName name of the header
- * @return whether a header is a pseudo header.
- */
-EXTERNAL bool fiftyoneDegreesHeadersIsPseudo(const char *headerName);
 
 /**
  * Creates a new headers instance configured with the unique HTTP names needed

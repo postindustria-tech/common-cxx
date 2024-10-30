@@ -439,6 +439,6 @@ TEST_F(Evidence, IterateForHeaders_SmallBuffer) {
 }
 
 TEST_F(Evidence, freeNullEvidence) {
-    fiftyoneDegreesEvidenceKeyValuePairArray *evidence = NULL;
-    EvidenceFree(evidence);
+    fiftyoneDegreesEvidenceKeyValuePairArray *evidence2 = NULL;
+    EvidenceFree(evidence2);
 }

@@ -103,7 +103,7 @@ static bool startsWith(String *string, String *prefix) {
  */
 static const char* skipPrefix(bool prefixed, const char *field) {
 	char *result = (char*)field;
-	if (prefixed == true && strlen(result) > sizeof(OVERRIDE_PREFIX) &&
+	if (result && prefixed == true && strlen(result) > sizeof(OVERRIDE_PREFIX) &&
 		StringCompareLength(
 			field,
 			OVERRIDE_PREFIX,

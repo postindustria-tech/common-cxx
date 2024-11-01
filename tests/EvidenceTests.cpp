@@ -23,6 +23,9 @@
 #include "pch.h"
 #include "EvidenceTests.hpp"
 #include "memory.h"
+#include "../EvidenceBase.hpp"
+
+using namespace FiftyoneDegrees::Common;
 
 void assertStringHeaderAdded(
 	fiftyoneDegreesEvidenceKeyValuePair *pair,
@@ -441,4 +444,21 @@ TEST_F(Evidence, IterateForHeaders_SmallBuffer) {
 TEST_F(Evidence, freeNullEvidence) {
     fiftyoneDegreesEvidenceKeyValuePairArray *evidence2 = NULL;
     EvidenceFree(evidence2);
+}
+
+TEST_F(Evidence, emptyEvidence) {
+    EvidenceBase emptyEvidence;
+    //this produces an empty array, but items pointer is set to 1 past the end of array structure,
+    //so we do not always segfault if we attempt to iterate over it
+    //address sanitizer always reveals this heap overflow however
+    fiftyoneDegreesEvidenceKeyValuePairArray *emptyEvidenceKVPA = emptyEvidence.get();
+    
+    //ensure this is null so we segfault if we try to iterate
+    emptyEvidenceKVPA->items = nullptr;
+
+    std::vector<std::string> results;
+    auto iterations = EvidenceIterate(emptyEvidenceKVPA, FIFTYONE_DEGREES_EVIDENCE_QUERY,
+     &results, callback1);
+    
+    EXPECT_EQ(iterations, 0);
 }

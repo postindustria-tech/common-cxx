@@ -69,7 +69,7 @@ typedef struct fiftyone_degrees_array_##t##_t { \
 #define FIFTYONE_DEGREES_ARRAY_CREATE(t, i, c) \
 i = (t##Array*)fiftyoneDegreesMalloc(FIFTYONE_DEGREES_ARRAY_SIZE(t,c)); \
 if (i != NULL) { \
-i->items = (t*)(i + 1); \
+i->items = c ? (t*)(i + 1) : NULL; \
 i->count = 0; \
 i->capacity = c; \
 }

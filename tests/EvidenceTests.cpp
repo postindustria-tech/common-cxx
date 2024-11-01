@@ -452,9 +452,6 @@ TEST_F(Evidence, emptyEvidence) {
     //so we do not always segfault if we attempt to iterate over it
     //address sanitizer always reveals this heap overflow however
     fiftyoneDegreesEvidenceKeyValuePairArray *emptyEvidenceKVPA = emptyEvidence.get();
-    
-    //ensure this is null so we segfault if we try to iterate
-    emptyEvidenceKVPA->items = nullptr;
 
     std::vector<std::string> results;
     auto iterations = EvidenceIterate(emptyEvidenceKVPA, FIFTYONE_DEGREES_EVIDENCE_QUERY,

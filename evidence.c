@@ -94,14 +94,16 @@ static uint32_t evidenceIterate(
 
 		// Check the current evidence item and call back if the right prefix
 		// after parsing the pair if not done so already.
-		pair = &evidence->items[index++];
-		if ((pair->prefix & prefixes) == pair->prefix) {
-			if (pair->parsedValue == NULL) {
-				parsePair(pair);
-			}
-			cont = callback(state, pair);
-			iterations++;
-		}
+        if (index < evidence->count) {
+            pair = &evidence->items[index++];
+            if ((pair->prefix & prefixes) == pair->prefix) {
+                if (pair->parsedValue == NULL) {
+                    parsePair(pair);
+                }
+                cont = callback(state, pair);
+                iterations++;
+            }
+        }
 
 		// Check if the next evidence array needs to be moved to.
 		if (index >= evidence->count) {

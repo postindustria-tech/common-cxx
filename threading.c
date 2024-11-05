@@ -139,7 +139,7 @@ void fiftyoneDegreesSignalWait(fiftyoneDegreesSignal *signal) {
 #endif
 
 bool fiftyoneDegreesThreadingGetIsThreadSafe() {
-#if FIFTYONE_DEGREES_NO_THREADING
+#if defined(FIFTYONE_DEGREES_NO_THREADING) && FIFTYONE_DEGREES_NO_THREADING
 	return false;
 #else
 	return true;

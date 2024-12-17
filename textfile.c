@@ -73,7 +73,7 @@ void fiftyoneDegreesTextFileIterateWithLimit(
 
 			// Shift the buffer to the left and load the next characters.
 			size_t shift = end - current;
-			memcpy(buffer, current, shift);
+			memmove(buffer, current, shift);
 			current = buffer + shift;
 		}
 		// Update end to the last line read

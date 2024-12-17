@@ -205,10 +205,12 @@ if(BUILD_TESTING)
 		target_link_options(CommonTests PRIVATE "/WX")
 	else ()
 		target_compile_options(CommonTests PRIVATE ${COMMON_C_COMPILE_OPTIONS})
+		target_link_options(CommonTests PRIVATE "-fsanitize=address")
 		if (lower_CMAKE_BUILD_TYPE STREQUAL "debug")
 			message("-- CommonTests Linker options for code coverage")
 			target_link_options(CommonTests PRIVATE "-fprofile-arcs" "-ftest-coverage")
 		endif()
+
 	endif()
 
 	if (TESTCOVERAGE_ENABLED)

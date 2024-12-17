@@ -41,11 +41,11 @@ public:
 	}
 	virtual ~CollectionTestData() {
 		if (map != nullptr) {
-			delete map;
+			delete [] map;
 			map = nullptr;
 		}
 		if (data != nullptr) {
-			delete data;
+			delete [] data;
 			data = nullptr;
 		}
 	}
@@ -182,8 +182,12 @@ public:
 		collection = NULL;
 	}
 	~CollectionTest() {
-		delete data;
-		delete config;
+        if (data != NULL) {
+            delete data;
+        }
+        if (config != NULL) {
+            delete config;
+        }
 	}
 	virtual void SetUp() { Base::SetUp(); }
 	void TearDown() {

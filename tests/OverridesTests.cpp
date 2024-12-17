@@ -68,6 +68,8 @@ TEST(OverrideProfileIdsTests, CaseSensitivity) {
 	fiftyoneDegreesOverrideProfileIds(evidence, &state, override);
 	EXPECT_EQ(5, state) <<
 		"Case insentivity should be honoured for ProfileIds with lower case.";
+    
+    fiftyoneDegreesEvidenceFree(evidence);
 }
 
 // Check if overrides are set correctly

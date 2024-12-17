@@ -101,7 +101,7 @@ void PropertyTests::SetUp() {
 void PropertyTests::TearDown() {
     Base::TearDown();
     delete stringsCollectionHelper;
-    delete propertiesCollection;
+    delete propertiesCollectionHelper;
 }
 
 void PropertyTests::assessProperty(fiftyoneDegreesProperty *p, int i) {

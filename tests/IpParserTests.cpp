@@ -121,6 +121,7 @@ TEST(ParseIp, ParseIp_Ipv6_AbbreviatedStart)
 	EXPECT_TRUE(
 		CheckResult(result->address, expected, FIFTYONE_DEGREES_IPV6_LENGTH)) << 
 		"The value of the abbreivated start IPv6 address is not correctly parsed.";
+    free(result);
 }
 //TEST(ParseIp, ParseIp_Ipv6_AbbreviatedMiddle)
 //{
@@ -183,6 +184,7 @@ TEST(ParseIp, ParseIp_Invalid_ipv4OutOfRange)
 		CheckResult(result->address, expected, FIFTYONE_DEGREES_IPV4_LENGTH)) <<
 		"The value of the out of range IPv4 address is not correctly restricted "
 		"at 255.";
+    free(result);
 }
 //TEST(ParseIp, ParseIp_Invalid_ipv4TooMany)
 //{

@@ -20,6 +20,7 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
+#include <cstring>
 #include <string>
 #include <stdexcept>
 #include "memory.h"

@@ -23,7 +23,7 @@
 #ifndef FIFTYONE_DEGREES_IP_ADDRESS_HPP
 #define FIFTYONE_DEGREES_IP_ADDRESS_HPP
 
-#include "../ipi.h"
+#include "ip.h"
 
 namespace FiftyoneDegrees {
     namespace IpIntelligence {

@@ -24,7 +24,7 @@
 #include "../ip.h"
 
 
-bool CheckResult(byte* result, byte* expected, uint16_t size) {
+static bool CheckResult(byte* result, byte* expected, uint16_t size) {
 	bool match = true;
 	for (uint16_t i = 0; i < size; i++) {
 		match = match && *result == *expected;

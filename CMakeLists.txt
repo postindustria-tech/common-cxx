@@ -12,6 +12,8 @@ if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.1)
     message(FATAL_ERROR "Require at least gcc-5.1")
 endif()
 
+include(CMakeDependentOption)
+
 project(51DegreesCommon VERSION 4.0.1 LANGUAGES CXX C)
 
 if (MSVC)
@@ -161,6 +163,9 @@ set_target_properties(CachePerf	PROPERTIES FOLDER "Examples/Common")
 
 # Tests
 
+cmake_dependent_option(FIFTYONE_COMMON_CXX_BUILD_TESTING "" ON "BUILD_TESTING" OFF)
+message("-- FIFTYONE_COMMON_CXX_BUILD_TESTING=${FIFTYONE_COMMON_CXX_BUILD_TESTING}")
+
 if(BUILD_TESTING)
 	# Download and unpack googletest at configure time
 	configure_file(${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt.in googletest-download/CMakeLists.txt)
@@ -195,7 +200,9 @@ if(BUILD_TESTING)
 	endif()
 
 	include(GoogleTest)
+endif()
 
+if(FIFTYONE_COMMON_CXX_BUILD_TESTING)
 	set(COM_TEST ${CMAKE_CURRENT_LIST_DIR}/tests)
 	FILE(GLOB COM_TEST_SRC ${COM_TEST}/*.cpp)
 	FILE(GLOB COM_TEST_H ${COM_TEST}/*.hpp)

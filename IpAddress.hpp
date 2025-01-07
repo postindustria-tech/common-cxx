@@ -52,11 +52,11 @@ namespace FiftyoneDegrees {
              * Construct an instance with a given
              * combination of IP address byte array
              * and its type
-             * @param ipAddress the IP address byte array
-             * @param type the type of the IP address
+             * @param ipAddressData the IP address byte array
+             * @param addressType the type of the IP address
              */
             IpAddress(const unsigned char ipAddressData[],
-                      fiftyoneDegreesEvidenceIpType type);
+                      fiftyoneDegreesEvidenceIpType addressType);
 
             /**
              * Construct an instance with a given

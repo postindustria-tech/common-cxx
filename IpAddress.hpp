@@ -111,8 +111,8 @@ namespace FiftyoneDegrees {
              * @param ipAddress the byte array IP address
              * @param type the type of the IP
              */
-            void init(const unsigned char *ipAddress,
-                      fiftyoneDegreesEvidenceIpType type);
+            void init(const unsigned char *ipAddressData,
+                      fiftyoneDegreesEvidenceIpType addressType);
 
             /** The type of the IP address */
             fiftyoneDegreesEvidenceIpType type;

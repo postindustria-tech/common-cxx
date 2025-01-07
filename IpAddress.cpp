@@ -34,9 +34,9 @@ IpAddress::IpAddress() {
     this->type = FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID;
 }
 
-IpAddress::IpAddress(const unsigned char ipAddress[],
-    fiftyoneDegreesEvidenceIpType type) {
-    init(ipAddress, type);
+IpAddress::IpAddress(const unsigned char ipAddressData[],
+    fiftyoneDegreesEvidenceIpType addressType) {
+    init(ipAddressData, addressType);
 }
 
 IpAddress::IpAddress(const char * const ipAddressString) {
@@ -58,18 +58,18 @@ IpAddress::IpAddress(const char * const ipAddressString) {
 
 void IpAddress::init(const unsigned char * const ipAddressData,
     const fiftyoneDegreesEvidenceIpType addressType) {
-    switch (type) {
+    switch (addressType) {
     case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4:
-        memcpy(this->ipAddress, ipAddress, FIFTYONE_DEGREES_IPV4_LENGTH);
+        memcpy(ipAddress, ipAddressData, FIFTYONE_DEGREES_IPV4_LENGTH);
         break;
     case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6:
-        memcpy(this->ipAddress, ipAddress, FIFTYONE_DEGREES_IPV6_LENGTH);
+        memcpy(ipAddress, ipAddressData, FIFTYONE_DEGREES_IPV6_LENGTH);
         break;
     default:
-        memset(this->ipAddress, 0, FIFTYONE_DEGREES_IPV6_LENGTH);
+        memset(ipAddress, 0, FIFTYONE_DEGREES_IPV6_LENGTH);
         break;
     }
-    this->type = type;
+    type = addressType;
 }
 
 void IpAddress::getCopyOfIpAddress(unsigned char copy[], const uint32_t size) const {
@@ -77,5 +77,5 @@ void IpAddress::getCopyOfIpAddress(unsigned char copy[], const uint32_t size) co
         ? FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4
         : FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6);
 	const uint32_t copySize = (size < dataSize) ? size : dataSize;
-	memcpy(copy, this->ipAddress, copySize);
+	memcpy(copy, ipAddress, copySize);
 }

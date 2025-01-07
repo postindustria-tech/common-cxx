@@ -56,7 +56,7 @@ IpAddress::IpAddress(const char * const ipAddressString) {
     fiftyoneDegreesFree(eIpAddress);
 }
 
-void IpAddress::init(const unsigned char * const ipAddress,
+void IpAddress::init(const unsigned char * const ipAddressData,
     const fiftyoneDegreesEvidenceIpType type) {
     switch (type) {
     case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4:

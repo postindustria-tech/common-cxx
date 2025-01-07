@@ -77,7 +77,7 @@ namespace FiftyoneDegrees {
              * @return a constant pointer to the internal
              * byte array
              */
-            const unsigned char *getIpAddress() const{
+            const unsigned char *getIpAddress() const {
                 return (const unsigned char *)ipAddress;
             };
 
@@ -90,10 +90,10 @@ namespace FiftyoneDegrees {
              *
              * To get the actual pointer, the getIpAddress
              * should be used.
-             * @param copy which will hold an copy of the byte array
-             * @size size of the copy buffer
+             * @param copy which will hold a copy of the byte array
+             * @param size of the copy buffer
              */
-            void getCopyOfIpAddress(unsigned char copy[], uint32_t size);
+            void getCopyOfIpAddress(unsigned char copy[], uint32_t size) const;
 
             /**
              * Get the type of the IP address

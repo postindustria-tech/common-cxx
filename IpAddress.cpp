@@ -57,7 +57,7 @@ IpAddress::IpAddress(const char * const ipAddressString) {
 }
 
 void IpAddress::init(const unsigned char * const ipAddressData,
-    const fiftyoneDegreesEvidenceIpType type) {
+    const fiftyoneDegreesEvidenceIpType addressType) {
     switch (type) {
     case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4:
         memcpy(this->ipAddress, ipAddress, FIFTYONE_DEGREES_IPV4_LENGTH);

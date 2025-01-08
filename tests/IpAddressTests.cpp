@@ -111,7 +111,7 @@ TEST(ParseAddress, ParseAddress_Ipv6_LeadingZeros)
 		"The value of the IPv6 address (Leading zeros in each segment) is not correctly parsed.";
 }
 
-TEST(ParseAddress, DISABLED_ParseAddress_Ipv6_MixedIpv6Ipv4)
+TEST(ParseAddress, ParseAddress_Ipv6_MixedIpv6Ipv4)
 {
 	// IPv4-mapped IPv6 address
 	const char * const rawAddress = "::ffff:192.168.1.1";

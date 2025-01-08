@@ -25,7 +25,7 @@
 
 typedef void(*parseIterator)(
 	void *state,
-	EvidenceIpType type,
+	EvidenceIpType segmentType,
 	const char *start,
 	const char *end);
 
@@ -34,13 +34,13 @@ typedef void(*parseIterator)(
  */
 static void callbackIpAddressCount(
 	void *state,
-	EvidenceIpType type,
+	EvidenceIpType segmentType,
 	const char *start,
 	const char *end) {
 	if (start <= end) {
-		if (type != FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID) {
+		if (segmentType != FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID) {
 			(*(int*)state)++;
-			if (type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) {
+			if (segmentType == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) {
 				(*(int*)state)++;
 			}
 		}
@@ -98,27 +98,48 @@ static void parseIpV6Segment(
 
 static void callbackIpAddressBuild(
 	void *state,
-	EvidenceIpType type,
+	EvidenceIpType segmentType,
 	const char *start,
 	const char *end) {
 	EvidenceIpAddress *address = (EvidenceIpAddress*)state;
-	if (type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) {
+	if (segmentType == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) {
 		*address->current = getIpByte(atoi(start));
 		address->current++;
 	}
-	else if (type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) {
+	else if (segmentType == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) {
 		parseIpV6Segment(address, start, end);
 	}
 }
 
-static EvidenceIpType getIpTypeFromSeparator(char separator) {
+static EvidenceIpType getIpTypeFromSeparator(const char separator) {
 	switch (separator) {
-	case '.':
-		return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4;
-	case ':':
-		return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6;
-	default:
-		return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID;
+		case '.':
+			return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4;
+		case ':':
+			return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6;
+		default:
+			return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID;
+	}
+}
+
+static EvidenceIpType getSegmentTypeWithSeparator(
+	const char separator,
+	const EvidenceIpType ipType,
+	const EvidenceIpType lastSeparatorType) {
+	switch (ipType) {
+		case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4:
+			return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4;
+		case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6:
+			switch (separator) {
+				case ':':
+					return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6;
+				case '.':
+					return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4;
+				default:
+					return lastSeparatorType;
+			}
+		default:
+			return getIpTypeFromSeparator(separator);
 	}
 }
 
@@ -134,18 +155,20 @@ static EvidenceIpType iterateIpAddress(
 	parseIterator foundSegment) {
 	const char *current = start;
 	const char *nextSegment = current;
+	EvidenceIpType currentSegmentType = FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID;
 	while (current <= end && nextSegment < end) {
 		if (*current == ',' ||
 			*current == ':' ||
 			*current == '.' ||
 			*current == ' ' ||
 			*current == '\0') {
+			currentSegmentType = getSegmentTypeWithSeparator(*current, type, currentSegmentType);
 			if (type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID) {
-				type = getIpTypeFromSeparator(*current);
+				type = currentSegmentType;
 			}
 			// Check if it is leading abbreviation
 			if (current - 1 >= start) {
-				foundSegment(state, type, nextSegment, current - 1);
+				foundSegment(state, currentSegmentType, nextSegment, current - 1);
 			}
 			nextSegment = current + 1;
 		}

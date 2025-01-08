@@ -110,6 +110,10 @@ These can be run by calling
 ctest
 ```
 
+CTest module automatically creates a `BUILD_TESTING` option -- see https://cmake.org/cmake/help/latest/module/CTest.html
+
+When testing some dependent code, running `CommonTests` can be skipped by turning OFF the `FIFTYONE_COMMON_CXX_BUILD_TESTING` option.
+
 If CMake has been used in an MSVC environment, then the tests will be set up and discoverable in the Visual Studio solution `51DegreesCommon` created by CMake.
 
 ## Visual Studio

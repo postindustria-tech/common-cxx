@@ -9,6 +9,7 @@
     <ClCompile Include="..\..\EngineBase.cpp" />
     <ClCompile Include="..\..\EvidenceBase.cpp" />
     <ClCompile Include="..\..\Exceptions.cpp" />
+    <ClCompile Include="..\..\IpAddress.cpp" />
     <ClCompile Include="..\..\MetaData.cpp" />
     <ClCompile Include="..\..\ProfileMetaData.cpp" />
     <ClCompile Include="..\..\PropertyMetaData.cpp" />
@@ -27,6 +28,7 @@
     <ClInclude Include="..\..\EntityMetaDataBuilder.hpp" />
     <ClInclude Include="..\..\EvidenceBase.hpp" />
     <ClInclude Include="..\..\Exceptions.hpp" />
+    <ClInclude Include="..\..\IpAddress.hpp" />
     <ClInclude Include="..\..\MetaData.hpp" />
     <ClInclude Include="..\..\Value.hpp" />
     <ClInclude Include="..\..\ProfileMetaData.hpp" />

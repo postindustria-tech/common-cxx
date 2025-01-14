@@ -92,7 +92,7 @@ VariableSizeCollection<T>::VariableSizeCollection(const std::vector<T> &values) 
 
 template<typename T>
 variableSizeCollectionState* VariableSizeCollection<T>::getState() {
-    return &state;
+    return this ? &state : nullptr;
 }
 
 #endif /* VariableSizeCollection_hpp */

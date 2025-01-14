@@ -94,7 +94,7 @@ FILE* FileHandle::getFile() {
  * @return file pool
  */
 fiftyoneDegreesFilePool* FileHandle::getFilePool() {
-	return &_filePool;
+	return this ? &_filePool : nullptr;
 }
 
 /**

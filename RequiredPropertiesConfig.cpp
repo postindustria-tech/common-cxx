@@ -156,6 +156,6 @@ int RequiredPropertiesConfig::getCount() const {
 }
 
 PropertiesRequired* RequiredPropertiesConfig::getConfig() {
-	return &conf;
+	return this ? &conf : nullptr;
 }
 

@@ -92,7 +92,7 @@ FixedSizeCollection<T>::FixedSizeCollection(const std::vector<T> &values) {
 
 template<typename T>
 fixedSizeCollectionState* FixedSizeCollection<T>::getState() {
-    return &state;
+    return this ? &state : nullptr;
 }
 
 #endif /* FixedSizeCollection_hpp */

@@ -143,7 +143,7 @@ bool EngineBase::getAutomaticUpdatesEnabled() const {
 }
 
 const vector<string>* EngineBase::getKeys() const {
-	return &keys;
+	return this ? &keys : nullptr;
 }
 
 bool EngineBase::getIsThreadSafe() const {

@@ -123,5 +123,5 @@ StringCollection::StringCollection(
 }
 
 stringCollectionState* StringCollection::getState() {
-	return &state;
+	return this ? &state : nullptr;
 }

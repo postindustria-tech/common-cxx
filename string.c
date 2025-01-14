@@ -86,7 +86,7 @@ int fiftyoneDegreesStringCompareLength(
 	return 0;
 }
 
-char *fiftyoneDegreesStringSubString(const char *a, const char *b) {
+const char *fiftyoneDegreesStringSubString(const char *a, const char *b) {
 	int d;
 	const char *a1, *b1;
 	for (; *a != '\0' && *b != '\0'; a++) {
@@ -148,7 +148,7 @@ fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
 
 fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
 	fiftyoneDegreesStringBuilder* builder,
-	char* const value,
+	const char * const value,
 	size_t const length) {
 	if (length < builder->remaining &&
 		memcpy(builder->current, value, length) == builder->current) {

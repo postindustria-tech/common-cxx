@@ -195,7 +195,7 @@ EXTERNAL int fiftyoneDegreesStringCompare(const char *a, const char *b);
  * @param b substring to be searched for
  * @return pointer to the first occurrence or NULL if not found
  */
-EXTERNAL char *fiftyoneDegreesStringSubString(const char *a, const char *b);
+EXTERNAL const char *fiftyoneDegreesStringSubString(const char *a, const char *b);
 
 /**
  * Initializes the buffer.
@@ -234,8 +234,8 @@ EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
  */
 EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
 	fiftyoneDegreesStringBuilder* builder,
-	char* const value,
-	size_t const length);
+	const char* value,
+	size_t length);
 
 /**
  * Adds a null terminating character to the buffer.

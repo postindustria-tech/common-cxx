@@ -47,21 +47,21 @@ static bool CheckResult(byte* result, byte* expected, uint16_t size) {
 //}
 //TEST(ParseIp, ParseIp_Ipv4_High)
 //{
-//	byte* result = fiftyoneDegreesParseIp("255.255.255.255");
+//	byte* result = fiftyoneDegreesIpAddressParse("255.255.255.255");
 //	byte expected[] = { 255, 255, 255, 255 };
 //	EXPECT_TRUE(CheckResult(result, expected),
 //		L"Expected result to be '255.255.255.255'");
 //}
 //TEST(ParseIp, ParseIp_Ipv4_PortNumber)
 //{
-//	byte* result = fiftyoneDegreesParseIp("1.2.3.4:80");
+//	byte* result = fiftyoneDegreesIpAddressParse("1.2.3.4:80");
 //	byte expected[] = { 1, 2, 3, 4 };
 //	EXPECT_TRUE(CheckResult(result, expected),
 //		L"Expected result to be '1.2.3.4'");
 //}
 //TEST(ParseIp, ParseIp_Ipv4_CIDRFormat)
 //{
-//	byte* result = fiftyoneDegreesParseIp("1.2.3.4/32");
+//	byte* result = fiftyoneDegreesIpAddressParse("1.2.3.4/32");
 //	byte expected[] = { 1, 2, 3, 4 };
 //	EXPECT_TRUE(CheckResult(result, expected),
 //		L"Expected result to be '1.2.3.4'");
@@ -71,28 +71,28 @@ static bool CheckResult(byte* result, byte* expected, uint16_t size) {
 //// ------------------------------------------------------------------------------
 //TEST(ParseIp, ParseIp_Ipv6_Low)
 //{
-//	byte* result = fiftyoneDegreesParseIp("0:0:0:0:0:0:0:0");
+//	byte* result = fiftyoneDegreesIpAddressParse("0:0:0:0:0:0:0:0");
 //	byte expected[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 //	EXPECT_TRUE(CheckResult(result, expected),
 //		L"Expected result to be '0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0'");
 //}
 //TEST(ParseIp, ParseIp_Ipv6_Low_Abbreviated)
 //{
-//	byte* result = fiftyoneDegreesParseIp("::");
+//	byte* result = fiftyoneDegreesIpAddressParse("::");
 //	byte expected[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 //	EXPECT_TRUE(CheckResult(result, expected),
 //		L"Expected result to be '0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0'");
 //}
 //TEST(ParseIp, ParseIp_Ipv6_High)
 //{
-//	byte* result = fiftyoneDegreesParseIp("FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF");
+//	byte* result = fiftyoneDegreesIpAddressParse("FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF");
 //	byte expected[] = { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 };
 //	EXPECT_TRUE(CheckResult(result, expected),
 //		L"Expected result to be '255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255'");
 //}
 //TEST(ParseIp, ParseIp_Ipv6_AbbreviatedStart)
 //{
-//	byte* result = fiftyoneDegreesParseIp("::FFFF:FFFF:FFFF:FFFF");
+//	byte* result = fiftyoneDegreesIpAddressParse("::FFFF:FFFF:FFFF:FFFF");
 //	byte expected[] = { 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255 };
 //	EXPECT_TRUE(CheckResult(result, expected),
 //		L"Expected result to be '0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255'");
@@ -124,28 +124,28 @@ TEST(ParseIp, ParseIp_Ipv6_AbbreviatedStart)
 }
 //TEST(ParseIp, ParseIp_Ipv6_AbbreviatedMiddle)
 //{
-//	byte* result = fiftyoneDegreesParseIp("FFFF:FFFF::FFFF:FFFF");
+//	byte* result = fiftyoneDegreesIpAddressParse("FFFF:FFFF::FFFF:FFFF");
 //	byte expected[] = { 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255 };
 //	EXPECT_TRUE(CheckResult(result, expected),
 //		L"Expected result to be '255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255'");
 //}
 //TEST(ParseIp, ParseIp_Ipv6_AbbreviatedEnd)
 //{
-//	byte* result = fiftyoneDegreesParseIp("FFFF:FFFF:FFFF:FFFF::");
+//	byte* result = fiftyoneDegreesIpAddressParse("FFFF:FFFF:FFFF:FFFF::");
 //	byte expected[] = { 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0 };
 //	EXPECT_TRUE(CheckResult(result, expected),
 //		L"Expected result to be '255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0'");
 //}
 //TEST(ParseIp, ParseIp_Ipv6_PortNumber)
 //{
-//	byte* result = fiftyoneDegreesParseIp("[2001::1]:80");
+//	byte* result = fiftyoneDegreesIpAddressParse("[2001::1]:80");
 //	byte expected[] = { 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
 //	EXPECT_TRUE(CheckResult(result, expected),
 //		L"Expected result to be '32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1'");
 //}
 //TEST(ParseIp, ParseIp_Ipv6_CIDRFormat)
 //{
-//	byte* result = fiftyoneDegreesParseIp("2001::1/128");
+//	byte* result = fiftyoneDegreesIpAddressParse("2001::1/128");
 //	byte expected[] = { 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
 //	EXPECT_TRUE(CheckResult(result, expected),
 //		L"Expected result to be '32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1'");
@@ -156,7 +156,7 @@ TEST(ParseIp, ParseIp_Ipv6_AbbreviatedStart)
 //// ------------------------------------------------------------------------------
 //TEST(ParseIp, ParseIp_Invalid_ipv4OutOfRange)
 //{
-//	byte* result = fiftyoneDegreesParseIp("256.256.256.256");
+//	byte* result = fiftyoneDegreesIpAddressParse("256.256.256.256");
 //	Assert::IsNull(result);
 //}
 TEST(ParseIp, ParseIp_Invalid_ipv4OutOfRange)
@@ -185,56 +185,56 @@ TEST(ParseIp, ParseIp_Invalid_ipv4OutOfRange)
 		"at 255.";
     free(result);
 }
-//TEST(ParseIp, ParseIp_Invalid_ipv4TooMany)
-//{
-//	byte* result = fiftyoneDegreesParseIp("1.2.3.4.5");
-//	Assert::IsNull(result);
-//}
-//TEST(ParseIp, ParseIp_Invalid_ipv4TooFew)
-//{
-//	byte* result = fiftyoneDegreesParseIp("1.2.3");
-//	Assert::IsNull(result);
-//}
-//TEST(ParseIp, ParseIp_Invalid_letters)
-//{
-//	byte* result = fiftyoneDegreesParseIp("a.b.c.d");
-//	Assert::IsNull(result);
-//}
-//TEST(ParseIp, ParseIp_Invalid_emptyString)
-//{
-//	byte* result = fiftyoneDegreesParseIp("");
-//	Assert::IsNull(result);
-//}
-//TEST(ParseIp, ParseIp_Invalid_null)
-//{
-//	byte* result = fiftyoneDegreesParseIp(NULL);
-//	Assert::IsNull(result);
-//}
-//TEST(ParseIp, ParseIp_Invalid_Number)
-//{
-//	byte* result = fiftyoneDegreesParseIp("1234");
-//	Assert::IsNull(result);
-//}
-//TEST(ParseIp, ParseIp_Invalid_ipv6OutOfRange)
-//{
-//	byte* result = fiftyoneDegreesParseIp("10000::1");
-//	Assert::IsNull(result);
-//}
-//TEST(ParseIp, ParseIp_Invalid_ipv6InvalidLetter)
-//{
-//	byte* result = fiftyoneDegreesParseIp("GFFF::1");
-//	Assert::IsNull(result);
-//}
-//TEST(ParseIp, ParseIp_Invalid_ipv6TooMany)
-//{
-//	byte* result = fiftyoneDegreesParseIp("1:1:1:1:1:1:1:1:1");
-//	Assert::IsNull(result);
-//}
-//TEST(ParseIp, ParseIp_Invalid_ipv6TooFew)
-//{
-//	byte* result = fiftyoneDegreesParseIp("1:1:1:1:1:1:1");
-//	Assert::IsNull(result);
-//}
+TEST(ParseIp, ParseIp_Invalid_ipv4TooMany)
+{
+	byte* result = fiftyoneDegreesIpAddressParse("1.2.3.4.5");
+	Assert::IsNull(result);
+}
+TEST(ParseIp, ParseIp_Invalid_ipv4TooFew)
+{
+	byte* result = fiftyoneDegreesIpAddressParse("1.2.3");
+	Assert::IsNull(result);
+}
+TEST(ParseIp, ParseIp_Invalid_letters)
+{
+	byte* result = fiftyoneDegreesIpAddressParse("a.b.c.d");
+	Assert::IsNull(result);
+}
+TEST(ParseIp, ParseIp_Invalid_emptyString)
+{
+	byte* result = fiftyoneDegreesIpAddressParse("");
+	Assert::IsNull(result);
+}
+TEST(ParseIp, ParseIp_Invalid_null)
+{
+	byte* result = fiftyoneDegreesIpAddressParse(NULL);
+	Assert::IsNull(result);
+}
+TEST(ParseIp, ParseIp_Invalid_Number)
+{
+	byte* result = fiftyoneDegreesIpAddressParse("1234");
+	Assert::IsNull(result);
+}
+TEST(ParseIp, ParseIp_Invalid_ipv6OutOfRange)
+{
+	byte* result = fiftyoneDegreesIpAddressParse("10000::1");
+	Assert::IsNull(result);
+}
+TEST(ParseIp, ParseIp_Invalid_ipv6InvalidLetter)
+{
+	byte* result = fiftyoneDegreesIpAddressParse("GFFF::1");
+	Assert::IsNull(result);
+}
+TEST(ParseIp, ParseIp_Invalid_ipv6TooMany)
+{
+	byte* result = fiftyoneDegreesIpAddressParse("1:1:1:1:1:1:1:1:1");
+	Assert::IsNull(result);
+}
+TEST(ParseIp, ParseIp_Invalid_ipv6TooFew)
+{
+	byte* result = fiftyoneDegreesIpAddressParse("1:1:1:1:1:1:1");
+	Assert::IsNull(result);
+}
 //// ------------------------------------------------------------------------------
 //// Comparison
 //// ------------------------------------------------------------------------------

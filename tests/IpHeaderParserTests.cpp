@@ -38,7 +38,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv4_SpaceSeparator)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("1.2.3.4 5.6.7.8");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("1.2.3.4 5.6.7.8");
 //	EXPECT_EQ("1.2.3.4", result[0],
 //		L"Expected first result to be '1.2.3.4'");
 //	EXPECT_EQ("5.6.7.8", result[1],
@@ -48,7 +48,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv4_CommaSeparator)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("1.2.3.4,5.6.7.8");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("1.2.3.4,5.6.7.8");
 //	EXPECT_EQ("1.2.3.4", result[0],
 //		L"Expected first result to be '1.2.3.4'");
 //	EXPECT_EQ("5.6.7.8", result[1],
@@ -58,7 +58,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv4_CommaAndSpaceSeparator)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("1.2.3.4, 5.6.7.8");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("1.2.3.4, 5.6.7.8");
 //	EXPECT_EQ("1.2.3.4", result[0],
 //		L"Expected first result to be '1.2.3.4'");
 //	EXPECT_EQ("5.6.7.8", result[1],
@@ -68,7 +68,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv4_CIDRFormat)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("1.2.3.4/32");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("1.2.3.4/32");
 //	EXPECT_EQ("1.2.3.4/32", result[0],
 //		L"Expected first result to be '1.2.3.4/32'");
 //	EXPECT_EQ(NULL,result[1],
@@ -76,7 +76,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv4_PortNumber)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("1.2.3.4:80");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("1.2.3.4:80");
 //	EXPECT_EQ("1.2.3.4:80", result[0],
 //		L"Expected first result to be '1.2.3.4:80'");
 //	EXPECT_EQ(NULL,result[1],
@@ -84,7 +84,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv4_Mixed)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("1.2.3.4, 5.6.7.8/32,9.10.11.12:80");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("1.2.3.4, 5.6.7.8/32,9.10.11.12:80");
 //	EXPECT_EQ("1.2.3.4", result[0],
 //		L"Expected first result to be '1.2.3.4'");
 //	EXPECT_EQ("5.6.7.8/32", result[1],
@@ -102,7 +102,7 @@
 //// ------------------------------------------------------------------------------
 //TEST(ParseIpHeader, ParseEvidence_Ipv6_Simple)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("2001:db8:a0b:12f0:50:abcd:ef01:1");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("2001:db8:a0b:12f0:50:abcd:ef01:1");
 //	EXPECT_EQ("2001:db8:a0b:12f0:50:abcd:ef01:1", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0:50:abcd:ef01:1'");
 //	EXPECT_EQ(NULL,result[1],
@@ -110,7 +110,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv6_Abbreviated)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("2001:db8:a0b:12f0::");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("2001:db8:a0b:12f0::");
 //	EXPECT_EQ("2001:db8:a0b:12f0::", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::'");
 //	EXPECT_EQ(NULL,result[1],
@@ -118,7 +118,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv6_CIDRFormat)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("2001:db8:a0b:12f0::/128");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("2001:db8:a0b:12f0::/128");
 //	EXPECT_EQ("2001:db8:a0b:12f0::/128", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::/128'");
 //	EXPECT_EQ(NULL,result[1],
@@ -126,7 +126,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv6_PortNumber)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("[2001:db8:a0b:12f0::]:80");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("[2001:db8:a0b:12f0::]:80");
 //	EXPECT_EQ("[2001:db8:a0b:12f0::]:80", result[0],
 //		L"Expected first result to be '[2001:db8:a0b:12f0::]:80'");
 //	EXPECT_EQ(NULL,result[1],
@@ -134,7 +134,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv6_SpaceSeparator)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("2001:db8:a0b:12f0:: 2001::802:b48a");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("2001:db8:a0b:12f0:: 2001::802:b48a");
 //	EXPECT_EQ("2001:db8:a0b:12f0::", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::'");
 //	EXPECT_EQ("2001::802:b48a", result[1],
@@ -144,7 +144,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv6_CommaSeparator)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("2001:db8:a0b:12f0::,2001::802:b48a");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("2001:db8:a0b:12f0::,2001::802:b48a");
 //	EXPECT_EQ("2001:db8:a0b:12f0::", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::'");
 //	EXPECT_EQ("2001::802:b48a", result[1],
@@ -154,7 +154,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv6_CommaAndSpaceSeparator)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("2001:db8:a0b:12f0::, 2001::802:b48a");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("2001:db8:a0b:12f0::, 2001::802:b48a");
 //	EXPECT_EQ("2001:db8:a0b:12f0::", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::'");
 //	EXPECT_EQ("2001::802:b48a", result[1],
@@ -164,7 +164,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv6_Mixed)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("2001:db8:a0b:12f0::/128 [2001::802:b48a]:80,FFFF:BBB1::");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("2001:db8:a0b:12f0::/128 [2001::802:b48a]:80,FFFF:BBB1::");
 //	EXPECT_EQ("2001:db8:a0b:12f0::/128", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::/128'");
 //	EXPECT_EQ("[2001::802:b48a]:80", result[1],
@@ -182,13 +182,13 @@
 //// ------------------------------------------------------------------------------
 //TEST(ParseIpHeader, ParseEvidence_Ipv6_Null)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader(NULL);
+//	char** result = fiftyoneDegreesIpAddressParseHeader(NULL);
 //	EXPECT_EQ(NULL,result[0],
 //		L"Expected no results");
 //}
 //TEST(ParseIpHeader, ParseEvidence_Ipv6_EmptyString)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("");
 //	EXPECT_EQ(NULL,result[0],
 //		L"Expected no results");
 //}
@@ -197,7 +197,7 @@
 //	bool exception = false;
 //	try
 //	{
-//		char** result = fiftyoneDegreesParseIpHeader((char*)malloc(1000000));
+//		char** result = fiftyoneDegreesIpAddressParseHeader((char*)malloc(1000000));
 //	}
 //	catch (const std::exception&)
 //	{
@@ -213,7 +213,7 @@
 //
 //TEST(ParseIpHeader, ParseEvidence_Ipv4And6_Mixed)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("2001:db8:a0b:12f0::/128 1.2.3.4:80,FFFF:BBB1::");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("2001:db8:a0b:12f0::/128 1.2.3.4:80,FFFF:BBB1::");
 //	EXPECT_EQ("2001:db8:a0b:12f0::/128", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::/128'");
 //	EXPECT_EQ("1.2.3.4:80", result[1],
@@ -231,7 +231,7 @@
 //// ------------------------------------------------------------------------------
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv4_Simple)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=1.2.3.4");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=1.2.3.4");
 //	EXPECT_EQ("1.2.3.4", result[0],
 //		L"Expected result to be '1.2.3.4'");
 //	EXPECT_EQ(NULL,result[1],
@@ -239,7 +239,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv4_SpaceSeparator)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=1.2.3.4 for=5.6.7.8");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=1.2.3.4 for=5.6.7.8");
 //	EXPECT_EQ("1.2.3.4", result[0],
 //		L"Expected first result to be '1.2.3.4'");
 //	EXPECT_EQ("5.6.7.8", result[1],
@@ -249,7 +249,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv4_CommaSeparator)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=1.2.3.4,for=5.6.7.8");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=1.2.3.4,for=5.6.7.8");
 //	EXPECT_EQ("1.2.3.4", result[0],
 //		L"Expected first result to be '1.2.3.4'");
 //	EXPECT_EQ("5.6.7.8", result[1],
@@ -259,7 +259,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv4_CommaAndSpaceSeparator)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=1.2.3.4, for=5.6.7.8");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=1.2.3.4, for=5.6.7.8");
 //	EXPECT_EQ("1.2.3.4", result[0],
 //		L"Expected first result to be '1.2.3.4'");
 //	EXPECT_EQ("5.6.7.8", result[1],
@@ -269,7 +269,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv4_CIDRFormat)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=\"1.2.3.4/32\"");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=\"1.2.3.4/32\"");
 //	EXPECT_EQ("1.2.3.4/32", result[0],
 //		L"Expected first result to be '1.2.3.4/32'");
 //	EXPECT_EQ(NULL,result[1],
@@ -277,7 +277,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv4_PortNumber)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=\"1.2.3.4:80\"");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=\"1.2.3.4:80\"");
 //	EXPECT_EQ("1.2.3.4:80", result[0],
 //		L"Expected first result to be '1.2.3.4:80'");
 //	EXPECT_EQ(NULL,result[1],
@@ -285,7 +285,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv4_AdditionalFields)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=1.2.3.4;proto=http;by=5.6.7.8;host=me.net");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=1.2.3.4;proto=http;by=5.6.7.8;host=me.net");
 //	EXPECT_EQ("1.2.3.4", result[0],
 //		L"Expected first result to be '1.2.3.4'");
 //	EXPECT_EQ("5.6.7.8", result[1],
@@ -298,7 +298,7 @@
 //// ------------------------------------------------------------------------------
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv6_Simple)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=\"2001:db8:a0b:12f0:50:abcd:ef01:1\"");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=\"2001:db8:a0b:12f0:50:abcd:ef01:1\"");
 //	EXPECT_EQ("2001:db8:a0b:12f0:50:abcd:ef01:1", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0:50:abcd:ef01:1'");
 //	EXPECT_EQ(NULL,result[1],
@@ -306,7 +306,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv6_Abbreviated)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=\"2001:db8:a0b:12f0::\"");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=\"2001:db8:a0b:12f0::\"");
 //	EXPECT_EQ("2001:db8:a0b:12f0::", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::'");
 //	EXPECT_EQ(NULL,result[1],
@@ -314,7 +314,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv6_CIDRFormat)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=\"2001:db8:a0b:12f0::/128\"");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=\"2001:db8:a0b:12f0::/128\"");
 //	EXPECT_EQ("2001:db8:a0b:12f0::/128", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::/128'");
 //	EXPECT_EQ(NULL,result[1],
@@ -322,7 +322,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv6_PortNumber)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=\"[2001:db8:a0b:12f0::]:80\"");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=\"[2001:db8:a0b:12f0::]:80\"");
 //	EXPECT_EQ("[2001:db8:a0b:12f0::]:80", result[0],
 //		L"Expected first result to be '[2001:db8:a0b:12f0::]:80'");
 //	EXPECT_EQ(NULL,result[1],
@@ -330,7 +330,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv6_SpaceSeparator)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=\"2001:db8:a0b:12f0::\" for=\"2001::802:b48a\"");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=\"2001:db8:a0b:12f0::\" for=\"2001::802:b48a\"");
 //	EXPECT_EQ("2001:db8:a0b:12f0::", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::'");
 //	EXPECT_EQ("2001::802:b48a", result[1],
@@ -340,7 +340,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv6_CommaSeparator)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=\"2001:db8:a0b:12f0::\",for=\"2001::802:b48a\"");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=\"2001:db8:a0b:12f0::\",for=\"2001::802:b48a\"");
 //	EXPECT_EQ("2001:db8:a0b:12f0::", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::'");
 //	EXPECT_EQ("2001::802:b48a", result[1],
@@ -350,7 +350,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv6_CommaAndSpaceSeparator)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=\"2001:db8:a0b:12f0::\", for=\"2001::802:b48a\"");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=\"2001:db8:a0b:12f0::\", for=\"2001::802:b48a\"");
 //	EXPECT_EQ("2001:db8:a0b:12f0::", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::'");
 //	EXPECT_EQ("2001::802:b48a", result[1],
@@ -360,7 +360,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_Ipv6_AdditionalFields)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=\"2001:db8:a0b:12f0::\";proto=https;by=\"2001::802:b48a\";host=www.site.com");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=\"2001:db8:a0b:12f0::\";proto=https;by=\"2001::802:b48a\";host=www.site.com");
 //	EXPECT_EQ("2001:db8:a0b:12f0::", result[0],
 //		L"Expected first result to be '2001:db8:a0b:12f0::'");
 //	EXPECT_EQ(NULL,result[1],
@@ -371,7 +371,7 @@
 //// ------------------------------------------------------------------------------
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_InvalidButCommon)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=[2a02:c7d:c64:2d00:106c:6508:1652:51dd]\"\"");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=[2a02:c7d:c64:2d00:106c:6508:1652:51dd]\"\"");
 //	EXPECT_EQ("2a02:c7d:c64:2d00:106c:6508:1652:51dd", result[0],
 //		L"Expected first result to be '2a02:c7d:c64:2d00:106c:6508:1652:51dd'");
 //	EXPECT_EQ(NULL,result[1],
@@ -379,7 +379,7 @@
 //}
 //TEST(ParseIpHeader, ParseEvidence_Forwarded_AnnonymisingToken)
 //{
-//	char** result = fiftyoneDegreesParseIpHeader("for=1.2.3.4, for=\"_gazonk\", for=5.6.7.8");
+//	char** result = fiftyoneDegreesIpAddressParseHeader("for=1.2.3.4, for=\"_gazonk\", for=5.6.7.8");
 //	EXPECT_EQ("1.2.3.4", result[0],
 //		L"Expected first result to be '1.2.3.4'");
 //	EXPECT_EQ("5.6.7.8", result[1],

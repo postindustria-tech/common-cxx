@@ -113,7 +113,7 @@ TEST(ParseIp, ParseIp_Ipv6_AbbreviatedStart)
 		"should be successfull parsed, where the address is " <<
 		ipv6AbbreviatedStart << ".";
 
-	EXPECT_TRUE(result->type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) <<
+	EXPECT_TRUE(result->type == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6) <<
 		"IP address version was not identified correctly where where the " <<
 		"IP address is " << ipv6AbbreviatedStart << ".";
 
@@ -175,7 +175,7 @@ TEST(ParseIp, ParseIp_Invalid_ipv4OutOfRange)
 		"should be successfull parsed, where the address is " <<
 		ipv4OutOfRange << ".";
 
-	EXPECT_TRUE(result->type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) <<
+	EXPECT_TRUE(result->type == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4) <<
 		"IP address version was not identified correctly where where the " <<
 		"IP address is " << ipv4OutOfRange << ".";
 
@@ -246,7 +246,7 @@ TEST(CompareIp, CompareIp_Ipv4_Bigger) {
 		fiftyoneDegreesIpAddressesCompare(
 			ipAddress1, 
 			ipAddress2, 
-			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) > 0) << "Result should be positive "
+			FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4) > 0) << "Result should be positive "
 		"where IP address 1 is bigger than IP address 2\n";
 }
 
@@ -258,7 +258,7 @@ TEST(CompareIp, CompareIp_Ipv4_Smaller) {
 		fiftyoneDegreesIpAddressesCompare(
 			ipAddress1, 
 			ipAddress2, 
-			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) < 0) << "Result should be negative "
+			FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4) < 0) << "Result should be negative "
 		"where IP address 1 is bigger than IP address 2\n";
 }
 
@@ -270,7 +270,7 @@ TEST(CompareIp, CompareIp_Ipv4_Equal) {
 		fiftyoneDegreesIpAddressesCompare(
 			ipAddress1, 
 			ipAddress2, 
-			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) == 0) << "Result should be 0 "
+			FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4) == 0) << "Result should be 0 "
 		"where IP address 1 is bigger than IP address 2\n";
 }
 
@@ -284,7 +284,7 @@ TEST(CompareIp, CompareIp_Ipv6_Bigger) {
 		fiftyoneDegreesIpAddressesCompare(
 			ipAddress1, 
 			ipAddress2, 
-			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) > 0) << "Result should be positive "
+			FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6) > 0) << "Result should be positive "
 		"where IP address 1 is bigger than IP address 2\n";
 }
 
@@ -298,7 +298,7 @@ TEST(CompareIp, CompareIp_Ipv6_Smaller) {
 		fiftyoneDegreesIpAddressesCompare(
 			ipAddress1, 
 			ipAddress2, 
-			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) < 0) << "Result should be negative "
+			FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6) < 0) << "Result should be negative "
 		"where IP address 1 is bigger than IP address 2\n";
 }
 
@@ -312,7 +312,7 @@ TEST(CompareIp, CompareIp_Ipv6_Equal) {
 		fiftyoneDegreesIpAddressesCompare(
 			ipAddress1, 
 			ipAddress2, 
-			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) == 0) << "Result should be 0 "
+			FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6) == 0) << "Result should be 0 "
 		"where IP address 1 is bigger than IP address 2\n";
 }
 
@@ -326,6 +326,6 @@ TEST(CompareIp, CompareIp_Ip_Invalid) {
 		fiftyoneDegreesIpAddressesCompare(
 			ipAddress1, 
 			ipAddress2, 
-			FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID) == 0) << "Result should be 0 "
+			FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID) == 0) << "Result should be 0 "
 		"where type is invalid\n";
 }

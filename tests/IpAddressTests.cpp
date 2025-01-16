@@ -42,13 +42,13 @@ TEST(ParseAddress, ParseAddress_Ipv6_AbbreviatedStart)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(ipv6AbbreviatedStart);
 
-	EXPECT_TRUE(ipAddress.getType() == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) <<
-		"IP address version was not identified correctly where where the " <<
+	EXPECT_TRUE(ipAddress.getType() == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6) <<
+		"IP address version was not identified correctly where the " <<
 		"IP address is " << ipv6AbbreviatedStart << ".";
 
 	EXPECT_TRUE(
 		CheckResult(ipAddress.getIpAddress(), expected, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
-		"The value of the abbreivated start IPv6 address is not correctly parsed.";
+		"The value of the abbreviated start IPv6 address is not correctly parsed.";
 }
 
 TEST(ParseAddress, ParseAddress_Invalid_ipv4OutOfRange)
@@ -59,8 +59,8 @@ TEST(ParseAddress, ParseAddress_Invalid_ipv4OutOfRange)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(ipv4OutOfRange);
 
-	EXPECT_TRUE(ipAddress.getType() == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) <<
-		"IP address version was not identified correctly where where the " <<
+	EXPECT_TRUE(ipAddress.getType() == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4) <<
+		"IP address version was not identified correctly where the " <<
 		"IP address is " << ipv4OutOfRange << ".";
 
 	EXPECT_TRUE(

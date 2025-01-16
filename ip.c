@@ -143,36 +143,108 @@ static IpEvidenceType getSegmentTypeWithSeparator(
 	}
 }
 
+typedef enum {
+	FIFTYONE_DEGREES_IP_NON_BREAK_CHAR = 0,
+	FIFTYONE_DEGREES_IP_SEGMENT_BREAK_CHAR = 1,
+	FIFTYONE_DEGREES_IP_ADDRESS_BREAK_CHAR = 2,
+	FIFTYONE_DEGREES_IP_INVALID_CHAR = 4,
+} fiftyoneDegreesIpStringSeparatorType;
+
+#define IP_NON_BREAK_CHAR FIFTYONE_DEGREES_IP_NON_BREAK_CHAR
+#define IP_SEGMENT_BREAK_CHAR FIFTYONE_DEGREES_IP_SEGMENT_BREAK_CHAR
+#define IP_ADDRESS_BREAK_CHAR FIFTYONE_DEGREES_IP_ADDRESS_BREAK_CHAR
+#define IP_INVALID_CHAR FIFTYONE_DEGREES_IP_INVALID_CHAR
+#define IpStringSeparatorType fiftyoneDegreesIpStringSeparatorType
+
+static IpStringSeparatorType GetSeparatorCharType(
+	const char ipChar,
+	const IpEvidenceType ipType) {
+
+	switch (ipChar) {
+		case ':':
+			return ((ipType == IP_EVIDENCE_TYPE_IPV4)
+				? IP_ADDRESS_BREAK_CHAR : IP_SEGMENT_BREAK_CHAR);
+		case '.':
+			return IP_SEGMENT_BREAK_CHAR;
+		case ',':
+		case ' ':
+		case ']':
+		case '/':
+		case '\0':
+			return IP_ADDRESS_BREAK_CHAR;
+		default:
+			break;
+	}
+	if ('0' <= ipChar && ipChar <= '9') {
+		return IP_NON_BREAK_CHAR;
+	}
+	if (('a' <= ipChar && ipChar <= 'f') || ('A' <= ipChar && ipChar <= 'F')) {
+		return (ipType == IP_EVIDENCE_TYPE_IPV4
+			? IP_INVALID_CHAR : IP_NON_BREAK_CHAR);
+	}
+	return IP_INVALID_CHAR;
+}
+
 /**
  * Calls the callback method every time a byte is identified in the value
  * when parsed left to right.
  */
 static IpEvidenceType iterateIpAddress(
 	const char *start,
-	const char *end,
-	void *state,
+	const char * const end,
+	void * const state,
+	int * const springCount,
 	IpEvidenceType type,
-	parseIterator foundSegment) {
+	const parseIterator foundSegment) {
+
+	*springCount = 0;
+	if (*start == '[') {
+		start++;
+	}
+
+	IpEvidenceType currentSegmentType =
+		FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID;
+
 	const char *current = start;
 	const char *nextSegment = current;
-	IpEvidenceType currentSegmentType = FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID;
-	while (current <= end && nextSegment < end) {
-		if (*current == ',' ||
-			*current == ':' ||
-			*current == '.' ||
-			*current == ' ' ||
-			*current == '\0') {
-			currentSegmentType = getSegmentTypeWithSeparator(*current, type, currentSegmentType);
-			if (type == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID) {
-				type = currentSegmentType;
-			}
-			// Check if it is leading abbreviation
-			if (current - 1 >= start) {
-				foundSegment(state, currentSegmentType, nextSegment, current - 1);
-			}
-			nextSegment = current + 1;
+	for (; current <= end && nextSegment < end; ++current) {
+		IpStringSeparatorType separatorType =
+			GetSeparatorCharType(*current, type);
+		if (!separatorType) {
+			continue;
 		}
-		current++;
+		if (separatorType & IP_INVALID_CHAR) {
+			return IP_EVIDENCE_TYPE_INVALID;
+		}
+
+		currentSegmentType = getSegmentTypeWithSeparator(
+			*current, type, currentSegmentType);
+		if (type == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID) {
+			type = currentSegmentType;
+		}
+
+		if (current - nextSegment > (type == IP_EVIDENCE_TYPE_IPV4 ? 3 : 4)) {
+			return IP_EVIDENCE_TYPE_INVALID;
+		}
+
+		// Check if it is leading abbreviation
+		if (current - 1 >= start) {
+			foundSegment(state, currentSegmentType,
+				nextSegment, current - 1);
+		}
+		if (separatorType & IP_ADDRESS_BREAK_CHAR) {
+			return type;
+		}
+		if (current == nextSegment && current != start) {
+			++*springCount;
+		}
+		nextSegment = current + 1;
+	}
+	if (nextSegment < current
+		&& type != FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID) {
+
+		foundSegment(state, currentSegmentType,
+			nextSegment, current - 1);
 	}
 	return type;
 }
@@ -209,14 +281,38 @@ fiftyoneDegreesIpAddressEvidence* fiftyoneDegreesIpAddressParse(
 	void*(*malloc)(size_t),
 	const char *start,
 	const char *end) {
-	int count = 0;
+
+	if (!start) {
+		return NULL;
+	}
+
+	int byteCount = 0;
+	int springCount = 0;
 	IpAddressEvidence *address;
 	IpEvidenceType type = iterateIpAddress(
 		start,
 		end,
-		&count,
+		&byteCount,
+		&springCount,
 		FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID,
 		callbackIpAddressCount);
+
+	switch (type) {
+		case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4:
+			if (byteCount != IPV4_LENGTH || springCount) {
+				return NULL;
+			}
+			break;
+		case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6:
+			if (byteCount > IPV6_LENGTH ||
+				springCount > 1 ||
+				(byteCount < IPV6_LENGTH && !springCount)) {
+				return NULL;
+			}
+			break;
+		default:
+			return NULL;
+	}
 
 	address = mallocIpAddress(malloc, type);
 	if (address != NULL) {
@@ -226,13 +322,14 @@ fiftyoneDegreesIpAddressEvidence* fiftyoneDegreesIpAddressParse(
 		address->address = (byte*)(address + 1);
 		// Set the next byte to be added during the parse operation.
 		address->current = (byte*)(address + 1);
-		address->bytesPresent = (byte)count;
+		address->bytesPresent = (byte)byteCount;
 		address->type = type;
 		// Add the bytes from the source value and get the type of address.
 		iterateIpAddress(
 			start,
 			end,
 			address,
+			&springCount,
 			type,
 			callbackIpAddressBuild);
 		address->next = NULL;

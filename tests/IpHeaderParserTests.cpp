@@ -30,7 +30,7 @@
 //TEST(ParseIpHeader, ParseEvidence_Ipv4_Simple)
 //{
 //	char* ip = "1.2.3.4";
-//	fiftyoneDegreesEvidenceIpAddress* result = parseIpAddresses(malloc, ip);
+//	fiftyoneDegreesIpAddressEvidence* result = parseIpAddresses(malloc, ip);
 //	EXPECT_STREQ("1.2.3.4", result->address) <<
 //		L"Expected result to be '1.2.3.4'";
 //	EXPECT_EQ(NULL, result[1]) <<

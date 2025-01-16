@@ -83,8 +83,8 @@ static int compareCoordinate(String *value, const char *target) {
  */
 static int compareIpAddress(String *value, const char *target) {
 	int result = 0;
-	fiftyoneDegreesEvidenceIpAddress *ipAddress
-		= fiftyoneDegreesIpParseAddress(
+	fiftyoneDegreesIpAddressEvidence *ipAddress
+		= fiftyoneDegreesIpAddressParse(
 			Malloc, 
 			target, 
 			target + strlen(target));

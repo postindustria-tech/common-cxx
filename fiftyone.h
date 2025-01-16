@@ -65,17 +65,12 @@
 #include "resource.h"
 #include "results.h"
 #include "status.h"
-#include "dataset.h"
-#include "results.h"
-#include "config.h"
 #include "string.h"
 #include "property.h"
 #include "value.h"
-#include "component.h"
 #include "profile.h"
 #include "overrides.h"
 #include "tree.h"
-#include "profile.h"
 #include "ip.h"
 #include "float.h"
 #include "coordinate.h"
@@ -140,8 +135,6 @@ MAP_TYPE(PoolItem)
 MAP_TYPE(PoolHead)
 MAP_TYPE(PoolResourceSize)
 MAP_TYPE(List)
-MAP_TYPE(EvidenceIpType)
-MAP_TYPE(EvidenceIpAddress)
 MAP_TYPE(DataSetInitFromFileMethod)
 MAP_TYPE(DataSetInitFromMemoryMethod)
 MAP_TYPE(DataSetInitFromMemoryMethod)
@@ -185,6 +178,8 @@ MAP_TYPE(IndicesPropertyProfile)
 MAP_TYPE(StringBuilder)
 MAP_TYPE(Json)
 MAP_TYPE(KeyValuePairArray)
+MAP_TYPE(IpAddressEvidence)
+MAP_TYPE(IpEvidenceType)
 
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */
 #define OverrideValuesAdd fiftyoneDegreesOverrideValuesAdd /**< Synonym for #fiftyoneDegreesOverrideValuesAdd function. */
@@ -360,6 +355,10 @@ MAP_TYPE(KeyValuePairArray)
 #define StringBuilderComplete fiftyoneDegreesStringBuilderComplete /**< Synonym for fiftyoneDegreesStringBuilderComplete */
 #define EvidenceIterateMethod fiftyoneDegreesEvidenceIterateMethod /**< Synonym for fiftyoneDegreesEvidenceIterateMethod */
 #define OverrideHasValueForRequiredPropertyIndex fiftyoneDegreesOverrideHasValueForRequiredPropertyIndex /**< Synonym for fiftyoneDegreesOverrideHasValueForRequiredPropertyIndex */
+#define IpAddressesFree fiftyoneDegreesIpAddressesFree /**< Synonym for fiftyoneDegreesIpAddressesFree */
+#define IpAddressParse fiftyoneDegreesIpAddressParse /**< Synonym for fiftyoneDegreesIpAddressParse */
+#define IpAddressesParse fiftyoneDegreesIpAddressesParse /**< Synonym for fiftyoneDegreesIpAddressesParse */
+#define IpAddressesCompare fiftyoneDegreesIpAddressesCompare /**< Synonym for fiftyoneDegreesIpAddressesCompare */
 
 /* <-- only one asterisk to avoid inclusion in documentation
  * Shortened macros.
@@ -437,9 +436,11 @@ MAP_TYPE(KeyValuePairArray)
 #define TEMP_FILE_ERROR FIFTYONE_DEGREES_STATUS_TEMP_FILE_ERROR /**< Synonym for #FIFTYONE_DEGREES_STATUS_INCORRECT_IP_ADDRESS_FORMAT status code. */
 #define DATA_FILE_NEEDS_UPDATED FIFTYONE_DEGREES_STATUS_DATA_FILE_NEEDS_UPDATED /**< Synonym for #FIFTYONE_DEGREES_STATUS_DATA_FILE_NEEDS_UPDATED status code. */
 #define INSUFFICIENT_CAPACITY FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY /**< Synonym for #FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY status code. */
-#define INVALID_INPUT FIFTYONE_DEGREES_STATUS_INVALID_INPUT /**< Synonym for
-    #FIFTYONE_DEGREES_STATUS_INVALID_INPUT status code.*/
-/**
+#define INVALID_INPUT FIFTYONE_DEGREES_STATUS_INVALID_INPUT /**< Synonym for #FIFTYONE_DEGREES_STATUS_INVALID_INPUT status code.*/
+#define IPV6_LENGTH FIFTYONE_DEGREES_IPV6_LENGTH /**< Synonym for #FIFTYONE_DEGREES_IPV6_LENGTH status code.*/
+#define IPV4_LENGTH FIFTYONE_DEGREES_IPV4_LENGTH /**< Synonym for #FIFTYONE_DEGREES_IPV4_LENGTH status code.*/
+
+ /**
  * @}
  */
 

@@ -35,13 +35,13 @@ IpAddress::IpAddress() {
 }
 
 IpAddress::IpAddress(const unsigned char ipAddressData[],
-    fiftyoneDegreesEvidenceIpType addressType) {
+    fiftyoneDegreesIpEvidenceType addressType) {
     init(ipAddressData, addressType);
 }
 
 IpAddress::IpAddress(const char * const ipAddressString) {
-    fiftyoneDegreesEvidenceIpAddress *eIpAddress = 
-		fiftyoneDegreesIpParseAddress(
+    fiftyoneDegreesIpAddressEvidence *eIpAddress = 
+		fiftyoneDegreesIpAddressParse(
 			fiftyoneDegreesMalloc,
 			ipAddressString,
 			ipAddressString + strlen(ipAddressString));
@@ -57,7 +57,7 @@ IpAddress::IpAddress(const char * const ipAddressString) {
 }
 
 void IpAddress::init(const unsigned char * const ipAddressData,
-    const fiftyoneDegreesEvidenceIpType addressType) {
+    const fiftyoneDegreesIpEvidenceType addressType) {
     switch (addressType) {
     case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4:
         memcpy(ipAddress, ipAddressData, FIFTYONE_DEGREES_IPV4_LENGTH);

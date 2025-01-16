@@ -38,9 +38,9 @@ static void callbackIpAddressCount(
 	const char *start,
 	const char *end) {
 	if (start <= end) {
-		if (segmentType != FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID) {
+		if (segmentType != FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID) {
 			(*(int*)state)++;
-			if (segmentType == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) {
+			if (segmentType == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6) {
 				(*(int*)state)++;
 			}
 		}
@@ -102,11 +102,11 @@ static void callbackIpAddressBuild(
 	const char *start,
 	const char *end) {
 	IpAddressEvidence *address = (IpAddressEvidence*)state;
-	if (segmentType == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4) {
+	if (segmentType == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4) {
 		*address->current = getIpByte(atoi(start));
 		address->current++;
 	}
-	else if (segmentType == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6) {
+	else if (segmentType == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6) {
 		parseIpV6Segment(address, start, end);
 	}
 }
@@ -114,11 +114,11 @@ static void callbackIpAddressBuild(
 static IpEvidenceType getIpTypeFromSeparator(const char separator) {
 	switch (separator) {
 		case '.':
-			return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4;
+			return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4;
 		case ':':
-			return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6;
+			return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6;
 		default:
-			return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID;
+			return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID;
 	}
 }
 
@@ -127,14 +127,14 @@ static IpEvidenceType getSegmentTypeWithSeparator(
 	const IpEvidenceType ipType,
 	const IpEvidenceType lastSeparatorType) {
 	switch (ipType) {
-		case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4:
-			return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4;
-		case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6:
+		case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4:
+			return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4;
+		case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6:
 			switch (separator) {
 				case ':':
-					return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6;
+					return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6;
 				case '.':
-					return FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4;
+					return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4;
 				default:
 					return lastSeparatorType;
 			}
@@ -155,7 +155,7 @@ static IpEvidenceType iterateIpAddress(
 	parseIterator foundSegment) {
 	const char *current = start;
 	const char *nextSegment = current;
-	IpEvidenceType currentSegmentType = FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID;
+	IpEvidenceType currentSegmentType = FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID;
 	while (current <= end && nextSegment < end) {
 		if (*current == ',' ||
 			*current == ':' ||
@@ -163,7 +163,7 @@ static IpEvidenceType iterateIpAddress(
 			*current == ' ' ||
 			*current == '\0') {
 			currentSegmentType = getSegmentTypeWithSeparator(*current, type, currentSegmentType);
-			if (type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID) {
+			if (type == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID) {
 				type = currentSegmentType;
 			}
 			// Check if it is leading abbreviation
@@ -181,11 +181,11 @@ IpAddressEvidence* mallocIpAddress(
 	void*(*malloc)(size_t),
 	IpEvidenceType type) {
 	switch (type) {
-	case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4:
+	case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4:
 		return (IpAddressEvidence*)malloc(
 			sizeof(IpAddressEvidence) +
 			(4 * sizeof(byte)));
-	case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6:
+	case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6:
 	default:
 		return (IpAddressEvidence*)malloc(
 			sizeof(IpAddressEvidence) +
@@ -215,7 +215,7 @@ fiftyoneDegreesIpAddressEvidence* fiftyoneDegreesIpAddressParse(
 		start,
 		end,
 		&count,
-		FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID,
+		FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID,
 		callbackIpAddressCount);
 
 	address = mallocIpAddress(malloc, type);
@@ -280,13 +280,13 @@ int fiftyoneDegreesIpAddressesCompare(
 	uint16_t compareSize = 0;
 	int result = 0;
 	switch(type) {
-	case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4:
+	case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4:
 		compareSize = FIFTYONE_DEGREES_IPV4_LENGTH;
 		break;
-	case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6:
+	case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6:
 		compareSize = FIFTYONE_DEGREES_IPV6_LENGTH;
 		break;
-	case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID:
+	case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID:
 	default:
 		compareSize = 0;
 		break;

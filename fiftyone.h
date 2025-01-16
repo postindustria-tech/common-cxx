@@ -180,6 +180,7 @@ MAP_TYPE(Json)
 MAP_TYPE(KeyValuePairArray)
 MAP_TYPE(IpAddressEvidence)
 MAP_TYPE(IpEvidenceType)
+MAP_TYPE(IpAddress)
 
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */
 #define OverrideValuesAdd fiftyoneDegreesOverrideValuesAdd /**< Synonym for #fiftyoneDegreesOverrideValuesAdd function. */

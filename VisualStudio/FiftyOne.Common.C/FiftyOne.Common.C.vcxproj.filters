@@ -129,6 +129,9 @@
     <ClInclude Include="..\..\indices.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\json.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\cache.c">
@@ -221,8 +224,11 @@
     <ClCompile Include="..\..\yamlfile.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\indexes.c">
+    <ClCompile Include="..\..\indices.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClInclude Include="..\..\json.c">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

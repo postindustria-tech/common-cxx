@@ -178,7 +178,7 @@ MAP_TYPE(IndicesPropertyProfile)
 MAP_TYPE(StringBuilder)
 MAP_TYPE(Json)
 MAP_TYPE(KeyValuePairArray)
-MAP_TYPE(IpEvidenceType)
+MAP_TYPE(IpType)
 MAP_TYPE(IpAddress)
 
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */

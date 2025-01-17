@@ -37,7 +37,7 @@ FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress() {
 
 FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress(
     const unsigned char ipAddressData[],
-    IpEvidenceType addressType) {
+    IpType addressType) {
     init(ipAddressData, addressType);
 }
 
@@ -53,7 +53,7 @@ FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress(
 		throw bad_alloc();
 	}
     // Initialize the IP address object
-    init(eIpAddress->value, static_cast<IpEvidenceType>(eIpAddress->type));
+    init(eIpAddress->value, static_cast<IpType>(eIpAddress->type));
 
     // Free the previously allocated IP address
     Free(eIpAddress);
@@ -61,7 +61,7 @@ FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress(
 
 void FiftyoneDegrees::IpIntelligence::IpAddress::init(
     const unsigned char * const ipAddressData,
-    const IpEvidenceType addressType) {
+    const IpType addressType) {
     switch (addressType) {
     case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4:
         memcpy(ipAddress, ipAddressData, FIFTYONE_DEGREES_IPV4_LENGTH);

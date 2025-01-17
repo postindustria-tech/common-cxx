@@ -25,7 +25,7 @@
 
 typedef void(*parseIterator)(
 	void *state,
-	IpEvidenceType segmentType,
+	IpType segmentType,
 	const char *start,
 	const char *end);
 
@@ -34,7 +34,7 @@ typedef void(*parseIterator)(
  */
 static void callbackIpAddressCount(
 	void *state,
-	IpEvidenceType segmentType,
+	IpType segmentType,
 	const char *start,
 	const char *end) {
 	if (start <= end) {
@@ -105,7 +105,7 @@ static void parseIpV6Segment(
 
 static void callbackIpAddressBuild(
 	void *state,
-	IpEvidenceType segmentType,
+	IpType segmentType,
 	const char *start,
 	const char *end) {
 	fiftyoneDegreeIpAddressBuildState *const buildState = state;
@@ -118,7 +118,7 @@ static void callbackIpAddressBuild(
 	}
 }
 
-static IpEvidenceType getIpTypeFromSeparator(const char separator) {
+static IpType getIpTypeFromSeparator(const char separator) {
 	switch (separator) {
 		case '.':
 			return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4;
@@ -129,10 +129,10 @@ static IpEvidenceType getIpTypeFromSeparator(const char separator) {
 	}
 }
 
-static IpEvidenceType getSegmentTypeWithSeparator(
+static IpType getSegmentTypeWithSeparator(
 	const char separator,
-	const IpEvidenceType ipType,
-	const IpEvidenceType lastSeparatorType) {
+	const IpType ipType,
+	const IpType lastSeparatorType) {
 	switch (ipType) {
 		case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4:
 			return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4;
@@ -156,16 +156,16 @@ typedef enum {
 	FIFTYONE_DEGREES_IP_ADDRESS_BREAK_CHAR = 2,
 	FIFTYONE_DEGREES_IP_INVALID_CHAR = 4,
 } fiftyoneDegreesIpStringSeparatorType;
+typedef fiftyoneDegreesIpStringSeparatorType IpStringSeparatorType;
 
 #define IP_NON_BREAK_CHAR FIFTYONE_DEGREES_IP_NON_BREAK_CHAR
 #define IP_SEGMENT_BREAK_CHAR FIFTYONE_DEGREES_IP_SEGMENT_BREAK_CHAR
 #define IP_ADDRESS_BREAK_CHAR FIFTYONE_DEGREES_IP_ADDRESS_BREAK_CHAR
 #define IP_INVALID_CHAR FIFTYONE_DEGREES_IP_INVALID_CHAR
-#define IpStringSeparatorType fiftyoneDegreesIpStringSeparatorType
 
 static IpStringSeparatorType GetSeparatorCharType(
 	const char ipChar,
-	const IpEvidenceType ipType) {
+	const IpType ipType) {
 
 	switch (ipChar) {
 		case ':':
@@ -196,12 +196,12 @@ static IpStringSeparatorType GetSeparatorCharType(
  * Calls the callback method every time a byte is identified in the value
  * when parsed left to right.
  */
-static IpEvidenceType iterateIpAddress(
+static IpType iterateIpAddress(
 	const char *start,
 	const char * const end,
 	void * const state,
 	int * const springCount,
-	IpEvidenceType type,
+	IpType type,
 	const parseIterator foundSegment) {
 
 	*springCount = 0;
@@ -209,7 +209,7 @@ static IpEvidenceType iterateIpAddress(
 		start++;
 	}
 
-	IpEvidenceType currentSegmentType =
+	IpType currentSegmentType =
 		FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID;
 
 	const char *current = start;
@@ -268,7 +268,7 @@ IpAddress* fiftyoneDegreesIpAddressParse(
 	int byteCount = 0;
 	int springCount = 0;
 	IpAddress *address;
-	IpEvidenceType type = iterateIpAddress(
+	IpType type = iterateIpAddress(
 		start,
 		end,
 		&byteCount,
@@ -316,7 +316,7 @@ IpAddress* fiftyoneDegreesIpAddressParse(
 int fiftyoneDegreesIpAddressesCompare(
 	const unsigned char *ipAddress1,
 	const unsigned char *ipAddress2,
-	fiftyoneDegreesIpEvidenceType type) {
+	IpType type) {
 	uint16_t compareSize = 0;
 	int result = 0;
 	switch(type) {

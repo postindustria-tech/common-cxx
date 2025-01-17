@@ -60,7 +60,7 @@ typedef enum e_fiftyone_degrees_ip_evidence_type {
 	FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID = 0, /**< Invalid IP address */
 	FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4 = 1, /**< An IPv4 address */
 	FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6 = 2, /**< An IPv6 address */
-} fiftyoneDegreesIpEvidenceType;
+} fiftyoneDegreesIpType;
 
 /**
  * The structure to hold a IP Address in byte array format.
@@ -99,7 +99,7 @@ EXTERNAL fiftyoneDegreesIpAddress* fiftyoneDegreesIpAddressParse(
 EXTERNAL int fiftyoneDegreesIpAddressesCompare(
 	const unsigned char *ipAddress1,
 	const unsigned char *ipAddress2,
-	fiftyoneDegreesIpEvidenceType type);
+	fiftyoneDegreesIpType type);
 
 /**
  * @}

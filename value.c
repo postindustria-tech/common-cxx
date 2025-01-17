@@ -25,15 +25,16 @@
 
 MAP_TYPE(Value);
 MAP_TYPE(Collection);
+MAP_TYPE(CollectionItem);
 
 typedef struct value_search_t {
-	fiftyoneDegreesCollection *strings;
+	Collection *strings;
 	const char *valueName;
 } valueSearch;
 
 #ifndef FIFTYONE_DEGREES_GET_STRING_DEFINED
 #define FIFTYONE_DEGREES_GET_STRING_DEFINED
-static fiftyoneDegreesString* getString(
+static String* getString(
 	Collection *strings,
 	uint32_t offset,
 	Item *item,
@@ -83,8 +84,8 @@ static int compareCoordinate(String *value, const char *target) {
  */
 static int compareIpAddress(String *value, const char *target) {
 	int result = 0;
-	fiftyoneDegreesIpAddressEvidence *ipAddress
-		= fiftyoneDegreesIpAddressParse(
+	IpAddress *ipAddress
+		= IpAddressParse(
 			Malloc, 
 			target, 
 			target + strlen(target));
@@ -108,8 +109,10 @@ static int compareIpAddress(String *value, const char *target) {
 		}
 		else {
 			// Compare length first
-			compareLength = valueLength < searchLength ? valueLength : searchLength;
-			result = memcmp(&value->trail.secondValue, ipAddress->address, compareLength);
+			compareLength = (valueLength < searchLength
+				? valueLength : searchLength);
+			result = memcmp(&value->trail.secondValue,
+				ipAddress->value, compareLength);
 			if (result == 0) {
 				result = valueLength - searchLength;
 			}
@@ -155,19 +158,19 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 #pragma warning (default: 4100)
 #endif
 
-fiftyoneDegreesString* fiftyoneDegreesValueGetName(
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesValue *value,
-	fiftyoneDegreesCollectionItem *item,
-	fiftyoneDegreesException *exception) {
+String* fiftyoneDegreesValueGetName(
+	Collection *strings,
+	Value *value,
+	CollectionItem *item,
+	Exception *exception) {
 	return getString(strings, value->nameOffset, item, exception);
 }
 
-fiftyoneDegreesString* fiftyoneDegreesValueGetDescription(
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesValue *value,
-	fiftyoneDegreesCollectionItem *item,
-	fiftyoneDegreesException *exception) {
+String* fiftyoneDegreesValueGetDescription(
+	Collection *strings,
+	Value *value,
+	CollectionItem *item,
+	Exception *exception) {
 	return getString(
 		strings,
 		value->descriptionOffset,
@@ -175,19 +178,19 @@ fiftyoneDegreesString* fiftyoneDegreesValueGetDescription(
 		exception);
 }
 
-fiftyoneDegreesString* fiftyoneDegreesValueGetUrl(
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesValue *value,
-	fiftyoneDegreesCollectionItem *item,
-	fiftyoneDegreesException *exception) {
+String* fiftyoneDegreesValueGetUrl(
+	Collection *strings,
+	Value *value,
+	CollectionItem *item,
+	Exception *exception) {
 	return getString(strings, value->urlOffset, item, exception);
 }
 
-fiftyoneDegreesValue* fiftyoneDegreesValueGet(
-	fiftyoneDegreesCollection *values,
+Value* fiftyoneDegreesValueGet(
+	Collection *values,
 	uint32_t valueIndex,
-	fiftyoneDegreesCollectionItem *item,
-	fiftyoneDegreesException *exception) {
+	CollectionItem *item,
+	Exception *exception) {
 	return (Value*)values->get(
 		values, 
 		valueIndex, 
@@ -196,11 +199,11 @@ fiftyoneDegreesValue* fiftyoneDegreesValueGet(
 }
 
 long fiftyoneDegreesValueGetIndexByName(
-	fiftyoneDegreesCollection *values,
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesProperty *property,
+	Collection *values,
+	Collection *strings,
+	Property *property,
 	const char *valueName,
-	fiftyoneDegreesException *exception) {
+	Exception *exception) {
 	Item item;
 	valueSearch search;
 	long index;
@@ -221,13 +224,13 @@ long fiftyoneDegreesValueGetIndexByName(
 	return index;
 }
 
-fiftyoneDegreesValue* fiftyoneDegreesValueGetByName(
-	fiftyoneDegreesCollection *values,
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesProperty *property,
+Value* fiftyoneDegreesValueGetByName(
+	Collection *values,
+	Collection *strings,
+	Property *property,
 	const char *valueName,
-	fiftyoneDegreesCollectionItem *item,
-	fiftyoneDegreesException *exception) {
+	CollectionItem *item,
+	Exception *exception) {
 	valueSearch search;
 	Value *value = NULL;
 	search.valueName = valueName;

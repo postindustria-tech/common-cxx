@@ -43,7 +43,7 @@ FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress(
 
 FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress(
     const char * const ipAddressString) {
-    IpAddressEvidence *eIpAddress =
+    ::IpAddress *eIpAddress =
 		IpAddressParse(
 			Malloc,
 			ipAddressString,
@@ -53,7 +53,7 @@ FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress(
 		throw bad_alloc();
 	}
     // Initialize the IP address object
-    init(eIpAddress->address, eIpAddress->type);
+    init(eIpAddress->value, static_cast<IpEvidenceType>(eIpAddress->type));
 
     // Free the previously allocated IP address
     Free(eIpAddress);

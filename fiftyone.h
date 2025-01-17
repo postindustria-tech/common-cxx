@@ -178,7 +178,6 @@ MAP_TYPE(IndicesPropertyProfile)
 MAP_TYPE(StringBuilder)
 MAP_TYPE(Json)
 MAP_TYPE(KeyValuePairArray)
-MAP_TYPE(IpAddressEvidence)
 MAP_TYPE(IpEvidenceType)
 MAP_TYPE(IpAddress)
 

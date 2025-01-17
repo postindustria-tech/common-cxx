@@ -57,9 +57,9 @@
  * Enum indicating the type of IP address.
  */
 typedef enum e_fiftyone_degrees_ip_evidence_type {
-	FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4 = 0, /**< An IPv4 address */
-	FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6 = 1, /**< An IPv6 address */
-	FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID = 2, /**< Invalid IP address */
+	FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID = 0, /**< Invalid IP address */
+	FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4 = 1, /**< An IPv4 address */
+	FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6 = 2, /**< An IPv6 address */
 } fiftyoneDegreesIpEvidenceType;
 
 /**
@@ -69,40 +69,8 @@ typedef struct fiftyone_degrees_ip_address_t {
 	byte value[FIFTYONE_DEGREES_IPV6_LENGTH]; /**< Buffer to hold the IP 
 											  address bytes array. */
 	size_t length; /**< Length of the byte array. */
-	fiftyoneDegreesIpEvidenceType type; /**< The of the IP. */
+	byte type; /**< The type of the IP. */
 } fiftyoneDegreesIpAddress;
-
-/** @cond FORWARD_DECLARATIONS */
-typedef struct fiftyone_degrees_ip_address_evidence
-	fiftyoneDegreesIpAddressEvidence;
-/** @endcond */
-
-/**
- * IP address structure containing the bytes of a v4 or v6 IP address. This 
- * contains a pointer to a next IP address to enable a linked list to be
- * created.
- */
-typedef struct fiftyone_degrees_ip_address_evidence {
-	fiftyoneDegreesIpEvidenceType type; /**< The type of address (v4 or v6) */
-	byte *address; /**< The first byte of the address */
-	byte *current; /**< When building the address the next byte to update */
-	fiftyoneDegreesIpAddressEvidence *next; /**< Next address in the list or
-											NULL */
-	byte bytesPresent; /**< Number of bytes in the original string which are
-					   not abbreviated */
-	// const char *originalStart; // The first character for the IP address
-	// const char *originalEnd; // The last character for the IP addresses
-} fiftyoneDegreesIpAddressEvidence;
-
-/**
- * Free a linked list of IP addresses. This can also be a single IP address as
- * this is equivalent to a linked list with a size of 1.
- * @param free method to free the IP addresses
- * @param addresses head of the linked list
- */
-EXTERNAL void fiftyoneDegreesIpAddressesFree(
-	void(*free)(void*),
-	fiftyoneDegreesIpAddressEvidence *addresses);
 
 /**
  * Parse a single IP address string.
@@ -111,20 +79,10 @@ EXTERNAL void fiftyoneDegreesIpAddressesFree(
  * @param end of the string containing the IP address to parse
  * @return pointer to the parsed IP address
  */
-EXTERNAL fiftyoneDegreesIpAddressEvidence* fiftyoneDegreesIpAddressParse(
+EXTERNAL fiftyoneDegreesIpAddress* fiftyoneDegreesIpAddressParse(
 	void*(*malloc)(size_t),
 	const char *start,
 	const char *end);
-
-/**
- * Parse a list of IP addresses and return as a linked list.
- * @param malloc method to allocate IP addresses
- * @param start of the string containing the IP addresses to parse
- * @return pointer to the head of the linked list
- */
-EXTERNAL fiftyoneDegreesIpAddressEvidence* fiftyoneDegreesIpAddressesParse(
-	void*(*malloc)(size_t),
-	const char *start);
 
 /**
  * Compare two IP addresses in its binary form

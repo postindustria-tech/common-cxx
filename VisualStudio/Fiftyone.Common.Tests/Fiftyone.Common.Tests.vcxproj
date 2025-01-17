@@ -35,21 +35,26 @@
     <ClCompile Include="..\..\tests\IpAddressTests.cpp" />
     <ClCompile Include="..\..\tests\IpHeaderParserTests.cpp" />
     <ClCompile Include="..\..\tests\IpParserTests.cpp" />
+    <ClCompile Include="..\..\tests\JsonTests.cpp" />
     <ClCompile Include="..\..\tests\main.cpp" />
     <ClCompile Include="..\..\tests\MemoryLeakTests.cpp" />
     <ClCompile Include="..\..\tests\OverridesTests.cpp" />
     <ClCompile Include="..\..\tests\pch.cpp" />
     <ClCompile Include="..\..\tests\PoolTests.cpp" />
+    <ClCompile Include="..\..\tests\ProfileTests.cpp" />
     <ClCompile Include="..\..\tests\PropertiesTests.cpp" />
     <ClCompile Include="..\..\tests\PropertyMetaDataTests.cpp" />
+    <ClCompile Include="..\..\tests\PropertyTests.cpp" />
     <ClCompile Include="..\..\tests\RequiredPropertiesConfigTests.cpp" />
     <ClCompile Include="..\..\tests\ResourceManagerTests.cpp" />
     <ClCompile Include="..\..\tests\StatusTests.cpp" />
     <ClCompile Include="..\..\tests\StringCollection.cpp" />
+    <ClCompile Include="..\..\tests\StringsTests.cpp" />
     <ClCompile Include="..\..\tests\TestStrings.cpp" />
     <ClCompile Include="..\..\tests\TextFileTests.cpp" />
     <ClCompile Include="..\..\tests\ThreadingTests.cpp" />
     <ClCompile Include="..\..\tests\ValueTests.cpp" />
+    <ClCompile Include="..\..\tests\WellKnownBinaryToTextTests.cpp" />
     <ClCompile Include="..\..\tests\YamlFileTests.cpp" />
     <ClCompile Include="..\..\tests\HeadersContainer.cpp" />
   </ItemGroup>

@@ -39,6 +39,7 @@
     <ClInclude Include="..\..\threading.h" />
     <ClInclude Include="..\..\tree.h" />
     <ClInclude Include="..\..\value.h" />
+    <ClInclude Include="..\..\wkbtot.h" />
     <ClInclude Include="..\..\yamlfile.h" />
   </ItemGroup>
   <ItemGroup>
@@ -72,10 +73,11 @@
     <ClCompile Include="..\..\threading.c" />
     <ClCompile Include="..\..\tree.c" />
     <ClCompile Include="..\..\value.c" />
+    <ClCompile Include="..\..\wkbtot.c" />
     <ClCompile Include="..\..\yamlfile.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8E1B0B4C-8220-4E7B-A838-B4B3DDB4CF15}</ProjectGuid>
     <RootNamespace>FiftyOneCommonC</RootNamespace>
   </PropertyGroup>
- </Project>
+</Project>

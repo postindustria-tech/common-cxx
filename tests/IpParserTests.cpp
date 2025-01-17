@@ -133,6 +133,7 @@ TEST(ParseIp, ParseIp_Ipv6_AbbreviatedMiddle)
 	byte expected[] = { 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255 };
 	EXPECT_TRUE(CheckResult(result->address, expected, sizeof(expected)))
 		<< L"Expected result to be '255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255'";
+    Free(result);
 }
 TEST(ParseIp, ParseIp_Ipv6_AbbreviatedEnd)
 {
@@ -140,6 +141,7 @@ TEST(ParseIp, ParseIp_Ipv6_AbbreviatedEnd)
 	byte expected[] = { 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0 };
 	EXPECT_TRUE(CheckResult(result->address, expected, sizeof(expected)))
 		<< L"Expected result to be '255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0'";
+    Free(result);
 }
 TEST(ParseIp, ParseIp_Ipv6_PortNumber)
 {
@@ -147,6 +149,7 @@ TEST(ParseIp, ParseIp_Ipv6_PortNumber)
 	byte expected[] = { 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
 	EXPECT_TRUE(CheckResult(result->address, expected, sizeof(expected)))
 		<< L"Expected result to be '32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1'";
+    Free(result);
 }
 TEST(ParseIp, ParseIp_Ipv6_CIDRFormat)
 {
@@ -154,6 +157,7 @@ TEST(ParseIp, ParseIp_Ipv6_CIDRFormat)
 	byte expected[] = { 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
 	EXPECT_TRUE(CheckResult(result->address, expected, sizeof(expected)))
 		<< L"Expected result to be '32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1'";
+    Free(result);
 }
 
 // ------------------------------------------------------------------------------

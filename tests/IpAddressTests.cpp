@@ -22,6 +22,7 @@
  
 #include "pch.h"
 #include "../IpAddress.hpp"
+#include "../fiftyone.h"
 
 
 static bool CheckResult(const byte *result, const byte *expected, uint16_t const size) {
@@ -37,34 +38,34 @@ static bool CheckResult(const byte *result, const byte *expected, uint16_t const
 TEST(ParseAddress, ParseAddress_Ipv6_AbbreviatedStart)
 {
 	const char * const ipv6AbbreviatedStart = "::FFFF:FFFF:FFFF:FFFF";
-	const byte expected[FIFTYONE_DEGREES_IPV6_LENGTH] =
+	const byte expected[IPV6_LENGTH] =
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255 };
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(ipv6AbbreviatedStart);
 
-	EXPECT_TRUE(ipAddress.getType() == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6) <<
+	EXPECT_TRUE(ipAddress.getType() == IP_TYPE_IPV6) <<
 		"IP address version was not identified correctly where the " <<
 		"IP address is " << ipv6AbbreviatedStart << ".";
 
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), expected, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), expected, IPV6_LENGTH)) <<
 		"The value of the abbreviated start IPv6 address is not correctly parsed.";
 }
 
 TEST(ParseAddress, ParseAddress_Invalid_ipv4OutOfRange)
 {
 	const char * const ipv4OutOfRange = "256.256.256.256";
-	constexpr byte expected[FIFTYONE_DEGREES_IPV4_LENGTH] =
+	constexpr byte expected[IPV4_LENGTH] =
 		{255, 255, 255, 255};
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(ipv4OutOfRange);
 
-	EXPECT_TRUE(ipAddress.getType() == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4) <<
+	EXPECT_TRUE(ipAddress.getType() == IP_TYPE_IPV4) <<
 		"IP address version was not identified correctly where the " <<
 		"IP address is " << ipv4OutOfRange << ".";
 
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), expected, FIFTYONE_DEGREES_IPV4_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), expected, IPV4_LENGTH)) <<
 		"The value of the out of range IPv4 address is not correctly restricted "
 		"at 255.";
 }
@@ -79,7 +80,7 @@ TEST(ParseAddress, ParseAddress_Ipv6_BasicIpv6Address)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(rawAddress);
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), addressBytes, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), addressBytes, IPV6_LENGTH)) <<
 		"The value of the IPv6 address (Basic IPv6 address) is not correctly parsed.";
 }
 
@@ -93,7 +94,7 @@ TEST(ParseAddress, ParseAddress_Ipv6_CompressedZeros)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(rawAddress);
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), addressBytes, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), addressBytes, IPV6_LENGTH)) <<
 		"The value of the IPv6 address (Compressed zeros) is not correctly parsed.";
 }
 
@@ -107,7 +108,7 @@ TEST(ParseAddress, ParseAddress_Ipv6_LeadingZeros)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(rawAddress);
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), addressBytes, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), addressBytes, IPV6_LENGTH)) <<
 		"The value of the IPv6 address (Leading zeros in each segment) is not correctly parsed.";
 }
 
@@ -121,7 +122,7 @@ TEST(ParseAddress, ParseAddress_Ipv6_MixedIpv6Ipv4)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(rawAddress);
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), addressBytes, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), addressBytes, IPV6_LENGTH)) <<
 		"The value of the IPv6 address (IPv4-mapped IPv6 address) is not correctly parsed.";
 }
 
@@ -135,7 +136,7 @@ TEST(ParseAddress, ParseAddress_Ipv6_LoopbackAddress)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(rawAddress);
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), addressBytes, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), addressBytes, IPV6_LENGTH)) <<
 		"The value of the IPv6 address (Loopback address) is not correctly parsed.";
 }
 
@@ -149,7 +150,7 @@ TEST(ParseAddress, ParseAddress_Ipv6_LinkLocalAddress)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(rawAddress);
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), addressBytes, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), addressBytes, IPV6_LENGTH)) <<
 		"The value of the IPv6 address (Link-local address) is not correctly parsed.";
 }
 
@@ -163,7 +164,7 @@ TEST(ParseAddress, ParseAddress_Ipv6_MulticastAddress)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(rawAddress);
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), addressBytes, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), addressBytes, IPV6_LENGTH)) <<
 		"The value of the IPv6 address (Multicast address) is not correctly parsed.";
 }
 
@@ -177,7 +178,7 @@ TEST(ParseAddress, ParseAddress_Ipv6_GlobalUnicast)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(rawAddress);
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), addressBytes, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), addressBytes, IPV6_LENGTH)) <<
 		"The value of the IPv6 address (Global unicast address) is not correctly parsed.";
 }
 
@@ -191,7 +192,7 @@ TEST(ParseAddress, ParseAddress_Ipv6_UniqueLocal)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(rawAddress);
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), addressBytes, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), addressBytes, IPV6_LENGTH)) <<
 		"The value of the IPv6 address (Unique local address) is not correctly parsed.";
 }
 
@@ -205,7 +206,7 @@ TEST(ParseAddress, ParseAddress_Ipv6_Ipv6InterfaceId)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(rawAddress);
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), addressBytes, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), addressBytes, IPV6_LENGTH)) <<
 		"The value of the IPv6 address (Interface identifier (last 64 bits)) is not correctly parsed.";
 }
 
@@ -219,6 +220,6 @@ TEST(ParseAddress, ParseAddress_Ipv6_ZeroCompressedBlocks)
 
 	auto const ipAddress = FiftyoneDegrees::IpIntelligence::IpAddress(rawAddress);
 	EXPECT_TRUE(
-		CheckResult(ipAddress.getIpAddress(), addressBytes, FIFTYONE_DEGREES_IPV6_LENGTH)) <<
+		CheckResult(ipAddress.getIpAddress(), addressBytes, IPV6_LENGTH)) <<
 		"The value of the IPv6 address (Zero-compressed blocks) is not correctly parsed.";
 }

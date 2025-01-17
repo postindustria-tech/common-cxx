@@ -93,13 +93,13 @@ static int compareIpAddress(String *value, const char *target) {
 		int16_t valueLength = (size_t)value->size - 1;
 		int16_t searchLength = 0, compareLength = 0;
 		switch (ipAddress->type) {
-		case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4:
-			searchLength = FIFTYONE_DEGREES_IPV4_LENGTH;
+		case IP_TYPE_IPV4:
+			searchLength = IPV4_LENGTH;
 			break;
-		case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6:
-			searchLength = FIFTYONE_DEGREES_IPV6_LENGTH;
+		case IP_TYPE_IPV6:
+			searchLength = IPV6_LENGTH;
 			break;
-		case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID:
+		case IP_TYPE_INVALID:
 		default:
 			break;
 		}

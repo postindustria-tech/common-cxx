@@ -31,8 +31,8 @@ using namespace std;
 using namespace FiftyoneDegrees::IpIntelligence;
 
 FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress() {
-    memset(this->ipAddress, 0, FIFTYONE_DEGREES_IPV6_LENGTH);
-    this->type = FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID;
+    memset(this->ipAddress, 0, IPV6_LENGTH);
+    this->type = IP_TYPE_INVALID;
 }
 
 FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress(
@@ -63,14 +63,14 @@ void FiftyoneDegrees::IpIntelligence::IpAddress::init(
     const unsigned char * const ipAddressData,
     const IpType addressType) {
     switch (addressType) {
-    case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4:
-        memcpy(ipAddress, ipAddressData, FIFTYONE_DEGREES_IPV4_LENGTH);
+    case IP_TYPE_IPV4:
+        memcpy(ipAddress, ipAddressData, IPV4_LENGTH);
         break;
-    case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6:
-        memcpy(ipAddress, ipAddressData, FIFTYONE_DEGREES_IPV6_LENGTH);
+    case IP_TYPE_IPV6:
+        memcpy(ipAddress, ipAddressData, IPV6_LENGTH);
         break;
     default:
-        memset(ipAddress, 0, FIFTYONE_DEGREES_IPV6_LENGTH);
+        memset(ipAddress, 0, IPV6_LENGTH);
         break;
     }
     type = addressType;
@@ -78,9 +78,9 @@ void FiftyoneDegrees::IpIntelligence::IpAddress::init(
 
 void FiftyoneDegrees::IpIntelligence::IpAddress::getCopyOfIpAddress(
     unsigned char copy[], const uint32_t size) const {
-    const uint32_t dataSize = ((type == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4)
-        ? FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4
-        : FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6);
+    const uint32_t dataSize = ((type == IP_TYPE_IPV4)
+        ? IPV4_LENGTH
+        : IPV6_LENGTH);
 	const uint32_t copySize = (size < dataSize) ? size : dataSize;
 	memcpy(copy, ipAddress, copySize);
 }

@@ -57,9 +57,9 @@
  * Enum indicating the type of IP address.
  */
 typedef enum e_fiftyone_degrees_ip_evidence_type {
-	FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID = 0, /**< Invalid IP address */
-	FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4 = 1, /**< An IPv4 address */
-	FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6 = 2, /**< An IPv6 address */
+	FIFTYONE_DEGREES_IP_TYPE_INVALID = 0, /**< Invalid IP address */
+	FIFTYONE_DEGREES_IP_TYPE_IPV4 = 1, /**< An IPv4 address */
+	FIFTYONE_DEGREES_IP_TYPE_IPV6 = 2, /**< An IPv6 address */
 } fiftyoneDegreesIpType;
 
 /**

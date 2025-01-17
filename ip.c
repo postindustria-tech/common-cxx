@@ -33,14 +33,14 @@ typedef void(*parseIterator)(
  * State is an integer which is increased every time the method is called.
  */
 static void callbackIpAddressCount(
-	void *state,
-	IpType segmentType,
-	const char *start,
-	const char *end) {
+	void * const state,
+	const IpType segmentType,
+	const char * const start,
+	const char * const end) {
 	if (start <= end) {
-		if (segmentType != FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID) {
+		if (segmentType != IP_TYPE_INVALID) {
 			(*(int*)state)++;
-			if (segmentType == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6) {
+			if (segmentType == IP_TYPE_IPV6) {
 				(*(int*)state)++;
 			}
 		}
@@ -74,13 +74,13 @@ typedef fiftyoneDegreeIpAddressBuildState IpAddressBuildState;
 
 static void parseIpV6Segment(
 	IpAddressBuildState * const buildState,
-	const char *start,
-	const char *end) {
+	const char * const start,
+	const char * const end) {
 	int i;
-	char first[3], second[3], val;
+	char first[3], second[3], val; // "FF" + '\0'
 	if (start > end) {
 		// This is an abbreviation, so fill it in.
-		for (i = 0; i < 16 - buildState->bytesPresent; i++) {
+		for (i = 0; i < IPV6_LENGTH - buildState->bytesPresent; i++) {
 			*buildState->current = (byte)0;
 			buildState->current++;
 		}
@@ -89,7 +89,7 @@ static void parseIpV6Segment(
 		// Add the two bytes of the segment.
 		first[2] = '\0';
 		second[2] = '\0';
-		for (i = 0; i < 4; i++) {
+		for (i = 0; i < IPV4_LENGTH; i++) {
 			if (end - i >= start) val = end[-i];
 			else val = '0';
 
@@ -104,16 +104,16 @@ static void parseIpV6Segment(
 }
 
 static void callbackIpAddressBuild(
-	void *state,
-	IpType segmentType,
-	const char *start,
-	const char *end) {
+	void * const state,
+	const IpType segmentType,
+	const char * const start,
+	const char * const end) {
 	fiftyoneDegreeIpAddressBuildState *const buildState = state;
-	if (segmentType == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4) {
+	if (segmentType == IP_TYPE_IPV4) {
 		*buildState->current = getIpByte(atoi(start));
 		buildState->current++;
 	}
-	else if (segmentType == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6) {
+	else if (segmentType == IP_TYPE_IPV6) {
 		parseIpV6Segment(buildState, start, end);
 	}
 }
@@ -121,11 +121,11 @@ static void callbackIpAddressBuild(
 static IpType getIpTypeFromSeparator(const char separator) {
 	switch (separator) {
 		case '.':
-			return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4;
+			return IP_TYPE_IPV4;
 		case ':':
-			return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6;
+			return IP_TYPE_IPV6;
 		default:
-			return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID;
+			return IP_TYPE_INVALID;
 	}
 }
 
@@ -134,14 +134,14 @@ static IpType getSegmentTypeWithSeparator(
 	const IpType ipType,
 	const IpType lastSeparatorType) {
 	switch (ipType) {
-		case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4:
-			return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4;
-		case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6:
+		case IP_TYPE_IPV4:
+			return IP_TYPE_IPV4;
+		case IP_TYPE_IPV6:
 			switch (separator) {
 				case ':':
-					return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6;
+					return IP_TYPE_IPV6;
 				case '.':
-					return FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4;
+					return IP_TYPE_IPV4;
 				default:
 					return lastSeparatorType;
 			}
@@ -152,24 +152,23 @@ static IpType getSegmentTypeWithSeparator(
 
 typedef enum {
 	FIFTYONE_DEGREES_IP_NON_BREAK_CHAR = 0,
-	FIFTYONE_DEGREES_IP_SEGMENT_BREAK_CHAR = 1,
-	FIFTYONE_DEGREES_IP_ADDRESS_BREAK_CHAR = 2,
-	FIFTYONE_DEGREES_IP_INVALID_CHAR = 4,
-} fiftyoneDegreesIpStringSeparatorType;
-typedef fiftyoneDegreesIpStringSeparatorType IpStringSeparatorType;
+	FIFTYONE_DEGREES_IP_SEGMENT_BREAK_CHAR,
+	FIFTYONE_DEGREES_IP_ADDRESS_BREAK_CHAR,
+	FIFTYONE_DEGREES_IP_INVALID_CHAR,
+} IpStringSeparatorType;
 
 #define IP_NON_BREAK_CHAR FIFTYONE_DEGREES_IP_NON_BREAK_CHAR
 #define IP_SEGMENT_BREAK_CHAR FIFTYONE_DEGREES_IP_SEGMENT_BREAK_CHAR
 #define IP_ADDRESS_BREAK_CHAR FIFTYONE_DEGREES_IP_ADDRESS_BREAK_CHAR
 #define IP_INVALID_CHAR FIFTYONE_DEGREES_IP_INVALID_CHAR
 
-static IpStringSeparatorType GetSeparatorCharType(
+static IpStringSeparatorType getSeparatorCharType(
 	const char ipChar,
 	const IpType ipType) {
 
 	switch (ipChar) {
 		case ':':
-			return ((ipType == IP_EVIDENCE_TYPE_IPV4)
+			return ((ipType == IP_TYPE_IPV4)
 				? IP_ADDRESS_BREAK_CHAR : IP_SEGMENT_BREAK_CHAR);
 		case '.':
 			return IP_SEGMENT_BREAK_CHAR;
@@ -186,10 +185,14 @@ static IpStringSeparatorType GetSeparatorCharType(
 		return IP_NON_BREAK_CHAR;
 	}
 	if (('a' <= ipChar && ipChar <= 'f') || ('A' <= ipChar && ipChar <= 'F')) {
-		return (ipType == IP_EVIDENCE_TYPE_IPV4
+		return (ipType == IP_TYPE_IPV4
 			? IP_INVALID_CHAR : IP_NON_BREAK_CHAR);
 	}
 	return IP_INVALID_CHAR;
+}
+
+static int8_t getMaxSegmentLengthForIpType(const IpType ipType) {
+	return (ipType == IP_TYPE_IPV4) ? 3 : 4; // "255" or "FFFF"
 }
 
 /**
@@ -206,32 +209,35 @@ static IpType iterateIpAddress(
 
 	*springCount = 0;
 	if (*start == '[') {
+		if (type == IP_TYPE_IPV4) {
+			return IP_TYPE_INVALID;
+		}
 		start++;
 	}
 
 	IpType currentSegmentType =
-		FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID;
+		IP_TYPE_INVALID;
 
 	const char *current = start;
 	const char *nextSegment = current;
 	for (; current <= end && nextSegment < end; ++current) {
 		IpStringSeparatorType separatorType =
-			GetSeparatorCharType(*current, type);
+			getSeparatorCharType(*current, type);
 		if (!separatorType) {
 			continue;
 		}
-		if (separatorType & IP_INVALID_CHAR) {
-			return IP_EVIDENCE_TYPE_INVALID;
+		if (separatorType == IP_INVALID_CHAR) {
+			return IP_TYPE_INVALID;
 		}
 
 		currentSegmentType = getSegmentTypeWithSeparator(
 			*current, type, currentSegmentType);
-		if (type == FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID) {
+		if (type == IP_TYPE_INVALID) {
 			type = currentSegmentType;
 		}
 
-		if (current - nextSegment > (type == IP_EVIDENCE_TYPE_IPV4 ? 3 : 4)) {
-			return IP_EVIDENCE_TYPE_INVALID;
+		if (current - nextSegment > getMaxSegmentLengthForIpType(type)) {
+			return IP_TYPE_INVALID;
 		}
 
 		// Check if it is leading abbreviation
@@ -239,7 +245,7 @@ static IpType iterateIpAddress(
 			foundSegment(state, currentSegmentType,
 				nextSegment, current - 1);
 		}
-		if (separatorType & IP_ADDRESS_BREAK_CHAR) {
+		if (separatorType == IP_ADDRESS_BREAK_CHAR) {
 			return type;
 		}
 		if (current == nextSegment && current != start) {
@@ -248,7 +254,7 @@ static IpType iterateIpAddress(
 		nextSegment = current + 1;
 	}
 	if (nextSegment < current
-		&& type != FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID) {
+		&& type != IP_TYPE_INVALID) {
 
 		foundSegment(state, currentSegmentType,
 			nextSegment, current - 1);
@@ -257,9 +263,9 @@ static IpType iterateIpAddress(
 }
 
 IpAddress* fiftyoneDegreesIpAddressParse(
-	void*(*malloc)(size_t),
-	const char *start,
-	const char *end) {
+	void*(* const malloc)(size_t),
+	const char * const start,
+	const char * const end) {
 
 	if (!start) {
 		return NULL;
@@ -273,16 +279,16 @@ IpAddress* fiftyoneDegreesIpAddressParse(
 		end,
 		&byteCount,
 		&springCount,
-		FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID,
+		IP_TYPE_INVALID,
 		callbackIpAddressCount);
 
 	switch (type) {
-		case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4:
+		case IP_TYPE_IPV4:
 			if (byteCount != IPV4_LENGTH || springCount) {
 				return NULL;
 			}
 			break;
-		case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6:
+		case IP_TYPE_IPV6:
 			if (byteCount > IPV6_LENGTH ||
 				springCount > 1 ||
 				(byteCount < IPV6_LENGTH && !springCount)) {
@@ -314,19 +320,19 @@ IpAddress* fiftyoneDegreesIpAddressParse(
 }
 
 int fiftyoneDegreesIpAddressesCompare(
-	const unsigned char *ipAddress1,
-	const unsigned char *ipAddress2,
+	const unsigned char * const ipAddress1,
+	const unsigned char * const ipAddress2,
 	IpType type) {
 	uint16_t compareSize = 0;
 	int result = 0;
 	switch(type) {
-	case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV4:
-		compareSize = FIFTYONE_DEGREES_IPV4_LENGTH;
+	case IP_TYPE_IPV4:
+		compareSize = IPV4_LENGTH;
 		break;
-	case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_IPV6:
-		compareSize = FIFTYONE_DEGREES_IPV6_LENGTH;
+	case IP_TYPE_IPV6:
+		compareSize = IPV6_LENGTH;
 		break;
-	case FIFTYONE_DEGREES_IP_EVIDENCE_TYPE_INVALID:
+	case IP_TYPE_INVALID:
 	default:
 		compareSize = 0;
 		break;

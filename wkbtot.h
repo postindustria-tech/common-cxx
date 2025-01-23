@@ -24,6 +24,8 @@
 #define FIFTYONE_DEGREES_WKBTOT_H_INCLUDED
 
 #include <stdbool.h>
+
+#include "data.h"
 #include "exceptions.h"
 
 /**
@@ -47,7 +49,7 @@ typedef struct fiftyone_degrees_transform_wkb_to_t_result {
 
 EXTERNAL fiftyoneDegreesWkbtotResult
 fiftyoneDegreesConvertWkbToWkt
-(const unsigned char *wellKnownBinary, char *buffer, size_t length,
+(const byte *wellKnownBinary, char *buffer, size_t length,
  uint8_t decimalPlaces,
  fiftyoneDegreesException *exception);
 

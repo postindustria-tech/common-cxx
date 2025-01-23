@@ -21,6 +21,7 @@
  * ********************************************************************* */
 
 #include "pch.h"
+#include "../string.h"
 #include "../wkbtot.h"
 
 static bool CheckResult(const char *result, const char *expected, size_t const size) {
@@ -36,7 +37,7 @@ static bool CheckResult(const char *result, const char *expected, size_t const s
 static size_t constexpr DEFAULT_BUFFER_SIZE = 1024;
 
 static void convertAndCompare_base(
-	const uint8_t * const wkbBytes,
+	const byte * const wkbBytes,
 	const char * const expected,
 	const char * const comment,
 	int8_t const decimalPlaces,
@@ -73,7 +74,7 @@ static void convertAndCompare_base(
 }
 
 static void convertAndCompare_withDecimalPlaces(
-	const uint8_t * const wkbBytes,
+	const byte * const wkbBytes,
 	const char * const expected,
 	const char * const comment,
 	int8_t const decimalPlaces) {
@@ -87,7 +88,7 @@ static void convertAndCompare_withDecimalPlaces(
 }
 
 static void convertAndCompare(
-	const uint8_t * const wkbBytes,
+	const byte * const wkbBytes,
 	const char * const expected,
 	const char * const comment) {
 
@@ -99,7 +100,7 @@ static void convertAndCompare(
 }
 
 static void convertAndCompare_withExceptionStatus(
-	const uint8_t * const wkbBytes,
+	const byte * const wkbBytes,
 	const char * const expected,
 	const char * const comment,
 	fiftyoneDegreesStatusCode const statusCode) {
@@ -114,7 +115,7 @@ static void convertAndCompare_withExceptionStatus(
 
 TEST(WKBToT, WKBToT_Test_Point_2D_NDR)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x00, // big endian
       	0x00,0x00,0x00,0x01, // POINT (2D)
         0x40,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // 2.0: x-coordinate
@@ -127,7 +128,7 @@ TEST(WKBToT, WKBToT_Test_Point_2D_NDR)
 
 TEST(WKBToT, WKBToT_Test_Point_2D_XDR)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x01, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x40,
@@ -140,7 +141,7 @@ TEST(WKBToT, WKBToT_Test_Point_2D_XDR)
 
 TEST(WKBToT, WKBToT_Test_Point_2D_3places)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x00,
 		0x00, 0x00, 0x00, 0x01,
 		0x40, 0x31, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -153,7 +154,7 @@ TEST(WKBToT, WKBToT_Test_Point_2D_3places)
 
 TEST(WKBToT, WKBToT_Test_LineStringZ_XDR)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0xea, 0x03, 0x00, 0x00,
 		0x04, 0x00, 0x00, 0x00,
@@ -181,7 +182,7 @@ TEST(WKBToT, WKBToT_Test_LineStringZ_XDR)
 
 TEST(WKBToT, WKBToT_Test_PolygonM_XDR)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0xd3, 0x07, 0x00, 0x00,
 		0x02, 0x00, 0x00, 0x00, // 2 rings
@@ -216,7 +217,7 @@ TEST(WKBToT, WKBToT_Test_PolygonM_XDR)
 
 TEST(WKBToT, WKBToT_Test_TriangleZM_XDR)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0xc9, 0x0b, 0x00, 0x00,
 		0x02, 0x00, 0x00, 0x00, // 2 rings
@@ -254,7 +255,7 @@ TEST(WKBToT, WKBToT_Test_TriangleZM_XDR)
 
 TEST(WKBToT, WKBToT_Standard_Point2D_Simple)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x01, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x40,
@@ -267,7 +268,7 @@ TEST(WKBToT, WKBToT_Standard_Point2D_Simple)
 
 TEST(WKBToT, WKBToT_Standard_LineString)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x02, 0x00, 0x00, 0x00,
 		0x03, 0x00, 0x00, 0x00, // 3 points
@@ -285,7 +286,7 @@ TEST(WKBToT, WKBToT_Standard_LineString)
 
 TEST(WKBToT, WKBToT_Standard_Polygon)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x03, 0x00, 0x00, 0x00,
 		0x01, 0x00, 0x00, 0x00, // 1 rings
@@ -309,7 +310,7 @@ TEST(WKBToT, WKBToT_Standard_Polygon)
 
 TEST(WKBToT, WKBToT_Standard_MultiPoint)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x04, 0x00, 0x00, 0x00,
 		0x02, 0x00, 0x00, 0x00, // 2 points
@@ -329,7 +330,7 @@ TEST(WKBToT, WKBToT_Standard_MultiPoint)
 
 TEST(WKBToT, WKBToT_Standard_MultiLineString)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x05, 0x00, 0x00, 0x00,
 		0x02, 0x00, 0x00, 0x00, // 2 lines
@@ -358,7 +359,7 @@ TEST(WKBToT, WKBToT_Standard_MultiLineString)
 
 TEST(WKBToT, WKBToT_Standard_MultiPolygon)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x06, 0x00, 0x00, 0x00,
 		0x02, 0x00, 0x00, 0x00, // 2 polygons
@@ -400,7 +401,7 @@ TEST(WKBToT, WKBToT_Standard_MultiPolygon)
 
 TEST(WKBToT, WKBToT_Standard_GeometryCollection)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x07, 0x00, 0x00, 0x00,
 		0x03, 0x00, 0x00, 0x00, // 3 geometries
@@ -432,7 +433,7 @@ TEST(WKBToT, WKBToT_Standard_GeometryCollection)
 
 TEST(WKBToT, WKBToT_Standard_PolyhedronZ)
 {
-    const uint8_t wkbBytes[] = {
+    const byte wkbBytes[] = {
         0x01,
         0xf7, 0x03, 0x00, 0x00,
         0x06, 0x00, 0x00, 0x00, // 6 polygons
@@ -566,7 +567,7 @@ TEST(WKBToT, WKBToT_Standard_PolyhedronZ)
 
 TEST(WKBToT, WKBToT_Standard_TinZ)
 {
-    const uint8_t wkbBytes[] = {
+    const byte wkbBytes[] = {
         0x01,
         0xf8, 0x03, 0x00, 0x00,
         0x04, 0x00, 0x00, 0x00, // 4 polygons
@@ -647,7 +648,7 @@ TEST(WKBToT, WKBToT_Standard_TinZ)
 
 TEST(WKBToT, WKBToT_Standard_PointZ)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0xe9, 0x03, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x40,
@@ -661,7 +662,7 @@ TEST(WKBToT, WKBToT_Standard_PointZ)
 
 TEST(WKBToT, WKBToT_Standard_PointZM)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0xb9, 0x0b, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x40,
@@ -676,7 +677,7 @@ TEST(WKBToT, WKBToT_Standard_PointZM)
 
 TEST(WKBToT, WKBToT_Standard_PointM)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0xd1, 0x07, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x40,
@@ -691,7 +692,7 @@ TEST(WKBToT, WKBToT_Standard_PointM)
 TEST(WKBToT, WKBToT_SampleWKB_OpenLayers)
 {
 	// https://openlayers.org/en/latest/examples/wkb.html
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x03,0x00,0x00,0x00,
 		0x01,0x00,0x00,0x00, // 1 ring
@@ -715,7 +716,7 @@ TEST(WKBToT, WKBToT_SampleWKB_OpenLayers)
 TEST(WKBToT, WKBToT_SampleWKB_GitHub)
 {
 	// https://openlayers.org/en/latest/examples/wkb.html
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x00,
 		0x00, 0x00, 0x00, 0x06,
 		0x00, 0x00, 0x00, 0x02, // 2 polygons
@@ -765,7 +766,7 @@ TEST(WKBToT, WKBToT_SampleWKB_GitHub)
 TEST(WKBToT, WKBToT_SampleWKB_OsGeo_Collection)
 {
 	// https://www.osgeo.cn/app/s1343#google_vignette
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x07, 0x00, 0x00, 0x00,
 		0x02, 0x00, 0x00, 0x00, // 2 geometries
@@ -789,7 +790,7 @@ TEST(WKBToT, WKBToT_SampleWKB_OsGeo_Collection)
 TEST(WKBToT, WKBToT_SampleWKB_OsGeo_MultiLineString)
 {
 	// https://www.osgeo.cn/app/s1343#google_vignette
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x05, 0x00, 0x00, 0x00,
 		0x02, 0x00, 0x00, 0x00, // 2 line strings
@@ -822,7 +823,7 @@ TEST(WKBToT, WKBToT_SampleWKB_OsGeo_MultiLineString)
 TEST(WKBToT, WKBToT_SampleWKB_OsGeo_MultiPolygon)
 {
 	// https://www.osgeo.cn/app/s1343#google_vignette
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x06, 0x00, 0x00, 0x00,
 		0x02, 0x00, 0x00, 0x00, // 2 polygons
@@ -860,7 +861,7 @@ TEST(WKBToT, WKBToT_SampleWKB_OsGeo_MultiPolygon)
 
 TEST(WKBToT, WKBToT_Exception_UnknownGeometryRoot)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0xd3, 0x00, 0x00, 0x00, // garbage?
 		// exception expected here, the rest does not matter
@@ -876,7 +877,7 @@ TEST(WKBToT, WKBToT_Exception_UnknownGeometryRoot)
 
 TEST(WKBToT, WKBToT_Test_LineStringZ_UnknownGeometryEmbedded)
 {
-	const uint8_t wkbBytes[] = {
+	const byte wkbBytes[] = {
 		0x01,
 		0x04, 0x00, 0x00, 0x00,
 		0x03, 0x00, 0x00, 0x00, // 3 points
@@ -899,4 +900,21 @@ TEST(WKBToT, WKBToT_Test_LineStringZ_UnknownGeometryEmbedded)
 		expected,
 		"Unknown Geometry (Embedded)",
 		FIFTYONE_DEGREES_STATUS_INVALID_INPUT);
+}
+
+TEST(WKBToT, WKBToT_String_Point_2D_NDR)
+{
+	constexpr byte wkbStringBytes[] = {
+		21,00, // length of WKB 'trail' of #String
+		FIFTYONE_DEGREES_STRING_WKB,
+
+		0x00, // big endian
+		0x00,0x00,0x00,0x01, // POINT (2D)
+		0x40,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // 2.0: x-coordinate
+		0x40,0x10,0x00,0x00,0x00,0x00,0x00,0x00, // 4.0: y-coordinate
+	};
+	const char * const expected = "POINT(2 4)";
+
+	const byte * const wkbBytes = FIFTYONE_DEGREES_WKB(wkbStringBytes);
+	convertAndCompare(wkbBytes, expected, "Point 2D (NDR) from String");
 }

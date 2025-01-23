@@ -48,30 +48,30 @@ typedef enum {
 #define ByteOrder_XDR FIFTYONE_DEGREES_WKBToT_ByteOrder_XDR
 #define ByteOrder_NDR FIFTYONE_DEGREES_WKBToT_ByteOrder_NDR
 
-typedef uint32_t (*IntReader)(const unsigned char *wkbBytes);
-typedef double (*DoubleReader)(const unsigned char *wkbBytes);
+typedef uint32_t (*IntReader)(const byte *wkbBytes);
+typedef double (*DoubleReader)(const byte *wkbBytes);
 typedef struct  {
     const char *name;
     IntReader readInt;
     DoubleReader readDouble;
 } NumReader;
 
-static uint32_t readIntMatchingByteOrder(const unsigned char *wkbBytes) {
+static uint32_t readIntMatchingByteOrder(const byte *wkbBytes) {
     return *(uint32_t *)wkbBytes;
 }
-static double readDoubleMatchingByteOrder(const unsigned char *wkbBytes) {
+static double readDoubleMatchingByteOrder(const byte *wkbBytes) {
     return *(double *)wkbBytes;
 }
 
-static uint32_t readIntMismatchingByteOrder(const unsigned char *wkbBytes) {
-    unsigned char t[4];
+static uint32_t readIntMismatchingByteOrder(const byte *wkbBytes) {
+    byte t[4];
     for (short i = 0; i < 4; i++) {
         t[i] = wkbBytes[3 - i];
     }
     return *(uint32_t *)t;
 }
-static double readDoubleMismatchingByteOrder(const unsigned char *wkbBytes) {
-    unsigned char t[8];
+static double readDoubleMismatchingByteOrder(const byte *wkbBytes) {
+    byte t[8];
     for (short i = 0; i < 8; i++) {
         t[i] = wkbBytes[7 - i];
     }
@@ -91,14 +91,14 @@ static const NumReader MISMATCHING_BYTE_ORDER_NUM_READER = {
 };
 
 static ByteOrder getMachineByteOrder() {
-    unsigned char buffer[4];
+    byte buffer[4];
     *(uint32_t *)buffer = 1;
     return buffer[0];
 }
 
 
 typedef struct {
-    const unsigned char *binaryBuffer;
+    const byte *binaryBuffer;
     StringBuilder * const stringBuilder;
 
     CoordMode coordMode;
@@ -501,7 +501,7 @@ static void handleKnownGeometry(
 }
 
 static void handleWKBRoot(
-    const unsigned char *binaryBuffer,
+    const byte *binaryBuffer,
     StringBuilder * const stringBuilder,
     uint8_t const decimalPlaces,
     Exception * const exception) {
@@ -524,7 +524,7 @@ static void handleWKBRoot(
 
 
 fiftyoneDegreesWkbtotResult fiftyoneDegreesConvertWkbToWkt(
-    const unsigned char * const wellKnownBinary,
+    const byte * const wellKnownBinary,
     char * const buffer, size_t const length,
     uint8_t const decimalPlaces,
     Exception * const exception) {

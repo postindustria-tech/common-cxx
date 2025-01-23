@@ -78,8 +78,10 @@
 typedef enum fiftyone_degrees_string_format {
 	FIFTYONE_DEGREES_STRING_COORDINATE = 1, /**< Format is a pair of floats for latitude
 											and longitude values*/
-	FIFTYONE_DEGREES_STRING_IP_ADDRESS /**< Format is a byte array representation of an
-									   IP address*/
+	FIFTYONE_DEGREES_STRING_IP_ADDRESS, /**< Format is a byte array representation of an
+									    IP address*/
+	FIFTYONE_DEGREES_STRING_WKB, /**< Format is a byte array representation of
+									  a WKB geometry */
 } fiftyoneDegreesStringFormat;
 
 /**
@@ -104,9 +106,49 @@ typedef enum fiftyone_degrees_string_format {
 		NULL : \
 		&((fiftyoneDegreesString*)s)->trail.secondValue)
 
+/**
+ * Macro used to check for NULL before returning the WKB geometry byte array
+ * as a const byte *.
+ * @param s pointer to the #fiftyoneDegreesString
+ * @return const byte * string or NULL. NULL if the pointer is NULL or
+ * the type stored at the pointer is not an WKB geometry
+ */
+#define FIFTYONE_DEGREES_WKB(s) \
+	(const byte*)(s == NULL \
+		|| ((fiftyoneDegreesString*)s)->value \
+			!= FIFTYONE_DEGREES_STRING_WKB ? \
+		NULL : \
+		&((fiftyoneDegreesString*)s)->trail.secondValue)
+
 /** 
  * String structure containing its value and size which maps to the string 
- * byte format used in data files. 
+ * byte format used in data files.
+ *
+ * @example
+ * String:
+ * 			Short – length – 10
+ * 			Byte value – first character of string – '5'
+ * 			Byte[] – (remaining) string (including null terminator) – “1Degrees”
+ * @example
+ * Byte array:
+ * 			Short – length – 3
+ * 			Byte value – type – 2
+ * 			Byte[] – bytes – [ 1, 2 ]
+ * @example
+ * IP (v4) address:
+ * 			Short – length – 5
+ * 			Byte value – type – 2
+ * 			Byte[] – IP – [ 1, 2, 3, 4 ]
+ * @example
+ * WKB (value of  POINT(2.0 4.0)):
+ * 			Short – length - 21
+ * 			Byte value – type – 3 (WKB)
+ * 			Byte[] – value – [
+ * 				0 (endianness),
+ * 				0, 0, 0, 1 (2D point),
+ * 				128, 0, 0, 0, 0, 0, 0, 0 (2.0 float),
+ * 				128, 16, 0, 0, 0, 0, 0, 0 (4.0 float)
+ * 			]
  */
 #pragma pack(push, 1)
 typedef struct fiftyone_degrees_string_t {

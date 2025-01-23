@@ -26,7 +26,7 @@
 #include "coordinate.h"
 
 fiftyoneDegreesCoordinate fiftyoneDegreesIpiGetCoordinate(
-	fiftyoneDegreesCollectionItem *item,
+	const fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception) {
 	fiftyoneDegreesString *value = (fiftyoneDegreesString *)item->data.ptr;
 	fiftyoneDegreesCoordinate coordinate = { 0, 0 };

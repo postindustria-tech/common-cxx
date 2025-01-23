@@ -58,8 +58,8 @@
  */
 typedef enum e_fiftyone_degrees_ip_evidence_type {
 	FIFTYONE_DEGREES_IP_TYPE_INVALID = 0, /**< Invalid IP address */
-	FIFTYONE_DEGREES_IP_TYPE_IPV4 = 1, /**< An IPv4 address */
-	FIFTYONE_DEGREES_IP_TYPE_IPV6 = 2, /**< An IPv6 address */
+	FIFTYONE_DEGREES_IP_TYPE_IPV4 = 4, /**< An IPv4 address */
+	FIFTYONE_DEGREES_IP_TYPE_IPV6 = 6, /**< An IPv6 address */
 } fiftyoneDegreesIpType;
 
 /**
@@ -69,7 +69,7 @@ typedef struct fiftyone_degrees_ip_address_t {
 	byte value[FIFTYONE_DEGREES_IPV6_LENGTH]; /**< Buffer to hold the IP 
 											  address bytes array. */
 	size_t length; /**< Length of the byte array. */
-	byte type; /**< The type of the IP. */
+	byte type; /**< The type of the IP. @see fiftyoneDegreesIpType */
 } fiftyoneDegreesIpAddress;
 
 /**

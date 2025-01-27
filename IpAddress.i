@@ -6,8 +6,8 @@
 
 class IpAddress {
 public:
-    IpAddress(const unsigned char ipAddress[], fiftyoneDegreesEvidenceIpType type);
+    IpAddress(const unsigned char ipAddress[], fiftyoneDegreesIpType type);
     IpAddress(const char *ipAddressString);
     void getCopyOfIpAddress(unsigned char copy[], uint32_t size);
-    fiftyoneDegreesEvidenceIpType getType();
+    fiftyoneDegreesIpType getType();
 };

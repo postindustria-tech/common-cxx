@@ -63,7 +63,7 @@ typedef struct fiftyone_degrees_ipi_coordinate_t {
  * @return the coordinate value
  */
 EXTERNAL fiftyoneDegreesCoordinate fiftyoneDegreesIpiGetCoordinate(
-	fiftyoneDegreesCollectionItem *item,
+	const fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
 
 /**

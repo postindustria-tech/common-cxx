@@ -108,9 +108,6 @@
     <ClInclude Include="..\..\coordinate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pseudoheader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\snprintf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -127,6 +124,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\indices.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\wkbtot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -212,16 +215,19 @@
     <ClCompile Include="..\..\coordinate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\pseudoheader.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\process.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\yamlfile.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\indexes.c">
+    <ClCompile Include="..\..\indices.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\json.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\wkbtot.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

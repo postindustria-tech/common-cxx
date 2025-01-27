@@ -20,10 +20,10 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-%rename (IpTypeSwig) fiftyoneDegreesEvidenceIpType;
+%rename (IpTypeSwig) fiftyoneDegreesIpType;
 
-typedef enum e_fiftyone_degrees_evidence_ip_type {
-        FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4 = 0, /**< An IPv4 address */
-        FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6 = 1, /**< An IPv6 address */
-        FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID = 2, /**< Invalid IP address */
-} fiftyoneDegreesEvidenceIpType;
+typedef enum e_fiftyone_degrees_ip_type {
+        FIFTYONE_DEGREES_IP_TYPE_INVALID = 0, /**< Invalid IP address */
+        FIFTYONE_DEGREES_IP_TYPE_IPV4 = 4, /**< An IPv4 address */
+        FIFTYONE_DEGREES_IP_TYPE_IPV6 = 6, /**< An IPv6 address */
+} fiftyoneDegreesIpType;

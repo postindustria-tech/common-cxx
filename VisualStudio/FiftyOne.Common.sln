@@ -11,8 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{37220FF1
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Performance", "Performance", "{E4523043-2100-45F4-BB09-AB512D395686}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Fiftyone.Common.Tests", "Fiftyone.Common.Tests\Fiftyone.Common.Tests.vcxproj", "{4804BAB6-CC3D-455A-B359-0ECA128FB245}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cache", "Cache\Cache.vcxproj", "{2F31DE2B-66C0-4968-81F6-95C559E981A4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{682A58D9-A253-4FD5-816A-205985DD5F29}"
@@ -21,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Library.Build.props = Library.Build.props
 		..\README.md = ..\README.md
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Fiftyone.Common.Tests", "Fiftyone.Common.Tests\Fiftyone.Common.Tests.vcxproj", "{4804BAB6-CC3D-455A-B359-0ECA128FB245}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,30 +86,6 @@ Global
 		{01DCCD38-27CC-4C1A-851F-F1700EDF8BB5}.Release-Single|x64.Build.0 = Release-Single|x64
 		{01DCCD38-27CC-4C1A-851F-F1700EDF8BB5}.Release-Single|x86.ActiveCfg = Release-Single|Win32
 		{01DCCD38-27CC-4C1A-851F-F1700EDF8BB5}.Release-Single|x86.Build.0 = Release-Single|Win32
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug|x64.ActiveCfg = Debug|x64
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug|x64.Build.0 = Debug|x64
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug|x86.ActiveCfg = Debug|Win32
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug|x86.Build.0 = Debug|Win32
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-MemoryOnly|x64.ActiveCfg = Debug|x64
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-MemoryOnly|x64.Build.0 = Debug|x64
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-MemoryOnly|x86.ActiveCfg = Debug|Win32
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-MemoryOnly|x86.Build.0 = Debug|Win32
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-Single|x64.ActiveCfg = Debug|x64
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-Single|x64.Build.0 = Debug|x64
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-Single|x86.ActiveCfg = Debug|Win32
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-Single|x86.Build.0 = Debug|Win32
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release|x64.ActiveCfg = Release|x64
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release|x64.Build.0 = Release|x64
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release|x86.ActiveCfg = Release|Win32
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release|x86.Build.0 = Release|Win32
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-MemoryOnly|x64.ActiveCfg = Release|x64
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-MemoryOnly|x64.Build.0 = Release|x64
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-MemoryOnly|x86.ActiveCfg = Release|Win32
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-MemoryOnly|x86.Build.0 = Release|Win32
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-Single|x64.ActiveCfg = Release|x64
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-Single|x64.Build.0 = Release|x64
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-Single|x86.ActiveCfg = Release|Win32
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-Single|x86.Build.0 = Release|Win32
 		{2F31DE2B-66C0-4968-81F6-95C559E981A4}.Debug|x64.ActiveCfg = Debug|x64
 		{2F31DE2B-66C0-4968-81F6-95C559E981A4}.Debug|x64.Build.0 = Debug|x64
 		{2F31DE2B-66C0-4968-81F6-95C559E981A4}.Debug|x86.ActiveCfg = Debug|Win32
@@ -134,13 +110,37 @@ Global
 		{2F31DE2B-66C0-4968-81F6-95C559E981A4}.Release-Single|x64.Build.0 = Release-Single|x64
 		{2F31DE2B-66C0-4968-81F6-95C559E981A4}.Release-Single|x86.ActiveCfg = Release-Single|Win32
 		{2F31DE2B-66C0-4968-81F6-95C559E981A4}.Release-Single|x86.Build.0 = Release-Single|Win32
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug|x64.ActiveCfg = Debug|x64
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug|x64.Build.0 = Debug|x64
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug|x86.ActiveCfg = Debug|Win32
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug|x86.Build.0 = Debug|Win32
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-MemoryOnly|x64.ActiveCfg = Debug-MemoryOnly|x64
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-MemoryOnly|x64.Build.0 = Debug-MemoryOnly|x64
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-MemoryOnly|x86.ActiveCfg = Debug-MemoryOnly|Win32
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-MemoryOnly|x86.Build.0 = Debug-MemoryOnly|Win32
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-Single|x64.ActiveCfg = Debug-Single|x64
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-Single|x64.Build.0 = Debug-Single|x64
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-Single|x86.ActiveCfg = Debug-Single|Win32
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Debug-Single|x86.Build.0 = Debug-Single|Win32
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release|x64.ActiveCfg = Release|x64
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release|x64.Build.0 = Release|x64
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release|x86.ActiveCfg = Release|Win32
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release|x86.Build.0 = Release|Win32
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-MemoryOnly|x64.ActiveCfg = Release-MemoryOnly|x64
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-MemoryOnly|x64.Build.0 = Release-MemoryOnly|x64
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-MemoryOnly|x86.ActiveCfg = Release-MemoryOnly|Win32
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-MemoryOnly|x86.Build.0 = Release-MemoryOnly|Win32
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-Single|x64.ActiveCfg = Release-Single|x64
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-Single|x64.Build.0 = Release-Single|x64
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-Single|x86.ActiveCfg = Release-Single|Win32
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245}.Release-Single|x86.Build.0 = Release-Single|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{4804BAB6-CC3D-455A-B359-0ECA128FB245} = {37220FF1-EB1A-4201-8BFF-3807487B947B}
 		{2F31DE2B-66C0-4968-81F6-95C559E981A4} = {E4523043-2100-45F4-BB09-AB512D395686}
+		{4804BAB6-CC3D-455A-B359-0ECA128FB245} = {37220FF1-EB1A-4201-8BFF-3807487B947B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D0F0F4E2-C95E-49A7-BAE3-78F8253984EC}

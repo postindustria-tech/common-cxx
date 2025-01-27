@@ -56,7 +56,7 @@ namespace FiftyoneDegrees {
              * @param addressType the type of the IP address
              */
             IpAddress(const unsigned char ipAddressData[],
-                      fiftyoneDegreesEvidenceIpType addressType);
+                      fiftyoneDegreesIpType addressType);
 
             /**
              * Construct an instance with a given
@@ -99,7 +99,7 @@ namespace FiftyoneDegrees {
              * Get the type of the IP address
              * @return the type of IP address
              */
-            fiftyoneDegreesEvidenceIpType getType() const { return type; };
+            fiftyoneDegreesIpType getType() const { return type; };
 
             /**
              *@}
@@ -112,10 +112,10 @@ namespace FiftyoneDegrees {
              * @param type the type of the IP
              */
             void init(const unsigned char *ipAddressData,
-                      fiftyoneDegreesEvidenceIpType addressType);
+                      fiftyoneDegreesIpType addressType);
 
             /** The type of the IP address */
-            fiftyoneDegreesEvidenceIpType type;
+            fiftyoneDegreesIpType type;
             /** The IP address byte array */
             unsigned char ipAddress[FIFTYONE_DEGREES_IPV6_LENGTH];
         };

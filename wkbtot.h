@@ -1,5 +1,5 @@
 /* *********************************************************************
- * This Original Work is copyright of 51 Degrees Mobile Experts Limited.
+* This Original Work is copyright of 51 Degrees Mobile Experts Limited.
  * Copyright 2023 51 Degrees Mobile Experts Limited, Davidson House,
  * Forbury Square, Reading, Berkshire, United Kingdom RG1 3EU.
  *
@@ -20,22 +20,37 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-#include "float.h"
-#include "string.h"
-#include "status.h"
-#include "coordinate.h"
+#ifndef FIFTYONE_DEGREES_WKBTOT_H_INCLUDED
+#define FIFTYONE_DEGREES_WKBTOT_H_INCLUDED
 
-fiftyoneDegreesCoordinate fiftyoneDegreesIpiGetCoordinate(
-	const fiftyoneDegreesCollectionItem *item,
-	fiftyoneDegreesException *exception) {
-	fiftyoneDegreesString *value = (fiftyoneDegreesString *)item->data.ptr;
-	fiftyoneDegreesCoordinate coordinate = { 0, 0 };
-	if (value->value == FIFTYONE_DEGREES_STRING_COORDINATE) {
-		coordinate.lat = FIFTYONE_DEGREES_FLOAT_TO_NATIVE(value->trail.coordinate.lat);
-		coordinate.lon = FIFTYONE_DEGREES_FLOAT_TO_NATIVE(value->trail.coordinate.lon);
-	}
-	else {
-		FIFTYONE_DEGREES_EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
-	}
-	return coordinate;
-}
+#include <stdbool.h>
+
+#include "data.h"
+#include "exceptions.h"
+
+/**
+ * Used as a return type from the conversion routines to carry information about
+ * the operation results to the caller, allows the caller to f.e. judge about the buffer utilization,
+ * and whether the buffer was of sufficient size
+ */
+typedef struct fiftyone_degrees_transform_wkb_to_t_result {
+	/**
+	 * number of characters written or that would have been written to the buffer, reflects required buffer size
+	 */
+	size_t written;
+
+	/**
+	 * the caller should check this flag and reallocate the buffer to be of at least `written` size
+	 * if this flag is set
+	 */
+	bool bufferTooSmall;
+} fiftyoneDegreesWkbtotResult;
+
+
+EXTERNAL fiftyoneDegreesWkbtotResult
+fiftyoneDegreesConvertWkbToWkt
+(const byte *wellKnownBinary, char *buffer, size_t length,
+ uint8_t decimalPlaces,
+ fiftyoneDegreesException *exception);
+
+#endif //FIFTYONE_DEGREES_WKBTOT_H_INCLUDED

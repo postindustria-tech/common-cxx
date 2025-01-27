@@ -25,24 +25,27 @@
 #include <stdexcept>
 #include "memory.h"
 #include "IpAddress.hpp"
+#include "fiftyone.h"
 
 using namespace std;
 using namespace FiftyoneDegrees::IpIntelligence;
 
-IpAddress::IpAddress() {
-    memset(this->ipAddress, 0, FIFTYONE_DEGREES_IPV6_LENGTH);
-    this->type = FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_INVALID;
+FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress() {
+    memset(this->ipAddress, 0, IPV6_LENGTH);
+    this->type = IP_TYPE_INVALID;
 }
 
-IpAddress::IpAddress(const unsigned char ipAddressData[],
-    fiftyoneDegreesEvidenceIpType addressType) {
+FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress(
+    const unsigned char ipAddressData[],
+    IpType addressType) {
     init(ipAddressData, addressType);
 }
 
-IpAddress::IpAddress(const char * const ipAddressString) {
-    fiftyoneDegreesEvidenceIpAddress *eIpAddress = 
-		fiftyoneDegreesIpParseAddress(
-			fiftyoneDegreesMalloc,
+FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress(
+    const char * const ipAddressString) {
+    ::IpAddress *eIpAddress =
+		IpAddressParse(
+			Malloc,
 			ipAddressString,
 			ipAddressString + strlen(ipAddressString));
     // Make sure the ip address has been parsed successfully
@@ -50,32 +53,34 @@ IpAddress::IpAddress(const char * const ipAddressString) {
 		throw bad_alloc();
 	}
     // Initialize the IP address object
-    init(eIpAddress->address, eIpAddress->type);
+    init(eIpAddress->value, static_cast<IpType>(eIpAddress->type));
 
     // Free the previously allocated IP address
-    fiftyoneDegreesFree(eIpAddress);
+    Free(eIpAddress);
 }
 
-void IpAddress::init(const unsigned char * const ipAddressData,
-    const fiftyoneDegreesEvidenceIpType addressType) {
+void FiftyoneDegrees::IpIntelligence::IpAddress::init(
+    const unsigned char * const ipAddressData,
+    const IpType addressType) {
     switch (addressType) {
-    case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4:
-        memcpy(ipAddress, ipAddressData, FIFTYONE_DEGREES_IPV4_LENGTH);
+    case IP_TYPE_IPV4:
+        memcpy(ipAddress, ipAddressData, IPV4_LENGTH);
         break;
-    case FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6:
-        memcpy(ipAddress, ipAddressData, FIFTYONE_DEGREES_IPV6_LENGTH);
+    case IP_TYPE_IPV6:
+        memcpy(ipAddress, ipAddressData, IPV6_LENGTH);
         break;
     default:
-        memset(ipAddress, 0, FIFTYONE_DEGREES_IPV6_LENGTH);
+        memset(ipAddress, 0, IPV6_LENGTH);
         break;
     }
     type = addressType;
 }
 
-void IpAddress::getCopyOfIpAddress(unsigned char copy[], const uint32_t size) const {
-    const uint32_t dataSize = ((type == FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4)
-        ? FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV4
-        : FIFTYONE_DEGREES_EVIDENCE_IP_TYPE_IPV6);
+void FiftyoneDegrees::IpIntelligence::IpAddress::getCopyOfIpAddress(
+    unsigned char copy[], const uint32_t size) const {
+    const uint32_t dataSize = ((type == IP_TYPE_IPV4)
+        ? IPV4_LENGTH
+        : IPV6_LENGTH);
 	const uint32_t copySize = (size < dataSize) ? size : dataSize;
 	memcpy(copy, ipAddress, copySize);
 }

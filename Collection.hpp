@@ -86,7 +86,7 @@ namespace FiftyoneDegrees {
 			/**
 			 * Dispose of any internal data.
 			 */
-			virtual ~Collection<K, V>() {};
+			virtual ~Collection() {};
 
 			/**
 			 * @}
@@ -123,7 +123,7 @@ namespace FiftyoneDegrees {
 			/**
 			 * A collection can't be constructed without an inheriting class.
 			 */
-			Collection<K, V>() { }
+			Collection() { }
 		};
 	}
 }

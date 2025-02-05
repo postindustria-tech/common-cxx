@@ -84,15 +84,15 @@ static int compareCoordinate(String *value, const char *target) {
  */
 static int compareIpAddress(String *value, const char *target) {
 	int result = 0;
-	IpAddress *ipAddress
-		= IpAddressParse(
-			Malloc, 
+	IpAddress ipAddress;
+	bool parsed = IpAddressParse(
 			target, 
-			target + strlen(target));
-	if (ipAddress != NULL) {
+			target + strlen(target),
+			&ipAddress);
+	if (parsed) {
 		int16_t valueLength = (size_t)value->size - 1;
 		int16_t searchLength = 0, compareLength = 0;
-		switch (ipAddress->type) {
+		switch (ipAddress.type) {
 		case IP_TYPE_IPV4:
 			searchLength = IPV4_LENGTH;
 			break;
@@ -112,12 +112,11 @@ static int compareIpAddress(String *value, const char *target) {
 			compareLength = (valueLength < searchLength
 				? valueLength : searchLength);
 			result = memcmp(&value->trail.secondValue,
-				ipAddress->value, compareLength);
+				ipAddress.value, compareLength);
 			if (result == 0) {
 				result = valueLength - searchLength;
 			}
 		}
-		Free(ipAddress);
 	}
 	return result;
 }

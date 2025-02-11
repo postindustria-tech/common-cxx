@@ -43,20 +43,18 @@ FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress(
 
 FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress(
     const char * const ipAddressString) {
-    ::IpAddress *eIpAddress =
+    ::IpAddress eIpAddress;
+    const bool parsed =
 		IpAddressParse(
-			Malloc,
 			ipAddressString,
-			ipAddressString + strlen(ipAddressString));
+			ipAddressString + strlen(ipAddressString),
+			&eIpAddress);
     // Make sure the ip address has been parsed successfully
-	if (eIpAddress == nullptr) {
+	if (!parsed) {
 		throw bad_alloc();
 	}
     // Initialize the IP address object
-    init(eIpAddress->value, static_cast<IpType>(eIpAddress->type));
-
-    // Free the previously allocated IP address
-    Free(eIpAddress);
+    init(eIpAddress.value, static_cast<IpType>(eIpAddress.type));
 }
 
 void FiftyoneDegrees::IpIntelligence::IpAddress::init(

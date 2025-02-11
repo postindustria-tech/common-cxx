@@ -262,18 +262,17 @@ static IpType iterateIpAddress(
 	return type;
 }
 
-IpAddress* fiftyoneDegreesIpAddressParse(
-	void*(* const malloc)(size_t),
+bool fiftyoneDegreesIpAddressParse(
 	const char * const start,
-	const char * const end) {
+	const char * const end,
+	IpAddress * const address) {
 
 	if (!start) {
-		return NULL;
+		return false;
 	}
 
 	int byteCount = 0;
 	int springCount = 0;
-	IpAddress *address;
 	IpType type = iterateIpAddress(
 		start,
 		end,
@@ -285,38 +284,35 @@ IpAddress* fiftyoneDegreesIpAddressParse(
 	switch (type) {
 		case IP_TYPE_IPV4:
 			if (byteCount != IPV4_LENGTH || springCount) {
-				return NULL;
+				return false;
 			}
 			break;
 		case IP_TYPE_IPV6:
 			if (byteCount > IPV6_LENGTH ||
 				springCount > 1 ||
 				(byteCount < IPV6_LENGTH && !springCount)) {
-				return NULL;
+				return false;
 			}
 			break;
 		default:
-			return NULL;
+			return false;
 	}
 
-	address = malloc(sizeof(IpAddress));
-	if (address != NULL) {
-		address->type = type;
-		IpAddressBuildState buildState = {
-			address,
-			address->value,
-			byteCount,
-		};
-		// Add the bytes from the source value and get the type of address.
-		iterateIpAddress(
-			start,
-			end,
-			&buildState,
-			&springCount,
-			type,
-			callbackIpAddressBuild);
-	}
-	return address;
+	address->type = type;
+	IpAddressBuildState buildState = {
+		address,
+		address->value,
+		byteCount,
+	};
+	// Add the bytes from the source value and get the type of address.
+	iterateIpAddress(
+		start,
+		end,
+		&buildState,
+		&springCount,
+		type,
+		callbackIpAddressBuild);
+	return true;
 }
 
 int fiftyoneDegreesIpAddressesCompare(

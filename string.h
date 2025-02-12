@@ -155,7 +155,7 @@ typedef struct fiftyone_degrees_string_t {
 	int16_t size; /**< Size of the string in memory */
 	char value; /**< The first character of the string */
 	union {
-		char secondValue; /**< If the string is an IP address, this will be the start byte */
+		char secondValue; /**< If the string is an IP address or WKB geometry, this will be the start byte */
 		struct {
 			fiftyoneDegreesFloat lat;
 			fiftyoneDegreesFloat lon;

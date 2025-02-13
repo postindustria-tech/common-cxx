@@ -25,6 +25,7 @@
 #include <stdexcept>
 #include "memory.h"
 #include "IpAddress.hpp"
+#include "Exceptions.hpp"
 #include "fiftyone.h"
 
 using namespace std;
@@ -51,7 +52,7 @@ FiftyoneDegrees::IpIntelligence::IpAddress::IpAddress(
 			&eIpAddress);
     // Make sure the ip address has been parsed successfully
 	if (!parsed) {
-		throw bad_alloc();
+		throw Common::StatusCodeException(INCORRECT_IP_ADDRESS_FORMAT);
 	}
     // Initialize the IP address object
     init(eIpAddress.value, static_cast<IpType>(eIpAddress.type));

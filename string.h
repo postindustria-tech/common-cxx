@@ -114,7 +114,7 @@ typedef enum fiftyone_degrees_string_format {
  * the type stored at the pointer is not an WKB geometry
  */
 #define FIFTYONE_DEGREES_WKB(s) \
-	(const byte*)(s == NULL \
+	(const unsigned char*)(s == NULL \
 		|| ((fiftyoneDegreesString*)s)->value \
 			!= FIFTYONE_DEGREES_STRING_WKB ? \
 		NULL : \

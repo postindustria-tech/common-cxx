@@ -154,7 +154,7 @@ typedef enum fiftyone_degrees_string_format {
  */
 #pragma pack(push, 1)
 typedef struct fiftyone_degrees_string_t {
-	int16_t size; /**< Size of the string in memory */
+	int16_t size; /**< Size of the string in memory (starting from 'value') */
 	char value; /**< The first character of the string */
 	union {
 		char secondValue; /**< If the string is an IP address or WKB geometry, this will be the start byte */

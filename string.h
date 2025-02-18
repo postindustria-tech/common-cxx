@@ -84,6 +84,8 @@ typedef enum fiftyone_degrees_string_format {
 									  a WKB geometry */
 } fiftyoneDegreesStringFormat;
 
+#define FIFTYONE_DEGREES_REASONABLE_WKT_STRING_LENGTH 128
+
 /**
  * Macro used to check for NULL before returning the string as a const char *.
  * @param s pointer to the #fiftyoneDegreesString

@@ -131,10 +131,12 @@ exception->status = s; \
  * Macro used to clear an exception type.
  */
 #define FIFTYONE_DEGREES_EXCEPTION_CLEAR \
+{ \
 exception->file = NULL; \
 exception->func = NULL; \
 exception->line = -1; \
-exception->status = FIFTYONE_DEGREES_STATUS_NOT_SET;
+exception->status = FIFTYONE_DEGREES_STATUS_NOT_SET; \
+}
 
 /**
 * Macro used to check if an exception status equals the value of t.

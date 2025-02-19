@@ -1,6 +1,6 @@
 /* *********************************************************************
-* This Original Work is copyright of 51 Degrees Mobile Experts Limited.
- * Copyright 2023 51 Degrees Mobile Experts Limited, Davidson House,
+ * This Original Work is copyright of 51 Degrees Mobile Experts Limited.
+ * Copyright 2025 51 Degrees Mobile Experts Limited, Davidson House,
  * Forbury Square, Reading, Berkshire, United Kingdom RG1 3EU.
  *
  * This Original Work is licensed under the European Union Public Licence
@@ -46,7 +46,15 @@ typedef struct fiftyone_degrees_transform_wkb_to_t_result {
 	bool bufferTooSmall;
 } fiftyoneDegreesWkbtotResult;
 
-
+/**
+ * Converts WKB geometry bytes to WKT string written into provided buffer.
+ * @param wellKnownBinary bytes of WKB geometry.
+ * @param buffer buffer to write WKT geometry into.
+ * @param length length available in the buffer.
+ * @param decimalPlaces precision for numbers (places after the decimal dot).
+ * @param exception pointer to the exception struct.
+ * @return How many bytes were written to the buffer and if it was too small.
+ */
 EXTERNAL fiftyoneDegreesWkbtotResult
 fiftyoneDegreesConvertWkbToWkt
 (const unsigned char *wellKnownBinary, char *buffer, size_t length,

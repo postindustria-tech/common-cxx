@@ -1,5 +1,5 @@
 /* *********************************************************************
-* This Original Work is copyright of 51 Degrees Mobile Experts Limited.
+ * This Original Work is copyright of 51 Degrees Mobile Experts Limited.
  * Copyright 2025 51 Degrees Mobile Experts Limited, Davidson House,
  * Forbury Square, Reading, Berkshire, United Kingdom RG1 3EU.
  *
@@ -21,7 +21,6 @@
  * ********************************************************************* */
 
 #include "wkbtot.h"
-#include "string.h"
 #include <math.h>
 #include "fiftyone.h"
 

@@ -81,6 +81,7 @@
 #include "yamlfile.h"
 #include "indices.h"
 #include "json.h"
+#include "wkbtot.h"
 
 /**
  * Macro used to support synonym implementation. Creates a typedef which 
@@ -180,6 +181,7 @@ MAP_TYPE(Json)
 MAP_TYPE(KeyValuePairArray)
 MAP_TYPE(IpType)
 MAP_TYPE(IpAddress)
+MAP_TYPE(WkbtotResult)
 
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */
 #define OverrideValuesAdd fiftyoneDegreesOverrideValuesAdd /**< Synonym for #fiftyoneDegreesOverrideValuesAdd function. */
@@ -359,6 +361,7 @@ MAP_TYPE(IpAddress)
 #define IpAddressParse fiftyoneDegreesIpAddressParse /**< Synonym for fiftyoneDegreesIpAddressParse */
 #define IpAddressesParse fiftyoneDegreesIpAddressesParse /**< Synonym for fiftyoneDegreesIpAddressesParse */
 #define IpAddressesCompare fiftyoneDegreesIpAddressesCompare /**< Synonym for fiftyoneDegreesIpAddressesCompare */
+#define ConvertWkbToWkt fiftyoneDegreesConvertWkbToWkt /**< Synonym for fiftyoneDegreesConvertWkbToWkt */
 
 /* <-- only one asterisk to avoid inclusion in documentation
  * Shortened macros.

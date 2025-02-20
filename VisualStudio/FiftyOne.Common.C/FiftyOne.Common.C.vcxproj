@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(ProjectDir)..\Library.Build.props" />
+  <Import Project="$(ProjectDir)..\Library.Build.overridable.props" />
   <ItemGroup>
     <ClInclude Include="..\..\array.h" />
     <ClInclude Include="..\..\cache.h" />
@@ -80,4 +80,5 @@
     <ProjectGuid>{8E1B0B4C-8220-4E7B-A838-B4B3DDB4CF15}</ProjectGuid>
     <RootNamespace>FiftyOneCommonC</RootNamespace>
   </PropertyGroup>
+  <Import Project="$(ProjectDir)..\Library.Build.props" />
 </Project>

@@ -351,10 +351,13 @@ StringBuilder* StringBuilderAddStringValue(
 			break;
 		}
 		default: {
-			StringBuilderAddChars(
-				builder,
-				&(value->value),
-				value->size);
+			// discard NUL-terminator
+			if (value->size > 1) {
+				StringBuilderAddChars(
+					builder,
+					&(value->value),
+					value->size - 1);
+			}
 			break;
 		}
 	}

@@ -312,6 +312,7 @@ TEST_F(Strings, StringBuilderAddStringValue) {
             (const String *)stringValueString,
             0,
             exception);
+        EXPECT_TRUE(*(builder->current - 1));
         StringBuilderComplete(builder);
         EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
         EXPECT_STREQ(builder->ptr, stringValueString + 2);
@@ -324,6 +325,7 @@ TEST_F(Strings, StringBuilderAddStringValue) {
             (const String *)ipv4ValueString,
             0,
             exception);
+        EXPECT_TRUE(*(builder->current - 1));
         StringBuilderComplete(builder);
         EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
         EXPECT_STREQ(builder->ptr, "212.12.0.1");
@@ -336,6 +338,7 @@ TEST_F(Strings, StringBuilderAddStringValue) {
             (const String *)ipv6ValueString,
             0,
             exception);
+        EXPECT_TRUE(*(builder->current - 1));
         StringBuilderComplete(builder);
         EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
         EXPECT_STREQ(builder->ptr, "2001:0db8:85a3:0000:0000:8a2e:0370:7334");
@@ -348,6 +351,7 @@ TEST_F(Strings, StringBuilderAddStringValue) {
             (const String *)coordValueString,
             0,
             exception);
+        EXPECT_TRUE(*(builder->current - 1));
         StringBuilderComplete(builder);
         EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
         EXPECT_STREQ(builder->ptr, "-1,8");
@@ -360,6 +364,7 @@ TEST_F(Strings, StringBuilderAddStringValue) {
             (const String *)wkbValueString,
             0,
             exception);
+        EXPECT_TRUE(*(builder->current - 1));
         StringBuilderComplete(builder);
         EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
         EXPECT_STRCASEEQ(builder->ptr, "point(17 892)");

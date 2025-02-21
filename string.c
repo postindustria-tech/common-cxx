@@ -229,9 +229,11 @@ StringBuilder* StringBuilderAddDouble(
 		intPart++;
 	}
 
-	StringBuilderAddInteger(builder, intPart);
-
 	if (!fracPart || remDigits <= 0) {
+		if (fracPart >= 0.5) {
+			intPart++;
+		}
+		StringBuilderAddInteger(builder, intPart);
 		return builder;
 	}
 
@@ -246,7 +248,20 @@ StringBuilder* StringBuilderAddDouble(
 		*nextDigit = (char)fracPart;
 		fracPart -= *nextDigit;
 		if (!remDigits && fracPart >= 0.5) {
-			(*nextDigit)++;
+			// find last non-9
+			while (nextDigit > floatTail && *nextDigit == 9) {
+				--nextDigit;
+				++remDigits;
+			}
+			if (nextDigit > floatTail) {
+				(*nextDigit)++;
+				++nextDigit;
+				break;
+			} else {
+				// tail collapsed into 1
+				StringBuilderAddInteger(builder, ++intPart);
+				return builder;
+			}
 		}
 		++nextDigit;
 	}
@@ -269,6 +284,7 @@ StringBuilder* StringBuilderAddDouble(
 		*nextDigit += '0';
 	}
 
+	StringBuilderAddInteger(builder, intPart);
 	StringBuilderAddChars(builder, floatTail, digitsToAdd + 1);
 	return builder;
 }

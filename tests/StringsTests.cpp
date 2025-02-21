@@ -204,6 +204,18 @@ TEST_F(Strings, StringBuilderOneChar) {
 TEST_F(Strings, StringBuilderAddDouble) {
     {
         StringBuilderInit(builder);
+        StringBuilderAddDouble(builder, 5.0999999999999996, 30);
+        StringBuilderComplete(builder);
+        EXPECT_STREQ(builder->ptr, "5.1");
+    }
+    {
+        StringBuilderInit(builder);
+        StringBuilderAddDouble(builder, 739.997, 2);
+        StringBuilderComplete(builder);
+        EXPECT_STREQ(builder->ptr, "740");
+    }
+    {
+        StringBuilderInit(builder);
         StringBuilderAddDouble(builder, 42.127, 0);
         StringBuilderComplete(builder);
         EXPECT_STREQ(builder->ptr, "42");

@@ -21,6 +21,9 @@
  * ********************************************************************* */
 
 #include "wkbtot.hpp"
+
+#include <memory>
+
 #include "fiftyone.h"
 
 namespace FiftyoneDegrees::Common {
@@ -36,8 +39,8 @@ namespace FiftyoneDegrees::Common {
         Exception * const exception) {
 
         WkbtotResult toWktResult = {
-            .written = 0,
-            .bufferTooSmall = false,
+            0,
+            false,
         };
 
         if (!wkbString || !exception) {
@@ -66,16 +69,17 @@ namespace FiftyoneDegrees::Common {
         }
         if (toWktResult.bufferTooSmall) {
             EXCEPTION_CLEAR;
-            char buffer[toWktResult.written + 1];
+            const size_t requiredSize = toWktResult.written + 1;
+            const std::unique_ptr<char[]> buffer = std::make_unique<char[]>(requiredSize);
             toWktResult = fiftyoneDegreesConvertWkbToWkt(
                 wkbBytes,
-                buffer,
-                toWktResult.written + 1,
+                buffer.get(),
+                requiredSize,
                 decimalPlaces,
                 exception
                 );
             if (EXCEPTION_OKAY && !toWktResult.bufferTooSmall) {
-                stream << buffer;
+                stream << buffer.get();
                 return toWktResult;
             }
         }

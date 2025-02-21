@@ -141,7 +141,6 @@ void StringBuilderAddIpAddress(
 	const String * const ipAddress,
 	const IpType type,
 	Exception * const exception) {
-	size_t charactersAdded = 0;
 	int32_t ipLength =
 		type == IP_TYPE_IPV4 ?
 		FIFTYONE_DEGREES_IPV4_LENGTH :
@@ -209,7 +208,7 @@ fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
 	return builder;
 }
 
-static const uint8_t MAX_DOUBLE_DECIMAL_PLACES = 15;
+#define MAX_DOUBLE_DECIMAL_PLACES 15
 
 StringBuilder* StringBuilderAddDouble(
 	fiftyoneDegreesStringBuilder * const builder,
@@ -273,6 +272,8 @@ StringBuilder* StringBuilderAddDouble(
 	StringBuilderAddChars(builder, floatTail, digitsToAdd + 1);
 	return builder;
 }
+
+#undef MAX_DOUBLE_DECIMAL_PLACES
 
 fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
 	fiftyoneDegreesStringBuilder* builder,

@@ -60,6 +60,16 @@ TEST(ParseIp, ParseIp_Ipv4_High)
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected)))
 		<< L"Expected result to be '255.255.255.255'";
 }
+TEST(ParseIp, ParseIp_Ipv4_Endline)
+{
+	const char* ip = "0.0.0.0\n";
+	auto const result = parseIpAddressString(ip);
+	byte expected[] = { 0, 0, 0, 0 };
+	EXPECT_TRUE(result) <<
+		L"Expected result to be non-NULL.";
+	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected) - 1)) <<
+		L"Expected result to be '0.0.0.0'";
+}
 TEST(ParseIp, ParseIp_Ipv4_PortNumber)
 {
 	auto const result = parseIpAddressString("1.2.3.4:80");

@@ -177,6 +177,7 @@ static IpStringSeparatorType getSeparatorCharType(
 		case ']':
 		case '/':
 		case '\0':
+		case '\n':
 			return IP_ADDRESS_BREAK_CHAR;
 		default:
 			break;

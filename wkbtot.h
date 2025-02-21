@@ -25,7 +25,7 @@
 
 #include <stdbool.h>
 
-#include "data.h"
+#include "string.h"
 #include "exceptions.h"
 
 /**
@@ -45,6 +45,21 @@ typedef struct fiftyone_degrees_transform_wkb_to_t_result {
 	 */
 	bool bufferTooSmall;
 } fiftyoneDegreesWkbtotResult;
+
+/**
+ * Converts WKB geometry bytes to WKT string and writes it to string builder.
+ * @param wellKnownBinary bytes of WKB geometry.
+ * @param decimalPlaces precision for numbers (places after the decimal dot).
+ * @param builder string builder to write WKT into.
+ * @param exception pointer to the exception struct.
+ * @return How many bytes were written to the buffer and if it was too small.
+ */
+EXTERNAL void
+fiftyoneDegreesWriteWkbAsWktToStringBuilder
+(const unsigned char *wellKnownBinary,
+ uint8_t decimalPlaces,
+ fiftyoneDegreesStringBuilder *builder,
+ fiftyoneDegreesException *exception);
 
 /**
  * Converts WKB geometry bytes to WKT string written into provided buffer.

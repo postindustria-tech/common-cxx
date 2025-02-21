@@ -126,71 +126,6 @@ static double readDouble(
     return result;
 }
 
-
-#define MAX_DOUBLE_DECIMAL_PLACES 15
-
-static void writeDouble(
-    const ProcessingContext * const context, const double value) {
-
-    int remDigits = MAX_DOUBLE_DECIMAL_PLACES < context->decimalPlaces
-        ? MAX_DOUBLE_DECIMAL_PLACES : context->decimalPlaces;
-
-    int intPart = (int)value;
-    double fracPart = value - intPart;
-
-    if (fracPart < 0) {
-        fracPart = -fracPart;
-    }
-    if (remDigits <= 0 && fracPart >= 0.5) {
-        intPart++;
-    }
-
-    StringBuilderAddInteger(context->stringBuilder, intPart);
-
-    if (!fracPart || remDigits <= 0) {
-        return;
-    }
-
-    char floatTail[MAX_DOUBLE_DECIMAL_PLACES + 2];
-    floatTail[0] = '.';
-    char *digits = floatTail + 1;
-
-    char *nextDigit = digits;
-    while (remDigits > 0 && fracPart) {
-        remDigits--;
-        fracPart *= 10;
-        *nextDigit = (char)fracPart;
-        fracPart -= *nextDigit;
-        if (!remDigits && fracPart >= 0.5) {
-            (*nextDigit)++;
-        }
-        ++nextDigit;
-    }
-    *nextDigit = '\0';
-
-    int digitsToAdd = context->decimalPlaces - remDigits;
-    for (nextDigit = digits + digitsToAdd - 1;
-        nextDigit >= digits;
-        --nextDigit) {
-
-        if (*nextDigit) {
-            break;
-        }
-        --digitsToAdd;
-    }
-    if (digitsToAdd <= 0) {
-        return;
-    }
-    for (; nextDigit >= digits; --nextDigit) {
-        *nextDigit += '0';
-    }
-
-    StringBuilderAddChars(
-        context->stringBuilder, floatTail, digitsToAdd + 1);
-}
-
-#undef MAX_DOUBLE_DECIMAL_PLACES
-
 static void writeEmpty(
     ProcessingContext * const context) {
 
@@ -248,7 +183,7 @@ static void handlePointSegment(
             StringBuilderAddChar(context->stringBuilder, ' ');
         }
         const double nextCoord = readDouble(context);
-        writeDouble(context, nextCoord);
+        StringBuilderAddDouble(context->stringBuilder, nextCoord, context->decimalPlaces);
     }
 }
 
@@ -521,6 +456,15 @@ static void handleWKBRoot(
     handleUnknownGeometry(&context);
 }
 
+
+void fiftyoneDegreesWriteWkbAsWktToStringBuilder(
+    unsigned const char * const wellKnownBinary,
+    const uint8_t decimalPlaces,
+    fiftyoneDegreesStringBuilder * const builder,
+    fiftyoneDegreesException * const exception) {
+
+    handleWKBRoot(wellKnownBinary, builder, decimalPlaces, exception);
+}
 
 fiftyoneDegreesWkbtotResult fiftyoneDegreesConvertWkbToWkt(
     const byte * const wellKnownBinary,

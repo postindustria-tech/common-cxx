@@ -69,6 +69,7 @@
 #include "collection.h"
 #include "float.h"
 #include "common.h"
+#include "ip.h"
 
 /**
  * Enumeration to indicate what format is held in a string item
@@ -268,6 +269,18 @@ EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
 	int const value);
 
 /**
+ * Adds the double to the buffer.
+ * @param builder to add the character to
+ * @param value floating-point number to add
+ * @param decimalPlaces precision (places after decimal dot)
+ * @return pointer to the buffer passed
+ */
+EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddDouble(
+	fiftyoneDegreesStringBuilder* builder,
+	double value,
+	uint8_t decimalPlaces);
+
+/**
  * Adds the string to the buffer.
  * @param builder to add the character to
  * @param value of chars to add
@@ -278,6 +291,33 @@ EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
 	fiftyoneDegreesStringBuilder* builder,
 	const char* value,
 	size_t length);
+
+/**
+ * Adds an the IP (as string) from byte "string".
+ * @param builder to add the IP to
+ * @param ipAddress binary (packed) "string" with IP to add
+ * @param type type of IP inside
+ * @param exception pointer to exception struct
+ */
+EXTERNAL void fiftyoneDegreesStringBuilderAddIpAddress(
+	fiftyoneDegreesStringBuilder* builder,
+	const fiftyoneDegreesString *ipAddress,
+	fiftyoneDegreesIpType type,
+	fiftyoneDegreesException *exception);
+
+/**
+ * Adds a potentially packed value as a proper string to the buffer.
+ * @param builder to add the character to
+ * @param value from data file to add
+ * @param decimalPlaces precision for numbers (places after decimal dot)
+ * @param exception pointer to exception struct
+ * @return pointer to the buffer passed
+ */
+EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
+	fiftyoneDegreesStringBuilder* builder,
+	const fiftyoneDegreesString* value,
+	uint8_t decimalPlaces,
+	fiftyoneDegreesException *exception);
 
 /**
  * Adds a null terminating character to the buffer.

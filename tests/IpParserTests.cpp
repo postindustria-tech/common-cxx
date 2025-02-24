@@ -35,11 +35,15 @@ static bool CheckResult(byte* result, byte* expected, uint16_t size) {
 	return match;
 }
 
-static std::unique_ptr<IpAddress> parseIpAddressString(const char * const ipString) {
+static std::unique_ptr<IpAddress> parseIpAddressStringOfLength(const char * const ipString, const size_t length) {
 	std::unique_ptr<IpAddress> ipPtr = std::make_unique<IpAddress>();
-	const char * const end = ipString ? ipString + strlen(ipString) : nullptr;
+	const char * const end = ipString ? ipString + length : nullptr;
 	const bool parsed = IpAddressParse(ipString, end, ipPtr.get());
 	return parsed ? std::move(ipPtr) : nullptr;
+}
+
+static std::unique_ptr<IpAddress> parseIpAddressString(const char * const ipString) {
+	return parseIpAddressStringOfLength(ipString, ipString ? strlen(ipString) : 0);
 }
 
  // ------------------------------------------------------------------------------
@@ -69,6 +73,46 @@ TEST(ParseIp, ParseIp_Ipv4_Endline)
 		L"Expected result to be non-NULL.";
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected) - 1)) <<
 		L"Expected result to be '0.0.0.0'";
+}
+TEST(ParseIp, ParseIp_Ipv4_Trim0)
+{
+	const char* ip = "192.168.101.217";
+	auto const result = parseIpAddressStringOfLength(ip, strlen(ip));
+	byte expected[] = { 192, 168, 101, 217 };
+	EXPECT_TRUE(result) <<
+		L"Expected result to be non-NULL.";
+	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected) - 1)) <<
+		L"Expected result to be '192.168.101.217'";
+}
+TEST(ParseIp, ParseIp_Ipv4_Trim1)
+{
+	const char* ip = "192.168.101.217";
+	auto const result = parseIpAddressStringOfLength(ip, strlen(ip) - 1);
+	byte expected[] = { 192, 168, 101, 217 };
+	EXPECT_TRUE(result) <<
+		L"Expected result to be non-NULL.";
+	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected) - 1)) <<
+		L"Expected result to be '192.168.101.217'";
+}
+TEST(ParseIp, ParseIp_Ipv4_Trim2)
+{
+	const char* ip = "192.168.101.217";
+	auto const result = parseIpAddressStringOfLength(ip, strlen(ip) - 2);
+	byte expected[] = { 192, 168, 101, 21 };
+	EXPECT_TRUE(result) <<
+		L"Expected result to be non-NULL.";
+	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected) - 1)) <<
+		L"Expected result to be '192.168.101.21'";
+}
+TEST(ParseIp, ParseIp_Ipv4_Trim3)
+{
+	const char* ip = "192.168.101.217";
+	auto const result = parseIpAddressStringOfLength(ip, strlen(ip) - 3);
+	byte expected[] = { 192, 168, 101, 2 };
+	EXPECT_TRUE(result) <<
+		L"Expected result to be non-NULL.";
+	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected) - 1)) <<
+		L"Expected result to be '192.168.101.2'";
 }
 TEST(ParseIp, ParseIp_Ipv4_PortNumber)
 {

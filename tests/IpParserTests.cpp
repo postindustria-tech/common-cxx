@@ -25,7 +25,7 @@
 #include "../fiftyone.h"
 #include <memory>
 
-static bool CheckResult(byte* result, byte* expected, uint16_t size) {
+static bool CheckResult(byte* result, const byte* expected, uint16_t size) {
 	bool match = true;
 	for (uint16_t i = 0; i < size; i++) {
 		match = match && *result == *expected;
@@ -35,10 +35,14 @@ static bool CheckResult(byte* result, byte* expected, uint16_t size) {
 	return match;
 }
 
+static bool parseIpAddressInPlace(const std::unique_ptr<IpAddress> &ipAddress, const char * const ipString, const size_t length) {
+	const char * const end = ipString ? ipString + length : nullptr;
+	return IpAddressParse(ipString, end, ipAddress.get());
+}
+
 static std::unique_ptr<IpAddress> parseIpAddressStringOfLength(const char * const ipString, const size_t length) {
 	std::unique_ptr<IpAddress> ipPtr = std::make_unique<IpAddress>();
-	const char * const end = ipString ? ipString + length : nullptr;
-	const bool parsed = IpAddressParse(ipString, end, ipPtr.get());
+	const bool parsed =parseIpAddressInPlace(ipPtr, ipString, length);
 	return parsed ? std::move(ipPtr) : nullptr;
 }
 
@@ -73,6 +77,22 @@ TEST(ParseIp, ParseIp_Ipv4_Endline)
 		L"Expected result to be non-NULL.";
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected) - 1)) <<
 		L"Expected result to be '0.0.0.0'";
+}
+TEST(ParseIp, ParseIp_Ipv4_NoOverwrite12)
+{
+	const char ip[] = "73.79.83.89";
+	constexpr byte initial[] {
+		67, 13, 43, 47, 53, 29, 61, 19, 41, 31, 59, 71, 23, 37, 17, 11,
+	}, expected[] {
+		73, 79, 83, 89, 53, 29, 61, 19, 41, 31, 59, 71, 23, 37, 17, 11,
+	};
+	std::unique_ptr<IpAddress> ipAddress = std::make_unique<IpAddress>();
+	memcpy(ipAddress->value, initial, sizeof(initial));
+	const bool parsed = parseIpAddressInPlace(ipAddress, ip, sizeof(ip));
+	EXPECT_TRUE(parsed) <<
+		L"Expected result to be non-NULL.";
+	EXPECT_TRUE(CheckResult(ipAddress->value, expected, sizeof(expected) - 1)) <<
+		L"Expected result to be '73.79.83.89' with the rest (12 bytes) unchanged.";
 }
 TEST(ParseIp, ParseIp_Ipv4_Trim0)
 {

@@ -177,6 +177,7 @@ static IpStringSeparatorType getSeparatorCharType(
 		case ']':
 		case '/':
 		case '\0':
+		case '\n':
 			return IP_ADDRESS_BREAK_CHAR;
 		default:
 			break;
@@ -207,6 +208,8 @@ static IpType iterateIpAddress(
 	IpType type,
 	const parseIterator foundSegment) {
 
+	const char * const postEnd = end + 1;
+
 	*springCount = 0;
 	if (*start == '[') {
 		if (type == IP_TYPE_IPV4) {
@@ -220,9 +223,13 @@ static IpType iterateIpAddress(
 
 	const char *current = start;
 	const char *nextSegment = current;
-	for (; current <= end && nextSegment < end; ++current) {
+	for (; current <= postEnd && nextSegment <= postEnd; ++current) {
+		char nextChar = 0;
+		if (current < postEnd) {
+			nextChar = *current;
+		}
 		IpStringSeparatorType separatorType =
-			getSeparatorCharType(*current, type);
+			getSeparatorCharType(nextChar, type);
 		if (!separatorType) {
 			continue;
 		}
@@ -231,7 +238,7 @@ static IpType iterateIpAddress(
 		}
 
 		currentSegmentType = getSegmentTypeWithSeparator(
-			*current, type, currentSegmentType);
+			nextChar, type, currentSegmentType);
 		if (type == IP_TYPE_INVALID) {
 			type = currentSegmentType;
 		}

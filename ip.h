@@ -74,15 +74,16 @@ typedef struct fiftyone_degrees_ip_address_t {
 
 /**
  * Parse a single IP address string.
+ * Does not modify the last 12 (out of 16) bytes when parsing IPv4.
  * @param start of the string containing the IP address to parse
- * @param end of the string containing the IP address to parse
- * @param address memory to write parsed IP address into
+ * @param end the last character of the string (with IP address) to be considered for parsing
+ * @param address memory to write parsed IP address into.
  * @return <c>true</c> if address was parsed correctly, <c>false</c> otherwise
  */
 EXTERNAL bool fiftyoneDegreesIpAddressParse(
-	const char * const start,
-	const char * const end,
-	fiftyoneDegreesIpAddress * const address);
+	const char *start,
+	const char *end,
+	fiftyoneDegreesIpAddress *address);
 
 /**
  * Compare two IP addresses in its binary form

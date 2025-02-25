@@ -46,7 +46,7 @@ void Strings::TearDown() {
     fiftyoneDegreesFree(builder);
 }
 
-TEST_F(Strings, StringBuilderAddChar) {
+TEST_F(Strings, StringBuilder_AddChar) {
     fiftyoneDegreesStringBuilderInit(builder);
     fiftyoneDegreesStringBuilderAddChar(builder, 'a');
     ASSERT_EQ(builder->added, 1);
@@ -83,7 +83,7 @@ TEST_F(Strings, StringBuilderAddChar) {
     
 }
 
-TEST_F(Strings, StringBuilderAddCharPastTheEnd) {
+TEST_F(Strings, StringBuilder_AddCharPastTheEnd) {
     fiftyoneDegreesStringBuilderInit(builder);
     for (size_t i=0; i < bufferSize + 3; ++i) {
         fiftyoneDegreesStringBuilderAddChar(builder, 'a');
@@ -97,7 +97,7 @@ TEST_F(Strings, StringBuilderAddCharPastTheEnd) {
     ASSERT_TRUE(builder->full);
 }
 
-TEST_F(Strings, StringBuilderAddChars) {
+TEST_F(Strings, StringBuilder_AddChars) {
     fiftyoneDegreesStringBuilderInit(builder);
     char *s = (char *) "abcdef";
     size_t len = strlen(s);
@@ -112,7 +112,7 @@ TEST_F(Strings, StringBuilderAddChars) {
     ASSERT_FALSE(builder->full);
 }
 
-TEST_F(Strings, StringBuilderAddCharsPastEnd) {
+TEST_F(Strings, StringBuilder_AddCharsPastEnd) {
     fiftyoneDegreesStringBuilderInit(builder);
     char *s = (char *) "abcdef";
     size_t len = strlen(s);
@@ -135,7 +135,7 @@ TEST_F(Strings, StringBuilderAddCharsPastEnd) {
     ASSERT_EQ(strlen(builder->ptr), bufferSize - bufferSize % len);
 }
 
-TEST_F(Strings, StringBuilderAddInteger) {
+TEST_F(Strings, StringBuilder_AddInteger) {
     fiftyoneDegreesStringBuilderInit(builder);
     int x = 42;
     size_t len = 2;
@@ -152,7 +152,7 @@ TEST_F(Strings, StringBuilderAddInteger) {
     ASSERT_FALSE(builder->full);
 }
 
-TEST_F(Strings, StringBuilderAddMaxInt) {
+TEST_F(Strings, StringBuilder_AddMaxInt) {
     fiftyoneDegreesStringBuilderInit(builder);
     int x = INT_MIN;
     char buf[bufferSize];
@@ -171,7 +171,7 @@ TEST_F(Strings, StringBuilderAddMaxInt) {
     ASSERT_FALSE(builder->full);
 }
 
-TEST_F(Strings, StringBuilderNullBuffer) {
+TEST_F(Strings, StringBuilder_NullBuffer) {
     StringBuilder *prev = builder;
     StringBuilder local = {nullptr, 0};
     builder = &local;
@@ -183,7 +183,7 @@ TEST_F(Strings, StringBuilderNullBuffer) {
     builder = prev;
 }
 
-TEST_F(Strings, StringBuilderOneChar) {
+TEST_F(Strings, StringBuilder_OneChar) {
     StringBuilder *prev = builder;
     StringBuilder local = {(char *) fiftyoneDegreesMalloc(1), 1};
     builder = &local;
@@ -201,7 +201,7 @@ TEST_F(Strings, StringBuilderOneChar) {
     builder = prev;
 }
 
-TEST_F(Strings, StringBuilderAddDouble) {
+TEST_F(Strings, StringBuilder_AddDouble) {
     {
         StringBuilderInit(builder);
         StringBuilderAddDouble(builder, 5.0999999999999996, 30);
@@ -286,7 +286,7 @@ static const byte wkbValueString[] = {
     0x40, 0x8b, 0xe0, 0xc0, 0x00, 0x00, 0x00, 0x00,
 };
 
-TEST_F(Strings, StringBuilderAddIPv4) {
+TEST_F(Strings, StringBuilder_AddIPv4) {
     EXCEPTION_CREATE;
     StringBuilderInit(builder);
     StringBuilderAddIpAddress(
@@ -299,7 +299,7 @@ TEST_F(Strings, StringBuilderAddIPv4) {
     EXPECT_STREQ(builder->ptr, "212.12.0.1");
 }
 
-TEST_F(Strings, StringBuilderAddIPv6) {
+TEST_F(Strings, StringBuilder_AddIPv6) {
     EXCEPTION_CREATE;
     StringBuilderInit(builder);
     StringBuilderAddIpAddress(
@@ -312,7 +312,7 @@ TEST_F(Strings, StringBuilderAddIPv6) {
     EXPECT_STREQ(builder->ptr, "2001:0db8:85a3:0000:0000:8a2e:0370:7334");
 }
 
-TEST_F(Strings, StringBuilderAddStringValue) {
+TEST_F(Strings, StringBuilder_AddStringValue_Valid) {
     EXCEPTION_CREATE;
     {
         EXCEPTION_CLEAR;
@@ -381,7 +381,7 @@ TEST_F(Strings, StringBuilderAddStringValue) {
     }
 }
 
-TEST_F(Strings, StringBuilderAddInvalidStringValue) {
+TEST_F(Strings, StringBuilder_AddStringValue_Invalid) {
     EXCEPTION_CREATE;
     {
         EXCEPTION_CLEAR;
@@ -490,7 +490,7 @@ TEST_F(Strings, SubString) {
 
 }
 
-TEST_F(Strings, StringCompare) {
+TEST_F(Strings, String_Compare) {
     // Identical Strings Test
     {
         const char *str1 = "OpenAI";
@@ -597,7 +597,7 @@ TEST_F(Strings, StringCompare) {
     }
 }
 
-TEST_F(Strings, StringCompareLength) {
+TEST_F(Strings, String_CompareLength) {
     // Identical Strings, Full Length Test
     {
         const char *str1 = "OpenAI";

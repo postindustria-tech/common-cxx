@@ -246,20 +246,20 @@ TEST_F(Strings, StringBuilderAddDouble) {
     }
 }
 
-static char stringValueString[] = "\x12\0some-string-value";
-static byte coordValueString[] = {
+static const char stringValueString[] = "\x12\0some-string-value";
+static const byte coordValueString[] = {
     0x09, 0x00,
     FIFTYONE_DEGREES_STRING_COORDINATE,
     0x00, 0x00, 0x80, 0xBF, // -1.0
     0x00, 0x00, 0x00, 0x41, //  8.0
     0x00,
 };
-static byte ipv4ValueString[] = {
+static const byte ipv4ValueString[] = {
     0x05, 0x00,
     FIFTYONE_DEGREES_STRING_IP_ADDRESS,
     0xD4, 0x0C, 0x00, 0x01,
 };
-static byte ipv6ValueString[] = {
+static const byte ipv6ValueString[] = {
     0x11, 0x00,
     FIFTYONE_DEGREES_STRING_IP_ADDRESS,
     0x20,0x01,0x0d,0xb8,
@@ -267,7 +267,17 @@ static byte ipv6ValueString[] = {
     0x00,0x00,0x8a,0x2e,
     0x03,0x70,0x73,0x34,
 };
-static byte wkbValueString[] = {
+static const byte invalidIpValueString[] = {
+    0x17, 0x00,
+    FIFTYONE_DEGREES_STRING_IP_ADDRESS,
+    0x20,0x01,0x0d,0xb8,
+    0x85,0xa3,0x00,0x00,
+    0x00,0x00,0x8a,0x2e,
+    0x03,0x70,0x73,0x34,
+    0x00,0x00,0x00,0x00,
+    0x00,0x00,0x00,0x00,
+};
+static const byte wkbValueString[] = {
     0x15, 0x00,
     FIFTYONE_DEGREES_STRING_WKB,
     0x00,
@@ -368,6 +378,21 @@ TEST_F(Strings, StringBuilderAddStringValue) {
         StringBuilderComplete(builder);
         EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
         EXPECT_STRCASEEQ(builder->ptr, "point(17 892)");
+    }
+}
+
+TEST_F(Strings, StringBuilderAddInvalidStringValue) {
+    EXCEPTION_CREATE;
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)invalidIpValueString,
+            0,
+            exception);
+        EXPECT_FALSE(EXCEPTION_OKAY) << "Exception not thrown";
+        EXPECT_EQ(exception->status, INCORRECT_IP_ADDRESS_FORMAT);
     }
 }
 

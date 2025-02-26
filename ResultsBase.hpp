@@ -33,11 +33,11 @@
 #include "results.h"
 #include "resource.h"
 
-using std::shared_ptr;
-using std::stringstream;
-
 namespace FiftyoneDegrees {
 	namespace Common {
+		using std::shared_ptr;
+		using std::stringstream;
+
 		/**
 		 * Encapsulates the results of an engine's processing. The class is
 		 * constructed using an instance of a C #fiftyoneDegreesResultsBase

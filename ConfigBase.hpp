@@ -28,10 +28,11 @@
 #include "Exceptions.hpp"
 #include "config.h"
 
-using std::vector;
-
 namespace FiftyoneDegrees {
 	namespace Common {
+
+		using std::vector;
+
 		/**
 		 * C++ class wrapper for the #fiftyoneDegreesConfigBase configuration
 		 * structure. See config.h.

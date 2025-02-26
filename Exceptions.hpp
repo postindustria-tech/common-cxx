@@ -29,15 +29,14 @@
 #include <memory>
 #include "exceptions.h"
 #include "status.h"
-#include "memory.h"
-
-using std::runtime_error;
-using std::string;
-using std::exception;
-using std::shared_ptr;
 
 namespace FiftyoneDegrees {
 	namespace Common {
+		using std::runtime_error;
+		using std::string;
+		using std::exception;
+		using std::shared_ptr;
+
 		/**
 		 * Exception containing the status code which caused the exception.
 		 */

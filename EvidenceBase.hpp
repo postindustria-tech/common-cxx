@@ -28,13 +28,13 @@
 #include "Exceptions.hpp"
 #include "evidence.h"
 
-using std::map;
-using std::make_shared;
-using std::invalid_argument;
-using std::stringstream;
-
 namespace FiftyoneDegrees {
 	namespace Common {
+		using std::map;
+		using std::make_shared;
+		using std::invalid_argument;
+		using std::stringstream;
+
 		/**
 		 * Base evidence class containing evidence to be processed by an engine.
 		 * This wraps a dynamically generated C evidence structure.

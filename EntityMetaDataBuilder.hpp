@@ -28,9 +28,6 @@
 #include "collection.h"
 #include "string.h"
 
-
-using namespace FiftyoneDegrees;
-
 namespace FiftyoneDegrees {
 	namespace Common {
 		/**

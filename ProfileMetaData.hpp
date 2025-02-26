@@ -23,13 +23,15 @@
 #ifndef FIFTYONE_DEGREES_PROFILE_META_DATA_HPP
 #define FIFTYONE_DEGREES_PROFILE_META_DATA_HPP
 
+#include <cstdint>
 #include <string>
 #include "EntityMetaData.hpp"
-
-using std::vector;
+#include "data.h"
 
 namespace FiftyoneDegrees {
 	namespace Common {
+		using std::vector;
+
 		/**
 		 * Meta data relating to a profile populated by an engine
 		 * implementation.

@@ -31,10 +31,10 @@
 #include "resource.h"
 #include <memory>
 
-using std::shared_ptr;
-
 namespace FiftyoneDegrees {
 	namespace Common {
+		using std::shared_ptr;
+
 		/**
 		 * Contains meta data for the properties, values, profiles and
 		 * components that exist within the engine instance. All Collections

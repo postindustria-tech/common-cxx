@@ -56,6 +56,7 @@ if (c->release != NULL) {\
     FIFTYONE_DEGREES_COLLECTION_RELEASE(c, &i);\
 }
 
+using std::string;
 using std::stringstream;
 using std::cout;
 

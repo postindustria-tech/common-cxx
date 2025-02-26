@@ -27,11 +27,11 @@
 #include <vector>
 #include "properties.h"
 
-using std::string;
-using std::vector;
-
 namespace FiftyoneDegrees {
 	namespace Common {
+		using std::string;
+		using std::vector;
+
 		/**
 		 * C++ class wrapper for the #fiftyoneDegreesPropertiesRequired
 		 * structure. It defines a set of properties which are required by a

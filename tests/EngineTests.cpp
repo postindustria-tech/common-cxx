@@ -28,6 +28,7 @@
 
 using std::hash;
 using std::thread;
+using namespace FiftyoneDegrees::Common;
 
 EngineTests::EngineTests(
 	RequiredPropertiesConfig *requiredProperties,

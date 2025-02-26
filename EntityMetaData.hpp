@@ -25,13 +25,12 @@
 
 #include <string>
 #include <vector>
-#include "data.h"
-
-using std::vector;
-using std::string;
 
 namespace FiftyoneDegrees {
 	namespace Common {
+		using std::vector;
+		using std::string;
+
 		/**
 		 * Base class for any entity meta data. All meta data classes should
 		 * extend this class.

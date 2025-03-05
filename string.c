@@ -108,6 +108,11 @@ const char *fiftyoneDegreesStringSubString(const char *a, const char *b) {
 	return NULL;
 }
 
+/**
+ * Add IPv4 address (raw bytes) to string builder (as text)
+ * @param ipAddress raw bytes of IPv4
+ * @param stringBuilder destination
+ */
 static void getIpv4RangeString(
 	const unsigned char ipAddress[FIFTYONE_DEGREES_IPV4_LENGTH],
 	StringBuilder * const stringBuilder) {
@@ -120,6 +125,11 @@ static void getIpv4RangeString(
 	StringBuilderAddInteger(stringBuilder, ipAddress[3]);
 }
 
+/**
+ * Add IPv6 address (raw bytes) to string builder (as text)
+ * @param ipAddress raw bytes of IPv6
+ * @param stringBuilder destination
+ */
 static void getIpv6RangeString(
 	const unsigned char ipAddress[FIFTYONE_DEGREES_IPV6_LENGTH],
 	StringBuilder * const stringBuilder) {
@@ -136,7 +146,7 @@ static void getIpv6RangeString(
 	}
 }
 
-void StringBuilderAddIpAddress(
+void fiftyoneDegreesStringBuilderAddIpAddress(
 	StringBuilder * const stringBuilder,
 	const String * const ipAddress,
 	const IpType type,
@@ -208,9 +218,12 @@ fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
 	return builder;
 }
 
+/**
+ * Max. number of decimal places to be printed for a double.
+ */
 #define MAX_DOUBLE_DECIMAL_PLACES 15
 
-StringBuilder* StringBuilderAddDouble(
+StringBuilder* fiftyoneDegreesStringBuilderAddDouble(
 	fiftyoneDegreesStringBuilder * const builder,
 	const double value,
 	const uint8_t decimalPlaces) {
@@ -307,7 +320,7 @@ fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
 	return builder;
 }
 
-StringBuilder* StringBuilderAddStringValue(
+StringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
 	fiftyoneDegreesStringBuilder* builder,
 	const fiftyoneDegreesString* value,
 	uint8_t decimalPlaces,

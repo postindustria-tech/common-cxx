@@ -311,6 +311,7 @@ bool fiftyoneDegreesIpAddressParse(
 		address->value,
 		byteCount,
 	};
+
 	// Add the bytes from the source value and get the type of address.
 	iterateIpAddress(
 		start,
@@ -319,6 +320,10 @@ bool fiftyoneDegreesIpAddressParse(
 		&springCount,
 		type,
 		callbackIpAddressBuild);
+	
+	// Set the length of the address.
+	address->length = byteCount;
+
 	return true;
 }
 

@@ -73,6 +73,7 @@
 #include "tree.h"
 #include "ip.h"
 #include "float.h"
+#include "double.h"
 #include "coordinate.h"
 #include "snprintf.h"
 #include "bool.h"
@@ -173,6 +174,7 @@ MAP_TYPE(TreeRoot)
 MAP_TYPE(ProfileOffset)
 MAP_TYPE(ProfileIterateMethod)
 MAP_TYPE(Float)
+MAP_TYPE(Double)
 MAP_TYPE(Coordinate)
 MAP_TYPE(KeyValuePair)
 MAP_TYPE(HeaderID)

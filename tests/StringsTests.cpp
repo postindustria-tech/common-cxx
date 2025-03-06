@@ -46,7 +46,7 @@ void Strings::TearDown() {
     fiftyoneDegreesFree(builder);
 }
 
-TEST_F(Strings, StringBuilderAddChar) {
+TEST_F(Strings, StringBuilder_AddChar) {
     fiftyoneDegreesStringBuilderInit(builder);
     fiftyoneDegreesStringBuilderAddChar(builder, 'a');
     ASSERT_EQ(builder->added, 1);
@@ -83,7 +83,7 @@ TEST_F(Strings, StringBuilderAddChar) {
     
 }
 
-TEST_F(Strings, StringBuilderAddCharPastTheEnd) {
+TEST_F(Strings, StringBuilder_AddCharPastTheEnd) {
     fiftyoneDegreesStringBuilderInit(builder);
     for (size_t i=0; i < bufferSize + 3; ++i) {
         fiftyoneDegreesStringBuilderAddChar(builder, 'a');
@@ -97,7 +97,7 @@ TEST_F(Strings, StringBuilderAddCharPastTheEnd) {
     ASSERT_TRUE(builder->full);
 }
 
-TEST_F(Strings, StringBuilderAddChars) {
+TEST_F(Strings, StringBuilder_AddChars) {
     fiftyoneDegreesStringBuilderInit(builder);
     char *s = (char *) "abcdef";
     size_t len = strlen(s);
@@ -112,7 +112,7 @@ TEST_F(Strings, StringBuilderAddChars) {
     ASSERT_FALSE(builder->full);
 }
 
-TEST_F(Strings, StringBuilderAddCharsPastEnd) {
+TEST_F(Strings, StringBuilder_AddCharsPastEnd) {
     fiftyoneDegreesStringBuilderInit(builder);
     char *s = (char *) "abcdef";
     size_t len = strlen(s);
@@ -135,7 +135,7 @@ TEST_F(Strings, StringBuilderAddCharsPastEnd) {
     ASSERT_EQ(strlen(builder->ptr), bufferSize - bufferSize % len);
 }
 
-TEST_F(Strings, StringBuilderAddInteger) {
+TEST_F(Strings, StringBuilder_AddInteger) {
     fiftyoneDegreesStringBuilderInit(builder);
     int x = 42;
     size_t len = 2;
@@ -152,7 +152,7 @@ TEST_F(Strings, StringBuilderAddInteger) {
     ASSERT_FALSE(builder->full);
 }
 
-TEST_F(Strings, StringBuilderAddMaxInt) {
+TEST_F(Strings, StringBuilder_AddMaxInt) {
     fiftyoneDegreesStringBuilderInit(builder);
     int x = INT_MIN;
     char buf[bufferSize];
@@ -171,7 +171,7 @@ TEST_F(Strings, StringBuilderAddMaxInt) {
     ASSERT_FALSE(builder->full);
 }
 
-TEST_F(Strings, StringBuilderNullBuffer) {
+TEST_F(Strings, StringBuilder_NullBuffer) {
     StringBuilder *prev = builder;
     StringBuilder local = {nullptr, 0};
     builder = &local;
@@ -183,7 +183,7 @@ TEST_F(Strings, StringBuilderNullBuffer) {
     builder = prev;
 }
 
-TEST_F(Strings, StringBuilderOneChar) {
+TEST_F(Strings, StringBuilder_OneChar) {
     StringBuilder *prev = builder;
     StringBuilder local = {(char *) fiftyoneDegreesMalloc(1), 1};
     builder = &local;
@@ -201,6 +201,200 @@ TEST_F(Strings, StringBuilderOneChar) {
     builder = prev;
 }
 
+TEST_F(Strings, StringBuilder_AddDouble) {
+    {
+        StringBuilderInit(builder);
+        StringBuilderAddDouble(builder, 5.0999999999999996, 30);
+        StringBuilderComplete(builder);
+        EXPECT_STREQ(builder->ptr, "5.1");
+    }
+    {
+        StringBuilderInit(builder);
+        StringBuilderAddDouble(builder, 739.997, 2);
+        StringBuilderComplete(builder);
+        EXPECT_STREQ(builder->ptr, "740");
+    }
+    {
+        StringBuilderInit(builder);
+        StringBuilderAddDouble(builder, 42.127, 0);
+        StringBuilderComplete(builder);
+        EXPECT_STREQ(builder->ptr, "42");
+    }
+    {
+        StringBuilderInit(builder);
+        StringBuilderAddDouble(builder, 42.127, 1);
+        StringBuilderComplete(builder);
+        EXPECT_STREQ(builder->ptr, "42.1");
+    }
+    {
+        StringBuilderInit(builder);
+        StringBuilderAddDouble(builder, 42.127, 2);
+        StringBuilderComplete(builder);
+        EXPECT_STREQ(builder->ptr, "42.13");
+    }
+    {
+        StringBuilderInit(builder);
+        StringBuilderAddDouble(builder, 42.127, 3);
+        StringBuilderComplete(builder);
+        EXPECT_STREQ(builder->ptr, "42.127");
+    }
+    {
+        StringBuilderInit(builder);
+        StringBuilderAddDouble(builder, 42.127, 30);
+        StringBuilderComplete(builder);
+        EXPECT_STREQ(builder->ptr, "42.127000000000002");
+    }
+}
+
+static const char stringValueString[] = "\x12\0some-string-value";
+static const byte coordValueString[] = {
+    0x09, 0x00,
+    FIFTYONE_DEGREES_STRING_COORDINATE,
+    0x00, 0x00, 0x80, 0xBF, // -1.0
+    0x00, 0x00, 0x00, 0x41, //  8.0
+    0x00,
+};
+static const byte ipv4ValueString[] = {
+    0x05, 0x00,
+    FIFTYONE_DEGREES_STRING_IP_ADDRESS,
+    0xD4, 0x0C, 0x00, 0x01,
+};
+static const byte ipv6ValueString[] = {
+    0x11, 0x00,
+    FIFTYONE_DEGREES_STRING_IP_ADDRESS,
+    0x20,0x01,0x0d,0xb8,
+    0x85,0xa3,0x00,0x00,
+    0x00,0x00,0x8a,0x2e,
+    0x03,0x70,0x73,0x34,
+};
+static const byte invalidIpValueString[] = {
+    0x17, 0x00,
+    FIFTYONE_DEGREES_STRING_IP_ADDRESS,
+    0x20,0x01,0x0d,0xb8,
+    0x85,0xa3,0x00,0x00,
+    0x00,0x00,0x8a,0x2e,
+    0x03,0x70,0x73,0x34,
+    0x00,0x00,0x00,0x00,
+    0x00,0x00,0x00,0x00,
+};
+static const byte wkbValueString[] = {
+    0x15, 0x00,
+    FIFTYONE_DEGREES_STRING_WKB,
+    0x00,
+    0x00, 0x00, 0x00, 0x01,
+    0x40, 0x31, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x40, 0x8b, 0xe0, 0xc0, 0x00, 0x00, 0x00, 0x00,
+};
+
+TEST_F(Strings, StringBuilder_AddIPv4) {
+    EXCEPTION_CREATE;
+    StringBuilderInit(builder);
+    StringBuilderAddIpAddress(
+        builder,
+        (const String *)ipv4ValueString,
+        IP_TYPE_IPV4,
+        exception);
+    StringBuilderComplete(builder);
+    EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+    EXPECT_STREQ(builder->ptr, "212.12.0.1");
+}
+
+TEST_F(Strings, StringBuilder_AddIPv6) {
+    EXCEPTION_CREATE;
+    StringBuilderInit(builder);
+    StringBuilderAddIpAddress(
+        builder,
+        (const String *)ipv6ValueString,
+        IP_TYPE_IPV6,
+        exception);
+    StringBuilderComplete(builder);
+    EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+    EXPECT_STREQ(builder->ptr, "2001:0db8:85a3:0000:0000:8a2e:0370:7334");
+}
+
+TEST_F(Strings, StringBuilder_AddStringValue_Valid) {
+    EXCEPTION_CREATE;
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)stringValueString,
+            0,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STREQ(builder->ptr, stringValueString + 2);
+    }
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)ipv4ValueString,
+            0,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STREQ(builder->ptr, "212.12.0.1");
+    }
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)ipv6ValueString,
+            0,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STREQ(builder->ptr, "2001:0db8:85a3:0000:0000:8a2e:0370:7334");
+    }
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)coordValueString,
+            0,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STREQ(builder->ptr, "-1,8");
+    }
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)wkbValueString,
+            0,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STRCASEEQ(builder->ptr, "point(17 892)");
+    }
+}
+
+TEST_F(Strings, StringBuilder_AddStringValue_Invalid) {
+    EXCEPTION_CREATE;
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)invalidIpValueString,
+            0,
+            exception);
+        EXPECT_FALSE(EXCEPTION_OKAY) << "Exception not thrown";
+        EXPECT_EQ(exception->status, INCORRECT_IP_ADDRESS_FORMAT);
+    }
+}
 
 //Some tests below were generated using OpenAI ChatGPT
 TEST_F(Strings, SubString) {
@@ -296,7 +490,7 @@ TEST_F(Strings, SubString) {
 
 }
 
-TEST_F(Strings, StringCompare) {
+TEST_F(Strings, String_Compare) {
     // Identical Strings Test
     {
         const char *str1 = "OpenAI";
@@ -403,7 +597,7 @@ TEST_F(Strings, StringCompare) {
     }
 }
 
-TEST_F(Strings, StringCompareLength) {
+TEST_F(Strings, String_CompareLength) {
     // Identical Strings, Full Length Test
     {
         const char *str1 = "OpenAI";

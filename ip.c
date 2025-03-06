@@ -322,7 +322,7 @@ bool fiftyoneDegreesIpAddressParse(
 		callbackIpAddressBuild);
 	
 	// Set the length of the address.
-	address->length = byteCount;
+	address->length = (type == IP_TYPE_IPV4) ? IPV4_LENGTH : IPV6_LENGTH;
 
 	return true;
 }

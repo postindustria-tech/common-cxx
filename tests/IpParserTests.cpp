@@ -240,6 +240,7 @@ TEST(ParseIp, ParseIp_Ipv6_AbbreviatedStart)
 	EXPECT_TRUE(
 		CheckResult(result.value, expected, IPV6_LENGTH)) <<
 		"The value of the abbreivated start IPv6 address is not correctly parsed.";
+    EXPECT_EQ(result.length, 8);
 }
 TEST(ParseIp, ParseIp_Ipv6_AbbreviatedMiddle)
 {
@@ -314,6 +315,7 @@ TEST(ParseIp, ParseIp_Invalid_ipv4OutOfRange)
 		CheckResult(result.value, expected, IPV4_LENGTH)) <<
 		"The value of the out of range IPv4 address is not correctly restricted "
 		"at 255.";
+    EXPECT_EQ(result.length, 4);
 }
 TEST(ParseIp, ParseIp_Invalid_ipv4TooMany)
 {

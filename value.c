@@ -21,6 +21,9 @@
  * ********************************************************************* */
 
 #include "value.h"
+
+#include <math.h>
+
 #include "fiftyone.h"
 
 MAP_TYPE(Value);
@@ -150,6 +153,54 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 			const size_t wkbLength = value->size - 1;
 			const size_t cmpLen = searchValLength < wkbLength ? searchValLength : wkbLength;
 			result = strncmp(&(value->trail.secondValue), search->valueName, cmpLen);
+			break;
+		}
+		case FIFTYONE_DEGREES_STRING_DOUBLE: {
+			const double doubleValue = fiftyoneDegreesDoubleToNative(
+				*(fiftyoneDegreesDoubleInternal *)&value->trail.doubleValue);
+			const double searchDouble = strtod(search->valueName, NULL);
+			if (errno == ERANGE)
+			{
+				result = -1;
+				errno = 0;
+			} else {
+				const double dv = doubleValue - searchDouble;
+				if (dv < 0) {
+					result = -1;
+				} else if (dv > 1) {
+					result = 1;
+				}
+			}
+			break;
+		}
+		case FIFTYONE_DEGREES_STRING_INT: {
+			const int32_t intValue = value->trail.intValue;
+			const int32_t searchInt = strtol(search->valueName, NULL, 10);
+			if (errno == ERANGE)
+			{
+				result = -1;
+				errno = 0;
+			} else {
+				result = (int)(intValue - searchInt);
+			}
+			break;
+		}
+		case FIFTYONE_DEGREES_STRING_FLOAT: {
+			const float floatValue = fiftyoneDegreesFloatToNative(
+				*(fiftyoneDegreesFloatInternal *)&value->trail.floatValue);
+			const float searchFloat = (float)strtod(search->valueName, NULL);
+			if (errno == ERANGE)
+			{
+				result = -1;
+				errno = 0;
+			} else {
+				const float dv = floatValue - searchFloat;
+				if (dv < 0) {
+					result = -1;
+				} else if (dv > 1) {
+					result = 1;
+				}
+			}
 			break;
 		}
 		default:

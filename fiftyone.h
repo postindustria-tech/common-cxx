@@ -81,6 +81,8 @@
 #include "yamlfile.h"
 #include "indices.h"
 #include "json.h"
+#include "wkbtot.h"
+#include "constants.h"
 
 /**
  * Macro used to support synonym implementation. Creates a typedef which 
@@ -180,6 +182,7 @@ MAP_TYPE(Json)
 MAP_TYPE(KeyValuePairArray)
 MAP_TYPE(IpType)
 MAP_TYPE(IpAddress)
+MAP_TYPE(WkbtotResult)
 
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */
 #define OverrideValuesAdd fiftyoneDegreesOverrideValuesAdd /**< Synonym for #fiftyoneDegreesOverrideValuesAdd function. */
@@ -351,14 +354,22 @@ MAP_TYPE(IpAddress)
 #define StringBuilderInit fiftyoneDegreesStringBuilderInit /**< Synonym for fiftyoneDegreesStringBuilderInit */
 #define StringBuilderAddChar fiftyoneDegreesStringBuilderAddChar /**< Synonym for fiftyoneDegreesStringBuilderAddChar */
 #define StringBuilderAddInteger fiftyoneDegreesStringBuilderAddInteger /**< Synonym for fiftyoneDegreesStringBuilderAddInteger */
+#define StringBuilderAddDouble fiftyoneDegreesStringBuilderAddDouble /**< Synonym for fiftyoneDegreesStringBuilderAddDouble */
 #define StringBuilderAddChars fiftyoneDegreesStringBuilderAddChars /**< Synonym for fiftyoneDegreesStringBuilderAddChars */
+#define StringBuilderAddIpAddress fiftyoneDegreesStringBuilderAddIpAddress /**< Synonym for fiftyoneDegreesStringBuilderAddIpAddress */
+#define StringBuilderAddStringValue fiftyoneDegreesStringBuilderAddStringValue /**< Synonym for fiftyoneDegreesStringBuilderAddStringValue */
 #define StringBuilderComplete fiftyoneDegreesStringBuilderComplete /**< Synonym for fiftyoneDegreesStringBuilderComplete */
 #define EvidenceIterateMethod fiftyoneDegreesEvidenceIterateMethod /**< Synonym for fiftyoneDegreesEvidenceIterateMethod */
 #define OverrideHasValueForRequiredPropertyIndex fiftyoneDegreesOverrideHasValueForRequiredPropertyIndex /**< Synonym for fiftyoneDegreesOverrideHasValueForRequiredPropertyIndex */
-#define IpAddressesFree fiftyoneDegreesIpAddressesFree /**< Synonym for fiftyoneDegreesIpAddressesFree */
 #define IpAddressParse fiftyoneDegreesIpAddressParse /**< Synonym for fiftyoneDegreesIpAddressParse */
-#define IpAddressesParse fiftyoneDegreesIpAddressesParse /**< Synonym for fiftyoneDegreesIpAddressesParse */
 #define IpAddressesCompare fiftyoneDegreesIpAddressesCompare /**< Synonym for fiftyoneDegreesIpAddressesCompare */
+#define ConvertWkbToWkt fiftyoneDegreesConvertWkbToWkt /**< Synonym for fiftyoneDegreesConvertWkbToWkt */
+
+/* <-- only one asterisk to avoid inclusion in documentation
+ * Shortened constants.
+ */
+
+#define IpAddressStringMaxLength fiftyoneDegreesIpAddressStringMaxLength /**< Synonym for #fiftyoneDegreesIpAddressStringMaxLength macro. */
 
 /* <-- only one asterisk to avoid inclusion in documentation
  * Shortened macros.
@@ -396,6 +407,7 @@ MAP_TYPE(IpAddress)
 #define NATIVE_TO_FLOAT FIFTYONE_DEGREES_NATIVE_TO_FLOAT /**< Synonym for #FIFTYONE_DEGREES_NATIVE_TO_FLOAT macro. */
 #define FLOAT_IS_EQUAL FIFTYONE_DEGREES_FLOAT_IS_EQUAL /**< Synonym for #FIFTYONE_DEGREES_FLOAT_IS_EQUAL macro. */
 #define PSEUDO_HEADER_SEP FIFTYONE_DEGREES_PSEUDO_HEADER_SEP /**< Synonym for #FIFTYONE_DEGREES_PSEUDO_HEADER_SEP macro. */
+#define REASONABLE_WKT_STRING_LENGTH FIFTYONE_DEGREES_REASONABLE_WKT_STRING_LENGTH /**< Synonym for #FIFTYONE_DEGREES_REASONABLE_WKT_STRING_LENGTH macro. */
 
 /* <-- only one asterisk to avoid inclusion in documentation
  * Shorten status codes.

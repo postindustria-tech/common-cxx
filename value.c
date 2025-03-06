@@ -145,6 +145,13 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 		case FIFTYONE_DEGREES_STRING_IP_ADDRESS:
 			result = compareIpAddress(value, search->valueName);
 			break;
+		case FIFTYONE_DEGREES_STRING_WKB: {
+			const size_t searchValLength = strlen(search->valueName);
+			const size_t wkbLength = value->size - 1;
+			const size_t cmpLen = searchValLength < wkbLength ? searchValLength : wkbLength;
+			result = strncmp(&(value->trail.secondValue), search->valueName, cmpLen);
+			break;
+		}
 		default:
 			result = strcmp(&value->value, search->valueName);
 			break;

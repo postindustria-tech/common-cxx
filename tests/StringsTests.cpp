@@ -285,6 +285,21 @@ static const byte wkbValueString[] = {
     0x40, 0x31, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x40, 0x8b, 0xe0, 0xc0, 0x00, 0x00, 0x00, 0x00,
 };
+static const byte doubleValueString[] = {
+    0x05, 0x00,
+    FIFTYONE_DEGREES_STRING_DOUBLE,
+    0x54, 0x74, 0x24, 0x97, 0xDF, 0x49, 0xAE, 0x40, // 3876.9367
+};
+static const byte intValueString[] = {
+    0x05, 0x00,
+    FIFTYONE_DEGREES_STRING_INT,
+    0x12, 0x40, 0x24, 0x00, // 2375698
+};
+static const byte floatValueString[] = {
+    0x05, 0x00,
+    FIFTYONE_DEGREES_STRING_FLOAT,
+    0x00, 0x00, 0x52, 0xC1, // -13.125
+};
 
 TEST_F(Strings, StringBuilder_AddIPv4) {
     EXCEPTION_CREATE;
@@ -378,6 +393,110 @@ TEST_F(Strings, StringBuilder_AddStringValue_Valid) {
         StringBuilderComplete(builder);
         EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
         EXPECT_STRCASEEQ(builder->ptr, "point(17 892)");
+    }
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)doubleValueString,
+            10,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STRCASEEQ(builder->ptr, "3876.9367");
+    }
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)doubleValueString,
+            2,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STRCASEEQ(builder->ptr, "3876.94");
+    }
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)doubleValueString,
+            0,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STRCASEEQ(builder->ptr, "3877");
+    }
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)intValueString,
+            10,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STRCASEEQ(builder->ptr, "2375698");
+    }
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)floatValueString,
+            10,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STRCASEEQ(builder->ptr, "-13.125");
+    }
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)floatValueString,
+            2,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STRCASEEQ(builder->ptr, "-13.13");
+    }
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)floatValueString,
+            1,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STRCASEEQ(builder->ptr, "-13.1");
+    }
+    {
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const String *)floatValueString,
+            0,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STRCASEEQ(builder->ptr, "-13");
     }
 }
 

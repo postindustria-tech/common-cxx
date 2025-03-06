@@ -374,6 +374,28 @@ StringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
 				exception);
 			break;
 		}
+		case FIFTYONE_DEGREES_STRING_DOUBLE: {
+			const double doubleValue = fiftyoneDegreesDoubleToNative(
+				*(fiftyoneDegreesDoubleInternal *)&value->trail.doubleValue);
+			StringBuilderAddDouble(
+				builder,
+				doubleValue,
+				decimalPlaces);
+			break;
+		}
+		case FIFTYONE_DEGREES_STRING_INT: {
+			StringBuilderAddInteger(builder, value->trail.intValue);
+			break;
+		}
+		case FIFTYONE_DEGREES_STRING_FLOAT: {
+			const float floatValue = fiftyoneDegreesFloatToNative(
+				*(fiftyoneDegreesFloatInternal *)&value->trail.floatValue);
+			StringBuilderAddDouble(
+				builder,
+				floatValue,
+				decimalPlaces);
+			break;
+		}
 		default: {
 			// discard NUL-terminator
 			if (value->size > 1) {

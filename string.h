@@ -69,6 +69,7 @@
 #include "collection.h"
 #include "float.h"
 #include "common.h"
+#include "double.h"
 #include "ip.h"
 
 /**
@@ -83,6 +84,9 @@ typedef enum fiftyone_degrees_string_format {
 									    IP address*/
 	FIFTYONE_DEGREES_STRING_WKB, /**< Format is a byte array representation of
 									  a WKB geometry */
+	FIFTYONE_DEGREES_STRING_DOUBLE, /**< Format is an IEEE double value */
+	FIFTYONE_DEGREES_STRING_INT, /**< Format is an integer number */
+	FIFTYONE_DEGREES_STRING_FLOAT, /**< Format is an IEEE float value */
 } fiftyoneDegreesStringFormat;
 
 /**
@@ -121,6 +125,48 @@ typedef enum fiftyone_degrees_string_format {
 		NULL : \
 		&((const fiftyoneDegreesString*)s)->trail.secondValue)
 
+/**
+ * Macro used to check for NULL before returning the IEEE double (byte array)
+ * as a const fiftyoneDegreesDouble *.
+ * @param s pointer to the #fiftyoneDegreesString
+ * @return `const fiftyoneDegreesDouble *` or NULL. NULL if the pointer is NULL or
+ * the type stored at the pointer is not an IEEE double
+ */
+#define FIFTYONE_DEGREES_DOUBLE(s) \
+	(const fiftyoneDegreesDouble*)(s == NULL \
+		|| ((const fiftyoneDegreesString*)s)->value \
+			!= FIFTYONE_DEGREES_STRING_DOUBLE ? \
+		NULL : \
+		&((const fiftyoneDegreesDouble*)s)->trail.secondValue)
+
+/**
+ * Macro used to check for NULL before returning and integer
+ * as a const int32_t *.
+ * @param s pointer to the #fiftyoneDegreesString
+ * @return `const int32_t *` or NULL. NULL if the pointer is NULL or
+ * the type stored at the pointer is not an integer
+ */
+#define FIFTYONE_DEGREES_INT(s) \
+	(const int32_t*)(s == NULL \
+		|| ((const fiftyoneDegreesString*)s)->value \
+			!= FIFTYONE_DEGREES_STRING_INT ? \
+		NULL : \
+		&((const fiftyoneDegreesDouble*)s)->trail.secondValue)
+
+/**
+ * Macro used to check for NULL before returning the IEEE float (byte array)
+ * as a const fiftyoneDegreesFloat *.
+ * @param s pointer to the #fiftyoneDegreesString
+ * @return `const fiftyoneDegreesFloat *` or NULL. NULL if the pointer is NULL or
+ * the type stored at the pointer is not an IEEE float
+ */
+#define FIFTYONE_DEGREES_FLOAT(s) \
+	(const fiftyoneDegreesFloat*)(s == NULL \
+		|| ((const fiftyoneDegreesString*)s)->value \
+			!= FIFTYONE_DEGREES_STRING_FLOAT ? \
+		NULL : \
+		&((const fiftyoneDegreesFloat*)s)->trail.secondValue)
+
 /** 
  * String structure containing its value and size which maps to the string 
  * byte format used in data files.
@@ -138,7 +184,7 @@ typedef enum fiftyone_degrees_string_format {
  * @example
  * IP (v4) address:
  * 			Short – length – 5
- * 			Byte value – type – 2
+ * 			Byte value – type – 2 (IP)
  * 			Byte[] – IP – [ 1, 2, 3, 4 ]
  * @example
  * WKB (value of  POINT(2.0 4.0)):
@@ -149,7 +195,22 @@ typedef enum fiftyone_degrees_string_format {
  * 				0, 0, 0, 1 (2D point),
  * 				128, 0, 0, 0, 0, 0, 0, 0 (2.0 float),
  * 				128, 16, 0, 0, 0, 0, 0, 0 (4.0 float)
- * 			]
+* 			]
+ * @example
+ * Double:
+ * 			Short – length – 9
+ * 			Byte value – type – 4 (double)
+ * 			Byte[] – IP – [ 0, 0, 0, 0, 0, 0, 59, 64 ] - (27.0)
+ * @example
+ * Integer:
+ * 			Short – length – 5
+ * 			Byte value – type – 5 (int)
+ * 			Byte[] – IP – [ 18, 64, 36, 0 ] - (2375698)
+ * @example
+ * Float:
+ * 			Short – length – 5
+ * 			Byte value – type – 6 (float)
+ * 			Byte[] – IP – [ 0, 0, 80, 193 ] - (-13.0)
  */
 #pragma pack(push, 1)
 typedef struct fiftyone_degrees_string_t {
@@ -161,6 +222,9 @@ typedef struct fiftyone_degrees_string_t {
 			fiftyoneDegreesFloat lat;
 			fiftyoneDegreesFloat lon;
 		} coordinate; /**< If the string is a coordinate, this will hold the value */
+		int32_t intValue; /**< If the string is an int, this will hold the value */
+		fiftyoneDegreesFloat floatValue; /**< If the string is a float, this will hold the value */
+		fiftyoneDegreesDouble doubleValue; /**< If the string is a double, this will hold the value */
 	} trail;
 } fiftyoneDegreesString;
 #pragma pack(pop)

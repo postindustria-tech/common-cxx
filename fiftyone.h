@@ -361,9 +361,7 @@ MAP_TYPE(WkbtotResult)
 #define StringBuilderComplete fiftyoneDegreesStringBuilderComplete /**< Synonym for fiftyoneDegreesStringBuilderComplete */
 #define EvidenceIterateMethod fiftyoneDegreesEvidenceIterateMethod /**< Synonym for fiftyoneDegreesEvidenceIterateMethod */
 #define OverrideHasValueForRequiredPropertyIndex fiftyoneDegreesOverrideHasValueForRequiredPropertyIndex /**< Synonym for fiftyoneDegreesOverrideHasValueForRequiredPropertyIndex */
-#define IpAddressesFree fiftyoneDegreesIpAddressesFree /**< Synonym for fiftyoneDegreesIpAddressesFree */
 #define IpAddressParse fiftyoneDegreesIpAddressParse /**< Synonym for fiftyoneDegreesIpAddressParse */
-#define IpAddressesParse fiftyoneDegreesIpAddressesParse /**< Synonym for fiftyoneDegreesIpAddressesParse */
 #define IpAddressesCompare fiftyoneDegreesIpAddressesCompare /**< Synonym for fiftyoneDegreesIpAddressesCompare */
 #define ConvertWkbToWkt fiftyoneDegreesConvertWkbToWkt /**< Synonym for fiftyoneDegreesConvertWkbToWkt */
 

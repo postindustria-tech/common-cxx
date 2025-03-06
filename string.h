@@ -266,7 +266,7 @@ EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChar(
  */
 EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
 	fiftyoneDegreesStringBuilder* builder,
-	int const value);
+	int64_t const value);
 
 /**
  * Adds the double to the buffer.

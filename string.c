@@ -20,8 +20,11 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
+#define __STDC_FORMAT_MACROS
+
 #include "string.h"
 #include "fiftyone.h"
+#include <inttypes.h>
 
 static uint32_t getFinalStringSize(void *initial) {
 	return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
@@ -206,10 +209,10 @@ fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChar(
 
 fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
 	fiftyoneDegreesStringBuilder* builder,
-	int const value) {
+	int64_t const value) {
     // 64-bit INT_MIN is  -9,223,372,036,854,775,807 => 21 characters
 	char temp[22];
-	if (snprintf(temp, sizeof(temp), "%d", value) > 0) {
+	if (snprintf(temp, sizeof(temp), "%" PRId64, value) > 0) {
 		StringBuilderAddChars(
 			builder,
 			temp,

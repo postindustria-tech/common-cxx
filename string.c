@@ -238,10 +238,6 @@ StringBuilder* fiftyoneDegreesStringBuilderAddDouble(
 	if (fracPart < 0) {
 		fracPart = -fracPart;
 	}
-	if (remDigits <= 0 && fracPart >= 0.5) {
-		intPart++;
-	}
-
 	if (!fracPart || remDigits <= 0) {
 		if (fracPart >= 0.5) {
 			intPart++;

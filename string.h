@@ -80,34 +80,6 @@
 #define FIFTYONE_DEGREES_STRING(s) \
 	(const char*)(s == NULL ? NULL : &((fiftyoneDegreesString*)s)->value)
 
-/**
- * Macro used to check for NULL before returning the IP address byte array 
- * as a const char *.
- * @param s pointer to the #fiftyoneDegreesString
- * @return const char * string or NULL. NULL if the pointer is NULL or
- * the type stored at the pointer is not an IP address
- */
-#define FIFTYONE_DEGREES_IP_ADDRESS(s) \
-	(const char*)(s == NULL \
-		|| ((fiftyoneDegreesString*)s)->value \
-			!= FIFTYONE_DEGREES_STRING_IP_ADDRESS ? \
-		NULL : \
-		&((fiftyoneDegreesString*)s)->trail.secondValue)
-
-/**
- * Macro used to check for NULL before returning the WKB geometry byte array
- * as a const byte *.
- * @param s pointer to the #fiftyoneDegreesString
- * @return const byte * string or NULL. NULL if the pointer is NULL or
- * the type stored at the pointer is not an WKB geometry
- */
-#define FIFTYONE_DEGREES_WKB(s) \
-	(const unsigned char*)(s == NULL \
-		|| ((const fiftyoneDegreesString*)s)->value \
-			!= FIFTYONE_DEGREES_STRING_WKB ? \
-		NULL : \
-		&((const fiftyoneDegreesString*)s)->trail.secondValue)
-
 /** 
  * String structure containing its value and size which maps to the string 
  * byte format used in data files.

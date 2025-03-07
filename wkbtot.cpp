@@ -33,7 +33,7 @@ namespace FiftyoneDegrees::Common {
     static constexpr size_t reasonableWktStringLength = 128;
 
     WkbtotResult writeWkbStringToStringStream(
-        const String * const wkbString,
+        const VarLengthByteArray * const wkbString,
         std::stringstream &stream,
         const uint8_t decimalPlaces,
         Exception * const exception) {
@@ -47,7 +47,7 @@ namespace FiftyoneDegrees::Common {
             EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_NULL_POINTER);
             return toWktResult;
         }
-        const auto * const wkbBytes = FIFTYONE_DEGREES_WKB(wkbString);
+        const auto * const wkbBytes = &wkbString->firstByte;
         if (!wkbBytes) {
             EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_INVALID_INPUT);
             return toWktResult;

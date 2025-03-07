@@ -109,19 +109,16 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 		exception);
 	if (value != NULL && EXCEPTION_OKAY) {
 		switch (value->value) {
-		case FIFTYONE_DEGREES_STRING_COORDINATE:
-			result = compareCoordinate(value,search->valueName);
-			break;
-		case FIFTYONE_DEGREES_STRING_IP_ADDRESS:
-			result = compareIpAddress(value, search->valueName);
-			break;
-		case FIFTYONE_DEGREES_STRING_WKB: {
-			const size_t searchValLength = strlen(search->valueName);
-			const size_t wkbLength = value->size - 1;
-			const size_t cmpLen = searchValLength < wkbLength ? searchValLength : wkbLength;
-			result = strncmp(&(value->trail.secondValue), search->valueName, cmpLen);
-			break;
-		}
+		// case FIFTYONE_DEGREES_STRING_IP_ADDRESS:
+		// 	result = compareIpAddress(value, search->valueName);
+		// 	break;
+		// case FIFTYONE_DEGREES_STRING_WKB: {
+		// 	const size_t searchValLength = strlen(search->valueName);
+		// 	const size_t wkbLength = value->size - 1;
+		// 	const size_t cmpLen = searchValLength < wkbLength ? searchValLength : wkbLength;
+		// 	result = strncmp(&(value->trail.secondValue), search->valueName, cmpLen);
+		// 	break;
+		// }
 		default:
 			result = strcmp(&value->value, search->valueName);
 			break;

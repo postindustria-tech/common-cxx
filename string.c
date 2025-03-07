@@ -117,7 +117,7 @@ const char *fiftyoneDegreesStringSubString(const char *a, const char *b) {
  * @param stringBuilder destination
  */
 static void getIpv4RangeString(
-	const unsigned char ipAddress[FIFTYONE_DEGREES_IPV4_LENGTH],
+	const unsigned char * const ipAddress,
 	StringBuilder * const stringBuilder) {
 	StringBuilderAddInteger(stringBuilder, ipAddress[0]);
 	StringBuilderAddChar(stringBuilder, '.');
@@ -134,7 +134,7 @@ static void getIpv4RangeString(
  * @param stringBuilder destination
  */
 static void getIpv6RangeString(
-	const unsigned char ipAddress[FIFTYONE_DEGREES_IPV6_LENGTH],
+	const unsigned char * const ipAddress,
 	StringBuilder * const stringBuilder) {
 	const char separator = ':';
 	const char *hex = "0123456789abcdef";

@@ -151,10 +151,10 @@ static void getIpv6RangeString(
 
 void fiftyoneDegreesStringBuilderAddIpAddress(
 	StringBuilder * const stringBuilder,
-	const String * const ipAddress,
+	const VarLengthByteArray * const ipAddress,
 	const IpType type,
 	Exception * const exception) {
-	int32_t ipLength =
+	const int32_t ipLength =
 		type == IP_TYPE_IPV4 ?
 		FIFTYONE_DEGREES_IPV4_LENGTH :
 		FIFTYONE_DEGREES_IPV6_LENGTH;
@@ -163,21 +163,20 @@ void fiftyoneDegreesStringBuilderAddIpAddress(
 
 	// Make sure the ipAddress item and everything is in correct
 	// format
-	if (ipAddress->value == FIFTYONE_DEGREES_STRING_IP_ADDRESS
-		&& ipLength == actualLength
+	if (ipLength == actualLength
 		&& type != IP_TYPE_INVALID) {
 
 		if (type == IP_TYPE_IPV4) {
 			getIpv4RangeString(
-				(unsigned char *)&ipAddress->trail.secondValue,
+				&ipAddress->firstByte,
 				stringBuilder);
 		}
 		else {
 			getIpv6RangeString(
-				(unsigned char *)&ipAddress->trail.secondValue,
+				&ipAddress->firstByte,
 				stringBuilder);
 		}
-		}
+	}
 	else {
 		EXCEPTION_SET(INCORRECT_IP_ADDRESS_FORMAT);
 	}
@@ -324,27 +323,16 @@ fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
 }
 
 StringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
-	fiftyoneDegreesStringBuilder* builder,
-	const fiftyoneDegreesString* value,
-	uint8_t decimalPlaces,
-	fiftyoneDegreesException *exception) {
+	fiftyoneDegreesStringBuilder * const builder,
+	const fiftyoneDegreesStoredBinaryValue* const value,
+	fiftyoneDegreesPropertyValueType const valueType,
+	const uint8_t decimalPlaces,
+	fiftyoneDegreesException * const exception) {
 
-	switch (value->value) {
-		case FIFTYONE_DEGREES_STRING_COORDINATE: {
-			StringBuilderAddDouble(
-				builder,
-				FLOAT_TO_NATIVE(value->trail.coordinate.lat),
-				decimalPlaces);
-			StringBuilderAddChar(builder, ',');
-			StringBuilderAddDouble(
-				builder,
-				FLOAT_TO_NATIVE(value->trail.coordinate.lon),
-				decimalPlaces);
-			break;
-		}
-		case FIFTYONE_DEGREES_STRING_IP_ADDRESS: {
+	switch (valueType) {
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS: {
 			// Get the actual address size
-			const uint16_t addressSize = value->size - 1;
+			const uint16_t addressSize = value->byteArrayValue.size;
 			// Get the type of the IP address
 			fiftyoneDegreesIpType type;
 			switch (addressSize) {
@@ -364,27 +352,42 @@ StringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
 			// Get the string representation of the IP address
 			StringBuilderAddIpAddress(
 				builder,
-				value,
+				&value->byteArrayValue,
 				type,
 				exception);
 			break;
 		}
-		case FIFTYONE_DEGREES_STRING_WKB: {
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB: {
 			fiftyoneDegreesWriteWkbAsWktToStringBuilder(
-				(const unsigned char *)&(value->trail.secondValue),
+				&value->byteArrayValue.firstByte,
 				decimalPlaces,
 				builder,
 				exception);
 			break;
 		}
-		default: {
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
 			// discard NUL-terminator
-			if (value->size > 1) {
+			if (value->stringValue.size > 1) {
 				StringBuilderAddChars(
 					builder,
-					&(value->value),
-					value->size - 1);
+					&value->stringValue.value,
+					value->stringValue.size - 1);
 			}
+			break;
+		}
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
+			StringBuilderAddDouble(
+				builder,
+				FLOAT_TO_NATIVE(value->floatValue),
+				decimalPlaces);
+			break;
+		}
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER: {
+			StringBuilderAddInteger(builder, value->intValue);
+			break;
+		}
+		default: {
+			EXCEPTION_SET(UNSUPPORTED_STORED_VALUE_TYPE);
 			break;
 		}
 	}

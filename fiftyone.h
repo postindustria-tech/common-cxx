@@ -73,7 +73,6 @@
 #include "tree.h"
 #include "ip.h"
 #include "float.h"
-#include "coordinate.h"
 #include "snprintf.h"
 #include "bool.h"
 #include "process.h"
@@ -144,7 +143,8 @@ MAP_TYPE(PropertiesGetMethod)
 MAP_TYPE(HeadersGetMethod)
 MAP_TYPE(DataSetInitFromFileMethod)
 MAP_TYPE(String)
-MAP_TYPE(StringFormat)
+MAP_TYPE(VarLengthByteArray)
+MAP_TYPE(StoredBinaryValue)
 MAP_TYPE(Property)
 MAP_TYPE(Component)
 MAP_TYPE(ComponentKeyValuePair)
@@ -173,7 +173,6 @@ MAP_TYPE(TreeRoot)
 MAP_TYPE(ProfileOffset)
 MAP_TYPE(ProfileIterateMethod)
 MAP_TYPE(Float)
-MAP_TYPE(Coordinate)
 MAP_TYPE(KeyValuePair)
 MAP_TYPE(HeaderID)
 MAP_TYPE(IndicesPropertyProfile)
@@ -449,6 +448,7 @@ MAP_TYPE(WkbtotResult)
 #define DATA_FILE_NEEDS_UPDATED FIFTYONE_DEGREES_STATUS_DATA_FILE_NEEDS_UPDATED /**< Synonym for #FIFTYONE_DEGREES_STATUS_DATA_FILE_NEEDS_UPDATED status code. */
 #define INSUFFICIENT_CAPACITY FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY /**< Synonym for #FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY status code. */
 #define INVALID_INPUT FIFTYONE_DEGREES_STATUS_INVALID_INPUT /**< Synonym for #FIFTYONE_DEGREES_STATUS_INVALID_INPUT status code.*/
+#define UNSUPPORTED_STORED_VALUE_TYPE FIFTYONE_DEGREES_STATUS_UNSUPPORTED_STORED_VALUE_TYPE /**< Synonym for #FIFTYONE_DEGREES_STATUS_UNSUPPORTED_STORED_VALUE_TYPE status code.*/
 #define IPV6_LENGTH FIFTYONE_DEGREES_IPV6_LENGTH /**< Synonym for #FIFTYONE_DEGREES_IPV6_LENGTH status code.*/
 #define IPV4_LENGTH FIFTYONE_DEGREES_IPV4_LENGTH /**< Synonym for #FIFTYONE_DEGREES_IPV4_LENGTH status code.*/
 #define IP_TYPE_IPV4 FIFTYONE_DEGREES_IP_TYPE_IPV4 /**< Synonym for #FIFTYONE_DEGREES_IP_TYPE_IPV4 status code.*/

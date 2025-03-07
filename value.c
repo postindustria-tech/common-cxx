@@ -44,36 +44,6 @@ static String* getString(
 #endif
 
 /*
- * Function that compare the current String item
- * against the target value that being searched
- * using the Coordinate format.
- * @value the current String item
- * @target the target search search string. This
- * should be in a,b format and will then be converted
- * to a float pair.
- * @return 0 if they are equals, otherwise negative
- * for smaller and positive for bigger.
- */
-static int compareCoordinate(String *value, const char *target) {
-	int result = 0;
-	char *curPtr = strstr(target, ",");
-	if (curPtr != NULL) {
-		// Only compare if same format
-		Float targetLat = NATIVE_TO_FLOAT((float)atof(target));
-		Float targetLon = NATIVE_TO_FLOAT((float)atof(curPtr + 1));
-		result = memcmp(&value->trail.coordinate.lat, &targetLat, sizeof(Float));
-		if (result == 0) {
-			result = memcmp(&value->trail.coordinate.lon, &targetLon, sizeof(Float));
-		}
-	}
-	else {
-		// This will eventually end with no value found
-		result = -1;
-	}
-	return result;
-}
-
-/*
  * Function to compare the current String item to the
  * target search value using the IpAddress format.
  * @param value the current String item
@@ -82,7 +52,7 @@ static int compareCoordinate(String *value, const char *target) {
  * @return 0 if they are equal, otherwise negative
  * for smaller and positive for bigger
  */
-static int compareIpAddress(String *value, const char *target) {
+static int compareIpAddress(const VarLengthByteArray * const value, const char * const target) {
 	int result = 0;
 	IpAddress ipAddress;
 	bool parsed = IpAddressParse(
@@ -90,8 +60,8 @@ static int compareIpAddress(String *value, const char *target) {
 			target + strlen(target),
 			&ipAddress);
 	if (parsed) {
-		int16_t valueLength = (size_t)value->size - 1;
-		int16_t searchLength = 0, compareLength = 0;
+		const int16_t valueLength = value->size;
+		int16_t searchLength = 0;
 		switch (ipAddress.type) {
 		case IP_TYPE_IPV4:
 			searchLength = IPV4_LENGTH;
@@ -105,13 +75,13 @@ static int compareIpAddress(String *value, const char *target) {
 		}
 
 		if (searchLength == 0) {
-			result = -1;
+			result = valueLength;
 		}
 		else {
 			// Compare length first
-			compareLength = (valueLength < searchLength
+			const size_t compareLength = ((valueLength < searchLength)
 				? valueLength : searchLength);
-			result = memcmp(&value->trail.secondValue,
+			result = memcmp(&value->firstByte,
 				ipAddress.value, compareLength);
 			if (result == 0) {
 				result = valueLength - searchLength;

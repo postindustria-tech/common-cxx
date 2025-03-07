@@ -70,20 +70,7 @@
 #include "float.h"
 #include "common.h"
 #include "ip.h"
-
-/**
- * Enumeration to indicate what format is held in a string item
- * These are the values that can be held at the first byte of
- * the #fiftyoneDegreeString value.
- */
-typedef enum fiftyone_degrees_string_format {
-	FIFTYONE_DEGREES_STRING_COORDINATE = 1, /**< Format is a pair of floats for latitude
-											and longitude values*/
-	FIFTYONE_DEGREES_STRING_IP_ADDRESS, /**< Format is a byte array representation of an
-									    IP address*/
-	FIFTYONE_DEGREES_STRING_WKB, /**< Format is a byte array representation of
-									  a WKB geometry */
-} fiftyoneDegreesStringFormat;
+#include "propertyValueType.h"
 
 /**
  * Macro used to check for NULL before returning the string as a const char *.
@@ -129,21 +116,32 @@ typedef enum fiftyone_degrees_string_format {
  * String:
  * 			Short – length – 10
  * 			Byte value – first character of string – '5'
- * 			Byte[] – (remaining) string (including null terminator) – “1Degrees”
+ */
+#pragma pack(push, 1)
+typedef struct fiftyone_degrees_string_t {
+	int16_t size; /**< Size of the string in memory (starting from 'value') */
+	char value; /**< The first character of the string */
+} fiftyoneDegreesString;
+#pragma pack(pop)
+
+/**
+ * Structure containing raw bytes and size from data files.
+ *
+ * @example
+ * String:
+ * 			Short – length – 10
+ * 			Byte value – first character of string – '5'
  * @example
  * Byte array:
  * 			Short – length – 3
- * 			Byte value – type – 2
  * 			Byte[] – bytes – [ 1, 2 ]
  * @example
  * IP (v4) address:
  * 			Short – length – 5
- * 			Byte value – type – 2
  * 			Byte[] – IP – [ 1, 2, 3, 4 ]
  * @example
  * WKB (value of  POINT(2.0 4.0)):
  * 			Short – length - 21
- * 			Byte value – type – 3 (WKB)
  * 			Byte[] – value – [
  * 				0 (endianness),
  * 				0, 0, 0, 1 (2D point),
@@ -152,17 +150,22 @@ typedef enum fiftyone_degrees_string_format {
  * 			]
  */
 #pragma pack(push, 1)
-typedef struct fiftyone_degrees_string_t {
-	int16_t size; /**< Size of the string in memory (starting from 'value') */
-	char value; /**< The first character of the string */
-	union {
-		char secondValue; /**< If the string is an IP address or WKB geometry, this will be the start byte */
-		struct {
-			fiftyoneDegreesFloat lat;
-			fiftyoneDegreesFloat lon;
-		} coordinate; /**< If the string is a coordinate, this will hold the value */
-	} trail;
-} fiftyoneDegreesString;
+typedef struct fiftyone_degrees_var_length_byte_array_t {
+	int16_t size; /**< Size of the byte array in memory (starting from 'firstByte') */
+	unsigned char firstByte; /**< The first byte of the array */
+} fiftyoneDegreesVarLengthByteArray;
+#pragma pack(pop)
+
+/**
+ * "Packed" value that can be present inside "strings" of dataset.
+ */
+#pragma pack(push, 1)
+typedef union fiftyone_degrees_stored_binary_value_t {
+	fiftyoneDegreesString stringValue; /**< String value (ASCII or UTF-8) */
+	fiftyoneDegreesVarLengthByteArray byteArrayValue; /**< Byte array value (e.g. IP or WKB) */
+	fiftyoneDegreesFloat floatValue; /**< single precision floating point value */
+	int32_t intValue; /**< Integer value */
+} fiftyoneDegreesStoredBinaryValue;
 #pragma pack(pop)
 
 /** String buffer for building strings with memory checks */
@@ -301,7 +304,7 @@ EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
  */
 EXTERNAL void fiftyoneDegreesStringBuilderAddIpAddress(
 	fiftyoneDegreesStringBuilder* builder,
-	const fiftyoneDegreesString *ipAddress,
+	const fiftyoneDegreesVarLengthByteArray *ipAddress,
 	fiftyoneDegreesIpType type,
 	fiftyoneDegreesException *exception);
 
@@ -315,7 +318,8 @@ EXTERNAL void fiftyoneDegreesStringBuilderAddIpAddress(
  */
 EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
 	fiftyoneDegreesStringBuilder* builder,
-	const fiftyoneDegreesString* value,
+	const fiftyoneDegreesStoredBinaryValue* value,
+	fiftyoneDegreesPropertyValueType valueType,
 	uint8_t decimalPlaces,
 	fiftyoneDegreesException *exception);
 

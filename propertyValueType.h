@@ -20,22 +20,23 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-#include "float.h"
-#include "string.h"
-#include "status.h"
-#include "coordinate.h"
+#ifndef FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_H_INCLUDED
+#define FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_H_INCLUDED
 
-fiftyoneDegreesCoordinate fiftyoneDegreesIpiGetCoordinate(
-	const fiftyoneDegreesCollectionItem *item,
-	fiftyoneDegreesException *exception) {
-	fiftyoneDegreesString *value = (fiftyoneDegreesString *)item->data.ptr;
-	fiftyoneDegreesCoordinate coordinate = { 0, 0 };
-	if (value->value == FIFTYONE_DEGREES_STRING_COORDINATE) {
-		coordinate.lat = FIFTYONE_DEGREES_FLOAT_TO_NATIVE(value->trail.coordinate.lat);
-		coordinate.lon = FIFTYONE_DEGREES_FLOAT_TO_NATIVE(value->trail.coordinate.lon);
-	}
-	else {
-		FIFTYONE_DEGREES_EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
-	}
-	return coordinate;
-}
+/**
+ * Enum of property types.
+ */
+typedef enum e_fiftyone_degrees_property_value_type {
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING = 0, /**< String */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER = 1, /**< Integer */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DOUBLE = 2, /**< Double */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_BOOLEAN = 3, /**< Boolean */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_JAVASCRIPT = 4, /**< JavaScript string */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT = 5, /**< Single precision floating point value */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE = 6, /**< Single byte value */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_COORDINATE = 7, /**< Coordinate */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS = 8, /**< Ip Range */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB = 9, /**< Well-known binary for geometry */
+} fiftyoneDegreesPropertyValueType;
+
+#endif

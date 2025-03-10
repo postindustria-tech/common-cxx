@@ -157,6 +157,7 @@ MAP_TYPE(OverrideValueArray)
 MAP_TYPE(EvidenceKeyValuePair)
 MAP_TYPE(EvidenceKeyValuePairArray)
 MAP_TYPE(PropertyAvailable)
+MAP_TYPE(PropertyValueType)
 MAP_TYPE(PropertiesAvailable)
 MAP_TYPE(EvidencePropertyIndex)
 MAP_TYPE(EvidenceProperties)
@@ -279,7 +280,8 @@ MAP_TYPE(WkbtotResult)
 #define MemoryStandardFree fiftyoneDegreesMemoryStandardFree /**< Synonym for #fiftyoneDegreesMemoryStandardFree function. */
 #define MemoryStandardFreeAligned fiftyoneDegreesMemoryStandardFreeAligned /**< Synonym for #fiftyoneDegreesMemoryStandardFreeAligned function. */
 #define ResourceManagerFree fiftyoneDegreesResourceManagerFree /**< Synonym for #fiftyoneDegreesResourceManagerFree function. */
-#define StringGet fiftyoneDegreesStringGet /**< Synonym for #fiftyoneDegreesStringGet function. */
+// #define StringGet fiftyoneDegreesStringGet /**< Synonym for #fiftyoneDegreesStringGet function. */
+#define StoredBinaryValueGet fiftyoneDegreesStoredBinaryValueGet /**< Synonym for #fiftyoneDegreesStoredBinaryValueGet function. */
 #define EvidenceFree fiftyoneDegreesEvidenceFree /**< Synonym for #fiftyoneDegreesEvidenceFree function. */
 #define EvidenceCreate fiftyoneDegreesEvidenceCreate /**< Synonym for #fiftyoneDegreesEvidenceCreate function. */
 #define EvidenceMapPrefix fiftyoneDegreesEvidenceMapPrefix /**< Synonym for #fiftyoneDegreesEvidenceMapPrefix function. */
@@ -321,8 +323,12 @@ MAP_TYPE(WkbtotResult)
 #define HeadersIsHttp fiftyoneDegreesHeadersIsHttp /**< Synonym for #fiftyoneDegreesHeadersIsHttp function. */
 #define ListReset fiftyoneDegreesListReset /**< Synonym for #fiftyoneDegreesListReset function. */
 #define ListRelease fiftyoneDegreesListRelease /**< Synonym for #fiftyoneDegreesListRelease function. */
-#define ValueGetName fiftyoneDegreesValueGetName /**< Synonym for #fiftyoneDegreesValueGetName function. */
-#define ValueGetByName fiftyoneDegreesValueGetByName /**< Synonym for #fiftyoneDegreesValueGetByName function. */
+#define ValueGetContent fiftyoneDegreesValueGetContent /**< Synonym for #fiftyoneDegreesValueGetContent function. */
+// #define ValueGetName fiftyoneDegreesValueGetName /**< Synonym for #fiftyoneDegreesValueGetName function. */
+// #define ValueGetByName fiftyoneDegreesValueGetByName /**< Synonym for #fiftyoneDegreesValueGetByName function. */
+#define ValueGetByNameAndType fiftyoneDegreesValueGetByNameAndType /**< Synonym for #fiftyoneDegreesValueGetByNameAndType function. */
+// #define ValueGetIndexByName fiftyoneDegreesValueGetIndexByName /**< Synonym for #fiftyoneDegreesValueGetIndexByName function. */
+#define ValueGetIndexByNameAndType fiftyoneDegreesValueGetIndexByNameAndType /**< Synonym for #fiftyoneDegreesValueGetIndexByNameAndType function. */
 #define ValueGet fiftyoneDegreesValueGet /**< Synonym for #fiftyoneDegreesValueGet function. */
 #define CollectionBinarySearch fiftyoneDegreesCollectionBinarySearch /**< Synonym for #fiftyoneDegreesCollectionBinarySearch function. */
 #define PropertyGetName fiftyoneDegreesPropertyGetName /**< Synonym for #fiftyoneDegreesPropertyGetName function. */

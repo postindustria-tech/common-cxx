@@ -238,6 +238,7 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateValuesForPropertyWithIndex(
  * @param strings collection containing the strings referenced properties and
  * values
  * @param properties collection containing all properties
+ * @param propertyTypes collection containing types for all properties
  * @param values collection containing all values
  * @param profiles collection containing the profiles referenced by the profile
  * offsets
@@ -250,9 +251,10 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateValuesForPropertyWithIndex(
  * exception occurs. See exceptions.h
  * @return the number matching profiles which have been iterated
  */
-EXTERNAL uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
+EXTERNAL uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndValue(
 	fiftyoneDegreesCollection *strings,
 	fiftyoneDegreesCollection *properties,
+	fiftyoneDegreesCollection *propertyTypes,
 	fiftyoneDegreesCollection *values,
 	fiftyoneDegreesCollection *profiles,
 	fiftyoneDegreesCollection *profileOffsets,
@@ -261,6 +263,36 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
 	void *state,
 	fiftyoneDegreesProfileIterateMethod callback,
 	fiftyoneDegreesException *exception);
+
+// /**
+//  * Iterate all profiles which contain the specified value, calling the callback
+//  * method for each.
+//  * @param strings collection containing the strings referenced properties and
+//  * values
+//  * @param properties collection containing all properties
+//  * @param values collection containing all values
+//  * @param profiles collection containing the profiles referenced by the profile
+//  * offsets
+//  * @param profileOffsets collection containing all profile offsets
+//  * @param propertyName name of the property the value relates to
+//  * @param valueName name of the value to iterate the profiles for
+//  * @param state pointer to data needed by the callback method
+//  * @param callback method to be called for each matching profile
+//  * @param exception pointer to an exception data structure to be used if an
+//  * exception occurs. See exceptions.h
+//  * @return the number matching profiles which have been iterated
+//  */
+// EXTERNAL uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
+// 	fiftyoneDegreesCollection *strings,
+// 	fiftyoneDegreesCollection *properties,
+// 	fiftyoneDegreesCollection *values,
+// 	fiftyoneDegreesCollection *profiles,
+// 	fiftyoneDegreesCollection *profileOffsets,
+// 	const char *propertyName,
+// 	const char* valueName,
+// 	void *state,
+// 	fiftyoneDegreesProfileIterateMethod callback,
+// 	fiftyoneDegreesException *exception);
 
 /**
  * Gets the offset in the profiles collection for the profile with the

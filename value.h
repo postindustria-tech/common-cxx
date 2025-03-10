@@ -81,21 +81,40 @@ typedef struct fiftyoneDegrees_value_t {
 #pragma pack(pop)
 
 /**
- * Returns the string name of the value using the item provided. The
+ * Returns the contents of the value using the item provided. The
  * collection item must be released when the caller is finished with the
  * string.
  * @param strings collection of strings retrieved by offsets.
  * @param value structure for the name required.
+ * @param storedValueType format of byte array representation.
  * @param item used to store the resulting string in.
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h.
- * @return a pointer to a string in the collection item data structure.
+ * @return a pointer to a contents in the collection item data structure.
  */
-EXTERNAL fiftyoneDegreesString* fiftyoneDegreesValueGetName(
+EXTERNAL fiftyoneDegreesStoredBinaryValue* fiftyoneDegreesValueGetContent(
 	fiftyoneDegreesCollection *strings,
 	fiftyoneDegreesValue *value,
+	fiftyoneDegreesPropertyValueType storedValueType,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
+
+// /**
+//  * Returns the string name of the value using the item provided. The
+//  * collection item must be released when the caller is finished with the
+//  * string.
+//  * @param strings collection of strings retrieved by offsets.
+//  * @param value structure for the name required.
+//  * @param item used to store the resulting string in.
+//  * @param exception pointer to an exception data structure to be used if an
+//  * exception occurs. See exceptions.h.
+//  * @return a pointer to a string in the collection item data structure.
+//  */
+// EXTERNAL fiftyoneDegreesString* fiftyoneDegreesValueGetName(
+// 	fiftyoneDegreesCollection *strings,
+// 	fiftyoneDegreesValue *value,
+// 	fiftyoneDegreesCollectionItem *item,
+// 	fiftyoneDegreesException *exception);
 
 /**
  * Returns the string description of the value using the item provided. The
@@ -151,36 +170,76 @@ EXTERNAL fiftyoneDegreesValue* fiftyoneDegreesValueGet(
  * @param values collection to get the value from
  * @param strings collection containing the value names
  * @param property that the value relates to
+ * @param storedValueType format of byte array representation.
  * @param valueName name of the value to get
  * @param item to store the value in
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h
  * @return pointer to the value or NULL if it does not exist
  */
-EXTERNAL fiftyoneDegreesValue* fiftyoneDegreesValueGetByName(
+EXTERNAL fiftyoneDegreesValue* fiftyoneDegreesValueGetByNameAndType(
 	fiftyoneDegreesCollection *values,
 	fiftyoneDegreesCollection *strings,
 	fiftyoneDegreesProperty *property,
+	fiftyoneDegreesPropertyValueType storedValueType,
 	const char *valueName,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
+
+// /**
+//  * Get the value for the requested name from the collection provided.
+//  * @param values collection to get the value from
+//  * @param strings collection containing the value names
+//  * @param property that the value relates to
+//  * @param valueName name of the value to get
+//  * @param item to store the value in
+//  * @param exception pointer to an exception data structure to be used if an
+//  * exception occurs. See exceptions.h
+//  * @return pointer to the value or NULL if it does not exist
+//  */
+// EXTERNAL fiftyoneDegreesValue* fiftyoneDegreesValueGetByName(
+// 	fiftyoneDegreesCollection *values,
+// 	fiftyoneDegreesCollection *strings,
+// 	fiftyoneDegreesProperty *property,
+// 	const char *valueName,
+// 	fiftyoneDegreesCollectionItem *item,
+// 	fiftyoneDegreesException *exception);
 
 /**
  * Get index of the value for the requested name from the collection provided.
  * @param values collection to get the value from
  * @param strings collection containing the value names
  * @param property that the value relates to
+ * @param storedValueType format of byte array representation
  * @param valueName name of the value to get
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h
  * @return the 0 based index of the item if found, otherwise -1
  */
-EXTERNAL long fiftyoneDegreesValueGetIndexByName(
+EXTERNAL long fiftyoneDegreesValueGetIndexByNameAndType(
 	fiftyoneDegreesCollection *values,
 	fiftyoneDegreesCollection *strings,
 	fiftyoneDegreesProperty *property,
+	fiftyoneDegreesPropertyValueType storedValueType,
 	const char *valueName,
 	fiftyoneDegreesException *exception);
+
+// /**
+//  * Get index of the value for the requested name from the collection provided.
+//  * @param values collection to get the value from
+//  * @param strings collection containing the value names
+//  * @param property that the value relates to
+//  * @param valueName name of the value to get
+//  * @param exception pointer to an exception data structure to be used if an
+//  * exception occurs. See exceptions.h
+//  * @return the 0 based index of the item if found, otherwise -1
+//  */
+// EXTERNAL long fiftyoneDegreesValueGetIndexByName(
+// 	fiftyoneDegreesCollection *values,
+// 	fiftyoneDegreesCollection *strings,
+// 	fiftyoneDegreesProperty *property,
+// 	const char *valueName,
+// 	fiftyoneDegreesException *exception);
 
 /**
  * @}

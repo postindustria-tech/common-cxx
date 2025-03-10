@@ -26,33 +26,71 @@
 #include "fiftyone.h"
 #include <inttypes.h>
 
-static uint32_t getFinalStringSize(void *initial) {
+// static uint32_t getFinalStringSize(void *initial) {
+// 	return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
+// }
+static uint32_t getFinalByteArraySize(void *initial) {
 	return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
+}
+static uint32_t getFinalFloatSize(void *initial) {
+	return sizeof(fiftyoneDegreesFloat);
+}
+static uint32_t getFinalIntegerSize(void *initial) {
+	return sizeof(int32_t);
 }
 
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
-void* fiftyoneDegreesStringRead(
+// void* fiftyoneDegreesStringRead(
+// 	const fiftyoneDegreesCollectionFile *file,
+// 	uint32_t offset,
+// 	fiftyoneDegreesData *data,
+// 	fiftyoneDegreesException *exception) {
+// 	int16_t length;
+// 	return CollectionReadFileVariable(
+// 		file,
+// 		data,
+// 		offset,
+// 		&length,
+// 		sizeof(int16_t),
+// 		getFinalStringSize,
+// 		exception);
+// }
+
+void* fiftyoneDegreesStoredBinaryValueRead(
 	const fiftyoneDegreesCollectionFile *file,
 	uint32_t offset,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception) {
 	int16_t length;
 	return CollectionReadFileVariable(
-		file, 
-		data, 
+		file,
+		data,
 		offset,
-		&length, 
+		&length,
 		sizeof(int16_t),
-		getFinalStringSize,
+		getFinalByteArraySize,
 		exception);
 }
 
 #endif
 
+StoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
+	fiftyoneDegreesCollection *strings,
+	uint32_t offset,
+	PropertyValueType storedValueType,
+	fiftyoneDegreesCollectionItem *item,
+	Exception *exception) {
+	return (StoredBinaryValue*)strings->get(
+		strings,
+		offset,
+		item,
+		exception);
+}
+
 fiftyoneDegreesString* fiftyoneDegreesStringGet(
 	fiftyoneDegreesCollection *strings,
-	uint32_t offset, 
+	uint32_t offset,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception) {
 	return (String*)strings->get(

@@ -157,7 +157,12 @@ void EngineBase::appendString(
 	EXCEPTION_CREATE;
 	Item item;
 	DataReset(&item.data);
-	String *string = StringGet(strings, offset, &item, exception);
+	String *string = &StoredBinaryValueGet(
+		strings,
+		offset,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		&item,
+		exception)->stringValue;
 	if (string != NULL && EXCEPTION_OKAY) {
 		stream << STRING(string);
 		COLLECTION_RELEASE(strings, &item);

@@ -154,7 +154,7 @@ typedef struct fiftyone_degrees_string_builder_t {
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
 /**
- * Reads a string from the source file at the offset within the string
+ * Reads a binary value from the source file at the offset within the string
  * structure.
  * @param file collection to read from
  * @param offset of the string in the collection
@@ -162,29 +162,64 @@ typedef struct fiftyone_degrees_string_builder_t {
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h.
  * @return a pointer to the string collection item or NULL if can't be found
+ * @note expects `data` to contain `fiftyoneDegreesPropertyValueType`
+ * matching the stored value type of the property this value belongs to.
  */
-EXTERNAL void* fiftyoneDegreesStringRead(
+EXTERNAL void* fiftyoneDegreesStoredBinaryValueRead(
 	const fiftyoneDegreesCollectionFile *file,
 	uint32_t offset,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception);
 
+// /**
+//  * Reads a string from the source file at the offset within the string
+//  * structure.
+//  * @param file collection to read from
+//  * @param offset of the string in the collection
+//  * @param data to store the new string in
+//  * @param exception pointer to an exception data structure to be used if an
+//  * exception occurs. See exceptions.h.
+//  * @return a pointer to the string collection item or NULL if can't be found
+//  */
+// EXTERNAL void* fiftyoneDegreesStringRead(
+// 	const fiftyoneDegreesCollectionFile *file,
+// 	uint32_t offset,
+// 	fiftyoneDegreesData *data,
+// 	fiftyoneDegreesException *exception);
+
 #endif
 
 /**
- * Gets the string at the required offset from the collection provided.
+ * Gets the binary value at the required offset from the collection provided.
  * @param strings collection to get the string from
  * @param offset of the string in the collection
+ * @param storedValueType format of byte array representation
  * @param item to store the string in
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h.
- * @return a pointer to string of NULL if the offset is not valid
+ * @return a pointer to binary value or NULL if the offset is not valid
  */
-EXTERNAL fiftyoneDegreesString* fiftyoneDegreesStringGet(
+EXTERNAL fiftyoneDegreesStoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
 	fiftyoneDegreesCollection *strings,
 	uint32_t offset,
+	fiftyoneDegreesPropertyValueType storedValueType,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
+
+// /**
+//  * Gets the string at the required offset from the collection provided.
+//  * @param strings collection to get the string from
+//  * @param offset of the string in the collection
+//  * @param item to store the string in
+//  * @param exception pointer to an exception data structure to be used if an
+//  * exception occurs. See exceptions.h.
+//  * @return a pointer to string of NULL if the offset is not valid
+//  */
+// EXTERNAL fiftyoneDegreesString* fiftyoneDegreesStringGet(
+// 	fiftyoneDegreesCollection *strings,
+// 	uint32_t offset,
+// 	fiftyoneDegreesCollectionItem *item,
+// 	fiftyoneDegreesException *exception);
 
 /**
  * Case insensitively compare two strings up to the length requested.

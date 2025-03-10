@@ -26,6 +26,7 @@
 #include <string>
 #include "Exceptions.hpp"
 #include "collection.h"
+#include "fiftyone.h"
 #include "string.h"
 
 
@@ -62,11 +63,12 @@ namespace FiftyoneDegrees {
 				fiftyoneDegreesCollectionItem item;
 				fiftyoneDegreesString *str;
 				fiftyoneDegreesDataReset(&item.data);
-				str = fiftyoneDegreesStringGet(
+				str = &StoredBinaryValueGet(
 					stringsCollection,
 					offset,
+					FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
 					&item,
-					exception);
+					exception)->stringValue;
 				FIFTYONE_DEGREES_EXCEPTION_THROW;
 					if (str != nullptr) {
 						result.append(&str->value);

@@ -335,6 +335,33 @@ uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
 	void *state,
 	fiftyoneDegreesProfileIterateMethod callback,
 	fiftyoneDegreesException *exception) {
+
+	return fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndValue(
+		strings,
+		properties,
+		NULL,
+		values,
+		profiles,
+		profileOffsets,
+		propertyName,
+		valueName,
+		state,
+		callback,
+		exception);
+}
+
+uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndValue(
+	fiftyoneDegreesCollection *strings,
+	fiftyoneDegreesCollection *properties,
+	fiftyoneDegreesCollection *propertyTypes,
+	fiftyoneDegreesCollection *values,
+	fiftyoneDegreesCollection *profiles,
+	fiftyoneDegreesCollection *profileOffsets,
+	const char *propertyName,
+	const char* valueName,
+	void *state,
+	fiftyoneDegreesProfileIterateMethod callback,
+	fiftyoneDegreesException *exception) {
 	uint32_t i, count = 0;
 	Item propertyItem, offsetItem, profileItem;
 	uint32_t *profileValueIndex, *maxProfileValueIndex;
@@ -349,10 +376,11 @@ uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
 		&propertyItem,
 		exception);
 	if (property != NULL && EXCEPTION_OKAY) {
-		const long valueIndex = fiftyoneDegreesValueGetIndexByName(
+		const long valueIndex = fiftyoneDegreesValueGetIndexByNameAndType(
 			values,
 			strings,
-			property, 
+			property,
+			FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
 			valueName,
 			exception);
 		if (valueIndex >= 0 && EXCEPTION_OKAY) {

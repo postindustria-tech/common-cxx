@@ -1,6 +1,6 @@
 /* *********************************************************************
  * This Original Work is copyright of 51 Degrees Mobile Experts Limited.
- * Copyright 2023 51 Degrees Mobile Experts Limited, Davidson House,
+ * Copyright 2025 51 Degrees Mobile Experts Limited, Davidson House,
  * Forbury Square, Reading, Berkshire, United Kingdom RG1 3EU.
  *
  * This Original Work is licensed under the European Union Public Licence
@@ -20,46 +20,26 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-#include "MetaData.hpp"
+#ifndef FIFTYONE_DEGREES_STRING_HPP_INCLUDED
+#define FIFTYONE_DEGREES_STRING_HPP_INCLUDED
 
+#include "string.h"
 #include <sstream>
 
-#include "Exceptions.hpp"
-#include "fiftyone.h"
-#include "string.hpp"
-
-using namespace FiftyoneDegrees::Common;
-
-MetaData::MetaData(shared_ptr<fiftyoneDegreesResourceManager> manager) {
-	this->manager = manager;
+namespace FiftyoneDegrees::Common {
+    /**
+     * Converts stored binary value to text and pushes into a string stream.
+     * @param binaryValue stored binary value from data file
+     * @param stream string stream to push WKT into.
+     * @param decimalPlaces precision for numbers (places after the decimal dot).
+     * @param exception pointer to the exception struct.
+     */
+    void writeStoredBinaryValueToStringStream(
+        const fiftyoneDegreesStoredBinaryValue *binaryValue,
+	    fiftyoneDegreesPropertyValueType valueType,
+        std::stringstream &stream,
+        uint8_t decimalPlaces,
+        fiftyoneDegreesException *exception);
 }
 
-MetaData::~MetaData() {
-}
-
-string MetaData::getString(
-	fiftyoneDegreesCollection *strings,
-	uint32_t offset) {
-	EXCEPTION_CREATE;
-	Item item;
-	StoredBinaryValue *binaryValue;
-	DataReset(&item.data);
-	binaryValue = StoredBinaryValueGet(
-		strings,
-		offset,
-		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
-		&item,
-		exception);
-	EXCEPTION_THROW;
-	std::stringstream ss;
-	if (binaryValue != nullptr) {
-		writeStoredBinaryValueToStringStream(
-			binaryValue,
-			FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
-			ss,
-			ss.precision(),
-			exception);
-	}
-	COLLECTION_RELEASE(strings, &item);
-	return ss.str();
-}
+#endif //FIFTYONE_DEGREES_STRING_HPP_INCLUDED

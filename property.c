@@ -32,7 +32,12 @@ static fiftyoneDegreesString* getString(
 	uint32_t offset,
 	Item *item,
 	Exception *exception) {
-	return StringGet(stringsCollection, offset, item, exception);
+	return &StoredBinaryValueGet(
+		stringsCollection,
+		offset,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		item,
+		exception)->stringValue;
 }
 #endif
 

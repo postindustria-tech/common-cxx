@@ -105,11 +105,12 @@ void fiftyoneDegreesJsonPropertyStart(fiftyoneDegreesJson* s) {
 
 	// Get the property name as a string.
 	fiftyoneDegreesDataReset(&stringItem.data);
-	name = fiftyoneDegreesStringGet(
+	name = &fiftyoneDegreesStoredBinaryValueGet(
 		s->strings,
 		s->property->nameOffset,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
 		&stringItem,
-		exception);
+		exception)->stringValue;
 	if (name != NULL && FIFTYONE_DEGREES_EXCEPTION_OKAY) {
 
 		// Add the property name to the JSON buffer considering whether 

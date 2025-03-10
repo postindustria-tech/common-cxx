@@ -30,18 +30,8 @@ MAP_TYPE(CollectionItem);
 typedef struct value_search_t {
 	Collection *strings;
 	const char *valueName;
+	PropertyValueType valueType;
 } valueSearch;
-
-#ifndef FIFTYONE_DEGREES_GET_STRING_DEFINED
-#define FIFTYONE_DEGREES_GET_STRING_DEFINED
-static String* getString(
-	Collection *strings,
-	uint32_t offset,
-	Item *item,
-	Exception *exception) {
-	return StringGet(strings, offset, item, exception);
-}
-#endif
 
 /*
  * Function to compare the current String item to the
@@ -56,7 +46,7 @@ static int compareIpAddress(const VarLengthByteArray * const value, const char *
 	int result = 0;
 	IpAddress ipAddress;
 	bool parsed = IpAddressParse(
-			target, 
+			target,
 			target + strlen(target),
 			&ipAddress);
 	if (parsed) {
@@ -99,16 +89,17 @@ static int compareIpAddress(const VarLengthByteArray * const value, const char *
 static int compareValueByName(void *state, Item *item, long curIndex, Exception *exception) {
 	int result = 0;
 	Item name;
-	String *value;
+	StoredBinaryValue *value;
 	valueSearch *search = (valueSearch*)state;
 	DataReset(&name.data);
-	value = ValueGetName(
+	value = ValueGetContent(
 		search->strings,
 		(Value*)item->data.ptr,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
 		&name,
 		exception);
 	if (value != NULL && EXCEPTION_OKAY) {
-		switch (value->value) {
+		switch (search->valueType) {
 		// case FIFTYONE_DEGREES_STRING_IP_ADDRESS:
 		// 	result = compareIpAddress(value, search->valueName);
 		// 	break;
@@ -120,7 +111,7 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 		// 	break;
 		// }
 		default:
-			result = strcmp(&value->value, search->valueName);
+			result = strcmp(&value->stringValue.value, search->valueName);
 			break;
 		}
 		COLLECTION_RELEASE(search->strings, &name);
@@ -131,12 +122,27 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 #pragma warning (default: 4100)
 #endif
 
+StoredBinaryValue* fiftyoneDegreesValueGetContent(
+	Collection *strings,
+	Value *value,
+	PropertyValueType storedValueType,
+	CollectionItem *item,
+	Exception *exception) {
+
+	return StoredBinaryValueGet(strings, value->nameOffset, storedValueType, item, exception);
+}
+
 String* fiftyoneDegreesValueGetName(
 	Collection *strings,
 	Value *value,
 	CollectionItem *item,
 	Exception *exception) {
-	return getString(strings, value->nameOffset, item, exception);
+	return &StoredBinaryValueGet(
+		strings,
+		value->nameOffset,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		item,
+		exception)->stringValue;
 }
 
 String* fiftyoneDegreesValueGetDescription(
@@ -144,11 +150,12 @@ String* fiftyoneDegreesValueGetDescription(
 	Value *value,
 	CollectionItem *item,
 	Exception *exception) {
-	return getString(
+	return &StoredBinaryValueGet(
 		strings,
 		value->descriptionOffset,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
 		item,
-		exception);
+		exception)->stringValue;
 }
 
 String* fiftyoneDegreesValueGetUrl(
@@ -156,7 +163,12 @@ String* fiftyoneDegreesValueGetUrl(
 	Value *value,
 	CollectionItem *item,
 	Exception *exception) {
-	return getString(strings, value->urlOffset, item, exception);
+	return &StoredBinaryValueGet(
+		strings,
+		value->urlOffset,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		item,
+		exception)->stringValue;
 }
 
 Value* fiftyoneDegreesValueGet(
@@ -177,12 +189,30 @@ long fiftyoneDegreesValueGetIndexByName(
 	Property *property,
 	const char *valueName,
 	Exception *exception) {
+
+	return fiftyoneDegreesValueGetIndexByNameAndType(
+		values,
+		strings,
+		property,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		valueName,
+		exception);
+}
+
+long fiftyoneDegreesValueGetIndexByNameAndType(
+	Collection *values,
+	Collection *strings,
+	Property *property,
+	fiftyoneDegreesPropertyValueType storedValueType,
+	const char *valueName,
+	Exception *exception) {
 	Item item;
 	valueSearch search;
 	long index;
 	DataReset(&item.data);
 	search.valueName = valueName;
 	search.strings = strings;
+	search.valueType = storedValueType;
 	index = CollectionBinarySearch(
 		values,
 		&item,
@@ -201,6 +231,25 @@ Value* fiftyoneDegreesValueGetByName(
 	Collection *values,
 	Collection *strings,
 	Property *property,
+	const char *valueName,
+	CollectionItem *item,
+	Exception *exception) {
+
+	return fiftyoneDegreesValueGetByNameAndType(
+		values,
+		strings,
+		property,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		valueName,
+		item,
+		exception);
+}
+
+Value* fiftyoneDegreesValueGetByNameAndType(
+	Collection *values,
+	Collection *strings,
+	Property *property,
+	fiftyoneDegreesPropertyValueType storedValueType,
 	const char *valueName,
 	CollectionItem *item,
 	Exception *exception) {

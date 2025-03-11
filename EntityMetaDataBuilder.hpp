@@ -26,7 +26,6 @@
 #include <string>
 #include "Exceptions.hpp"
 #include "collection.h"
-#include "fiftyone.h"
 #include "string.h"
 
 
@@ -83,7 +82,7 @@ namespace FiftyoneDegrees {
 				fiftyoneDegreesCollectionItem item;
 				fiftyoneDegreesString *str;
 				fiftyoneDegreesDataReset(&item.data);
-				str = &StoredBinaryValueGet(
+				str = &fiftyoneDegreesStoredBinaryValueGet(
 					stringsCollection,
 					offset,
 					storedValueType,

@@ -68,7 +68,7 @@ string MetaData::getValue(
 			binaryValue,
 			storedValueType,
 			ss,
-			ss.precision(),
+			(uint8_t)ss.precision(),
 			exception);
 	}
 	COLLECTION_RELEASE(strings, &item);

@@ -27,8 +27,6 @@
 #include "string.h"
 #include <sstream>
 
-#include "fiftyone.h"
-
 namespace FiftyoneDegrees::Common {
     /**
      * Converts WKB "string" to WKT string and pushes into a string stream.
@@ -39,7 +37,7 @@ namespace FiftyoneDegrees::Common {
      * @return How many bytes were written to the buffer and if it was too small.
      */
     fiftyoneDegreesWkbtotResult writeWkbStringToStringStream(
-        const VarLengthByteArray *wkbString,
+        const fiftyoneDegreesVarLengthByteArray *wkbString,
         std::stringstream &stream,
         uint8_t decimalPlaces,
         fiftyoneDegreesException *exception);

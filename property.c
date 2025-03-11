@@ -54,6 +54,10 @@ fiftyoneDegreesString* fiftyoneDegreesPropertyGetName(
 }
 
 static int comparePropertyTypeRecordByName(void *state, Item *item, long curIndex, Exception *exception) {
+#	ifdef _MSC_VER
+	UNREFERENCED_PARAMETER(curIndex);
+	UNREFERENCED_PARAMETER(exception);
+#	endif
 	const uint32_t searchNameOffset = *(uint32_t*)state;
 	const PropertyTypeRecord * const nextRecord = (PropertyTypeRecord*)item->data.ptr;
 	const long long result = (long long)nextRecord->nameOffset - (long long)searchNameOffset;
@@ -69,7 +73,7 @@ PropertyValueType fiftyoneDegreesPropertyGetStoredType(
 
 	Item item;
 	DataReset(&item.data);
-	const long index = CollectionBinarySearch(
+	CollectionBinarySearch(
 		propertyTypesCollection,
 		&item,
 		0,

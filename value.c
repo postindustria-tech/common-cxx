@@ -246,17 +246,18 @@ Value* fiftyoneDegreesValueGetByName(
 }
 
 Value* fiftyoneDegreesValueGetByNameAndType(
-	Collection *values,
-	Collection *strings,
-	Property *property,
-	fiftyoneDegreesPropertyValueType storedValueType,
-	const char *valueName,
-	CollectionItem *item,
-	Exception *exception) {
+	Collection * const values,
+	Collection * const strings,
+	Property * const property,
+	const fiftyoneDegreesPropertyValueType storedValueType,
+	const char * const valueName,
+	CollectionItem * const item,
+	Exception * const exception) {
 	valueSearch search;
 	Value *value = NULL;
 	search.valueName = valueName;
 	search.strings = strings;
+	search.valueType = storedValueType;
 	if (
 		(int)property->firstValueIndex != -1 &&
 		CollectionBinarySearch(

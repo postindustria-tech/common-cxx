@@ -34,13 +34,13 @@ static uint32_t getFinalByteArraySize(void *initial) {
 }
 static uint32_t getFinalFloatSize(void *initial) {
 #	ifdef _MSC_VER
-	(void)initial; // suppress C4100 "unused formal parameter"
+	UNREFERENCED_PARAMETER(initial);
 #	endif
 	return sizeof(fiftyoneDegreesFloat);
 }
 static uint32_t getFinalIntegerSize(void *initial) {
 #	ifdef _MSC_VER
-	(void)initial; // suppress C4100 "unused formal parameter"
+	UNREFERENCED_PARAMETER(initial);
 #	endif
 	return sizeof(int32_t);
 }

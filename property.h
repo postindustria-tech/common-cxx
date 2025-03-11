@@ -100,6 +100,17 @@ typedef struct property_t {
 #pragma pack(pop)
 
 /**
+ * Property structure containing stored type of a property.
+ */
+#pragma pack(push, 1)
+typedef struct property_type_record_t {
+	const uint32_t nameOffset; /**< The offset in the strings structure to the
+	                               property name */
+	const byte storedValueType; /**< The type of value the property is stored as */
+} fiftyoneDegreesPropertyTypeRecord;
+#pragma pack(pop)
+
+/**
  * Returns the string name of the property using the item provided. The 
  * collection item must be released when the caller is finished with the
  * string.
@@ -114,6 +125,32 @@ EXTERNAL fiftyoneDegreesString* fiftyoneDegreesPropertyGetName(
 	fiftyoneDegreesCollection *stringsCollection,
 	fiftyoneDegreesProperty *property,
 	fiftyoneDegreesCollectionItem *item,
+	fiftyoneDegreesException *exception);
+
+/**
+ * Returns the type the property is stored as.
+ * @param propertyTypesCollection collection of property types retrieved by offsets.
+ * @param property structure for the type required.
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h.
+ * @return a type the property is stored as.
+ */
+EXTERNAL fiftyoneDegreesPropertyValueType fiftyoneDegreesPropertyGetStoredType(
+	fiftyoneDegreesCollection *propertyTypesCollection,
+	fiftyoneDegreesProperty *property,
+	fiftyoneDegreesException *exception);
+
+/**
+ * Returns the type the property is stored as.
+ * @param propertyTypesCollection collection of property types retrieved by offsets.
+ * @param index of the property to get
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h.
+ * @return a type the property is stored as.
+ */
+EXTERNAL fiftyoneDegreesPropertyValueType fiftyoneDegreesPropertyGetStoredTypeByIndex(
+	fiftyoneDegreesCollection *propertyTypesCollection,
+	uint32_t index,
 	fiftyoneDegreesException *exception);
 
 /**

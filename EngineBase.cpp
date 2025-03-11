@@ -150,17 +150,18 @@ bool EngineBase::getIsThreadSafe() const {
 	return ThreadingGetIsThreadSafe();
 }
 
-void EngineBase::appendString(
+void EngineBase::appendValue(
 	stringstream &stream,
 	fiftyoneDegreesCollection *strings,
-	uint32_t offset) const {
+	uint32_t offset,
+	PropertyValueType storedValueType) const {
 	EXCEPTION_CREATE;
 	Item item;
 	DataReset(&item.data);
 	String *string = &StoredBinaryValueGet(
 		strings,
 		offset,
-		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		storedValueType,
 		&item,
 		exception)->stringValue;
 	if (string != NULL && EXCEPTION_OKAY) {
@@ -169,3 +170,14 @@ void EngineBase::appendString(
 	}
 	EXCEPTION_THROW;
 }
+
+// void EngineBase::appendString(
+// 	stringstream &stream,
+// 	fiftyoneDegreesCollection *strings,
+// 	uint32_t offset) const {
+// 	appendValue(
+// 		stream,
+// 		strings,
+// 		offset,
+// 		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING); // legacy contract
+// }

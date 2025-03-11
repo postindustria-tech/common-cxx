@@ -1051,7 +1051,7 @@ static void* readFileVariable(
 
 		// Read the item header minus the last part of the structure 
 		// that may not always be included with every item.
-		if (fread(initial, initialSize, 1, handle->file) == 1) {
+		if ((!initialSize) || (fread(initial, initialSize, 1, handle->file) == 1)) {
 
 			// Calculate the number of bytes needed to store the item.
 			bytesNeeded = getFinalSize(initial);

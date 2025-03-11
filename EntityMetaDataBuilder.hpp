@@ -46,6 +46,24 @@ namespace FiftyoneDegrees {
 			 * @{
 			 */
 
+			// /**
+			//  * Get a copy of a string from the strings collection at the offset
+			//  * provided.
+			//  * @param stringsCollection pointer to the collection to copy the
+			//  * string from
+			//  * @param offset offset in the strings collection of the string to
+			//  * copy
+			//  * @return string copy of the string at the offset provided
+			//  */
+			// static string getString(
+			// 	fiftyoneDegreesCollection *stringsCollection,
+			// 	uint32_t offset) {
+			// 	return getValue(
+			// 		stringsCollection,
+			// 		offset,
+			// 		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING); // legacy contract
+			// }
+
 			/**
 			 * Get a copy of a string from the strings collection at the offset
 			 * provided.
@@ -53,11 +71,13 @@ namespace FiftyoneDegrees {
 			 * string from
 			 * @param offset offset in the strings collection of the string to
 			 * copy
+			 * @param storedValueType format of byte array representation.
 			 * @return string copy of the string at the offset provided
 			 */
-			static string getString(
+			static string getValue(
 				fiftyoneDegreesCollection *stringsCollection,
-				uint32_t offset) {
+				uint32_t offset,
+				fiftyoneDegreesPropertyValueType storedValueType) {
 				FIFTYONE_DEGREES_EXCEPTION_CREATE;
 				string result;
 				fiftyoneDegreesCollectionItem item;
@@ -66,7 +86,7 @@ namespace FiftyoneDegrees {
 				str = &StoredBinaryValueGet(
 					stringsCollection,
 					offset,
-					FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+					storedValueType,
 					&item,
 					exception)->stringValue;
 				FIFTYONE_DEGREES_EXCEPTION_THROW;

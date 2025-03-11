@@ -26,38 +26,28 @@
 #include "fiftyone.h"
 #include <inttypes.h>
 
-// static uint32_t getFinalStringSize(void *initial) {
-// 	return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
-// }
+static uint32_t getFinalStringSize(void *initial) {
+	return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
+}
 static uint32_t getFinalByteArraySize(void *initial) {
 	return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
 }
 static uint32_t getFinalFloatSize(void *initial) {
+#	ifdef _MSC_VER
+	(void)initial; // suppress C4100 "unused formal parameter"
+#	endif
 	return sizeof(fiftyoneDegreesFloat);
 }
 static uint32_t getFinalIntegerSize(void *initial) {
+#	ifdef _MSC_VER
+	(void)initial; // suppress C4100 "unused formal parameter"
+#	endif
 	return sizeof(int32_t);
 }
 
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
-// void* fiftyoneDegreesStringRead(
-// 	const fiftyoneDegreesCollectionFile *file,
-// 	uint32_t offset,
-// 	fiftyoneDegreesData *data,
-// 	fiftyoneDegreesException *exception) {
-// 	int16_t length;
-// 	return CollectionReadFileVariable(
-// 		file,
-// 		data,
-// 		offset,
-// 		&length,
-// 		sizeof(int16_t),
-// 		getFinalStringSize,
-// 		exception);
-// }
-
-void* fiftyoneDegreesStoredBinaryValueRead(
+void* fiftyoneDegreesStringRead(
 	const fiftyoneDegreesCollectionFile *file,
 	uint32_t offset,
 	fiftyoneDegreesData *data,
@@ -69,8 +59,62 @@ void* fiftyoneDegreesStoredBinaryValueRead(
 		offset,
 		&length,
 		sizeof(int16_t),
-		getFinalByteArraySize,
+		getFinalStringSize,
 		exception);
+}
+
+void* fiftyoneDegreesStoredBinaryValueRead(
+	const fiftyoneDegreesCollectionFile * const file,
+	const uint32_t offset,
+	fiftyoneDegreesData * const data,
+	fiftyoneDegreesException * const exception) {
+	int16_t length;
+	if (!data->ptr || !data->used) {
+		// stored value type not known
+		return fiftyoneDegreesStringRead(file, offset, data, exception);
+	}
+	const PropertyValueType storedValueType = *data->ptr;
+	switch (storedValueType) {
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_JAVASCRIPT:
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
+			return fiftyoneDegreesStringRead(file, offset, data, exception);
+		}
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER: {
+			return CollectionReadFileVariable(
+				file,
+				data,
+				offset,
+				&length,
+				0,
+				getFinalIntegerSize,
+				exception);
+		}
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
+			return CollectionReadFileVariable(
+				file,
+				data,
+				offset,
+				&length,
+				0,
+				getFinalFloatSize,
+				exception);
+		}
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS:
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB: {
+			return CollectionReadFileVariable(
+				file,
+				data,
+				offset,
+				&length,
+				sizeof(length),
+				getFinalByteArraySize,
+				exception);
+		}
+		default: {
+			EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_UNSUPPORTED_STORED_VALUE_TYPE);
+			return NULL;
+		}
+	}
 }
 
 #endif
@@ -81,11 +125,20 @@ StoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
 	PropertyValueType storedValueType,
 	fiftyoneDegreesCollectionItem *item,
 	Exception *exception) {
-	return (StoredBinaryValue*)strings->get(
+
+	DataMalloc(&item->data, sizeof(uint32_t));
+	*((uint32_t*)item->data.ptr) = storedValueType;
+
+	StoredBinaryValue * const result = strings->get(
 		strings,
 		offset,
 		item,
 		exception);
+	if (EXCEPTION_FAILED || !result) {
+		Free(item->data.ptr);
+		DataReset(&item->data);
+	}
+	return result;
 }
 
 fiftyoneDegreesString* fiftyoneDegreesStringGet(
@@ -197,7 +250,7 @@ void fiftyoneDegreesStringBuilderAddIpAddress(
 		FIFTYONE_DEGREES_IPV4_LENGTH :
 		FIFTYONE_DEGREES_IPV6_LENGTH;
 	// Get the actual length of the byte array
-	int32_t actualLength = ipAddress->size - 1;
+	int32_t actualLength = ipAddress->size;
 
 	// Make sure the ipAddress item and everything is in correct
 	// format
@@ -403,6 +456,7 @@ StringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
 				exception);
 			break;
 		}
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_JAVASCRIPT:
 		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
 			// discard NUL-terminator
 			if (value->stringValue.size > 1) {

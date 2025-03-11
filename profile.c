@@ -375,12 +375,23 @@ uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndValue(
 		propertyName, 
 		&propertyItem,
 		exception);
+	fiftyoneDegreesPropertyValueType storedValueType
+		= FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING; // overwritten later
+	if (propertyTypes) {
+		const PropertyValueType foundStoredType = PropertyGetStoredType(
+			propertyTypes,
+			property,
+			exception);
+		if (EXCEPTION_OKAY) {
+			storedValueType = foundStoredType;
+		}
+	}
 	if (property != NULL && EXCEPTION_OKAY) {
 		const long valueIndex = fiftyoneDegreesValueGetIndexByNameAndType(
 			values,
 			strings,
 			property,
-			FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+			storedValueType,
 			valueName,
 			exception);
 		if (valueIndex >= 0 && EXCEPTION_OKAY) {

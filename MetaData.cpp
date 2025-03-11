@@ -37,9 +37,20 @@ MetaData::MetaData(shared_ptr<fiftyoneDegreesResourceManager> manager) {
 MetaData::~MetaData() {
 }
 
-string MetaData::getString(
+// string MetaData::getString(
+// 	fiftyoneDegreesCollection *strings,
+// 	uint32_t offset) {
+//
+// 	return getValue(
+// 		strings,
+// 		offset,
+// 		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING); // legacy contract
+// }
+
+string MetaData::getValue(
 	fiftyoneDegreesCollection *strings,
-	uint32_t offset) {
+	uint32_t offset,
+	fiftyoneDegreesPropertyValueType storedValueType) {
 	EXCEPTION_CREATE;
 	Item item;
 	StoredBinaryValue *binaryValue;
@@ -47,7 +58,7 @@ string MetaData::getString(
 	binaryValue = StoredBinaryValueGet(
 		strings,
 		offset,
-		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		storedValueType,
 		&item,
 		exception);
 	EXCEPTION_THROW;
@@ -55,7 +66,7 @@ string MetaData::getString(
 	if (binaryValue != nullptr) {
 		writeStoredBinaryValueToStringStream(
 			binaryValue,
-			FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+			storedValueType,
 			ss,
 			ss.precision(),
 			exception);

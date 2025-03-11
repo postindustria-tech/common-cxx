@@ -95,7 +95,7 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 	value = ValueGetContent(
 		search->strings,
 		(Value*)item->data.ptr,
-		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		search->valueType,
 		&name,
 		exception);
 	if (value != NULL && EXCEPTION_OKAY) {
@@ -140,7 +140,7 @@ String* fiftyoneDegreesValueGetName(
 	return &StoredBinaryValueGet(
 		strings,
 		value->nameOffset,
-		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // legacy contract
 		item,
 		exception)->stringValue;
 }
@@ -153,7 +153,7 @@ String* fiftyoneDegreesValueGetDescription(
 	return &StoredBinaryValueGet(
 		strings,
 		value->descriptionOffset,
-		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // description is string
 		item,
 		exception)->stringValue;
 }
@@ -166,7 +166,7 @@ String* fiftyoneDegreesValueGetUrl(
 	return &StoredBinaryValueGet(
 		strings,
 		value->urlOffset,
-		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // URL is string
 		item,
 		exception)->stringValue;
 }
@@ -194,7 +194,7 @@ long fiftyoneDegreesValueGetIndexByName(
 		values,
 		strings,
 		property,
-		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // legacy contract
 		valueName,
 		exception);
 }
@@ -239,7 +239,7 @@ Value* fiftyoneDegreesValueGetByName(
 		values,
 		strings,
 		property,
-		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // legacy contract
 		valueName,
 		item,
 		exception);

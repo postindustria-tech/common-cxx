@@ -58,7 +58,7 @@ fiftyoneDegreesString* fiftyoneDegreesComponentGetName(
 	return &StoredBinaryValueGet(
 		stringsCollection, 
 		component->nameOffset,
-		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // name is string
 		item,
 		exception)->stringValue;
 }

@@ -128,6 +128,7 @@ StoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
 
 	DataMalloc(&item->data, sizeof(uint32_t));
 	*((uint32_t*)item->data.ptr) = storedValueType;
+	item->data.used = sizeof(uint32_t);
 
 	StoredBinaryValue * const result = strings->get(
 		strings,

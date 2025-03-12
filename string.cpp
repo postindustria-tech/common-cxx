@@ -60,9 +60,10 @@ namespace FiftyoneDegrees::Common {
                 decimalPlaces,
                 exception
                 );
+            StringBuilderComplete(&builder);
             toWktResult = {
                 builder.added,
-                builder.added >= reasonableWktStringLength - 1,
+                builder.full,
             };
             if (EXCEPTION_OKAY && !toWktResult.bufferTooSmall) {
                 stream << buffer;
@@ -72,7 +73,7 @@ namespace FiftyoneDegrees::Common {
         if (toWktResult.bufferTooSmall) {
             EXCEPTION_CLEAR;
             const size_t requiredSize = toWktResult.written + 1;
-            const std::unique_ptr<char[]> buffer = std::make_unique<char[]>(requiredSize + 1);
+            const std::unique_ptr<char[]> buffer = std::make_unique<char[]>(requiredSize);
             StringBuilder builder = { buffer.get(), requiredSize };
             StringBuilderInit(&builder);
             StringBuilderAddStringValue(
@@ -82,9 +83,10 @@ namespace FiftyoneDegrees::Common {
                 decimalPlaces,
                 exception
                 );
+            StringBuilderComplete(&builder);
             toWktResult = {
                 builder.added,
-                builder.added >= reasonableWktStringLength - 1,
+                builder.full,
             };
             if (EXCEPTION_OKAY && !toWktResult.bufferTooSmall) {
                 stream << buffer.get();

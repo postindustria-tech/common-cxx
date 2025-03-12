@@ -55,13 +55,19 @@ namespace FiftyoneDegrees::Common {
 
         {
             char buffer[reasonableWktStringLength];
-            toWktResult = ConvertWkbToWkt(
+            StringBuilder builder = { buffer, reasonableWktStringLength };
+            StringBuilderInit(&builder);
+            WriteWkbAsWktToStringBuilder(
                 wkbBytes,
-                buffer,
-                reasonableWktStringLength,
                 decimalPlaces,
+                &builder,
                 exception
                 );
+            StringBuilderComplete(&builder);
+            toWktResult = {
+                builder.added,
+                builder.full,
+            };
             if (EXCEPTION_OKAY && !toWktResult.bufferTooSmall) {
                 stream << buffer;
                 return toWktResult;
@@ -71,13 +77,19 @@ namespace FiftyoneDegrees::Common {
             EXCEPTION_CLEAR;
             const size_t requiredSize = toWktResult.written + 1;
             const std::unique_ptr<char[]> buffer = std::make_unique<char[]>(requiredSize);
-            toWktResult = fiftyoneDegreesConvertWkbToWkt(
+            StringBuilder builder = { buffer.get(), requiredSize };
+            StringBuilderInit(&builder);
+            WriteWkbAsWktToStringBuilder(
                 wkbBytes,
-                buffer.get(),
-                requiredSize,
                 decimalPlaces,
+                &builder,
                 exception
                 );
+            StringBuilderComplete(&builder);
+            toWktResult = {
+                builder.added,
+                builder.full,
+            };
             if (EXCEPTION_OKAY && !toWktResult.bufferTooSmall) {
                 stream << buffer.get();
                 return toWktResult;

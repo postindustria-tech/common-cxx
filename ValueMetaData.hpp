@@ -57,7 +57,9 @@ namespace FiftyoneDegrees {
 			 * to
 			 * @param valueName the name of the value
 			 */
-			ValueMetaDataKey(string propertyName, string valueName);
+			ValueMetaDataKey(
+				string propertyName,
+				string valueName);
 
 			/**
 			 * @}

@@ -26,6 +26,7 @@
 #include <string>
 #include "Exceptions.hpp"
 #include "collection.h"
+#include "storedBinaryValue.h"
 #include "string.h"
 
 

@@ -26,6 +26,8 @@
 #include "string.h"
 #include <sstream>
 
+#include "storedBinaryValue.h"
+
 namespace FiftyoneDegrees::Common {
     /**
      * Converts stored binary value to text and pushes into a string stream.

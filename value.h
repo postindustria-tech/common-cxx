@@ -62,7 +62,7 @@
 #include "data.h"
 #include "exceptions.h"
 #include "collection.h"
-#include "string.h"
+#include "storedBinaryValue.h"
 #include "property.h"
 #include "profile.h"
 #include "common.h"

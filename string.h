@@ -96,65 +96,10 @@ typedef struct fiftyone_degrees_string_t {
 } fiftyoneDegreesString;
 #pragma pack(pop)
 
-/**
- * Structure containing raw bytes and size from data files.
- *
- * @example
- * String:
- * 			Short – length – 10
- * 			Byte value – first character of string – '5'
- * @example
- * Byte array:
- * 			Short – length – 3
- * 			Byte[] – bytes – [ 1, 2 ]
- * @example
- * IP (v4) address:
- * 			Short – length – 5
- * 			Byte[] – IP – [ 1, 2, 3, 4 ]
- * @example
- * WKB (value of  POINT(2.0 4.0)):
- * 			Short – length - 21
- * 			Byte[] – value – [
- * 				0 (endianness),
- * 				0, 0, 0, 1 (2D point),
- * 				128, 0, 0, 0, 0, 0, 0, 0 (2.0 float),
- * 				128, 16, 0, 0, 0, 0, 0, 0 (4.0 float)
- * 			]
- */
-#pragma pack(push, 1)
-typedef struct fiftyone_degrees_var_length_byte_array_t {
-	int16_t size; /**< Size of the byte array in memory (starting from 'firstByte') */
-	unsigned char firstByte; /**< The first byte of the array */
-} fiftyoneDegreesVarLengthByteArray;
-#pragma pack(pop)
-
-/**
- * "Packed" value that can be present inside "strings" of dataset.
- */
-#pragma pack(push, 1)
-typedef union fiftyone_degrees_stored_binary_value_t {
-	fiftyoneDegreesString stringValue; /**< String value (ASCII or UTF-8) */
-	fiftyoneDegreesVarLengthByteArray byteArrayValue; /**< Byte array value (e.g. IP or WKB) */
-	fiftyoneDegreesFloat floatValue; /**< single precision floating point value */
-	int32_t intValue; /**< Integer value */
-} fiftyoneDegreesStoredBinaryValue;
-#pragma pack(pop)
-
-/** String buffer for building strings with memory checks */
-typedef struct fiftyone_degrees_string_builder_t {
-	char* const ptr; /**< Pointer to the memory used by the buffer */
-	size_t const length; /**< Length of buffer */
-	char* current; /**</ Current position to add characters in the buffer */
-	size_t remaining; /**< Remaining characters in the buffer */
-	size_t added; /**< Characters added to the buffer or that would be 
-					  added if the buffer were long enough */
-	bool full; /**< True if the buffer is full, otherwise false */
-} fiftyoneDegreesStringBuilder;
-
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
 /**
- * Reads a binary value from the source file at the offset within the string
+ * Reads a string from the source file at the offset within the string
  * structure.
  * @param file collection to read from
  * @param offset of the string in the collection
@@ -162,49 +107,14 @@ typedef struct fiftyone_degrees_string_builder_t {
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h.
  * @return a pointer to the string collection item or NULL if can't be found
- * @note expects `data` to contain `fiftyoneDegreesPropertyValueType`
- * matching the stored value type of the property this value belongs to.
  */
-EXTERNAL void* fiftyoneDegreesStoredBinaryValueRead(
+EXTERNAL void* fiftyoneDegreesStringRead(
 	const fiftyoneDegreesCollectionFile *file,
 	uint32_t offset,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception);
 
-// /**
-//  * Reads a string from the source file at the offset within the string
-//  * structure.
-//  * @param file collection to read from
-//  * @param offset of the string in the collection
-//  * @param data to store the new string in
-//  * @param exception pointer to an exception data structure to be used if an
-//  * exception occurs. See exceptions.h.
-//  * @return a pointer to the string collection item or NULL if can't be found
-//  */
-// EXTERNAL void* fiftyoneDegreesStringRead(
-// 	const fiftyoneDegreesCollectionFile *file,
-// 	uint32_t offset,
-// 	fiftyoneDegreesData *data,
-// 	fiftyoneDegreesException *exception);
-
 #endif
-
-/**
- * Gets the binary value at the required offset from the collection provided.
- * @param strings collection to get the string from
- * @param offset of the string in the collection
- * @param storedValueType format of byte array representation
- * @param item to store the string in
- * @param exception pointer to an exception data structure to be used if an
- * exception occurs. See exceptions.h.
- * @return a pointer to binary value or NULL if the offset is not valid
- */
-EXTERNAL fiftyoneDegreesStoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
-	fiftyoneDegreesCollection *strings,
-	uint32_t offset,
-	fiftyoneDegreesPropertyValueType storedValueType,
-	fiftyoneDegreesCollectionItem *item,
-	fiftyoneDegreesException *exception);
 
 // /**
 //  * Gets the string at the required offset from the collection provided.
@@ -251,95 +161,9 @@ EXTERNAL int fiftyoneDegreesStringCompare(const char *a, const char *b);
 EXTERNAL const char *fiftyoneDegreesStringSubString(const char *a, const char *b);
 
 /**
- * Initializes the buffer.
- * @param builder to initialize
- * @return pointer to the builder passed
- */
-EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderInit(
-	fiftyoneDegreesStringBuilder* builder);
-
-/**
- * Adds the character to the buffer.
- * @param builder to add the character to
- * @param value character to add
- * @return pointer to the builder passed
- */
-EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChar(
-	fiftyoneDegreesStringBuilder* builder,
-	char const value);
-
-/**
- * Adds the integer to the buffer.
- * @param builder to add the character to
- * @param value integer to add
- * @return pointer to the buffer passed
- */
-EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
-	fiftyoneDegreesStringBuilder* builder,
-	int64_t const value);
-
-/**
- * Adds the double to the buffer.
- * @param builder to add the character to
- * @param value floating-point number to add
- * @param decimalPlaces precision (places after decimal dot)
- * @return pointer to the buffer passed
- */
-EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddDouble(
-	fiftyoneDegreesStringBuilder* builder,
-	double value,
-	uint8_t decimalPlaces);
-
-/**
- * Adds the string to the buffer.
- * @param builder to add the character to
- * @param value of chars to add
- * @param length of chars to add
- * @return pointer to the buffer passed
- */
-EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
-	fiftyoneDegreesStringBuilder* builder,
-	const char* value,
-	size_t length);
-
-/**
- * Adds an the IP (as string) from byte "string".
- * @param builder to add the IP to
- * @param ipAddress binary (packed) "string" with IP to add
- * @param type type of IP inside
- * @param exception pointer to exception struct
- */
-EXTERNAL void fiftyoneDegreesStringBuilderAddIpAddress(
-	fiftyoneDegreesStringBuilder* builder,
-	const fiftyoneDegreesVarLengthByteArray *ipAddress,
-	fiftyoneDegreesIpType type,
-	fiftyoneDegreesException *exception);
-
-/**
- * Adds a potentially packed value as a proper string to the buffer.
- * @param builder to add the character to
- * @param value from data file to add
- * @param decimalPlaces precision for numbers (places after decimal dot)
- * @param exception pointer to exception struct
- * @return pointer to the buffer passed
- */
-EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
-	fiftyoneDegreesStringBuilder* builder,
-	const fiftyoneDegreesStoredBinaryValue* value,
-	fiftyoneDegreesPropertyValueType valueType,
-	uint8_t decimalPlaces,
-	fiftyoneDegreesException *exception);
-
-/**
- * Adds a null terminating character to the buffer.
- * @param builder to terminate
- * @return pointer to the buffer passed
- */
-EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderComplete(
-	fiftyoneDegreesStringBuilder* builder);
-
-/**
  * @}
  */
+
+#include "stringBuilder.h"
 
 #endif

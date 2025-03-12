@@ -65,6 +65,7 @@
 #include "resource.h"
 #include "results.h"
 #include "status.h"
+#include "storedBinaryValue.h"
 #include "string.h"
 #include "property.h"
 #include "value.h"

@@ -108,7 +108,7 @@ void fiftyoneDegreesJsonPropertyStart(fiftyoneDegreesJson* s) {
 	name = &fiftyoneDegreesStoredBinaryValueGet(
 		s->strings,
 		s->property->nameOffset,
-		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // name is string
 		&stringItem,
 		exception)->stringValue;
 	if (name != NULL && FIFTYONE_DEGREES_EXCEPTION_OKAY) {

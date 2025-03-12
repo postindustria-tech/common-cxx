@@ -135,11 +135,6 @@ fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
 	return builder;
 }
 
-/**
- * Max. number of decimal places to be printed for a double.
- */
-#define MAX_DOUBLE_DECIMAL_PLACES 15
-
 StringBuilder* fiftyoneDegreesStringBuilderAddDouble(
 	fiftyoneDegreesStringBuilder * const builder,
 	const double value,
@@ -280,7 +275,6 @@ StringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
 				exception);
 			break;
 		}
-		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_JAVASCRIPT:
 		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
 			// discard NUL-terminator
 			if (value->stringValue.size > 1) {

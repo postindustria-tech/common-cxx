@@ -27,10 +27,6 @@
 #include "fiftyone.h"
 
 namespace FiftyoneDegrees::Common {
-    /**
-     * The length for the buffer most WKT strings are expected to fit into.
-     */
-    static constexpr size_t reasonableWktStringLength = 128;
 
     void writeStoredBinaryValueToStringStream(
         const StoredBinaryValue * const binaryValue,
@@ -50,8 +46,8 @@ namespace FiftyoneDegrees::Common {
         }
 
         {
-            char buffer[reasonableWktStringLength];
-            StringBuilder builder = { buffer, reasonableWktStringLength };
+            char buffer[REASONABLE_WKT_STRING_LENGTH];
+            StringBuilder builder = { buffer, REASONABLE_WKT_STRING_LENGTH };
             StringBuilderInit(&builder);
             StringBuilderAddStringValue(
                 &builder,

@@ -33,54 +33,6 @@ typedef struct value_search_t {
 	PropertyValueType valueType;
 } valueSearch;
 
-/*
- * Function to compare the current String item to the
- * target search value using the IpAddress format.
- * @param value the current String item
- * @param target the target search value. This should
- * be in string readable format of an IP address.
- * @return 0 if they are equal, otherwise negative
- * for smaller and positive for bigger
- */
-static int compareIpAddress(const VarLengthByteArray * const value, const char * const target) {
-	int result = 0;
-	IpAddress ipAddress;
-	bool parsed = IpAddressParse(
-			target,
-			target + strlen(target),
-			&ipAddress);
-	if (parsed) {
-		const int16_t valueLength = value->size;
-		int16_t searchLength = 0;
-		switch (ipAddress.type) {
-		case IP_TYPE_IPV4:
-			searchLength = IPV4_LENGTH;
-			break;
-		case IP_TYPE_IPV6:
-			searchLength = IPV6_LENGTH;
-			break;
-		case IP_TYPE_INVALID:
-		default:
-			break;
-		}
-
-		if (searchLength == 0) {
-			result = valueLength;
-		}
-		else {
-			// Compare length first
-			const size_t compareLength = ((valueLength < searchLength)
-				? valueLength : searchLength);
-			result = memcmp(&value->firstByte,
-				ipAddress.value, compareLength);
-			if (result == 0) {
-				result = valueLength - searchLength;
-			}
-		}
-	}
-	return result;
-}
-
 #ifdef _MSC_VER
 // Not all parameters are used for this implementation of
 // #fiftyoneDegreesCollentionItemComparer
@@ -99,21 +51,11 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 		&name,
 		exception);
 	if (value != NULL && EXCEPTION_OKAY) {
-		switch (search->valueType) {
-		// case FIFTYONE_DEGREES_STRING_IP_ADDRESS:
-		// 	result = compareIpAddress(value, search->valueName);
-		// 	break;
-		// case FIFTYONE_DEGREES_STRING_WKB: {
-		// 	const size_t searchValLength = strlen(search->valueName);
-		// 	const size_t wkbLength = value->size - 1;
-		// 	const size_t cmpLen = searchValLength < wkbLength ? searchValLength : wkbLength;
-		// 	result = strncmp(&(value->trail.secondValue), search->valueName, cmpLen);
-		// 	break;
-		// }
-		default:
-			result = strcmp(&value->stringValue.value, search->valueName);
-			break;
-		}
+		result = StoredBinaryValueCompareWithString(
+			value,
+			search->valueType,
+			search->valueName,
+			exception);
 		COLLECTION_RELEASE(search->strings, &name);
 	}
 	return result;

@@ -126,6 +126,20 @@ EXTERNAL fiftyoneDegreesStoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
  fiftyoneDegreesException *exception);
 
 /**
+ * Function to compare the current binary value to the
+ * target string value using the text format.
+ * @param value the current binary value item
+ * @param target the target search value.
+ * @return 0 if they are equal, otherwise negative
+ * for smaller and positive for bigger
+ */
+EXTERNAL int fiftyoneDegreesStoredBinaryValueCompareWithString(
+ const fiftyoneDegreesStoredBinaryValue *value,
+ fiftyoneDegreesPropertyValueType storedValueType,
+ const char *target,
+ fiftyoneDegreesException *exception);
+
+/**
  * @}
  */
 

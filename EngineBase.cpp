@@ -23,6 +23,7 @@
 #include "EngineBase.hpp"
 
 #include "fiftyone.h"
+#include "string.hpp"
 
 using namespace FiftyoneDegrees::Common;
 
@@ -158,6 +159,7 @@ void EngineBase::appendValue(
 	EXCEPTION_CREATE;
 	Item item;
 	DataReset(&item.data);
+	// FIXME: Use writeStoredBinaryValueToStringStream
 	String *string = &StoredBinaryValueGet(
 		strings,
 		offset,

@@ -154,6 +154,7 @@ void fiftyoneDegreesJsonPropertyValues(fiftyoneDegreesJson* s) {
 		if (i > 0) {
 			addSeparator(s);
 		}
+		// FIXME: value may not be a string
 		value = FIFTYONE_DEGREES_STRING(
 			(fiftyoneDegreesString*)s->values->items[i].data.ptr);
 		if (value != NULL) {

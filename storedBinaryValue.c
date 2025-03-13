@@ -44,17 +44,19 @@ static uint32_t getFinalIntegerSize(void *initial) {
 
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
+typedef uint8_t PropertyValueTypeInData;
+
 void* fiftyoneDegreesStoredBinaryValueRead(
     const fiftyoneDegreesCollectionFile * const file,
     const uint32_t offset,
     fiftyoneDegreesData * const data,
     fiftyoneDegreesException * const exception) {
     int16_t length;
-    if (!data->ptr || !data->used) {
+    if (data->used < sizeof(PropertyValueTypeInData)) {
         // stored value type not known
         return fiftyoneDegreesStringRead(file, offset, data, exception);
-    }
-    const PropertyValueType storedValueType = *data->ptr;
+    };
+    const PropertyValueType storedValueType = *(const PropertyValueTypeInData *)data->ptr;
     switch (storedValueType) {
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
             return fiftyoneDegreesStringRead(file, offset, data, exception);
@@ -106,19 +108,20 @@ StoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
     fiftyoneDegreesCollectionItem *item,
     Exception *exception) {
 
-    DataMalloc(&item->data, sizeof(uint32_t));
-    *((uint32_t*)item->data.ptr) = storedValueType;
-    item->data.used = sizeof(uint32_t);
+    PropertyValueTypeInData storedValueTypeInData[1] = { storedValueType };
+    if (item->data.allocated) {
+        DataMalloc(&item->data, sizeof(uint32_t));
+        *((PropertyValueTypeInData*)item->data.ptr) = storedValueTypeInData[0];
+    } else {
+        item->data.ptr = (byte *)&storedValueTypeInData[0];
+    }
+    item->data.used = sizeof(PropertyValueTypeInData);
 
     StoredBinaryValue * const result = strings->get(
         strings,
         offset,
         item,
         exception);
-    if (EXCEPTION_FAILED || !result) {
-        Free(item->data.ptr);
-        DataReset(&item->data);
-    }
     return result;
 }
 

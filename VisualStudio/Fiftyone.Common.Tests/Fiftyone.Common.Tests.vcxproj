@@ -21,7 +21,6 @@
     <ClCompile Include="..\..\tests\CacheTests.cpp" />
     <ClCompile Include="..\..\tests\CollectionConfigTests.cpp" />
     <ClCompile Include="..\..\tests\CollectionTests.cpp" />
-    <ClCompile Include="..\..\tests\CoordinateTests.cpp" />
     <ClCompile Include="..\..\tests\EngineTests.cpp" />
     <ClCompile Include="..\..\tests\EvidenceTests.cpp" />
     <ClCompile Include="..\..\tests\EvidenceWithHeadersTests_MultipleHeaders.cpp" />

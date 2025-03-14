@@ -135,6 +135,15 @@
     <ClInclude Include="..\..\constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\stringBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\storedBinaryValue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\propertyValueType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\cache.c">
@@ -215,9 +224,6 @@
     <ClCompile Include="..\..\float.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\coordinate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\process.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -231,6 +237,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\wkbtot.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\stringBuilder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\storedBinaryValue.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

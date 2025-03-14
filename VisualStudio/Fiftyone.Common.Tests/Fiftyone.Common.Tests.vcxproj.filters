@@ -90,9 +90,6 @@
     <ClCompile Include="..\..\tests\FloatTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\tests\CoordinateTests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\tests\OverridesTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -31,11 +31,14 @@
     <ClInclude Include="..\..\profile.h" />
     <ClInclude Include="..\..\properties.h" />
     <ClInclude Include="..\..\property.h" />
+    <ClInclude Include="..\..\propertyValueType.h" />
     <ClInclude Include="..\..\resource.h" />
     <ClInclude Include="..\..\results.h" />
     <ClInclude Include="..\..\snprintf.h" />
     <ClInclude Include="..\..\status.h" />
+    <ClInclude Include="..\..\storedBinaryValue.h" />
     <ClInclude Include="..\..\string.h" />
+    <ClInclude Include="..\..\stringBuilder.h" />
     <ClInclude Include="..\..\textfile.h" />
     <ClInclude Include="..\..\threading.h" />
     <ClInclude Include="..\..\tree.h" />
@@ -47,7 +50,6 @@
     <ClCompile Include="..\..\cache.c" />
     <ClCompile Include="..\..\collection.c" />
     <ClCompile Include="..\..\component.c" />
-    <ClCompile Include="..\..\coordinate.c" />
     <ClCompile Include="..\..\data.c" />
     <ClCompile Include="..\..\dataset.c" />
     <ClCompile Include="..\..\evidence.c" />
@@ -69,7 +71,9 @@
     <ClCompile Include="..\..\resource.c" />
     <ClCompile Include="..\..\results.c" />
     <ClCompile Include="..\..\status.c" />
+    <ClCompile Include="..\..\storedBinaryValue.c" />
     <ClCompile Include="..\..\string.c" />
+    <ClCompile Include="..\..\stringBuilder.c" />
     <ClCompile Include="..\..\textfile.c" />
     <ClCompile Include="..\..\threading.c" />
     <ClCompile Include="..\..\tree.c" />

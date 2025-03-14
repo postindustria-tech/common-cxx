@@ -46,23 +46,23 @@ namespace FiftyoneDegrees {
 			 * @{
 			 */
 
-			// /**
-			//  * Get a copy of a string from the strings collection at the offset
-			//  * provided.
-			//  * @param stringsCollection pointer to the collection to copy the
-			//  * string from
-			//  * @param offset offset in the strings collection of the string to
-			//  * copy
-			//  * @return string copy of the string at the offset provided
-			//  */
-			// static string getString(
-			// 	fiftyoneDegreesCollection *stringsCollection,
-			// 	uint32_t offset) {
-			// 	return getValue(
-			// 		stringsCollection,
-			// 		offset,
-			// 		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING); // legacy contract
-			// }
+			/**
+			 * Get a copy of a string from the strings collection at the offset
+			 * provided.
+			 * @param stringsCollection pointer to the collection to copy the
+			 * string from
+			 * @param offset offset in the strings collection of the string to
+			 * copy
+			 * @return string copy of the string at the offset provided
+			 */
+			static string getString(
+				fiftyoneDegreesCollection *stringsCollection,
+				uint32_t offset) {
+				return getValue(
+					stringsCollection,
+					offset,
+					FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING); // legacy contract
+			}
 
 			/**
 			 * Get a copy of a string from the strings collection at the offset

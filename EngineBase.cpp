@@ -177,13 +177,13 @@ void EngineBase::appendValue(
 	EXCEPTION_THROW;
 }
 
-// void EngineBase::appendString(
-// 	stringstream &stream,
-// 	fiftyoneDegreesCollection *strings,
-// 	uint32_t offset) const {
-// 	appendValue(
-// 		stream,
-// 		strings,
-// 		offset,
-// 		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING); // legacy contract
-// }
+void EngineBase::appendString(
+	stringstream &stream,
+	fiftyoneDegreesCollection *strings,
+	uint32_t offset) const {
+	appendValue(
+		stream,
+		strings,
+		offset,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING); // legacy contract
+}

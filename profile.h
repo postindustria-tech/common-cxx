@@ -129,24 +129,24 @@ typedef bool(*fiftyoneDegreesProfileIterateValueIndexesMethod)(
 	void* state,
 	uint32_t valueIndex);
 
-// /**
-//  * Gets the profile associated with the profileId or NULL if there is no
-//  * corresponding profile.
-//  * @param profileOffsets collection containing the profile offsets (with profile ID)
-//  * @param profiles collection containing the profiles referenced by the profile
-//  * offsets
-//  * @param profileId the unique id of the profile to fetch
-//  * @param item to set as the handle to the profile returned
-//  * @param exception pointer to an exception data structure to be used if an
-//  * exception occurs. See exceptions.h
-//  * @return pointer to the profile or NULL
-//  */
-// EXTERNAL fiftyoneDegreesProfile* fiftyoneDegreesProfileGetByProfileId(
-// 	fiftyoneDegreesCollection *profileOffsets,
-// 	fiftyoneDegreesCollection *profiles,
-// 	uint32_t profileId,
-// 	fiftyoneDegreesCollectionItem *item,
-// 	fiftyoneDegreesException *exception);
+/**
+ * Gets the profile associated with the profileId or NULL if there is no
+ * corresponding profile.
+ * @param profileOffsets collection containing the profile offsets (with profile ID)
+ * @param profiles collection containing the profiles referenced by the profile
+ * offsets
+ * @param profileId the unique id of the profile to fetch
+ * @param item to set as the handle to the profile returned
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h
+ * @return pointer to the profile or NULL
+ */
+EXTERNAL fiftyoneDegreesProfile* fiftyoneDegreesProfileGetByProfileId(
+	fiftyoneDegreesCollection *profileOffsets,
+	fiftyoneDegreesCollection *profiles,
+	uint32_t profileId,
+	fiftyoneDegreesCollectionItem *item,
+	fiftyoneDegreesException *exception);
 
 /**
  * Gets a pointer to the profile at the index provided. The index refers to the
@@ -264,51 +264,51 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndVal
 	fiftyoneDegreesProfileIterateMethod callback,
 	fiftyoneDegreesException *exception);
 
-// /**
-//  * Iterate all profiles which contain the specified value, calling the callback
-//  * method for each.
-//  * @param strings collection containing the strings referenced properties and
-//  * values
-//  * @param properties collection containing all properties
-//  * @param values collection containing all values
-//  * @param profiles collection containing the profiles referenced by the profile
-//  * offsets
-//  * @param profileOffsets collection containing all profile offsets
-//  * @param propertyName name of the property the value relates to
-//  * @param valueName name of the value to iterate the profiles for
-//  * @param state pointer to data needed by the callback method
-//  * @param callback method to be called for each matching profile
-//  * @param exception pointer to an exception data structure to be used if an
-//  * exception occurs. See exceptions.h
-//  * @return the number matching profiles which have been iterated
-//  */
-// EXTERNAL uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
-// 	fiftyoneDegreesCollection *strings,
-// 	fiftyoneDegreesCollection *properties,
-// 	fiftyoneDegreesCollection *values,
-// 	fiftyoneDegreesCollection *profiles,
-// 	fiftyoneDegreesCollection *profileOffsets,
-// 	const char *propertyName,
-// 	const char* valueName,
-// 	void *state,
-// 	fiftyoneDegreesProfileIterateMethod callback,
-// 	fiftyoneDegreesException *exception);
+/**
+ * Iterate all profiles which contain the specified value, calling the callback
+ * method for each.
+ * @param strings collection containing the strings referenced properties and
+ * values
+ * @param properties collection containing all properties
+ * @param values collection containing all values
+ * @param profiles collection containing the profiles referenced by the profile
+ * offsets
+ * @param profileOffsets collection containing all profile offsets
+ * @param propertyName name of the property the value relates to
+ * @param valueName name of the value to iterate the profiles for
+ * @param state pointer to data needed by the callback method
+ * @param callback method to be called for each matching profile
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h
+ * @return the number matching profiles which have been iterated
+ */
+EXTERNAL uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
+	fiftyoneDegreesCollection *strings,
+	fiftyoneDegreesCollection *properties,
+	fiftyoneDegreesCollection *values,
+	fiftyoneDegreesCollection *profiles,
+	fiftyoneDegreesCollection *profileOffsets,
+	const char *propertyName,
+	const char* valueName,
+	void *state,
+	fiftyoneDegreesProfileIterateMethod callback,
+	fiftyoneDegreesException *exception);
 
-// /**
-//  * Gets the offset in the profiles collection for the profile with the
-//  * profileId or NULL if there is no corresponding profile.
-//  * @param profileOffsets collection containing the profile offsets (with ID)
-//  * @param profileId the unique id of the profile to fetch
-//  * @param profileOffset pointer to the integer to set the offset in
-//  * @param exception pointer to an exception data structure to be used if an
-//  * exception occurs. See exceptions.h
-//  * @return pointer to the profile offset or NULL
-//  */
-// EXTERNAL uint32_t* fiftyoneDegreesProfileGetOffsetForProfileId(
-// 	fiftyoneDegreesCollection *profileOffsets,
-// 	uint32_t profileId,
-// 	uint32_t *profileOffset,
-// 	fiftyoneDegreesException *exception);
+/**
+ * Gets the offset in the profiles collection for the profile with the
+ * profileId or NULL if there is no corresponding profile.
+ * @param profileOffsets collection containing the profile offsets (with ID)
+ * @param profileId the unique id of the profile to fetch
+ * @param profileOffset pointer to the integer to set the offset in
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h
+ * @return pointer to the profile offset or NULL
+ */
+EXTERNAL uint32_t* fiftyoneDegreesProfileGetOffsetForProfileId(
+	fiftyoneDegreesCollection *profileOffsets,
+	uint32_t profileId,
+	uint32_t *profileOffset,
+	fiftyoneDegreesException *exception);
 
 /**
  * Gets the profile from the profiles collection

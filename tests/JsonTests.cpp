@@ -133,7 +133,8 @@ TEST_F(JsonTests, basicJsonForming) {
         stringsCollection, /**< Collection of strings */
         NULL, /**< The property being added */
         NULL, /**< The values for the property */
-        exception /**< Exception */
+        exception, /**< Exception */
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, /**< Stored property type */
     };
     
     fiftyoneDegreesJsonDocumentStart(&json);
@@ -184,7 +185,8 @@ TEST_F(JsonTests, unhappyPaths) {
         stringsCollection, /**< Collection of strings */
         NULL, /**< The property being added */
         NULL, /**< The values for the property */
-        exception /**< Exception */
+        exception, /**< Exception */
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, /**< Stored property type */
     };
     {
         EXCEPTION_CLEAR;

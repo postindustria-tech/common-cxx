@@ -6,6 +6,7 @@
 //
 
 #include "HeadersContainer.hpp"
+#include "../fiftyone.h"
 
 void HeadersContainer::CreateHeaders(
     const char** headersList,

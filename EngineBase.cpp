@@ -159,15 +159,19 @@ void EngineBase::appendValue(
 	EXCEPTION_CREATE;
 	Item item;
 	DataReset(&item.data);
-	// FIXME: Use writeStoredBinaryValueToStringStream
-	String *string = &StoredBinaryValueGet(
+	const StoredBinaryValue * const binaryValue = StoredBinaryValueGet(
 		strings,
 		offset,
 		storedValueType,
 		&item,
-		exception)->stringValue;
-	if (string != NULL && EXCEPTION_OKAY) {
-		stream << STRING(string);
+		exception);
+	if (binaryValue != nullptr && EXCEPTION_OKAY) {
+		writeStoredBinaryValueToStringStream(
+			binaryValue,
+			storedValueType,
+			stream,
+			MAX_DOUBLE_DECIMAL_PLACES,
+			exception);
 		COLLECTION_RELEASE(strings, &item);
 	}
 	EXCEPTION_THROW;

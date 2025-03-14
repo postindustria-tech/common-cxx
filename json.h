@@ -82,6 +82,7 @@ typedef struct fiftyone_degrees_json {
 	fiftyoneDegreesProperty* property; /**< The property being added */
 	fiftyoneDegreesList* values; /**< The values for the property */
 	fiftyoneDegreesException* exception; /**< Exception */
+	fiftyoneDegreesPropertyValueType storedPropertyType; /**< Stored type of the values for the property */
 } fiftyoneDegreesJson;
 
 /**

@@ -905,8 +905,7 @@ TEST(WKBToT, WKBToT_Test_LineStringZ_UnknownGeometryEmbedded)
 TEST(WKBToT, WKBToT_String_Point_2D_NDR)
 {
 	constexpr byte wkbStringBytes[] = {
-		21,00, // length of WKB 'trail' of #String
-		FIFTYONE_DEGREES_STRING_WKB,
+		20,00, // length of WKB 'trail' of #String
 
 		0x00, // big endian
 		0x00,0x00,0x00,0x01, // POINT (2D)
@@ -915,6 +914,6 @@ TEST(WKBToT, WKBToT_String_Point_2D_NDR)
 	};
 	const char * const expected = "POINT(2 4)";
 
-	const byte * const wkbBytes = FIFTYONE_DEGREES_WKB(wkbStringBytes);
+	const byte * const wkbBytes = &wkbStringBytes[2];
 	convertAndCompare(wkbBytes, expected, "Point 2D (NDR) from String");
 }

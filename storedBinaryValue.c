@@ -241,13 +241,16 @@ int fiftyoneDegreesStoredBinaryValueCompareWithString(
     switch (storedValueType) {
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
             const size_t targetLength = strlen(target);
-            const size_t valueLength = value->stringValue.size;
-            if (targetLength < valueLength) {
-                return -1;
-            } else if (targetLength > valueLength) {
-                return 1;
+            const size_t valueLength = value->stringValue.size - 1;
+            const size_t cmpLength = (targetLength < valueLength) ? targetLength : valueLength;
+            const int result = strncmp(&value->stringValue.value, target, cmpLength);
+            if (result) {
+                return result;
             }
-            return strncmp(&value->stringValue.value, target, targetLength);
+            if (cmpLength < targetLength) {
+                return -1;
+            }
+            return 0;
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS: {
             return compareIpAddressToString(&value->byteArrayValue, target);

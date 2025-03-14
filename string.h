@@ -116,20 +116,20 @@ EXTERNAL void* fiftyoneDegreesStringRead(
 
 #endif
 
-// /**
-//  * Gets the string at the required offset from the collection provided.
-//  * @param strings collection to get the string from
-//  * @param offset of the string in the collection
-//  * @param item to store the string in
-//  * @param exception pointer to an exception data structure to be used if an
-//  * exception occurs. See exceptions.h.
-//  * @return a pointer to string of NULL if the offset is not valid
-//  */
-// EXTERNAL fiftyoneDegreesString* fiftyoneDegreesStringGet(
-// 	fiftyoneDegreesCollection *strings,
-// 	uint32_t offset,
-// 	fiftyoneDegreesCollectionItem *item,
-// 	fiftyoneDegreesException *exception);
+/**
+ * Gets the string at the required offset from the collection provided.
+ * @param strings collection to get the string from
+ * @param offset of the string in the collection
+ * @param item to store the string in
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h.
+ * @return a pointer to string of NULL if the offset is not valid
+ */
+EXTERNAL fiftyoneDegreesString* fiftyoneDegreesStringGet(
+	fiftyoneDegreesCollection *strings,
+	uint32_t offset,
+	fiftyoneDegreesCollectionItem *item,
+	fiftyoneDegreesException *exception);
 
 /**
  * Case insensitively compare two strings up to the length requested.

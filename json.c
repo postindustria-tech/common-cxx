@@ -61,16 +61,70 @@ static void addStringEscape(
 	}
 }
 
-// Adds a string including surrounding double quotes and escaping special 
-// characters.
-static void addString(
-	fiftyoneDegreesJson* s,
-	const char* value,
-	size_t length) {
-	StringBuilderAddChar(&s->builder, '\"');
-	addStringEscape(s, value, length);
-	StringBuilderAddChar(&s->builder, '\"');
+/**
+ *
+ * @param valueType
+ * @param storedValueType
+ * @return
+ */
+static bool shouldAddQuotes(
+	const PropertyValueType valueType,
+	const PropertyValueType storedValueType) {
+	switch (valueType) {
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER:
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT:
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DOUBLE:
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_BOOLEAN:
+			return false;
+		default:
+			break;
+	}
+	switch (storedValueType) {
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER:
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT:
+			return false;
+		default:
+			return true;
+	}
 }
+
+/*
+ * Adds a binary including surrounding double quotes and escaping special
+ * characters.
+ * @param s fiftyoneDegreesJson to add to
+ * @param binaryValue
+ * @param valueType
+ * @param storedValueType
+ * @param exception
+ */
+static void addValueContents(
+	fiftyoneDegreesJson * const s,
+	const StoredBinaryValue * const binaryValue,
+	const PropertyValueType valueType,
+	const PropertyValueType storedValueType) {
+
+	const bool addQuotes = shouldAddQuotes(valueType, storedValueType);
+	if (addQuotes) {
+		StringBuilderAddChar(&s->builder, '\"');
+	}
+	if (storedValueType == FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING) {
+		addStringEscape(
+			s,
+			&binaryValue->stringValue.value,
+			binaryValue->stringValue.size - 1);
+	} else {
+		StringBuilderAddStringValue(
+			&s->builder,
+			binaryValue,
+			storedValueType,
+			MAX_DOUBLE_DECIMAL_PLACES,
+			s->exception);
+	}
+	if (addQuotes) {
+		StringBuilderAddChar(&s->builder, '\"');
+	}
+}
+
 
 // Adds a comma separator.
 static void addSeparator(fiftyoneDegreesJson* s) {
@@ -92,7 +146,7 @@ void fiftyoneDegreesJsonPropertySeparator(fiftyoneDegreesJson* s) {
 }
 
 void fiftyoneDegreesJsonPropertyStart(fiftyoneDegreesJson* s) {
-	fiftyoneDegreesString* name;
+	fiftyoneDegreesStoredBinaryValue* name;
 	fiftyoneDegreesCollectionItem stringItem;
 	fiftyoneDegreesException* exception = s->exception;
 
@@ -105,18 +159,21 @@ void fiftyoneDegreesJsonPropertyStart(fiftyoneDegreesJson* s) {
 
 	// Get the property name as a string.
 	fiftyoneDegreesDataReset(&stringItem.data);
-	name = &fiftyoneDegreesStoredBinaryValueGet(
+	name = fiftyoneDegreesStoredBinaryValueGet(
 		s->strings,
 		s->property->nameOffset,
 		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // name is string
 		&stringItem,
-		exception)->stringValue;
+		exception);
 	if (name != NULL && FIFTYONE_DEGREES_EXCEPTION_OKAY) {
 
-		// Add the property name to the JSON buffer considering whether 
+		// Add the property name to the JSON buffer considering whether
 		// it's a list or single value property.
-		const char* value = FIFTYONE_DEGREES_STRING(name);
-		addString(s, value, strlen(value));
+		addValueContents(
+			s,
+			name,
+			s->property->valueType,
+			FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING); // name is string
 		StringBuilderAddChar(&s->builder, ':');
 		if (s->property->isList) {
 			StringBuilderAddChar(&s->builder, '[');
@@ -140,8 +197,8 @@ void fiftyoneDegreesJsonPropertyEnd(fiftyoneDegreesJson* s) {
 }
 
 void fiftyoneDegreesJsonPropertyValues(fiftyoneDegreesJson* s) {
-	const char* value;
-	fiftyoneDegreesException* exception = s->exception;
+	const StoredBinaryValue* value;
+	fiftyoneDegreesException * const exception = s->exception;
 
 	// Check that the values is populated.
 	if (s->values == NULL) {
@@ -155,10 +212,16 @@ void fiftyoneDegreesJsonPropertyValues(fiftyoneDegreesJson* s) {
 			addSeparator(s);
 		}
 		// FIXME: value may not be a string
-		value = FIFTYONE_DEGREES_STRING(
-			(fiftyoneDegreesString*)s->values->items[i].data.ptr);
+		value = (StoredBinaryValue*)s->values->items[i].data.ptr;
 		if (value != NULL) {
-			addString(s, value, strlen(value));
+			addValueContents(
+				s,
+				value,
+				s->property->valueType,
+				s->storedPropertyType);
+			if (EXCEPTION_FAILED) {
+				return;
+			}
 		}
 	}
 }

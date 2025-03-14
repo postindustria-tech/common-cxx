@@ -24,6 +24,7 @@
 #include "EvidenceTests.hpp"
 #include "memory.h"
 #include "../EvidenceBase.hpp"
+#include "../fiftyone.h"
 
 using namespace FiftyoneDegrees::Common;
 

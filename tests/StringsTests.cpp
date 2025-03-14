@@ -246,30 +246,20 @@ TEST_F(Strings, StringBuilder_AddDouble) {
     }
 }
 
-static const char stringValueString[] = "\x12\0some-string-value";
-static const byte coordValueString[] = {
-    0x09, 0x00,
-    FIFTYONE_DEGREES_STRING_COORDINATE,
-    0x00, 0x00, 0x80, 0xBF, // -1.0
-    0x00, 0x00, 0x00, 0x41, //  8.0
-    0x00,
-};
+static const char stringValueString[] = "\x12\x0some-string-value";
 static const byte ipv4ValueString[] = {
-    0x05, 0x00,
-    FIFTYONE_DEGREES_STRING_IP_ADDRESS,
+    0x04, 0x00,
     0xD4, 0x0C, 0x00, 0x01,
 };
 static const byte ipv6ValueString[] = {
-    0x11, 0x00,
-    FIFTYONE_DEGREES_STRING_IP_ADDRESS,
+    0x10, 0x00,
     0x20,0x01,0x0d,0xb8,
     0x85,0xa3,0x00,0x00,
     0x00,0x00,0x8a,0x2e,
     0x03,0x70,0x73,0x34,
 };
 static const byte invalidIpValueString[] = {
-    0x17, 0x00,
-    FIFTYONE_DEGREES_STRING_IP_ADDRESS,
+    0x16, 0x00,
     0x20,0x01,0x0d,0xb8,
     0x85,0xa3,0x00,0x00,
     0x00,0x00,0x8a,0x2e,
@@ -278,8 +268,7 @@ static const byte invalidIpValueString[] = {
     0x00,0x00,0x00,0x00,
 };
 static const byte wkbValueString[] = {
-    0x15, 0x00,
-    FIFTYONE_DEGREES_STRING_WKB,
+    0x14, 0x00,
     0x00,
     0x00, 0x00, 0x00, 0x01,
     0x40, 0x31, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -291,7 +280,7 @@ TEST_F(Strings, StringBuilder_AddIPv4) {
     StringBuilderInit(builder);
     StringBuilderAddIpAddress(
         builder,
-        (const String *)ipv4ValueString,
+        (const VarLengthByteArray *)ipv4ValueString,
         IP_TYPE_IPV4,
         exception);
     StringBuilderComplete(builder);
@@ -304,7 +293,7 @@ TEST_F(Strings, StringBuilder_AddIPv6) {
     StringBuilderInit(builder);
     StringBuilderAddIpAddress(
         builder,
-        (const String *)ipv6ValueString,
+        (const VarLengthByteArray *)ipv6ValueString,
         IP_TYPE_IPV6,
         exception);
     StringBuilderComplete(builder);
@@ -319,7 +308,8 @@ TEST_F(Strings, StringBuilder_AddStringValue_Valid) {
         StringBuilderInit(builder);
         StringBuilderAddStringValue(
             builder,
-            (const String *)stringValueString,
+            (const StoredBinaryValue *)stringValueString,
+            FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
             0,
             exception);
         EXPECT_TRUE(*(builder->current - 1));
@@ -332,7 +322,8 @@ TEST_F(Strings, StringBuilder_AddStringValue_Valid) {
         StringBuilderInit(builder);
         StringBuilderAddStringValue(
             builder,
-            (const String *)ipv4ValueString,
+            (const StoredBinaryValue *)ipv4ValueString,
+            FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
             0,
             exception);
         EXPECT_TRUE(*(builder->current - 1));
@@ -345,7 +336,8 @@ TEST_F(Strings, StringBuilder_AddStringValue_Valid) {
         StringBuilderInit(builder);
         StringBuilderAddStringValue(
             builder,
-            (const String *)ipv6ValueString,
+            (const StoredBinaryValue *)ipv6ValueString,
+            FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
             0,
             exception);
         EXPECT_TRUE(*(builder->current - 1));
@@ -358,20 +350,8 @@ TEST_F(Strings, StringBuilder_AddStringValue_Valid) {
         StringBuilderInit(builder);
         StringBuilderAddStringValue(
             builder,
-            (const String *)coordValueString,
-            0,
-            exception);
-        EXPECT_TRUE(*(builder->current - 1));
-        StringBuilderComplete(builder);
-        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
-        EXPECT_STREQ(builder->ptr, "-1,8");
-    }
-    {
-        EXCEPTION_CLEAR;
-        StringBuilderInit(builder);
-        StringBuilderAddStringValue(
-            builder,
-            (const String *)wkbValueString,
+            (const StoredBinaryValue *)wkbValueString,
+            FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB,
             0,
             exception);
         EXPECT_TRUE(*(builder->current - 1));
@@ -388,7 +368,8 @@ TEST_F(Strings, StringBuilder_AddStringValue_Invalid) {
         StringBuilderInit(builder);
         StringBuilderAddStringValue(
             builder,
-            (const String *)invalidIpValueString,
+            (const StoredBinaryValue *)invalidIpValueString,
+            FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
             0,
             exception);
         EXPECT_FALSE(EXCEPTION_OKAY) << "Exception not thrown";

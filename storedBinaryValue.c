@@ -301,7 +301,7 @@ int fiftyoneDegreesStoredBinaryValueToIntOrDefault(
             return value->intValue;
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
-            return FLOAT_TO_NATIVE(value->floatValue);
+            return (int)FLOAT_TO_NATIVE(value->floatValue);
         }
         default: {
             return defaultValue;

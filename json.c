@@ -62,51 +62,19 @@ static void addStringEscape(
 }
 
 /**
- *
- * @param valueType
- * @param storedValueType
- * @return
- */
-static bool shouldAddQuotes(
-	const PropertyValueType valueType,
-	const PropertyValueType storedValueType) {
-	switch (valueType) {
-		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER:
-		case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT:
-		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DOUBLE:
-		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_BOOLEAN:
-			return false;
-		default:
-			break;
-	}
-	switch (storedValueType) {
-		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER:
-		case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT:
-			return false;
-		default:
-			return true;
-	}
-}
-
-/*
  * Adds a binary including surrounding double quotes and escaping special
  * characters.
  * @param s fiftyoneDegreesJson to add to
- * @param binaryValue
- * @param valueType
- * @param storedValueType
- * @param exception
+ * @param binaryValue pointer to raw bytes as stored in data file
+ * @param storedValueType format of byte array representation
  */
 static void addValueContents(
 	fiftyoneDegreesJson * const s,
 	const StoredBinaryValue * const binaryValue,
-	const PropertyValueType valueType,
 	const PropertyValueType storedValueType) {
 
-	const bool addQuotes = shouldAddQuotes(valueType, storedValueType);
-	if (addQuotes) {
-		StringBuilderAddChar(&s->builder, '\"');
-	}
+	Exception * const exception = s->exception;
+	StringBuilderAddChar(&s->builder, '\"');
 	if (storedValueType == FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING) {
 		addStringEscape(
 			s,
@@ -119,10 +87,11 @@ static void addValueContents(
 			storedValueType,
 			MAX_DOUBLE_DECIMAL_PLACES,
 			s->exception);
+		if (EXCEPTION_FAILED) {
+			return;
+		}
 	}
-	if (addQuotes) {
-		StringBuilderAddChar(&s->builder, '\"');
-	}
+	StringBuilderAddChar(&s->builder, '\"');
 }
 
 
@@ -172,7 +141,6 @@ void fiftyoneDegreesJsonPropertyStart(fiftyoneDegreesJson* s) {
 		addValueContents(
 			s,
 			name,
-			s->property->valueType,
 			FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING); // name is string
 		StringBuilderAddChar(&s->builder, ':');
 		if (s->property->isList) {
@@ -217,7 +185,6 @@ void fiftyoneDegreesJsonPropertyValues(fiftyoneDegreesJson* s) {
 			addValueContents(
 				s,
 				value,
-				s->property->valueType,
 				s->storedPropertyType);
 			if (EXCEPTION_FAILED) {
 				return;

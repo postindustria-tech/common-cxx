@@ -121,11 +121,11 @@ static int countAllSegments(void* state, HeadersGetMethod get) {
 	Item item;
 	DataReset(&item.data);
 	while (get(state, index, &item) >= 0) {
-		name = STRING(item.data.ptr);
+		name = STRING(item.data.ptr); // header is string
 		if (isHeaderValid(name)) {
 
 			// Count the number of segments.
-			segments = countHeaderSegments(STRING(item.data.ptr));
+			segments = countHeaderSegments(STRING(item.data.ptr)); // header is string
 			count += segments;
 
 			// If there are more than one segment then this is a pseudo header 
@@ -272,7 +272,7 @@ static bool addHeadersFromDataSet(
 	// Loop through all the available headers in the data set adding those that
 	// are valid and unique to the headers collection.
 	while ((headerId = get(state, index++, &item)) >= 0) {
-		name = STRING(item.data.ptr);
+		name = STRING(item.data.ptr); // header is string
 		if (isHeaderValid(name) && isUnique(headers, name)) {
 
 			// Set the next header from the data set name item aborting if 

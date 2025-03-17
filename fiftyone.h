@@ -286,6 +286,9 @@ MAP_TYPE(WkbtotResult)
 #define StringGet fiftyoneDegreesStringGet /**< Synonym for #fiftyoneDegreesStringGet function. */
 #define StoredBinaryValueGet fiftyoneDegreesStoredBinaryValueGet /**< Synonym for #fiftyoneDegreesStoredBinaryValueGet function. */
 #define StoredBinaryValueCompareWithString fiftyoneDegreesStoredBinaryValueCompareWithString /**< Synonym for #fiftyoneDegreesStoredBinaryValueCompareWithString function. */
+#define StoredBinaryValueToIntOrDefault fiftyoneDegreesStoredBinaryValueToIntOrDefault /**< Synonym for #fiftyoneDegreesStoredBinaryValueToIntOrDefault function. */
+#define StoredBinaryValueToDoubleOrDefault fiftyoneDegreesStoredBinaryValueToDoubleOrDefault /**< Synonym for #fiftyoneDegreesStoredBinaryValueToDoubleOrDefault function. */
+#define StoredBinaryValueToBoolOrDefault fiftyoneDegreesStoredBinaryValueToBoolOrDefault /**< Synonym for #fiftyoneDegreesStoredBinaryValueToBoolOrDefault function. */
 #define EvidenceFree fiftyoneDegreesEvidenceFree /**< Synonym for #fiftyoneDegreesEvidenceFree function. */
 #define EvidenceCreate fiftyoneDegreesEvidenceCreate /**< Synonym for #fiftyoneDegreesEvidenceCreate function. */
 #define EvidenceMapPrefix fiftyoneDegreesEvidenceMapPrefix /**< Synonym for #fiftyoneDegreesEvidenceMapPrefix function. */

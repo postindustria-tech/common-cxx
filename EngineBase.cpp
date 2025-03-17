@@ -67,7 +67,7 @@ void EngineBase::initOverrideKeys(
 			if (overrideProperties->prefix == true) {
 				key.append("51D_");
 			}
-			tempKey = STRING(
+			tempKey = STRING( // name is string
 				overrideProperties->items[i].available->name.data.ptr);
 			if (tempKey != nullptr) {
 				key.append(tempKey);
@@ -80,7 +80,7 @@ void EngineBase::initOverrideKeys(
 			if (overrideProperties->prefix == true) {
 				key.append("51D_");
 			}
-			tempKey = STRING(
+			tempKey = STRING( // name is string
 				overrideProperties->items[i].available->name.data.ptr);
 			if (tempKey != nullptr) {
 				key.append(tempKey);

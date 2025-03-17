@@ -349,8 +349,8 @@ static void setEvidenceProperties(
 static int comparePropertyNamesAscending(const void *a, const void *b) {
 	PropertyAvailable *ai = (PropertyAvailable*)a;
 	PropertyAvailable *bi = (PropertyAvailable*)b;
-	const char *as = STRING(ai->name.data.ptr);
-	const char *bs = STRING(bi->name.data.ptr);
+	const char *as = STRING(ai->name.data.ptr); // name is string
+	const char *bs = STRING(bi->name.data.ptr); // name is string
 	assert(as != NULL && bs != NULL);
 	return _stricmp(as, bs);
 }
@@ -504,7 +504,7 @@ bool fiftyoneDegreesPropertiesIsSetHeaderAvailable(
 	fiftyoneDegreesPropertiesAvailable* available) {
 	const char* string;
 	for (uint32_t i = 0; i < available->count; i++) {
-		string = FIFTYONE_DEGREES_STRING(available->items[i].name.data.ptr);
+		string = FIFTYONE_DEGREES_STRING(available->items[i].name.data.ptr); // name is string
 		if (StringSubString(string, "SetHeader") == string) {
 			return true;
 		}

@@ -107,6 +107,7 @@ static void releaseCache(Item *item) {
 	if (item->handle != NULL) {
 		CacheRelease((CacheNode*)item->handle);
 		item->handle = NULL;
+		DataReset(&item->data); // data is not owned by the item
 	}
 }
 

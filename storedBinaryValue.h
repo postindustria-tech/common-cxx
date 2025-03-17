@@ -129,6 +129,7 @@ EXTERNAL fiftyoneDegreesStoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
  * Function to compare the current binary value to the
  * target string value using the text format.
  * @param value the current binary value item
+ * @param storedValueType format of byte array representation
  * @param target the target search value.
  * @return 0 if they are equal, otherwise negative
  * for smaller and positive for bigger
@@ -138,6 +139,45 @@ EXTERNAL int fiftyoneDegreesStoredBinaryValueCompareWithString(
  fiftyoneDegreesPropertyValueType storedValueType,
  const char *target,
  fiftyoneDegreesException *exception);
+
+/**
+ * Function to convert the binary value to int when possible.
+ * @param value the current binary value item
+ * @param storedValueType format of byte array representation
+ * @param defaultValue fallback result.
+ * @return converted value (when possible)
+ * or default one (when type is not convertible).
+ */
+EXTERNAL int fiftyoneDegreesStoredBinaryValueToIntOrDefault(
+ const fiftyoneDegreesStoredBinaryValue *value,
+ fiftyoneDegreesPropertyValueType storedValueType,
+ int defaultValue);
+
+/**
+ * Function to convert the binary value to double when possible.
+ * @param value the current binary value item
+ * @param storedValueType format of byte array representation
+ * @param defaultValue fallback result.
+ * @return converted value (when possible)
+ * or default one (when type is not convertible).
+ */
+EXTERNAL double fiftyoneDegreesStoredBinaryValueToDoubleOrDefault(
+ const fiftyoneDegreesStoredBinaryValue *value,
+ fiftyoneDegreesPropertyValueType storedValueType,
+ double defaultValue);
+
+/**
+ * Function to convert the binary value to bool when possible.
+ * @param value the current binary value item
+ * @param storedValueType format of byte array representation
+ * @param defaultValue fallback result.
+ * @return converted value (when possible)
+ * or default one (when type is not convertible).
+ */
+EXTERNAL bool fiftyoneDegreesStoredBinaryValueToBoolOrDefault(
+ const fiftyoneDegreesStoredBinaryValue *value,
+ fiftyoneDegreesPropertyValueType storedValueType,
+ bool defaultValue);
 
 /**
  * @}

@@ -286,3 +286,70 @@ int fiftyoneDegreesStoredBinaryValueCompareWithString(
         }
     }
 }
+
+
+int fiftyoneDegreesStoredBinaryValueToIntOrDefault(
+    const fiftyoneDegreesStoredBinaryValue * const value,
+    const fiftyoneDegreesPropertyValueType storedValueType,
+    const int defaultValue) {
+
+    switch (storedValueType) {
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
+            return atoi(&value->stringValue.value);
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER: {
+            return value->intValue;
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
+            return FLOAT_TO_NATIVE(value->floatValue);
+        }
+        default: {
+            return defaultValue;
+        }
+    }
+}
+
+double fiftyoneDegreesStoredBinaryValueToDoubleOrDefault(
+    const fiftyoneDegreesStoredBinaryValue * const value,
+    const fiftyoneDegreesPropertyValueType storedValueType,
+    const double defaultValue) {
+
+    switch (storedValueType) {
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
+            return strtod(&value->stringValue.value, NULL);
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER: {
+            return value->intValue;
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
+            return FLOAT_TO_NATIVE(value->floatValue);
+        }
+        default: {
+            return defaultValue;
+        }
+    }
+}
+
+bool fiftyoneDegreesStoredBinaryValueToBoolOrDefault(
+    const fiftyoneDegreesStoredBinaryValue * const value,
+    const fiftyoneDegreesPropertyValueType storedValueType,
+    const bool defaultValue) {
+
+    switch (storedValueType) {
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
+            if (value->stringValue.size != 5) {
+                return false;
+            }
+            return !strncmp(&value->stringValue.value, "True", 4);
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER: {
+            return value->intValue;
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
+            return FLOAT_TO_NATIVE(value->floatValue);
+        }
+        default: {
+            return defaultValue;
+        }
+    }
+}

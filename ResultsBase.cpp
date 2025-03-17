@@ -62,7 +62,7 @@ string ResultsBase::getPropertyName(
 	const char *cName;
 	if (requiredPropertyIndex >= 0 &&
 		requiredPropertyIndex < (int)available->count) {
-		cName = STRING(PropertiesGetNameFromRequiredIndex(
+		cName = STRING(PropertiesGetNameFromRequiredIndex( // name is string
 			available,
 			requiredPropertyIndex));
 		if (cName != nullptr) {

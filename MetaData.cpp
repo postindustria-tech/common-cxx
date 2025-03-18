@@ -37,16 +37,6 @@ MetaData::MetaData(shared_ptr<fiftyoneDegreesResourceManager> manager) {
 MetaData::~MetaData() {
 }
 
-// string MetaData::getString(
-// 	fiftyoneDegreesCollection *strings,
-// 	uint32_t offset) {
-//
-// 	return getValue(
-// 		strings,
-// 		offset,
-// 		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING); // legacy contract
-// }
-
 string MetaData::getValue(
 	fiftyoneDegreesCollection *strings,
 	uint32_t offset,

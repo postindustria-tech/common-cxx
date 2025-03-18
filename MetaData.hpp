@@ -237,18 +237,6 @@ namespace FiftyoneDegrees {
 				fiftyoneDegreesCollection *strings,
 				uint32_t offset,
 				fiftyoneDegreesPropertyValueType storedValueType);
-
-			// /**
-			//  * Get a string from the collection and copy it to a C++ string
-			//  * instance. This method releases the collection item before
-			//  * returning.
-			//  * @param strings pointer to the collection containing the string
-			//  * @param offset of the string in the collection
-			//  * @return copy of the requested string from the collection
-			//  */
-			// string getString(
-			// 	fiftyoneDegreesCollection *strings,
-			// 	uint32_t offset);
 		};
 	}
 }

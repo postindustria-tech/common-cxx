@@ -69,6 +69,7 @@
 #include "collection.h"
 #include "float.h"
 #include "common.h"
+#include "ip.h"
 
 /**
  * Enumeration to indicate what format is held in a string item
@@ -114,11 +115,11 @@ typedef enum fiftyone_degrees_string_format {
  * the type stored at the pointer is not an WKB geometry
  */
 #define FIFTYONE_DEGREES_WKB(s) \
-	(const byte*)(s == NULL \
-		|| ((fiftyoneDegreesString*)s)->value \
+	(const unsigned char*)(s == NULL \
+		|| ((const fiftyoneDegreesString*)s)->value \
 			!= FIFTYONE_DEGREES_STRING_WKB ? \
 		NULL : \
-		&((fiftyoneDegreesString*)s)->trail.secondValue)
+		&((const fiftyoneDegreesString*)s)->trail.secondValue)
 
 /** 
  * String structure containing its value and size which maps to the string 
@@ -152,7 +153,7 @@ typedef enum fiftyone_degrees_string_format {
  */
 #pragma pack(push, 1)
 typedef struct fiftyone_degrees_string_t {
-	int16_t size; /**< Size of the string in memory */
+	int16_t size; /**< Size of the string in memory (starting from 'value') */
 	char value; /**< The first character of the string */
 	union {
 		char secondValue; /**< If the string is an IP address or WKB geometry, this will be the start byte */
@@ -265,7 +266,19 @@ EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChar(
  */
 EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddInteger(
 	fiftyoneDegreesStringBuilder* builder,
-	int const value);
+	int64_t const value);
+
+/**
+ * Adds the double to the buffer.
+ * @param builder to add the character to
+ * @param value floating-point number to add
+ * @param decimalPlaces precision (places after decimal dot)
+ * @return pointer to the buffer passed
+ */
+EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddDouble(
+	fiftyoneDegreesStringBuilder* builder,
+	double value,
+	uint8_t decimalPlaces);
 
 /**
  * Adds the string to the buffer.
@@ -278,6 +291,33 @@ EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
 	fiftyoneDegreesStringBuilder* builder,
 	const char* value,
 	size_t length);
+
+/**
+ * Adds an the IP (as string) from byte "string".
+ * @param builder to add the IP to
+ * @param ipAddress binary (packed) "string" with IP to add
+ * @param type type of IP inside
+ * @param exception pointer to exception struct
+ */
+EXTERNAL void fiftyoneDegreesStringBuilderAddIpAddress(
+	fiftyoneDegreesStringBuilder* builder,
+	const fiftyoneDegreesString *ipAddress,
+	fiftyoneDegreesIpType type,
+	fiftyoneDegreesException *exception);
+
+/**
+ * Adds a potentially packed value as a proper string to the buffer.
+ * @param builder to add the character to
+ * @param value from data file to add
+ * @param decimalPlaces precision for numbers (places after decimal dot)
+ * @param exception pointer to exception struct
+ * @return pointer to the buffer passed
+ */
+EXTERNAL fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
+	fiftyoneDegreesStringBuilder* builder,
+	const fiftyoneDegreesString* value,
+	uint8_t decimalPlaces,
+	fiftyoneDegreesException *exception);
 
 /**
  * Adds a null terminating character to the buffer.

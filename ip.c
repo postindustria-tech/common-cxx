@@ -69,6 +69,7 @@ typedef struct {
 	IpAddress * const address;
 	byte *current;
 	int bytesPresent;
+	int abbreviationsFilled;
 } fiftyoneDegreeIpAddressBuildState;
 typedef fiftyoneDegreeIpAddressBuildState IpAddressBuildState;
 
@@ -80,6 +81,10 @@ static void parseIpV6Segment(
 	char first[3], second[3], val; // "FF" + '\0'
 	if (start > end) {
 		// This is an abbreviation, so fill it in.
+		if (buildState->abbreviationsFilled) {
+			return;
+		}
+		buildState->abbreviationsFilled++;
 		for (i = 0; i < IPV6_LENGTH - buildState->bytesPresent; i++) {
 			*buildState->current = (byte)0;
 			buildState->current++;
@@ -310,6 +315,7 @@ bool fiftyoneDegreesIpAddressParse(
 		address,
 		address->value,
 		byteCount,
+		0,
 	};
 
 	// Add the bytes from the source value and get the type of address.
@@ -320,9 +326,6 @@ bool fiftyoneDegreesIpAddressParse(
 		&springCount,
 		type,
 		callbackIpAddressBuild);
-	
-	// Set the length of the address.
-	address->length = (type == IP_TYPE_IPV4) ? IPV4_LENGTH : IPV6_LENGTH;
 
 	return true;
 }

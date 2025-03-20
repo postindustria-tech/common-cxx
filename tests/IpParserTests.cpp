@@ -25,10 +25,13 @@
 #include "../fiftyone.h"
 #include <memory>
 
-static bool CheckResult(byte* result, const byte* expected, uint16_t size) {
+static bool CheckResult(
+	const byte* result,
+	const byte* expected,
+	const uint16_t size) {
 	bool match = true;
-	for (uint16_t i = 0; i < size; i++) {
-		match = match && *result == *expected;
+	for (uint16_t i = 0; i < size && match; i++) {
+		match = (*result == *expected);
 		result++;
 		expected++;
 	}
@@ -42,6 +45,9 @@ static bool parseIpAddressInPlace(const std::unique_ptr<IpAddress> &ipAddress, c
 
 static std::unique_ptr<IpAddress> parseIpAddressStringOfLength(const char * const ipString, const size_t length) {
 	std::unique_ptr<IpAddress> ipPtr = std::make_unique<IpAddress>();
+	for (size_t i = 0; i < std::size(ipPtr->value); i++) {
+		ipPtr->value[i] = static_cast<byte>(0xA0 + i);
+	}
 	const bool parsed =parseIpAddressInPlace(ipPtr, ipString, length);
 	return parsed ? std::move(ipPtr) : nullptr;
 }
@@ -60,8 +66,6 @@ TEST(ParseIp, ParseIp_Ipv4_Low)
 	byte expected[] = { 0, 0, 0, 0 };
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected))) <<
 		L"Expected result to be '0.0.0.0'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV4) <<
 		L"Expected type to be IPv4";
 }
@@ -71,8 +75,6 @@ TEST(ParseIp, ParseIp_Ipv4_High)
 	byte expected[] = { 255, 255, 255, 255 };
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected))) <<
 		L"Expected result to be '255.255.255.255'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV4) <<
 		L"Expected type to be IPv4";
 }
@@ -85,8 +87,6 @@ TEST(ParseIp, ParseIp_Ipv4_Endline)
 		L"Expected result to be non-NULL.";
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected) - 1)) <<
 		L"Expected result to be '0.0.0.0'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV4) <<
 		L"Expected type to be IPv4";
 }
@@ -115,8 +115,6 @@ TEST(ParseIp, ParseIp_Ipv4_Trim0)
 		L"Expected result to be non-NULL.";
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected) - 1)) <<
 		L"Expected result to be '192.168.101.217'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV4) <<
 		L"Expected type to be IPv4";
 }
@@ -129,8 +127,6 @@ TEST(ParseIp, ParseIp_Ipv4_Trim1)
 		L"Expected result to be non-NULL.";
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected) - 1)) <<
 		L"Expected result to be '192.168.101.217'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV4) <<
 		L"Expected type to be IPv4";
 }
@@ -143,8 +139,6 @@ TEST(ParseIp, ParseIp_Ipv4_Trim2)
 		L"Expected result to be non-NULL.";
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected) - 1)) <<
 		L"Expected result to be '192.168.101.21'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV4) <<
 		L"Expected type to be IPv4";
 }
@@ -157,8 +151,6 @@ TEST(ParseIp, ParseIp_Ipv4_Trim3)
 		L"Expected result to be non-NULL.";
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected) - 1)) <<
 		L"Expected result to be '192.168.101.2'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV4) <<
 		L"Expected type to be IPv4";
 }
@@ -168,8 +160,6 @@ TEST(ParseIp, ParseIp_Ipv4_PortNumber)
 	byte expected[] = { 1, 2, 3, 4 };
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected))) <<
 		L"Expected result to be '1.2.3.4'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV4) <<
 		L"Expected type to be IPv4";
 }
@@ -179,8 +169,6 @@ TEST(ParseIp, ParseIp_Ipv4_CIDRFormat)
 	byte expected[] = { 1, 2, 3, 4 };
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected))) <<
 		L"Expected result to be '1.2.3.4'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV4) <<
 		L"Expected type to be IPv4";
 }
@@ -193,17 +181,17 @@ TEST(ParseIp, ParseIp_Ipv6_Low)
 	byte expected[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected))) <<
 		L"Expected result to be '0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV6) <<
 		L"Expected type to be IPv6";
 }
 TEST(ParseIp, ParseIp_Ipv6_Low_Abbreviated)
 {
 	auto const result = parseIpAddressString("::");
-	byte expected[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected)))
-		<< L"Expected result to be '0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0'";
+	const byte expected[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV6) <<
+		L"Expected type to be IPv6";
+	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected))) <<
+		L"Expected result to be '0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0'";
 }
 TEST(ParseIp, ParseIp_Ipv6_High)
 {
@@ -211,8 +199,6 @@ TEST(ParseIp, ParseIp_Ipv6_High)
 	byte expected[] = { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 };
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected))) <<
 		L"Expected result to be '255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV6) <<
 		L"Expected type to be IPv6";
 }
@@ -240,8 +226,6 @@ TEST(ParseIp, ParseIp_Ipv6_AbbreviatedStart)
 	EXPECT_TRUE(
 		CheckResult(result.value, expected, IPV6_LENGTH)) <<
 		"The value of the abbreivated start IPv6 address is not correctly parsed.";
-
-    EXPECT_EQ(result.length, IPV6_LENGTH);
 }
 TEST(ParseIp, ParseIp_Ipv6_AbbreviatedMiddle)
 {
@@ -249,8 +233,6 @@ TEST(ParseIp, ParseIp_Ipv6_AbbreviatedMiddle)
 	byte expected[] = { 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255 };
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected))) <<
 		L"Expected result to be '255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV6) <<
 		L"Expected type to be IPv6";
 }
@@ -260,8 +242,6 @@ TEST(ParseIp, ParseIp_Ipv6_AbbreviatedEnd)
 	byte expected[] = { 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0 };
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected))) <<
 		L"Expected result to be '255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV6) <<
 		L"Expected type to be IPv6";
 }
@@ -271,8 +251,6 @@ TEST(ParseIp, ParseIp_Ipv6_PortNumber)
 	byte expected[] = { 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected))) <<
 		L"Expected result to be '32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV6) <<
 		L"Expected type to be IPv6";
 }
@@ -282,8 +260,6 @@ TEST(ParseIp, ParseIp_Ipv6_CIDRFormat)
 	byte expected[] = { 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
 	EXPECT_TRUE(CheckResult(result->value, expected, sizeof(expected))) <<
 		L"Expected result to be '32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1'";
-	EXPECT_EQ(result->length, sizeof(expected)) <<
-		L"Expected length to be " << sizeof(expected);
 	EXPECT_EQ(result->type, FIFTYONE_DEGREES_IP_TYPE_IPV6) <<
 		L"Expected type to be IPv6";
 }
@@ -316,8 +292,6 @@ TEST(ParseIp, ParseIp_Invalid_ipv4OutOfRange)
 		CheckResult(result.value, expected, IPV4_LENGTH)) <<
 		"The value of the out of range IPv4 address is not correctly restricted "
 		"at 255.";
-	
-    EXPECT_EQ(result.length, IPV4_LENGTH);
 }
 TEST(ParseIp, ParseIp_Invalid_ipv4TooMany)
 {

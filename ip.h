@@ -68,7 +68,6 @@ typedef enum e_fiftyone_degrees_ip_evidence_type {
 typedef struct fiftyone_degrees_ip_address_t {
 	byte value[FIFTYONE_DEGREES_IPV6_LENGTH]; /**< Buffer to hold the IP 
 											  address bytes array. */
-	size_t length; /**< Length of the byte array. */
 	byte type; /**< The type of the IP. @see fiftyoneDegreesIpType */
 } fiftyoneDegreesIpAddress;
 

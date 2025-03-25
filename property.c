@@ -32,7 +32,12 @@ static fiftyoneDegreesString* getString(
 	uint32_t offset,
 	Item *item,
 	Exception *exception) {
-	return StringGet(stringsCollection, offset, item, exception);
+	return &StoredBinaryValueGet(
+		stringsCollection,
+		offset,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // metadata are strings
+		item,
+		exception)->stringValue;
 }
 #endif
 
@@ -46,6 +51,62 @@ fiftyoneDegreesString* fiftyoneDegreesPropertyGetName(
 		property->nameOffset,
 		item,
 		exception);
+}
+
+static int comparePropertyTypeRecordByName(void *state, Item *item, long curIndex, Exception *exception) {
+#	ifdef _MSC_VER
+	UNREFERENCED_PARAMETER(curIndex);
+	UNREFERENCED_PARAMETER(exception);
+#	endif
+	const uint32_t searchNameOffset = *(uint32_t*)state;
+	const PropertyTypeRecord * const nextRecord = (PropertyTypeRecord*)item->data.ptr;
+	const long long result = (long long)nextRecord->nameOffset - (long long)searchNameOffset;
+	return !result ? 0 : (result < 0 ? -1 : 1);
+}
+
+PropertyValueType fiftyoneDegreesPropertyGetStoredType(
+	fiftyoneDegreesCollection * const propertyTypesCollection,
+	Property * const property,
+	Exception * const exception) {
+
+	PropertyValueType result = FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING; // overwritten later
+
+	Item item;
+	DataReset(&item.data);
+	CollectionBinarySearch(
+		propertyTypesCollection,
+		&item,
+		0,
+		CollectionGetCount(propertyTypesCollection),
+		(void*)&property->nameOffset,
+		comparePropertyTypeRecordByName,
+		exception);
+	if (EXCEPTION_OKAY) {
+		result = ((PropertyTypeRecord*)item.data.ptr)->storedValueType;
+		COLLECTION_RELEASE(propertyTypesCollection, &item);
+	}
+	return result;
+}
+
+PropertyValueType fiftyoneDegreesPropertyGetStoredTypeByIndex(
+	fiftyoneDegreesCollection * const propertyTypesCollection,
+	const uint32_t propertyOffset,
+	Exception * const exception) {
+
+	PropertyValueType result = FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING; // overwritten later
+
+	Item item;
+	DataReset(&item.data);
+	const PropertyTypeRecord * const record = (PropertyTypeRecord*)propertyTypesCollection->get(
+		propertyTypesCollection,
+		propertyOffset,
+		&item,
+		exception);
+	if (EXCEPTION_OKAY) {
+		result = record->storedValueType;
+		COLLECTION_RELEASE(propertyTypesCollection, &item);
+	}
+	return result;
 }
 
 fiftyoneDegreesString* fiftyoneDegreesPropertyGetDescription(

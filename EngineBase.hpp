@@ -280,6 +280,19 @@ namespace FiftyoneDegrees {
 			 * @param stream to append the string to
 			 * @param strings collection to get the string from
 			 * @param offset of the string in the collection
+			 * @param storedValueType format of byte array representation.
+			 */
+			virtual void appendValue(
+				stringstream &stream,
+				fiftyoneDegreesCollection *strings,
+				uint32_t offset,
+				fiftyoneDegreesPropertyValueType storedValueType) const;
+
+			/**
+			 * Gets a string from a strings collection, and appends to a stream.
+			 * @param stream to append the string to
+			 * @param strings collection to get the string from
+			 * @param offset of the string in the collection
 			 */
 			virtual void appendString(
 				stringstream &stream,

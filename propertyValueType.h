@@ -20,36 +20,23 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-#include "pch.h"
-#include "../exceptions.h"
-#include "../float.h"
-#include "../string.h"
-#include "../coordinate.h"
+#ifndef FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_H_INCLUDED
+#define FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_H_INCLUDED
 
-/*
- * fiftyoneDegreesCoordinate extract coordinate from String item test
+/**
+ * Enum of property types.
  */
-TEST(Coordinate, Coordinate_ItemToCoordinate_Positive)
-{
-	const fiftyoneDegreesCoordinate expectedCoordinate = { 1.2f, 3.4f };
-	fiftyoneDegreesCoordinate resultCoordinate;
-	
-	fiftyoneDegreesString string;
-	string.size = 9;
-	string.value = FIFTYONE_DEGREES_STRING_COORDINATE;
-	string.trail.coordinate.lat = 
-		FIFTYONE_DEGREES_NATIVE_TO_FLOAT(expectedCoordinate.lat);
-	string.trail.coordinate.lon = 
-		FIFTYONE_DEGREES_NATIVE_TO_FLOAT(expectedCoordinate.lon);
+typedef enum e_fiftyone_degrees_property_value_type {
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING = 0, /**< String */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER = 1, /**< Integer */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DOUBLE = 2, /**< Double */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_BOOLEAN = 3, /**< Boolean */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_JAVASCRIPT = 4, /**< JavaScript string */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT = 5, /**< Single precision floating point value */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE = 6, /**< Single byte value */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_COORDINATE = 7, /**< Coordinate */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS = 8, /**< Ip Range */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB = 9, /**< Well-known binary for geometry */
+} fiftyoneDegreesPropertyValueType;
 
-	fiftyoneDegreesCollectionItem item;
-	item.data.ptr = (byte *)&string;
-
-	FIFTYONE_DEGREES_EXCEPTION_CREATE
-	resultCoordinate = fiftyoneDegreesIpiGetCoordinate(&item, exception);
-	EXPECT_TRUE(FIFTYONE_DEGREES_EXCEPTION_OKAY) << "No exception should "
-		"be thrown at this point.";
-	EXPECT_TRUE(resultCoordinate.lat == expectedCoordinate.lat
-		&& resultCoordinate.lon == expectedCoordinate.lon) << "The actual "
-		"coordinate is not the same as what being expected.";
-}
+#endif

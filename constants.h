@@ -31,4 +31,14 @@
  */
 static const uint8_t fiftyoneDegreesIpAddressStringMaxLength = 50;
 
+/**
+ * The length for the buffer most WKT strings are expected to fit into.
+ */
+#define FIFTYONE_DEGREES_REASONABLE_WKT_STRING_LENGTH 128
+
+/**
+ * Max. number of decimal places to be printed for a double.
+ */
+#define FIFTYONE_DEGREES_MAX_DOUBLE_DECIMAL_PLACES 15
+
 #endif //FIFTYONE_DEGREES_CONSTANTS_H

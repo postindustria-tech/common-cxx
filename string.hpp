@@ -1,6 +1,6 @@
 /* *********************************************************************
  * This Original Work is copyright of 51 Degrees Mobile Experts Limited.
- * Copyright 2023 51 Degrees Mobile Experts Limited, Davidson House,
+ * Copyright 2025 51 Degrees Mobile Experts Limited, Davidson House,
  * Forbury Square, Reading, Berkshire, United Kingdom RG1 3EU.
  *
  * This Original Work is licensed under the European Union Public Licence
@@ -20,22 +20,28 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-#include "float.h"
-#include "string.h"
-#include "status.h"
-#include "coordinate.h"
+#ifndef FIFTYONE_DEGREES_STRING_HPP_INCLUDED
+#define FIFTYONE_DEGREES_STRING_HPP_INCLUDED
 
-fiftyoneDegreesCoordinate fiftyoneDegreesIpiGetCoordinate(
-	const fiftyoneDegreesCollectionItem *item,
-	fiftyoneDegreesException *exception) {
-	fiftyoneDegreesString *value = (fiftyoneDegreesString *)item->data.ptr;
-	fiftyoneDegreesCoordinate coordinate = { 0, 0 };
-	if (value->value == FIFTYONE_DEGREES_STRING_COORDINATE) {
-		coordinate.lat = FIFTYONE_DEGREES_FLOAT_TO_NATIVE(value->trail.coordinate.lat);
-		coordinate.lon = FIFTYONE_DEGREES_FLOAT_TO_NATIVE(value->trail.coordinate.lon);
-	}
-	else {
-		FIFTYONE_DEGREES_EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_CORRUPT_DATA);
-	}
-	return coordinate;
+#include "string.h"
+#include <sstream>
+
+#include "storedBinaryValue.h"
+
+namespace FiftyoneDegrees::Common {
+    /**
+     * Converts stored binary value to text and pushes into a string stream.
+     * @param binaryValue stored binary value from data file
+     * @param stream string stream to push WKT into.
+     * @param decimalPlaces precision for numbers (places after the decimal dot).
+     * @param exception pointer to the exception struct.
+     */
+    void writeStoredBinaryValueToStringStream(
+        const fiftyoneDegreesStoredBinaryValue *binaryValue,
+	    fiftyoneDegreesPropertyValueType valueType,
+        std::stringstream &stream,
+        uint8_t decimalPlaces,
+        fiftyoneDegreesException *exception);
 }
+
+#endif //FIFTYONE_DEGREES_STRING_HPP_INCLUDED

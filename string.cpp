@@ -20,7 +20,7 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-#include "wkbtot.hpp"
+#include "string.hpp"
 
 #include <memory>
 
@@ -28,8 +28,9 @@
 
 namespace FiftyoneDegrees::Common {
 
-    WkbtotResult writeWkbStringToStringStream(
-        const VarLengthByteArray * const wkbString,
+    void writeStoredBinaryValueToStringStream(
+        const StoredBinaryValue * const binaryValue,
+        const PropertyValueType valueType,
         std::stringstream &stream,
         const uint8_t decimalPlaces,
         Exception * const exception) {
@@ -39,24 +40,20 @@ namespace FiftyoneDegrees::Common {
             false,
         };
 
-        if (!wkbString || !exception) {
+        if (!binaryValue || !exception) {
             EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_NULL_POINTER);
-            return toWktResult;
-        }
-        const auto * const wkbBytes = &wkbString->firstByte;
-        if (!wkbBytes) {
-            EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_INVALID_INPUT);
-            return toWktResult;
+            return;
         }
 
         {
             char buffer[REASONABLE_WKT_STRING_LENGTH];
             StringBuilder builder = { buffer, REASONABLE_WKT_STRING_LENGTH };
             StringBuilderInit(&builder);
-            WriteWkbAsWktToStringBuilder(
-                wkbBytes,
-                decimalPlaces,
+            StringBuilderAddStringValue(
                 &builder,
+                binaryValue,
+                valueType,
+                decimalPlaces,
                 exception
                 );
             StringBuilderComplete(&builder);
@@ -66,7 +63,7 @@ namespace FiftyoneDegrees::Common {
             };
             if (EXCEPTION_OKAY && !toWktResult.bufferTooSmall) {
                 stream << buffer;
-                return toWktResult;
+                return;
             }
         }
         if (toWktResult.bufferTooSmall) {
@@ -75,10 +72,11 @@ namespace FiftyoneDegrees::Common {
             const std::unique_ptr<char[]> buffer = std::make_unique<char[]>(requiredSize);
             StringBuilder builder = { buffer.get(), requiredSize };
             StringBuilderInit(&builder);
-            WriteWkbAsWktToStringBuilder(
-                wkbBytes,
-                decimalPlaces,
+            StringBuilderAddStringValue(
                 &builder,
+                binaryValue,
+                valueType,
+                decimalPlaces,
                 exception
                 );
             StringBuilderComplete(&builder);
@@ -88,9 +86,9 @@ namespace FiftyoneDegrees::Common {
             };
             if (EXCEPTION_OKAY && !toWktResult.bufferTooSmall) {
                 stream << buffer.get();
-                return toWktResult;
+                return;
             }
         }
-        return toWktResult;
+        return;
     }
 }

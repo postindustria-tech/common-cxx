@@ -30,96 +30,8 @@ MAP_TYPE(CollectionItem);
 typedef struct value_search_t {
 	Collection *strings;
 	const char *valueName;
+	PropertyValueType valueType;
 } valueSearch;
-
-#ifndef FIFTYONE_DEGREES_GET_STRING_DEFINED
-#define FIFTYONE_DEGREES_GET_STRING_DEFINED
-static String* getString(
-	Collection *strings,
-	uint32_t offset,
-	Item *item,
-	Exception *exception) {
-	return StringGet(strings, offset, item, exception);
-}
-#endif
-
-/*
- * Function that compare the current String item
- * against the target value that being searched
- * using the Coordinate format.
- * @value the current String item
- * @target the target search search string. This
- * should be in a,b format and will then be converted
- * to a float pair.
- * @return 0 if they are equals, otherwise negative
- * for smaller and positive for bigger.
- */
-static int compareCoordinate(String *value, const char *target) {
-	int result = 0;
-	char *curPtr = strstr(target, ",");
-	if (curPtr != NULL) {
-		// Only compare if same format
-		Float targetLat = NATIVE_TO_FLOAT((float)atof(target));
-		Float targetLon = NATIVE_TO_FLOAT((float)atof(curPtr + 1));
-		result = memcmp(&value->trail.coordinate.lat, &targetLat, sizeof(Float));
-		if (result == 0) {
-			result = memcmp(&value->trail.coordinate.lon, &targetLon, sizeof(Float));
-		}
-	}
-	else {
-		// This will eventually end with no value found
-		result = -1;
-	}
-	return result;
-}
-
-/*
- * Function to compare the current String item to the
- * target search value using the IpAddress format.
- * @param value the current String item
- * @param target the target search value. This should
- * be in string readable format of an IP address.
- * @return 0 if they are equal, otherwise negative
- * for smaller and positive for bigger
- */
-static int compareIpAddress(String *value, const char *target) {
-	int result = 0;
-	IpAddress ipAddress;
-	bool parsed = IpAddressParse(
-			target, 
-			target + strlen(target),
-			&ipAddress);
-	if (parsed) {
-		int16_t valueLength = (size_t)value->size - 1;
-		int16_t searchLength = 0, compareLength = 0;
-		switch (ipAddress.type) {
-		case IP_TYPE_IPV4:
-			searchLength = IPV4_LENGTH;
-			break;
-		case IP_TYPE_IPV6:
-			searchLength = IPV6_LENGTH;
-			break;
-		case IP_TYPE_INVALID:
-		default:
-			break;
-		}
-
-		if (searchLength == 0) {
-			result = -1;
-		}
-		else {
-			// Compare length first
-			compareLength = (valueLength < searchLength
-				? valueLength : searchLength);
-			result = memcmp(&value->trail.secondValue,
-				ipAddress.value, compareLength);
-			if (result == 0) {
-				result = valueLength - searchLength;
-			}
-		}
-	}
-	return result;
-}
 
 #ifdef _MSC_VER
 // Not all parameters are used for this implementation of
@@ -129,33 +41,21 @@ static int compareIpAddress(String *value, const char *target) {
 static int compareValueByName(void *state, Item *item, long curIndex, Exception *exception) {
 	int result = 0;
 	Item name;
-	String *value;
+	StoredBinaryValue *value;
 	valueSearch *search = (valueSearch*)state;
 	DataReset(&name.data);
-	value = ValueGetName(
+	value = ValueGetContent(
 		search->strings,
 		(Value*)item->data.ptr,
+		search->valueType,
 		&name,
 		exception);
 	if (value != NULL && EXCEPTION_OKAY) {
-		switch (value->value) {
-		case FIFTYONE_DEGREES_STRING_COORDINATE:
-			result = compareCoordinate(value,search->valueName);
-			break;
-		case FIFTYONE_DEGREES_STRING_IP_ADDRESS:
-			result = compareIpAddress(value, search->valueName);
-			break;
-		case FIFTYONE_DEGREES_STRING_WKB: {
-			const size_t searchValLength = strlen(search->valueName);
-			const size_t wkbLength = value->size - 1;
-			const size_t cmpLen = searchValLength < wkbLength ? searchValLength : wkbLength;
-			result = strncmp(&(value->trail.secondValue), search->valueName, cmpLen);
-			break;
-		}
-		default:
-			result = strcmp(&value->value, search->valueName);
-			break;
-		}
+		result = StoredBinaryValueCompareWithString(
+			value,
+			search->valueType,
+			search->valueName,
+			exception);
 		COLLECTION_RELEASE(search->strings, &name);
 	}
 	return result;
@@ -164,12 +64,27 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 #pragma warning (default: 4100)
 #endif
 
+StoredBinaryValue* fiftyoneDegreesValueGetContent(
+	Collection *strings,
+	Value *value,
+	PropertyValueType storedValueType,
+	CollectionItem *item,
+	Exception *exception) {
+
+	return StoredBinaryValueGet(strings, value->nameOffset, storedValueType, item, exception);
+}
+
 String* fiftyoneDegreesValueGetName(
 	Collection *strings,
 	Value *value,
 	CollectionItem *item,
 	Exception *exception) {
-	return getString(strings, value->nameOffset, item, exception);
+	return &StoredBinaryValueGet(
+		strings,
+		value->nameOffset,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // legacy contract
+		item,
+		exception)->stringValue;
 }
 
 String* fiftyoneDegreesValueGetDescription(
@@ -177,11 +92,12 @@ String* fiftyoneDegreesValueGetDescription(
 	Value *value,
 	CollectionItem *item,
 	Exception *exception) {
-	return getString(
+	return &StoredBinaryValueGet(
 		strings,
 		value->descriptionOffset,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // description is string
 		item,
-		exception);
+		exception)->stringValue;
 }
 
 String* fiftyoneDegreesValueGetUrl(
@@ -189,7 +105,12 @@ String* fiftyoneDegreesValueGetUrl(
 	Value *value,
 	CollectionItem *item,
 	Exception *exception) {
-	return getString(strings, value->urlOffset, item, exception);
+	return &StoredBinaryValueGet(
+		strings,
+		value->urlOffset,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // URL is string
+		item,
+		exception)->stringValue;
 }
 
 Value* fiftyoneDegreesValueGet(
@@ -210,12 +131,30 @@ long fiftyoneDegreesValueGetIndexByName(
 	Property *property,
 	const char *valueName,
 	Exception *exception) {
+
+	return fiftyoneDegreesValueGetIndexByNameAndType(
+		values,
+		strings,
+		property,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // legacy contract
+		valueName,
+		exception);
+}
+
+long fiftyoneDegreesValueGetIndexByNameAndType(
+	Collection *values,
+	Collection *strings,
+	Property *property,
+	fiftyoneDegreesPropertyValueType storedValueType,
+	const char *valueName,
+	Exception *exception) {
 	Item item;
 	valueSearch search;
 	long index;
 	DataReset(&item.data);
 	search.valueName = valueName;
 	search.strings = strings;
+	search.valueType = storedValueType;
 	index = CollectionBinarySearch(
 		values,
 		&item,
@@ -237,10 +176,30 @@ Value* fiftyoneDegreesValueGetByName(
 	const char *valueName,
 	CollectionItem *item,
 	Exception *exception) {
+
+	return fiftyoneDegreesValueGetByNameAndType(
+		values,
+		strings,
+		property,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING, // legacy contract
+		valueName,
+		item,
+		exception);
+}
+
+Value* fiftyoneDegreesValueGetByNameAndType(
+	Collection * const values,
+	Collection * const strings,
+	Property * const property,
+	const fiftyoneDegreesPropertyValueType storedValueType,
+	const char * const valueName,
+	CollectionItem * const item,
+	Exception * const exception) {
 	valueSearch search;
 	Value *value = NULL;
 	search.valueName = valueName;
 	search.strings = strings;
+	search.valueType = storedValueType;
 	if (
 		(int)property->firstValueIndex != -1 &&
 		CollectionBinarySearch(

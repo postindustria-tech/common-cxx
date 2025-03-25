@@ -26,7 +26,10 @@
 #include <string>
 #include "Exceptions.hpp"
 #include "collection.h"
+#include "constants.h"
+#include "storedBinaryValue.h"
 #include "string.h"
+#include "string.hpp"
 
 
 using namespace FiftyoneDegrees;
@@ -57,23 +60,51 @@ namespace FiftyoneDegrees {
 			static string getString(
 				fiftyoneDegreesCollection *stringsCollection,
 				uint32_t offset) {
+				return getValue(
+					stringsCollection,
+					offset,
+					FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING); // legacy contract
+			}
+
+			/**
+			 * Get a copy of a binary value (as string) from the strings collection at the offset
+			 * provided.
+			 * @param stringsCollection pointer to the collection to copy the
+			 * value (as string) from
+			 * @param offset offset in the strings collection of the binary value to
+			 * copy (as string)
+			 * @param storedValueType format of byte array representation.
+			 * @return string describing contents of binary value the offset provided
+			 */
+			static string getValue(
+				fiftyoneDegreesCollection *stringsCollection,
+				uint32_t offset,
+				fiftyoneDegreesPropertyValueType storedValueType) {
 				FIFTYONE_DEGREES_EXCEPTION_CREATE;
 				string result;
 				fiftyoneDegreesCollectionItem item;
-				fiftyoneDegreesString *str;
 				fiftyoneDegreesDataReset(&item.data);
-				str = fiftyoneDegreesStringGet(
+				const fiftyoneDegreesStoredBinaryValue * const binaryValue = fiftyoneDegreesStoredBinaryValueGet(
 					stringsCollection,
 					offset,
+					storedValueType,
 					&item,
 					exception);
 				FIFTYONE_DEGREES_EXCEPTION_THROW;
-					if (str != nullptr) {
-						result.append(&str->value);
-					}
-					FIFTYONE_DEGREES_COLLECTION_RELEASE(
-						stringsCollection,
-						&item);
+				if (binaryValue != nullptr) {
+					std::stringstream stream;
+					writeStoredBinaryValueToStringStream(
+						binaryValue,
+						storedValueType,
+						stream,
+						FIFTYONE_DEGREES_MAX_DOUBLE_DECIMAL_PLACES,
+						exception);
+					FIFTYONE_DEGREES_EXCEPTION_THROW;
+					result.append(stream.str());
+				}
+				FIFTYONE_DEGREES_COLLECTION_RELEASE(
+					stringsCollection,
+					&item);
 				return result;
 			}
 

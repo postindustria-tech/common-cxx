@@ -43,24 +43,54 @@ static Profile* getProfileByOffset(
 		exception);
 }
 
-#ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4100)
-#endif
 static int compareProfileId(
-	void *profileId, 
-	Item *item,
-	long curIndex,
-	Exception *exception) {
+	void * const profileId,
+	Item * const item,
+	const long curIndex,
+	Exception * const exception) {
+#	ifdef _MSC_VER
+	UNREFERENCED_PARAMETER(curIndex);
+	UNREFERENCED_PARAMETER(exception);
+#	endif
 	const unsigned int a = ((ProfileOffset*)item->data.ptr)->profileId;
 	const unsigned int b = *(uint32_t*)profileId;
 	if (a < b) return -1;
 	if (a > b) return 1;
 	return 0;
 }
-#ifdef _MSC_VER
-#pragma warning (pop)
-#endif
+
+typedef struct {
+	uint32_t profileId;
+	fiftyoneDegreesCollection *profiles;
+	Item *outProfileItem;
+} IndirectProfileSearch;
+
+static int compareProfileIdIndirect(
+	void * const searchState,
+	Item * const profileOffsetItem,
+	const long curIndex,
+	Exception * const exception) {
+#	ifdef _MSC_VER
+	UNREFERENCED_PARAMETER(curIndex);
+	UNREFERENCED_PARAMETER(exception);
+#	endif
+	const IndirectProfileSearch * const search = (IndirectProfileSearch*)searchState;
+	const uint32_t profileOffsetValue = *(uint32_t*)profileOffsetItem->data.ptr;
+	const Profile * const profile = (Profile*)search->profiles->get(
+		search->profiles,
+		profileOffsetValue,
+		search->outProfileItem,
+		exception);
+	if (!(profile && EXCEPTION_OKAY)) {
+		return -1;
+	}
+	const long long delta = (long long)profile->profileId - (long long)search->profileId;
+	const int result = (delta == 0) ? 0 : ((delta < 0) ? -1 : 1);
+	if (delta) {
+		COLLECTION_RELEASE(search->profiles, search->outProfileItem);
+	}
+	return result;
+}
 
 static int compareValueToProperty(const void *p, const void *v) {
 	Property *property = (Property*)p;
@@ -174,7 +204,7 @@ uint32_t* fiftyoneDegreesProfileGetOffsetForProfileId(
 		EXCEPTION_SET(PROFILE_EMPTY);
 	}
 	else {
-		
+
 		// Get the index in the collection of profile offsets for the required
 		// profile id.
 		index = CollectionBinarySearch(
@@ -189,7 +219,7 @@ uint32_t* fiftyoneDegreesProfileGetOffsetForProfileId(
 		// If the profile id is present then return the offset for it otherwise
 		// set the offset to NULL.
 		if (index >= 0 && EXCEPTION_OKAY) {
-			*profileOffset = 
+			*profileOffset =
 				((ProfileOffset*)profileOffsetItem.data.ptr)->offset;
 		}
 		else {
@@ -203,8 +233,54 @@ uint32_t* fiftyoneDegreesProfileGetOffsetForProfileId(
 	return profileOffset;
 }
 
+Profile * fiftyoneDegreesProfileGetByProfileIdIndirect(
+	fiftyoneDegreesCollection * const profileOffsets,
+	fiftyoneDegreesCollection * const profiles,
+	const uint32_t profileId,
+	fiftyoneDegreesCollectionItem *outProfileItem,
+	fiftyoneDegreesException * const exception) {
+	long index;
+	Item profileOffsetItem;
+	DataReset(&profileOffsetItem.data);
+
+	Profile *result = NULL;
+
+	if (profileId == 0) {
+		EXCEPTION_SET(PROFILE_EMPTY);
+	}
+	else {
+		IndirectProfileSearch search = {
+			profileId,
+			profiles,
+			outProfileItem,
+		};
+
+		// Get the index in the collection of profile offsets for the required
+		// profile id.
+		index = CollectionBinarySearch(
+			profileOffsets,
+			&profileOffsetItem,
+			0,
+			CollectionGetCount(profileOffsets) - 1,
+			(void*)&search,
+			compareProfileIdIndirect,
+			exception);
+
+		// If the profile id is present then return the offset for it otherwise
+		// set the offset to NULL.
+		if (index >= 0 && EXCEPTION_OKAY) {
+			result = (Profile*)outProfileItem->data.ptr;
+		}
+
+		// Release the item that contains the list profile offset found.
+		COLLECTION_RELEASE(profileOffsets, &profileOffsetItem);
+	}
+
+	return result;
+}
+
 fiftyoneDegreesProfile* fiftyoneDegreesProfileGetByProfileId(
-	fiftyoneDegreesCollection *profileOffsets, 
+	fiftyoneDegreesCollection *profileOffsets,
 	fiftyoneDegreesCollection *profiles,
 	const uint32_t profileId,
 	fiftyoneDegreesCollectionItem *item,
@@ -335,6 +411,33 @@ uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
 	void *state,
 	fiftyoneDegreesProfileIterateMethod callback,
 	fiftyoneDegreesException *exception) {
+
+	return fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndValue(
+		strings,
+		properties,
+		NULL,
+		values,
+		profiles,
+		profileOffsets,
+		propertyName,
+		valueName,
+		state,
+		callback,
+		exception);
+}
+
+uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndValue(
+	fiftyoneDegreesCollection *strings,
+	fiftyoneDegreesCollection *properties,
+	fiftyoneDegreesCollection *propertyTypes,
+	fiftyoneDegreesCollection *values,
+	fiftyoneDegreesCollection *profiles,
+	fiftyoneDegreesCollection *profileOffsets,
+	const char *propertyName,
+	const char* valueName,
+	void *state,
+	fiftyoneDegreesProfileIterateMethod callback,
+	fiftyoneDegreesException *exception) {
 	uint32_t i, count = 0;
 	Item propertyItem, offsetItem, profileItem;
 	uint32_t *profileValueIndex, *maxProfileValueIndex;
@@ -348,11 +451,23 @@ uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
 		propertyName, 
 		&propertyItem,
 		exception);
+	fiftyoneDegreesPropertyValueType storedValueType
+		= FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING; // overwritten later
+	if (propertyTypes) {
+		const PropertyValueType foundStoredType = PropertyGetStoredType(
+			propertyTypes,
+			property,
+			exception);
+		if (EXCEPTION_OKAY) {
+			storedValueType = foundStoredType;
+		}
+	}
 	if (property != NULL && EXCEPTION_OKAY) {
-		const long valueIndex = fiftyoneDegreesValueGetIndexByName(
+		const long valueIndex = fiftyoneDegreesValueGetIndexByNameAndType(
 			values,
 			strings,
-			property, 
+			property,
+			storedValueType,
 			valueName,
 			exception);
 		if (valueIndex >= 0 && EXCEPTION_OKAY) {

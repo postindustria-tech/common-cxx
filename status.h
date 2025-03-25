@@ -141,7 +141,9 @@ typedef enum e_fiftyone_degrees_status_code {
 	FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY, /**< Insufficient capacity of
                                                     the array to hold all the items*/
     FIFTYONE_DEGREES_STATUS_INVALID_INPUT, /**< Invalid input data (f.e. base64 / JSON
-                                     misformat or semantic inconsistency) */
+										   misformat or semantic inconsistency) */
+	FIFTYONE_DEGREES_STATUS_UNSUPPORTED_STORED_VALUE_TYPE, /**< StoredValueType
+											is not supported at this version. */
 } fiftyoneDegreesStatusCode;
 
 /**

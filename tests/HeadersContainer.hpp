@@ -26,7 +26,6 @@
 #include "StringCollection.hpp"
 #include "../headers.h"
 #include "../exceptions.h"
-#include "../fiftyone.h"
 
 class HeadersContainer {
 public:

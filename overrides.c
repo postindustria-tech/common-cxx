@@ -127,7 +127,7 @@ static int getRequiredPropertyIndexFromName(
 	// being overridden.
 	for (i = 0; i < properties->count; i++) {
 		property = &properties->items[i];
-		current = STRING(property->available->name.data.ptr);
+		current = STRING(property->available->name.data.ptr); // name is string
 		if (StringCompare((char*)current, (char*)name) == 0) {
 			return property->requiredPropertyIndex;
 		}

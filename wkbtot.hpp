@@ -37,7 +37,7 @@ namespace FiftyoneDegrees::Common {
      * @return How many bytes were written to the buffer and if it was too small.
      */
     fiftyoneDegreesWkbtotResult writeWkbStringToStringStream(
-        const fiftyoneDegreesString *wkbString,
+        const fiftyoneDegreesVarLengthByteArray *wkbString,
         std::stringstream &stream,
         uint8_t decimalPlaces,
         fiftyoneDegreesException *exception);

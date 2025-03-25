@@ -225,16 +225,18 @@ namespace FiftyoneDegrees {
 			shared_ptr<fiftyoneDegreesResourceManager> manager;
 
 			/**
-			 * Get a string from the collection and copy it to a C++ string
+			 * Get a value from the collection and copy it as string to a C++ string
 			 * instance. This method releases the collection item before
 			 * returning.
 			 * @param strings pointer to the collection containing the string
 			 * @param offset of the string in the collection
-			 * @return copy of the requested string from the collection
+			 * @param storedValueType format of byte array representation.
+			 * @return copy of the requested value from the collection as string
 			 */
-			string getString(
+			string getValue(
 				fiftyoneDegreesCollection *strings,
-				uint32_t offset);
+				uint32_t offset,
+				fiftyoneDegreesPropertyValueType storedValueType);
 		};
 	}
 }

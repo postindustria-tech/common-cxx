@@ -21,8 +21,12 @@
  * ********************************************************************* */
 
 #include "MetaData.hpp"
+
+#include <sstream>
+
 #include "Exceptions.hpp"
 #include "fiftyone.h"
+#include "string.hpp"
 
 using namespace FiftyoneDegrees::Common;
 
@@ -33,23 +37,30 @@ MetaData::MetaData(shared_ptr<fiftyoneDegreesResourceManager> manager) {
 MetaData::~MetaData() {
 }
 
-string MetaData::getString(
+string MetaData::getValue(
 	fiftyoneDegreesCollection *strings,
-	uint32_t offset) {
+	uint32_t offset,
+	fiftyoneDegreesPropertyValueType storedValueType) {
 	EXCEPTION_CREATE;
-	string result;
 	Item item;
-	String *str;
+	StoredBinaryValue *binaryValue;
 	DataReset(&item.data);
-	str = StringGet(
+	binaryValue = StoredBinaryValueGet(
 		strings,
 		offset,
+		storedValueType,
 		&item,
 		exception);
 	EXCEPTION_THROW;
-	if (str != nullptr) {
-		result.append(&str->value);
+	std::stringstream ss;
+	if (binaryValue != nullptr) {
+		writeStoredBinaryValueToStringStream(
+			binaryValue,
+			storedValueType,
+			ss,
+			(uint8_t)ss.precision(),
+			exception);
 	}
 	COLLECTION_RELEASE(strings, &item);
-	return result;
+	return ss.str();
 }

@@ -23,6 +23,7 @@
 #include "EngineBase.hpp"
 
 #include "fiftyone.h"
+#include "string.hpp"
 
 using namespace FiftyoneDegrees::Common;
 
@@ -66,7 +67,7 @@ void EngineBase::initOverrideKeys(
 			if (overrideProperties->prefix == true) {
 				key.append("51D_");
 			}
-			tempKey = STRING(
+			tempKey = STRING( // name is string
 				overrideProperties->items[i].available->name.data.ptr);
 			if (tempKey != nullptr) {
 				key.append(tempKey);
@@ -79,7 +80,7 @@ void EngineBase::initOverrideKeys(
 			if (overrideProperties->prefix == true) {
 				key.append("51D_");
 			}
-			tempKey = STRING(
+			tempKey = STRING( // name is string
 				overrideProperties->items[i].available->name.data.ptr);
 			if (tempKey != nullptr) {
 				key.append(tempKey);
@@ -150,17 +151,39 @@ bool EngineBase::getIsThreadSafe() const {
 	return ThreadingGetIsThreadSafe();
 }
 
+void EngineBase::appendValue(
+	stringstream &stream,
+	fiftyoneDegreesCollection *strings,
+	uint32_t offset,
+	PropertyValueType storedValueType) const {
+	EXCEPTION_CREATE;
+	Item item;
+	DataReset(&item.data);
+	const StoredBinaryValue * const binaryValue = StoredBinaryValueGet(
+		strings,
+		offset,
+		storedValueType,
+		&item,
+		exception);
+	if (binaryValue != nullptr && EXCEPTION_OKAY) {
+		writeStoredBinaryValueToStringStream(
+			binaryValue,
+			storedValueType,
+			stream,
+			MAX_DOUBLE_DECIMAL_PLACES,
+			exception);
+		COLLECTION_RELEASE(strings, &item);
+	}
+	EXCEPTION_THROW;
+}
+
 void EngineBase::appendString(
 	stringstream &stream,
 	fiftyoneDegreesCollection *strings,
 	uint32_t offset) const {
-	EXCEPTION_CREATE;
-	Item item;
-	DataReset(&item.data);
-	String *string = StringGet(strings, offset, &item, exception);
-	if (string != NULL && EXCEPTION_OKAY) {
-		stream << STRING(string);
-		COLLECTION_RELEASE(strings, &item);
-	}
-	EXCEPTION_THROW;
+	appendValue(
+		stream,
+		strings,
+		offset,
+		FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING); // legacy contract
 }

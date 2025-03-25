@@ -122,6 +122,7 @@ static StatusMessage messages[] = {
 	{ TEMP_FILE_ERROR,
 		"Error occurs during the creation of a temporary file."},
     { INVALID_INPUT, "The input value is invalid: misformatted or semantically inconsistent."},
+    { UNSUPPORTED_STORED_VALUE_TYPE, "Property's StoredValueType is not supported at this version."},
 };
 
 static char defaultMessage[] = "Status code %i does not have any message text.";

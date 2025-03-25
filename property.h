@@ -62,22 +62,7 @@
 #include "collection.h"
 #include "string.h"
 #include "common.h"
-
-/**
- * Enum of property types.
- */
-typedef enum e_fiftyone_degrees_property_value_type {
-	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING = 0, /**< String */
-	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER = 1, /**< Integer */
-	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DOUBLE = 2, /**< Double */
-	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_BOOLEAN = 3, /**< Boolean */
-	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_JAVASCRIPT = 4, /**< JavaScript string */
-	FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT = 5, /**< Single precision floating point value */
-	FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE = 6, /**< Single byte value */
-	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_COORDINATE = 7, /**< Coordinate */
-	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS = 8, /**< Ip Range */
-	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB = 9, /**< Well-known binary for geometry */
-} fiftyoneDegreesPropertyValueType;
+#include "propertyValueType.h"
 
 /**
  * Property structure containing all the meta data relating to a property.
@@ -115,6 +100,17 @@ typedef struct property_t {
 #pragma pack(pop)
 
 /**
+ * Property structure containing stored type of a property.
+ */
+#pragma pack(push, 1)
+typedef struct property_type_record_t {
+	const uint32_t nameOffset; /**< The offset in the strings structure to the
+	                               property name */
+	const byte storedValueType; /**< The type of value the property is stored as */
+} fiftyoneDegreesPropertyTypeRecord;
+#pragma pack(pop)
+
+/**
  * Returns the string name of the property using the item provided. The 
  * collection item must be released when the caller is finished with the
  * string.
@@ -129,6 +125,32 @@ EXTERNAL fiftyoneDegreesString* fiftyoneDegreesPropertyGetName(
 	fiftyoneDegreesCollection *stringsCollection,
 	fiftyoneDegreesProperty *property,
 	fiftyoneDegreesCollectionItem *item,
+	fiftyoneDegreesException *exception);
+
+/**
+ * Returns the type the property is stored as.
+ * @param propertyTypesCollection collection of property types retrieved by offsets.
+ * @param property structure for the type required.
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h.
+ * @return a type the property is stored as.
+ */
+EXTERNAL fiftyoneDegreesPropertyValueType fiftyoneDegreesPropertyGetStoredType(
+	fiftyoneDegreesCollection *propertyTypesCollection,
+	fiftyoneDegreesProperty *property,
+	fiftyoneDegreesException *exception);
+
+/**
+ * Returns the type the property is stored as.
+ * @param propertyTypesCollection collection of property types retrieved by offsets.
+ * @param index of the property to get
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h.
+ * @return a type the property is stored as.
+ */
+EXTERNAL fiftyoneDegreesPropertyValueType fiftyoneDegreesPropertyGetStoredTypeByIndex(
+	fiftyoneDegreesCollection *propertyTypesCollection,
+	uint32_t index,
 	fiftyoneDegreesException *exception);
 
 /**

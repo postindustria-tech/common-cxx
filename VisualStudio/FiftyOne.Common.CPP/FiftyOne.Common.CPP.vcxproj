@@ -15,6 +15,7 @@
     <ClCompile Include="..\..\PropertyMetaData.cpp" />
     <ClCompile Include="..\..\RequiredPropertiesConfig.cpp" />
     <ClCompile Include="..\..\ResultsBase.cpp" />
+    <ClCompile Include="..\..\string.cpp" />
     <ClCompile Include="..\..\ValueMetaData.cpp" />
     <ClCompile Include="..\..\wkbtot.cpp" />
   </ItemGroup>
@@ -31,6 +32,7 @@
     <ClInclude Include="..\..\Exceptions.hpp" />
     <ClInclude Include="..\..\IpAddress.hpp" />
     <ClInclude Include="..\..\MetaData.hpp" />
+    <ClInclude Include="..\..\string.hpp" />
     <ClInclude Include="..\..\Value.hpp" />
     <ClInclude Include="..\..\ProfileMetaData.hpp" />
     <ClInclude Include="..\..\PropertyMetaData.hpp" />

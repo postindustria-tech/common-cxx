@@ -40,6 +40,7 @@
 #include "threading.h"
 #include "tree.h"
 #include "common.h"
+#include "fileOffset.h"
 
 #ifdef _MSC_VER
 #define FIFTYONE_DEGREES_CALL_CONV __cdecl
@@ -54,7 +55,7 @@ typedef struct fiftyone_degrees_memory_reader_t {
 	byte *startByte; /**< The first byte in memory */
 	byte *current; /**< The current byte being read from */
 	byte *lastByte; /**< The maximum byte that can be read from */
-	long length; /**< Length of the file in bytes */
+	fiftyoneDegreesFileOffset length; /**< Length of the file in bytes */
 } fiftyoneDegreesMemoryReader;
 
 /**

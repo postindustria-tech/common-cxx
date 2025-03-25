@@ -171,6 +171,7 @@
 #include <limits.h>
 #include <time.h>
 #include "data.h"
+#include "fileOffset.h"
 #include "exceptions.h"
 #include "status.h"
 #include "memory.h"
@@ -213,6 +214,7 @@
 #define FIFTYONE_DEGREES_FILE_MAX_PATH 4096
 #endif
 
+
 /**
  * File handle node in the stack of handles.
  */
@@ -226,8 +228,29 @@ typedef union fiftyone_degrees_file_handle_t {
  */
  typedef struct fiftyone_degrees_file_pool_t {
 	 fiftyoneDegreesPool pool; /**< The pool of file handles */
-	 long length; /**< Length of the file in bytes */
+	 fiftyoneDegreesFileOffset length; /**< Length of the file in bytes */
 } fiftyoneDegreesFilePool;
+
+/**
+ * Moves the file pointer to a specified location.
+ * @param stream Pointer to FILE structure.
+ * @param offset Number of bytes from origin.
+ * @param origin Initial position.
+ * @return 
+ */
+EXTERNAL int fiftyoneDegreesFileSeek(
+   FILE *stream,
+   fiftyoneDegreesFileOffset offset,
+   int origin);
+
+/**
+ * Gets the current position of a file pointer.
+ * @param stream Target FILE structure.
+ * @return The current file position.
+ */
+EXTERNAL fiftyoneDegreesFileOffset fiftyoneDegreesFileTell(
+   FILE *stream
+);
 
 /**
  * Releases the file handles contained in the pool and frees any internal
@@ -455,7 +478,7 @@ EXTERNAL void fiftyoneDegreesFileHandleRelease(
  * @param fileName path to the file
  * @return size of file in bytes or -1
  */
-EXTERNAL long fiftyoneDegreesFileGetSize(const char *fileName);
+EXTERNAL fiftyoneDegreesFileOffset fiftyoneDegreesFileGetSize(const char *fileName);
 
 /**
  * Reads the contents of a file into memory. The correct amount of memory will

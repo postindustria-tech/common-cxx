@@ -517,10 +517,10 @@ static CollectionFile* readFile(CollectionFile *fileCollection, FILE *file) {
 	}
 
 	// Record the offset in the source file to the collection.
-	fileCollection->offset = ftell(file);
+	fileCollection->offset = FileTell(file);
 
 	// Move the file handle past the collection.
-	if (fseek(file, fileCollection->collection->size, SEEK_CUR) != 0) {
+	if (FileSeek(file, fileCollection->collection->size, SEEK_CUR) != 0) {
 		return NULL;
 	}
 
@@ -596,7 +596,7 @@ static Collection* createFromFilePartial(
 	memory->memoryToFree = memory->firstByte;
 
 	// Position the file reader at the start of the collection.
-	if (fseek(file, header->startPosition, SEEK_SET) != 0) {
+	if (FileSeek(file, header->startPosition, SEEK_SET) != 0) {
 		freeMemoryCollection(collection);
 		source->freeCollection(source);
 		return NULL;
@@ -611,7 +611,7 @@ static Collection* createFromFilePartial(
 	}
 
 	// Move the file position to the byte after the collection.
-	if (fseek(file, source->size - memory->collection->size, SEEK_CUR) != 0) {
+	if (FileSeek(file, source->size - memory->collection->size, SEEK_CUR) != 0) {
 		freeMemoryCollection(collection);
 		source->freeCollection(source);
 		return NULL;
@@ -702,7 +702,7 @@ static Collection* createFromFileSecond(
 
 	// Return the file position to the start of the collection ready to
 	// read the next collection.
-	if (fseek(file, header.startPosition, SEEK_SET) == 0) {
+	if (FileSeek(file, header.startPosition, SEEK_SET) == 0) {
 
 		// Choose between the cached or file based collection.
 		if (config->capacity > 0 && config->concurrency > 0) {
@@ -829,7 +829,7 @@ fiftyoneDegreesCollectionHeader fiftyoneDegreesCollectionHeaderFromFile(
 			header.length = sizeOrCount;
 			header.count = elementSize > 0 ? header.length / elementSize : 0;
 		}
-		header.startPosition = (uint32_t)ftell(file);
+		header.startPosition = (uint32_t)FileTell(file);
 	}
 	else {
 		header.startPosition = 0;
@@ -876,7 +876,7 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromFile(
 
 	if (result == NULL || (
 		result->count == config->loaded &&
-		(long)result->size < (long)(ftell(file) - header.startPosition))) {
+		(long)result->size < (long)(FileTell(file) - header.startPosition))) {
 
 		// Create the next collection if one is needed.
 		*next = createFromFileSecond(file, reader, config, header, read);
@@ -914,7 +914,7 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromFile(
 	memory.lastByte = memory.current + memory.length;
 
 	// Position the file reader at the start of the collection.
-	if (fseek(file, header.startPosition, SEEK_SET) != 0) {
+	if (FileSeek(file, header.startPosition, SEEK_SET) != 0) {
 		free(data);
 		return NULL;
 	}
@@ -961,7 +961,7 @@ fiftyoneDegreesFileHandle* fiftyoneDegreesCollectionReadFilePosition(
 
 			// Move to the start of the record in the file handling success or 
 			// failure of the operation via the status code.
-			if (fseek(handle->file, file->offset + offset, SEEK_SET) != 0) {
+			if (FileSeek(handle->file, file->offset + offset, SEEK_SET) != 0) {
 
 				// Release the handle as the operation failed.
 				FileHandleRelease(handle);
@@ -1048,7 +1048,7 @@ static void* readFileVariable(
 	void *ptr = NULL;
 
 	// Set the file position to the start of the item being read.
-	if (fseek(handle->file, fileCollection->offset + offset, SEEK_SET) == 0) {
+	if (FileSeek(handle->file, fileCollection->offset + offset, SEEK_SET) == 0) {
 
 		// Read the item header minus the last part of the structure 
 		// that may not always be included with every item.

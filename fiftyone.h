@@ -113,6 +113,8 @@ MAP_TYPE(CollectionCache)
 MAP_TYPE(CollectionFileRead)
 #endif
 MAP_TYPE(FileHandle)
+MAP_TYPE(FileOffset)
+MAP_TYPE(UFileOffset)
 MAP_TYPE(CacheNode)
 MAP_TYPE(FilePool)
 MAP_TYPE(CollectionHeader)
@@ -254,6 +256,8 @@ MAP_TYPE(WkbtotResult)
 #define HeadersFree fiftyoneDegreesHeadersFree /**< Synonym for #fiftyoneDegreesHeadersFree function. */
 #define PropertiesFree fiftyoneDegreesPropertiesFree /**< Synonym for #fiftyoneDegreesPropertiesFree function. */
 #define FilePoolRelease fiftyoneDegreesFilePoolRelease /**< Synonym for #fiftyoneDegreesFilePoolRelease function. */
+#define FileSeek fiftyoneDegreesFileSeek /**< Synonym for #fiftyoneDegreesFileSeek function. */
+#define FileTell fiftyoneDegreesFileTell /**< Synonym for #fiftyoneDegreesFileTell function. */
 #define FileDelete fiftyoneDegreesFileDelete /**< Synonym for #fiftyoneDegreesFileDelete function. */
 #define FilePoolReset fiftyoneDegreesFilePoolReset /**< Synonym for #fiftyoneDegreesFilePoolReset function. */
 #define PropertiesCreate fiftyoneDegreesPropertiesCreate /**< Synonym for #fiftyoneDegreesPropertiesCreate function. */

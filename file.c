@@ -28,6 +28,7 @@
 #ifdef _MSC_VER
 #include <windows.h>
 #else
+#include <stdio.h>
 #include <unistd.h>
 #endif
 
@@ -77,14 +78,48 @@ static void freeFileHandle(Pool *pool, void *fileHandle) {
 #pragma warning (default:4100)  
 #endif
 
-static long fileGetSize(FILE *file) {
+int fiftyoneDegreesFileSeek(
+   FILE * const stream,
+   const FileOffset offset,
+   const int origin) {
+
+	return
+#ifdef FIFTYONE_DEGREES_LARGE_DATA_FILE_SUPPORT
+#	ifdef _MSC_VER
+	_fseeki64
+#	else
+	fseeko
+#	endif
+#else
+	fseek
+#endif
+	(stream, offset, origin);
+}
+
+FileOffset fiftyoneDegreesFileTell(FILE * const stream) {
+
+	return
+#ifdef FIFTYONE_DEGREES_LARGE_DATA_FILE_SUPPORT
+#	ifdef _MSC_VER
+	_ftelli64
+#	else
+	ftello
+#	endif
+#else
+	ftell
+#endif
+	(stream);
+}
+
+
+static FileOffset fileGetSize(FILE *file) {
 	if (fseek(file, 0L, SEEK_END) == 0) {
-		return ftell(file);
+		return FileTell(file);
 	}
 	return -1;
 }
 
-static long setLength(FilePool *reader, Exception *exception) {
+static FileOffset setLength(FilePool *reader, Exception *exception) {
 	FileHandle *handle;
 	reader->length = 0;
 	handle = FileHandleGet(reader, exception);
@@ -259,7 +294,7 @@ static bool compareFiles(
 	long bytesToCompare) {
 	StatusCode status;
 	FILE *file, *otherFile;
-	long size, read;
+	FileOffset size, read;
 	byte buffer[1024], otherBuffer[1024];
 
 	// Compare the sizes.
@@ -278,11 +313,11 @@ static bool compareFiles(
 		return false;
 	}
 
-	while (ftell(file) < size &&
-		(bytesToCompare < 0 || ftell(file) < bytesToCompare)) {
+	while (FileTell(file) < size &&
+		(bytesToCompare < 0 || FileTell(file) < bytesToCompare)) {
 		read = bytesToCompare > 0 ? bytesToCompare : (long)sizeof(buffer);
-		if (size - ftell(file) < read) {
-			read = size - ftell(file);
+		if (size - FileTell(file) < read) {
+			read = size - FileTell(file);
 		}
 
 		if (fread(buffer, read, 1, file) != 1) {
@@ -1041,9 +1076,9 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileCopy(
 	return status;
 }
 
-long fiftyoneDegreesFileGetSize(const char *source) {
+FileOffset fiftyoneDegreesFileGetSize(const char *source) {
 	FILE *sourceFile;
-	long size = -1;
+	FileOffset size = -1;
 	if (FileOpen(source, &sourceFile) == SUCCESS) {
 		size = fileGetSize(sourceFile);
 		fclose(sourceFile);

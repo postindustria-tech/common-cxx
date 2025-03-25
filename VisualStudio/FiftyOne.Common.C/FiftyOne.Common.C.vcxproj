@@ -17,6 +17,7 @@
     <ClInclude Include="..\..\exceptions.h" />
     <ClInclude Include="..\..\fiftyone.h" />
     <ClInclude Include="..\..\file.h" />
+    <ClInclude Include="..\..\fileOffset.h" />
     <ClInclude Include="..\..\float.h" />
     <ClInclude Include="..\..\headers.h" />
     <ClInclude Include="..\..\ip.h" />

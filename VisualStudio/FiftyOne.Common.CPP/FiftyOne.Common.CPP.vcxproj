@@ -15,9 +15,9 @@
     <ClCompile Include="..\..\PropertyMetaData.cpp" />
     <ClCompile Include="..\..\RequiredPropertiesConfig.cpp" />
     <ClCompile Include="..\..\ResultsBase.cpp" />
-    <ClCompile Include="..\..\string.cpp" />
+    <ClCompile Include="..\..\string_pp.cpp" />
     <ClCompile Include="..\..\ValueMetaData.cpp" />
-    <ClCompile Include="..\..\wkbtot.cpp" />
+    <ClCompile Include="..\..\wkbtot_pp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Collection.hpp" />
@@ -32,14 +32,14 @@
     <ClInclude Include="..\..\Exceptions.hpp" />
     <ClInclude Include="..\..\IpAddress.hpp" />
     <ClInclude Include="..\..\MetaData.hpp" />
-    <ClInclude Include="..\..\string.hpp" />
+    <ClInclude Include="..\..\string_pp.hpp" />
     <ClInclude Include="..\..\Value.hpp" />
     <ClInclude Include="..\..\ProfileMetaData.hpp" />
     <ClInclude Include="..\..\PropertyMetaData.hpp" />
     <ClInclude Include="..\..\RequiredPropertiesConfig.hpp" />
     <ClInclude Include="..\..\ResultsBase.hpp" />
     <ClInclude Include="..\..\ValueMetaData.hpp" />
-    <ClInclude Include="..\..\wkbtot.hpp" />
+    <ClInclude Include="..\..\wkbtot_pp.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FiftyOne.Common.C\FiftyOne.Common.C.vcxproj">

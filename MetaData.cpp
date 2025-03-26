@@ -26,7 +26,7 @@
 
 #include "Exceptions.hpp"
 #include "fiftyone.h"
-#include "string.hpp"
+#include "string_pp.hpp"
 
 using namespace FiftyoneDegrees::Common;
 

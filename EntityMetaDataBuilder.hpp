@@ -29,7 +29,7 @@
 #include "constants.h"
 #include "storedBinaryValue.h"
 #include "string.h"
-#include "string.hpp"
+#include "string_pp.hpp"
 
 
 using namespace FiftyoneDegrees;

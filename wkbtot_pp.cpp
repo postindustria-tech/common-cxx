@@ -20,7 +20,12 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-#include "wkbtot.hpp"
+// NOTE:
+// File renamed with "_pp" suffix
+// to prevent object file collision
+// with C implementation file
+
+#include "wkbtot_pp.hpp"
 
 #include <memory>
 

@@ -20,7 +20,12 @@
  * such notice(s) shall fulfill the requirements of that article.
  * ********************************************************************* */
 
-#include "string.hpp"
+// NOTE:
+// File renamed with "_pp" suffix
+// to prevent object file collision
+// with C implementation file
+
+#include "string_pp.hpp"
 
 #include <memory>
 

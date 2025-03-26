@@ -108,6 +108,7 @@ StoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
     fiftyoneDegreesCollectionItem *item,
     Exception *exception) {
 
+#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
     PropertyValueTypeInData storedValueTypeInData[1] = { storedValueType };
     if (item->data.allocated) {
         DataMalloc(&item->data, sizeof(uint32_t));
@@ -116,6 +117,11 @@ StoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
         item->data.ptr = (byte *)&storedValueTypeInData[0];
     }
     item->data.used = sizeof(PropertyValueTypeInData);
+#else
+#	ifdef _MSC_VER
+    UNREFERENCED_PARAMETER(storedValueType);
+#	endif
+#endif
 
     StoredBinaryValue * const result = strings->get(
         strings,

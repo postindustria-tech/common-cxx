@@ -30,6 +30,14 @@
       <Configuration>Debug-MemoryOnly</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-LargeDataFiles|x64">
+      <Configuration>Debug-LargeDataFiles</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-LargeDataFiles-MemoryOnly|x64">
+      <Configuration>Debug-LargeDataFiles-MemoryOnly</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
@@ -48,6 +56,14 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-MemoryOnly|x64">
       <Configuration>Release-MemoryOnly</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-LargeDataFiles|x64">
+      <Configuration>Release-LargeDataFiles</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-LargeDataFiles-MemoryOnly|x64">
+      <Configuration>Release-LargeDataFiles-MemoryOnly</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -125,6 +141,12 @@
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Larg data file support configuration -->
+  <ItemDefinitionGroup Condition="$(Configuration.Contains('LargeDataFiles'))">
+    <ClCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);FIFTYONE_DEGREES_LARGE_DATA_FILE_SUPPORT</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <!-- Common properties for all configurations -->

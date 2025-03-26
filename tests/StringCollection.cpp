@@ -89,7 +89,7 @@ StringCollection::StringCollection(
 			state.count++;
 		}
 	}
-	reader.length = (long)(dataLength + sizeof(uint32_t));
+	reader.length = (FileOffset)(dataLength + sizeof(uint32_t));
 	state.data = malloc(reader.length);
 	*(int32_t*)state.data = (int32_t)dataLength;
 	state.offsets = (uint32_t*)malloc(valuesCount * sizeof(uint32_t));

@@ -44,7 +44,7 @@ uint32_t fiftyoneDegreesComponentGetDefaultProfileId(
 		&profileItem,
 		exception);
 	if (profile != NULL && EXCEPTION_OKAY) {
-		profileId = (uint32_t)profile->profileId;
+		profileId = profile->profileId;
 		COLLECTION_RELEASE(profiles, &profileItem);
 	}
 	return profileId;

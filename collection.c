@@ -748,7 +748,7 @@ fiftyoneDegreesCollectionHeader fiftyoneDegreesCollectionHeaderFromMemory(
 
 	// Advance the memory reader and record the start of the collection.
 	if (MemoryAdvance(reader, sizeof(uint32_t))) {
-		header.startPosition = (uint32_t)(reader->current - reader->startByte);
+		header.startPosition = (UFileOffset)(reader->current - reader->startByte);
 	}
 	else {
 		header.startPosition = 0;
@@ -762,7 +762,7 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromMemory(
 	fiftyoneDegreesCollectionHeader header) {
 
 	// Validate the header and the reader are in sync at the correct position.
-	if ((uint32_t)(reader->current - reader->startByte) !=
+	if ((UFileOffset)(reader->current - reader->startByte) !=
 		header.startPosition) {
 		return NULL;
 	}
@@ -829,7 +829,7 @@ fiftyoneDegreesCollectionHeader fiftyoneDegreesCollectionHeaderFromFile(
 			header.length = sizeOrCount;
 			header.count = elementSize > 0 ? header.length / elementSize : 0;
 		}
-		header.startPosition = (uint32_t)FileTell(file);
+		header.startPosition = (UFileOffset)FileTell(file);
 	}
 	else {
 		header.startPosition = 0;
@@ -876,7 +876,7 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromFile(
 
 	if (result == NULL || (
 		result->count == config->loaded &&
-		(long)result->size < (long)(FileTell(file) - header.startPosition))) {
+		(FileOffset)result->size < (FileTell(file) - (FileOffset)header.startPosition))) {
 
 		// Create the next collection if one is needed.
 		*next = createFromFileSecond(file, reader, config, header, read);
@@ -910,7 +910,7 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromFile(
 	}
 	
 	memory.startByte = memory.current;
-	memory.length = (long)header.length;
+	memory.length = (FileOffset)header.length;
 	memory.lastByte = memory.current + memory.length;
 
 	// Position the file reader at the start of the collection.

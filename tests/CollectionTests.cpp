@@ -397,7 +397,7 @@ public:
 		CollectionTestData *data)
 		: CollectionTest(config, data) {
 		reader.startByte = reader.current = (byte*)data->data;
-		reader.length = (long)data->size;
+		reader.length = (fiftyoneDegreesFileOffset)data->size;
 		reader.lastByte = reader.current + reader.length;
 	}
 	virtual ~CollectionTestMemory() {}

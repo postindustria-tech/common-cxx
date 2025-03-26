@@ -63,7 +63,7 @@ VariableSizeCollection<T>::VariableSizeCollection(const std::vector<T> &values) 
     size_t dataLength = values.size() * sizeof(T);
     state.count = (uint32_t) values.size();
     
-    reader.length = (long)(dataLength + sizeof(uint32_t));
+    reader.length = (FileOffset)(dataLength + sizeof(uint32_t));
     state.data = fiftyoneDegreesMalloc(reader.length);
     *(int32_t*)state.data = (int32_t)dataLength;
     state.offsets = (uint32_t*)fiftyoneDegreesMalloc(values.size() * sizeof(uint32_t));

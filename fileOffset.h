@@ -27,12 +27,25 @@
  * @ingroup FiftyOneDegreesCommon
  * @defgroup FiftyOneDegreesFile FileOffset
  *
- * FileOffset offset types:
- * - signed FileOffset -- for interop with native API (fseek/ftell)
- * - unsigned UFileOffset -- as present in data file
+ * `FileOffset` offset types:
+ * - signed `FileOffset` -- for interop with native API (fseek/ftell)
+ * - unsigned `UFileOffset` -- as present in data file
+ *
  *
  * if FIFTYONE_DEGREES_LARGE_DATA_FILE_SUPPORT macro is defined,
  * both types will be 64-bit.
+ *
+ * Motivation for this is that an offset in a large file
+ * beyond 4GB is not addressable by a `uint32_t` variable.
+ *
+ * For files smaller than 4GB `uint32_t` is fully sufficient to address an offset.
+ *
+ * `fseek`/`ftell` functions MAY also fail on files larger than 2 GiB
+ * due to the limitations of `long int` type used,
+ * so enabling the option MIGHT be necessary in those cases as well.
+ *
+ * On POSIX systems `_FILE_OFFSET_BITS` should be defined as `64` at the same time
+ * for `off_t` (used by `fseeko`/`ftello` from `<stdio.h>`) to be 64-bit as well.
  *
  * @{
  */

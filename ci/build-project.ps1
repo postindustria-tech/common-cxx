@@ -14,7 +14,7 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-if ($BuildMethod -ne "x64") {
+if ($Arch -ne "x64") {
     exit $LASTEXITCODE
 }
 

@@ -14,6 +14,10 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+if ($BuildMethod -ne "x64") {
+    exit $LASTEXITCODE
+}
+
 Write-Host "`n`n ===== Running large data file tests =====`n`n"
 
 if ($BuildMethod -eq "cmake") {

@@ -14,6 +14,10 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+if ($BuildMethod -ne "x64") {
+    exit $LASTEXITCODE
+}
+
 Write-Host "`n`n ===== Building large data file tests =====`n`n"
 
 if ($BuildMethod -eq "cmake") {
@@ -24,6 +28,7 @@ if ($BuildMethod -eq "cmake") {
         -Name "$Name-LargeDataFiles" `
         -BuildDir "build-LargeDataFiles" `
         -Configuration $Configuration `
+        -Arch $Arch `
         -BuildMethod $BuildMethod `
         -ExtraArgs @(
             "-DLargeDataFileSupport:BOOL=ON"
@@ -37,6 +42,7 @@ if ($BuildMethod -eq "cmake") {
         -Name "$Name-LargeDataFiles" `
         -BuildDir "build-LargeDataFiles" `
         -Configuration "$Configuration-LargeDataFiles" `
+        -Arch $Arch `
         -BuildMethod $BuildMethod
 
 } else {

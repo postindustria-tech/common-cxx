@@ -70,6 +70,12 @@
     <ClInclude Include="..\..\tests\VariableSizeCollection.hpp" />
     <ClInclude Include="..\..\tests\HeadersContainer.hpp" />
   </ItemGroup>
+  <PropertyGroup>
+    <Configuration Condition="$(Configuration.StartsWith('Debug'))">Debug</Configuration>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition="$(Configuration.StartsWith('Release'))">Release</Configuration>
+  </PropertyGroup>
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets" Condition="Exists('..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets')" />
   </ImportGroup>

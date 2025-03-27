@@ -36,8 +36,6 @@ if ($BuildMethod -eq "cmake") {
         
 } elseif ($BuildMethod -eq "msbuild") {
 
-    Remove-Item -Recurse -Force "$RepoName/$ProjectDir/packages"
-
     ./cxx/build-project.ps1 `
         -RepoName $RepoName `
         -ProjectDir $ProjectDir `

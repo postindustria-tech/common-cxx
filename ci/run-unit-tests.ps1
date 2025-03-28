@@ -34,6 +34,8 @@ if ($BuildMethod -eq "cmake") {
 } elseif ($BuildMethod -eq "msbuild") {
     if (!$Configuration.StartsWith("Debug")) {
 
+        Get-ChildItem $RepoName\test-results\unit\
+
         ./cxx/run-unit-tests.ps1 `
             -RepoName $RepoName `
             -ProjectDir $ProjectDir `
@@ -42,6 +44,8 @@ if ($BuildMethod -eq "cmake") {
             -Configuration "$Configuration-LargeDataFiles" `
             -Arch $Arch `
             -BuildMethod $BuildMethod
+            
+        Get-ChildItem $RepoName\test-results\unit\
 
     }
 } else {

@@ -57,10 +57,10 @@
     <ClCompile Include="..\..\IpAddress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\wkbtot.cpp">
+    <ClCompile Include="..\..\string_pp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\string.cpp">
+    <ClCompile Include="..\..\wkbtot_pp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,10 +119,10 @@
     <ClInclude Include="..\..\IpAddress.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\wkbtot.hpp">
+    <ClInclude Include="..\..\string_pp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\string.hpp">
+    <ClInclude Include="..\..\wkbtot_pp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -748,7 +748,7 @@ fiftyoneDegreesCollectionHeader fiftyoneDegreesCollectionHeaderFromMemory(
 
 	// Advance the memory reader and record the start of the collection.
 	if (MemoryAdvance(reader, sizeof(uint32_t))) {
-		header.startPosition = (UFileOffset)(reader->current - reader->startByte);
+		header.startPosition = (FileOffsetUnsigned)(reader->current - reader->startByte);
 	}
 	else {
 		header.startPosition = 0;
@@ -762,7 +762,7 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromMemory(
 	fiftyoneDegreesCollectionHeader header) {
 
 	// Validate the header and the reader are in sync at the correct position.
-	if ((UFileOffset)(reader->current - reader->startByte) !=
+	if ((FileOffsetUnsigned)(reader->current - reader->startByte) !=
 		header.startPosition) {
 		return NULL;
 	}
@@ -829,7 +829,7 @@ fiftyoneDegreesCollectionHeader fiftyoneDegreesCollectionHeaderFromFile(
 			header.length = sizeOrCount;
 			header.count = elementSize > 0 ? header.length / elementSize : 0;
 		}
-		header.startPosition = (UFileOffset)FileTell(file);
+		header.startPosition = (FileOffsetUnsigned)FileTell(file);
 	}
 	else {
 		header.startPosition = 0;

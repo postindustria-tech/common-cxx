@@ -273,7 +273,7 @@ if (c != NULL) { c->freeCollection(c); }
  */
 #pragma pack(push, 1)
 typedef struct fiftyone_degrees_collection_header_t {
-	fiftyoneDegreesUFileOffset startPosition; /**< Start position in the data file of the entities */
+	fiftyoneDegreesFileOffsetUnsigned startPosition; /**< Start position in the data file of the entities */
 	uint32_t length; /**< Length in bytes of all the entities */
 	uint32_t count; /**< Number of entities in the collection */
 } fiftyoneDegreesCollectionHeader;

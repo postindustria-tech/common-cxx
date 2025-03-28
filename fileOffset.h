@@ -29,7 +29,7 @@
  *
  * `FileOffset` offset types:
  * - signed `FileOffset` -- for interop with native API (fseek/ftell)
- * - unsigned `UFileOffset` -- as present in data file
+ * - unsigned `FileOffsetUnsigned` -- as present in data file
  *
  *
  * if FIFTYONE_DEGREES_LARGE_DATA_FILE_SUPPORT macro is defined,
@@ -58,7 +58,7 @@ uint64_t
 #else
 uint32_t
 #endif
-fiftyoneDegreesUFileOffset; /**< Type for collection start offset (in file). [unsigned] */
+fiftyoneDegreesFileOffsetUnsigned; /**< Type for collection start offset (in file). [unsigned] */
 
 typedef
 #ifdef FIFTYONE_DEGREES_LARGE_DATA_FILE_SUPPORT

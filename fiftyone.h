@@ -114,7 +114,7 @@ MAP_TYPE(CollectionFileRead)
 #endif
 MAP_TYPE(FileHandle)
 MAP_TYPE(FileOffset)
-MAP_TYPE(UFileOffset)
+MAP_TYPE(FileOffsetUnsigned)
 MAP_TYPE(CacheNode)
 MAP_TYPE(FilePool)
 MAP_TYPE(CollectionHeader)

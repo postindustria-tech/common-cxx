@@ -32,16 +32,18 @@ if ($BuildMethod -eq "cmake") {
         -BuildMethod $BuildMethod
         
 } elseif ($BuildMethod -eq "msbuild") {
+    if (!$Configuration.StartsWith("Debug")) {
 
-    ./cxx/run-unit-tests.ps1 `
-        -RepoName $RepoName `
-        -ProjectDir $ProjectDir `
-        -Name "$Name-LargeDataFiles" `
-        -BuildDir "build-LargeDataFiles" `
-        -Configuration "$Configuration-LargeDataFiles" `
-        -Arch $Arch `
-        -BuildMethod $BuildMethod
+        ./cxx/run-unit-tests.ps1 `
+            -RepoName $RepoName `
+            -ProjectDir $ProjectDir `
+            -Name "${Name}_LargeDataFiles" `
+            -BuildDir "build-LargeDataFiles" `
+            -Configuration "$Configuration-LargeDataFiles" `
+            -Arch $Arch `
+            -BuildMethod $BuildMethod
 
+    }
 } else {
     Write-Error "The build method '$BuildMethod' is not supported."
 }

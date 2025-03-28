@@ -44,6 +44,12 @@ static uint32_t getFinalIntegerSize(void *initial) {
 
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
+/**
+ * Type for temporary memory keeping the value of
+ * `storedValueType`: `fiftyoneDegreesPropertyValueType`
+ * for "File" and/or "Partial" collections
+ * between calls from `StoredBinaryValueGet` to `StoredBinaryValueRead`.
+ */
 typedef uint8_t PropertyValueTypeInData;
 
 void* fiftyoneDegreesStoredBinaryValueRead(
@@ -52,10 +58,20 @@ void* fiftyoneDegreesStoredBinaryValueRead(
     fiftyoneDegreesData * const data,
     fiftyoneDegreesException * const exception) {
     int16_t length;
+
+    // When collection getter is called from `StoredBinaryValueRead`,
+    // the latter will save `storedValueType` into item's Data.
+    //
+    // Otherwise -- if the data is in clear state (e.g. after DataReset),
+    // the caller is assumed to have requested a "String" value.
+    // (for compatibility with `StringRead`-initialized collections).
+
     if (data->used < sizeof(PropertyValueTypeInData)) {
-        // stored value type not known
+        // stored value type not known,
+        // => assume String
         return fiftyoneDegreesStringRead(file, offset, data, exception);
     };
+
     const PropertyValueType storedValueType = *(const PropertyValueTypeInData *)data->ptr;
     switch (storedValueType) {
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
@@ -109,15 +125,55 @@ StoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
     Exception *exception) {
 
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
+    // CollectionReadFileVariable subroutine needs to know
+    // - how many bytes constitute the "header" of the variable
+    // - how to extract the remaining "length" of the variable from the "header"
+    //
+    // for that we must pass `storedValueType`
+
+    // Allocate a memory to hold `storedValueType` on stack.
+    //
+    // Use an array to prevent a warning
+    // > `pointer to a local variable potentially escaping scope`
+    //
+    // The data will either:
+    // - remain unowned
+    //   (and `ptr` won't be dereferenced),
+    // or
+    // - is already owned and considered disposable
+    //   (so `storedValueType` will be copied, and no escaping will occur).
+
     PropertyValueTypeInData storedValueTypeInData[1] = { storedValueType };
-    if (item->data.allocated) {
-        DataMalloc(&item->data, sizeof(uint32_t));
-        *((PropertyValueTypeInData*)item->data.ptr) = storedValueTypeInData[0];
-    } else {
+
+    if (!item->data.allocated) {
+        // It is assumed -- as part of the Collection-CollectionItem contract --
+        // that data of the Item passed into "get" is NOT owned by that item.
+
         item->data.ptr = (byte *)&storedValueTypeInData[0];
+    } else {
+        // Since _this_ function _technically_ is NOT a "getter method"
+        // we might still get an Item that owns some memory.
+        //
+        // Since no collection would leave Data pointing to internal memory
+        // (past COLLECTION_RELEASE call -- mandatory for Item to be reused)
+        // assume the Data is disposable.
+        //
+        // Ensure Data is of sufficient size and copy `storedValueType` into it.
+
+        DataMalloc(&item->data, sizeof(PropertyValueTypeInData));
+        *((PropertyValueTypeInData*)item->data.ptr) = storedValueTypeInData[0];
     }
     item->data.used = sizeof(PropertyValueTypeInData);
+
 #else
+    // In MEMORY_ONLY mode,
+    //
+    // we only need to get the pointer to beginning of the data structure
+    // inside the whole body of the data file.
+    //
+    // `storedValueType` is not used, since we do not need to allocate
+    // a sufficient (unknown before reading starts) amount of memory
+    // to read the bytes into.
 #	ifdef _MSC_VER
     UNREFERENCED_PARAMETER(storedValueType);
 #	endif

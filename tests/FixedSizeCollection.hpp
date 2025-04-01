@@ -25,6 +25,7 @@
 
 #include "../collection.h"
 #include "../string.h"
+#include "../fileOffset.h"
 #include <vector>
 
 typedef struct fixed_size_collection_state_t {
@@ -63,7 +64,7 @@ FixedSizeCollection<T>::FixedSizeCollection(const std::vector<T> &values) {
     size_t dataLength = values.size() * sizeof(T);
     state.count = (uint32_t) values.size();
     
-    reader.length = (long)(dataLength + sizeof(uint32_t));
+    reader.length = (fiftyoneDegreesFileOffset)(dataLength + sizeof(uint32_t));
     state.data = fiftyoneDegreesMalloc(reader.length);
     *(int32_t*)state.data = (int32_t)dataLength;
     state.offsets = (uint32_t*)fiftyoneDegreesMalloc(values.size() * sizeof(uint32_t));

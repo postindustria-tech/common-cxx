@@ -246,7 +246,6 @@
 #include "common.h"
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 /**
  * Free a collection by checking if it is NULL first.
@@ -272,9 +271,9 @@ if (c != NULL) { c->freeCollection(c); }
  * Collection header structure which defines the size and location of the
  * collection data.
  */
-#pragma pack(push, 4)
+#pragma pack(push, 1)
 typedef struct fiftyone_degrees_collection_header_t {
-	uint32_t startPosition; /**< Start position in the data file of the entities */
+	fiftyoneDegreesFileOffsetUnsigned startPosition; /**< Start position in the data file of the entities */
 	uint32_t length; /**< Length in bytes of all the entities */
 	uint32_t count; /**< Number of entities in the collection */
 } fiftyoneDegreesCollectionHeader;
@@ -319,7 +318,7 @@ typedef struct fiftyone_degrees_collection_item_t {
  * if the item could not be loaded. The exception parameter is set to the 
  * status code to indicate the failure.
  * @param collection pointer to the file collection
- * @param offsetOrIndex index or offset to the item in the data structure
+ * @param indexOrOffset index or offset to the item in the data structure
  * @param item pointer to the item structure to place the result in
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h.
@@ -446,7 +445,7 @@ typedef struct fiftyone_degrees_collection_file_t {
 	fiftyoneDegreesCollection *collection; /**< The generic collection */
 	fiftyoneDegreesFilePool *reader; /**< Reader used to load items into the 
 									 cache, or NULL if no cache */
-	long offset; /**< Offset to the collection in the source data structure */
+	fiftyoneDegreesFileOffset offset; /**< Offset to the collection in the source data structure */
 	fiftyoneDegreesCollectionFileRead read; /**< Read method used to read an
 											item from file at an offset or
 											index */

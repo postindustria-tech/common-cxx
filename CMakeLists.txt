@@ -64,6 +64,7 @@ option(32bit "32bit" OFF)
 option(MemoryOnly "MemoryOnly" OFF)
 option(NoThreading "NoThreading" OFF)
 option(ExceptionsDisabled "ExceptionsDisabled" OFF)
+option(LargeDataFileSupport "LargeDataFileSupport" OFF)
 
 if (32bit AND NOT IS_ARM)
 	message("-- 32 bit compilation")
@@ -124,7 +125,13 @@ FILE(GLOB COMCPP_H ${CMAKE_CURRENT_LIST_DIR}/*.hpp)
 add_library(fiftyone-common-cxx ${COMCPP_SRC} ${COMCPP_H})
 target_link_libraries(fiftyone-common-cxx fiftyone-common-c)
 
-set_target_properties(fiftyone-common-c fiftyone-common-cxx	PROPERTIES FOLDER "Common") 
+set_target_properties(fiftyone-common-c fiftyone-common-cxx	PROPERTIES FOLDER "Common")
+if (LargeDataFileSupport)
+	# public -- expose to dependees.
+	target_compile_definitions(fiftyone-common-c PUBLIC FIFTYONE_DEGREES_LARGE_DATA_FILE_SUPPORT)
+	# global -- in case sibling lib uses stdio as well.
+	add_compile_definitions(_FILE_OFFSET_BITS=64)
+endif ()
 if (MSVC)
 	target_compile_options(fiftyone-common-c PRIVATE "/D_CRT_SECURE_NO_WARNINGS" "/W4" "/WX")
 	target_compile_options(fiftyone-common-cxx PRIVATE "/D_CRT_SECURE_NO_WARNINGS" "/W4" "/WX" "/EHsc")

@@ -30,6 +30,14 @@
       <Configuration>Debug-MemoryOnly</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-LargeDataFiles|x64">
+      <Configuration>Debug-LargeDataFiles</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-LargeDataFiles-MemoryOnly|x64">
+      <Configuration>Debug-LargeDataFiles-MemoryOnly</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
@@ -50,6 +58,14 @@
       <Configuration>Release-MemoryOnly</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-LargeDataFiles|x64">
+      <Configuration>Release-LargeDataFiles</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-LargeDataFiles-MemoryOnly|x64">
+      <Configuration>Release-LargeDataFiles-MemoryOnly</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <!-- Configuration properties -->
   <PropertyGroup Condition="$(Configuration.StartsWith('Debug'))" Label="Configuration">
@@ -62,6 +78,11 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
+  <ItemDefinitionGroup Condition="$(Configuration.Contains('LargeDataFiles'))">
+    <ClCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);FIFTYONE_DEGREES_LARGE_DATA_FILE_SUPPORT</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>

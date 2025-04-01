@@ -144,6 +144,9 @@
     <ClInclude Include="..\..\propertyValueType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\fileOffset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\cache.c">

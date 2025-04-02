@@ -241,7 +241,7 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitHeaders(
 fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitFromFile(
 	fiftyoneDegreesDataSetBase *dataSet,
 	const char *fileName,
-	long bytesToCompare);
+	fiftyoneDegreesFileOffset bytesToCompare);
 
 /**
  * Initialses the data set from data stored in continuous memory.

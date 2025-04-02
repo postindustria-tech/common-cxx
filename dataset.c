@@ -50,7 +50,7 @@ static StatusCode replace(
 
 static StatusCode initWithTempFile(
 	DataSetBase *dataSet,
-	long bytesToCompare) {
+	FileOffset bytesToCompare) {
 	if (CONFIG(dataSet)->reuseTempFile == false ||
 		FileGetExistingTempFile(
 			dataSet->masterFileName,
@@ -192,7 +192,7 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitHeaders(
 fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitFromFile(
 	fiftyoneDegreesDataSetBase *dataSet,
 	const char *fileName,
-	long bytesToCompare) {
+	FileOffset bytesToCompare) {
 	char *copiedString;
 	// Add 1 for the null terminator
 	size_t fileNameLength = strlen(fileName) + 1;

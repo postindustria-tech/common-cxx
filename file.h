@@ -354,7 +354,7 @@ EXTERNAL bool fiftyoneDegreesFileGetExistingTempFile(
 	const char *masterFile,
 	const char **paths,
 	int count,
-	long bytesToCompare,
+	fiftyoneDegreesFileOffset bytesToCompare,
 	const char *destination);
 
 /**
@@ -378,7 +378,7 @@ EXTERNAL int fiftyoneDegreesFileDeleteUnusedTempFiles(
 	const char *masterFileName,
 	const char **paths,
 	int count,
-	long bytesToCompare);
+	fiftyoneDegreesFileOffset bytesToCompare);
 
 /**
  * Create a temporary file name and add it to the destination.

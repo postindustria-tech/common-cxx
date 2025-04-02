@@ -144,6 +144,7 @@ typedef enum e_fiftyone_degrees_status_code {
 										   misformat or semantic inconsistency) */
 	FIFTYONE_DEGREES_STATUS_UNSUPPORTED_STORED_VALUE_TYPE, /**< StoredValueType
 											is not supported at this version. */
+	FIFTYONE_DEGREES_STATUS_FILE_TOO_LARGE, /**< File size exceeds malloc capabilities */
 } fiftyoneDegreesStatusCode;
 
 /**

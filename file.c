@@ -50,7 +50,7 @@ typedef struct fileIteratorState_t {
 							the path and extension) */
 	size_t baseNameLength; /* Length of baseName */
 	const char *destination; /* Memory to write the matching file path to */
-	long bytesToCompare; /* Number of bytes to compare from the start of the
+	FileOffset bytesToCompare; /* Number of bytes to compare from the start of the
 						 file */
 } fileIteratorState;
 
@@ -291,10 +291,10 @@ static int getUniqueLegacyFileName(
 static bool compareFiles(
 	const char *fileName,
 	const char *otherFileName,
-	long bytesToCompare) {
+	FileOffset bytesToCompare) {
 	StatusCode status;
 	FILE *file, *otherFile;
-	FileOffset size, read;
+	FileOffset size;
 	byte buffer[1024], otherBuffer[1024];
 
 	// Compare the sizes.
@@ -315,9 +315,14 @@ static bool compareFiles(
 
 	while (FileTell(file) < size &&
 		(bytesToCompare < 0 || FileTell(file) < bytesToCompare)) {
-		read = bytesToCompare > 0 ? bytesToCompare : (long)sizeof(buffer);
-		if (size - FileTell(file) < read) {
-			read = size - FileTell(file);
+		size_t read = (
+			((bytesToCompare > 0)
+				&& (bytesToCompare <= (FileOffset)sizeof(buffer)))
+			? (size_t)bytesToCompare
+			: sizeof(buffer));
+
+		if ((uint64_t)(size - FileTell(file)) < (uint64_t)read) {
+			read = (size_t)(size - FileTell(file));
 		}
 
 		if (fread(buffer, read, 1, file) != 1) {
@@ -680,7 +685,7 @@ int fiftyoneDegreesFileDeleteUnusedTempFiles(
 	const char *masterFileName,
 	const char **paths,
 	int count,
-	long bytesToCompare) {
+	FileOffset bytesToCompare) {
 	int i;
 	byte deleted = 0;
 	fileIteratorState state;
@@ -722,7 +727,7 @@ bool fiftyoneDegreesFileGetExistingTempFile(
 	const char *masterFileName,
 	const char **paths,
 	int count,
-	long bytesToCompare,
+	FileOffset bytesToCompare,
 	const char *destination) {
 	int i;
 	fileIteratorState state;
@@ -1094,31 +1099,37 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileReadToByteArray(
 	if (status == SUCCESS) {
 		// Get the size of the file and allocate sufficient memory.
 		reader->length = fileGetSize(sourceFile);
-		reader->current = reader->startByte = (byte*)Malloc(
-			sizeof(char) * reader->length);
-		if (reader->current != NULL) {
-			if (fseek(sourceFile, 0L, SEEK_SET) != 0 ||
-				fread(reader->current, reader->length, 1, sourceFile) != 1) {
-				// The file could not be loaded into memory. Release the 
-				// memory allocated earlier and set the status to file 
-				// failure.
-				free(reader->current);
-				reader->startByte = NULL;
-				reader->current = NULL;
-				reader->length = 0;
-				status = FILE_FAILURE;
+		if (reader->length < 0) {
+			status = FILE_FAILURE;
+		} else if ((uint64_t)reader->length > (uint64_t)SIZE_MAX) {
+			status = FILE_TOO_LARGE;
+		} else {
+			size_t const fileSize = (size_t)(reader->length * sizeof(char));
+			reader->current = reader->startByte = (byte*)Malloc(fileSize);
+			if (reader->current != NULL) {
+				if (fseek(sourceFile, 0L, SEEK_SET) != 0 ||
+					fread(reader->current, fileSize, 1, sourceFile) != 1) {
+					// The file could not be loaded into memory. Release the
+					// memory allocated earlier and set the status to file
+					// failure.
+					free(reader->current);
+					reader->startByte = NULL;
+					reader->current = NULL;
+					reader->length = 0;
+					status = FILE_FAILURE;
+				}
+				else {
+					// Set the last byte to validate that the entire data structure
+					// has been read.
+					reader->lastByte = reader->current + reader->length;
+				}
 			}
 			else {
-				// Set the last byte to validate that the entire data structure
-				// has been read.
-				reader->lastByte = reader->current + reader->length;
+				// Sufficient memory could not be allocated.
+				reader->current = NULL;
+				reader->length = 0;
+				status = INSUFFICIENT_MEMORY;
 			}
-		}
-		else {
-			// Sufficient memory could not be allocated.
-			reader->current = NULL;
-			reader->length = 0;
-			status = INSUFFICIENT_MEMORY;
 		}
 		fclose(sourceFile);
 	}

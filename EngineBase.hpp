@@ -130,14 +130,14 @@ namespace FiftyoneDegrees {
 			 * @param data pointer to the data in memory
 			 * @param length length of the data in memory
 			 */
-			virtual void refreshData(void *data, long length) const = 0;
+			virtual void refreshData(void *data, fiftyoneDegreesFileOffset length) const = 0;
 
 			/**
 			 * Refresh the data set from the memory location provided.
 			 * @param data pointer to the data in memory
 			 * @param length of the data in memory
 			 */
-			virtual void refreshData(unsigned char data[], long length) const = 0;
+			virtual void refreshData(unsigned char data[], fiftyoneDegreesFileOffset length) const = 0;
 
 			/**
 			 * @}

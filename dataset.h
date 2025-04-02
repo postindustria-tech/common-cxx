@@ -155,7 +155,7 @@ typedef fiftyoneDegreesStatusCode(*fiftyoneDegreesDataSetInitFromMemoryMethod)(
 	const void *config,
 	fiftyoneDegreesPropertiesRequired *properties,
 	void *memory,
-	long size,
+	fiftyoneDegreesFileOffset size,
 	fiftyoneDegreesException *exception);
 
 /**
@@ -241,7 +241,7 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitHeaders(
 fiftyoneDegreesStatusCode fiftyoneDegreesDataSetInitFromFile(
 	fiftyoneDegreesDataSetBase *dataSet,
 	const char *fileName,
-	long bytesToCompare);
+	fiftyoneDegreesFileOffset bytesToCompare);
 
 /**
  * Initialses the data set from data stored in continuous memory.
@@ -310,7 +310,7 @@ void fiftyoneDegreesDataSetFree(fiftyoneDegreesDataSetBase *dataSet);
 fiftyoneDegreesStatusCode fiftyoneDegreesDataSetReloadManagerFromMemory(
 	fiftyoneDegreesResourceManager *manager,
 	void *source,
-	long length,
+	fiftyoneDegreesFileOffset length,
 	size_t dataSetSize,
 	fiftyoneDegreesDataSetInitFromMemoryMethod initDataSet,
 	fiftyoneDegreesException *exception);
@@ -371,7 +371,7 @@ fiftyoneDegreesStatusCode fiftyoneDegreesDataSetReloadManagerFromFile(
 fiftyoneDegreesStatusCode fiftyoneDegrees##t##ReloadManagerFromMemory( \
 fiftyoneDegreesResourceManager *manager, \
 void *source, \
-long length, \
+fiftyoneDegreesFileOffset length, \
 fiftyoneDegreesException *exception) { \
 	return fiftyoneDegreesDataSetReloadManagerFromMemory( \
 		manager, \

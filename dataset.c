@@ -270,7 +270,7 @@ void fiftyoneDegreesDataSetRelease(fiftyoneDegreesDataSetBase *dataSet) {
 fiftyoneDegreesStatusCode fiftyoneDegreesDataSetReloadManagerFromMemory(
 	fiftyoneDegreesResourceManager *manager,
 	void *source,
-	long length,
+	FileOffset length,
 	size_t dataSetSize,
 	fiftyoneDegreesDataSetInitFromMemoryMethod initDataSet,
 	fiftyoneDegreesException *exception) {

@@ -113,7 +113,7 @@ FileOffset fiftyoneDegreesFileTell(FILE * const stream) {
 
 
 static FileOffset fileGetSize(FILE *file) {
-	if (fseek(file, 0L, SEEK_END) == 0) {
+	if (FileSeek(file, 0L, SEEK_END) == 0) {
 		return FileTell(file);
 	}
 	return -1;
@@ -183,8 +183,8 @@ static StatusCode fileOpen(
 static StatusCode fileCopy(FILE *source, FILE *destination) {
 	unsigned char buffer[8192];
 	size_t lengthRead, lengthWritten = 0;
-	if (fseek(source, 0L, SEEK_END) == 0) {
-		fseek(source, 0L, SEEK_SET);
+	if (FileSeek(source, 0L, SEEK_END) == 0) {
+		FileSeek(source, 0L, SEEK_SET);
 		lengthRead = fread(buffer, 1, sizeof(buffer), source);
 		while (lengthRead > 0) {
 			lengthWritten = fwrite(buffer, 1, lengthRead, destination);
@@ -1107,7 +1107,7 @@ fiftyoneDegreesStatusCode fiftyoneDegreesFileReadToByteArray(
 			size_t const fileSize = (size_t)(reader->length * sizeof(char));
 			reader->current = reader->startByte = (byte*)Malloc(fileSize);
 			if (reader->current != NULL) {
-				if (fseek(sourceFile, 0L, SEEK_SET) != 0 ||
+				if (FileSeek(sourceFile, 0L, SEEK_SET) != 0 ||
 					fread(reader->current, fileSize, 1, sourceFile) != 1) {
 					// The file could not be loaded into memory. Release the
 					// memory allocated earlier and set the status to file

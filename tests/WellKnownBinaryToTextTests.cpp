@@ -48,6 +48,7 @@ static void convertAndCompare_base(
 
 	auto const result = fiftyoneDegreesConvertWkbToWkt(
 		wkbBytes,
+		FIFTYONE_DEGREES_WKBToT_REDUCTION_NONE,
 		buffer, std::size(buffer),
 		decimalPlaces,
 		exception);

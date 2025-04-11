@@ -276,6 +276,15 @@ StringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
 				exception);
 			break;
 		}
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R: {
+			fiftyoneDegreesWriteWkbAsWktToStringBuilder(
+				&value->byteArrayValue.firstByte,
+				FIFTYONE_DEGREES_WKBToT_REDUCTION_SHORT,
+				decimalPlaces,
+				builder,
+				exception);
+			break;
+		}
 		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
 			// discard NUL-terminator
 			if (value->stringValue.size > 1) {

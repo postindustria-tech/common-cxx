@@ -255,6 +255,7 @@ static int compareIpAddressToString(const VarLengthByteArray * const value, cons
 
 static int compareWkbToString(
     const VarLengthByteArray * const binaryValue,
+    const WkbtotReductionMode reductionMode,
     const char * const target,
     Exception * const exception) {
     WkbtotResult toWktResult = {
@@ -275,7 +276,7 @@ static int compareWkbToString(
         StringBuilderInit(&builder);
         WriteWkbAsWktToStringBuilder(
             &binaryValue->firstByte,
-            FIFTYONE_DEGREES_WKBToT_REDUCTION_NONE,
+            reductionMode,
             MAX_DOUBLE_DECIMAL_PLACES,
             &builder,
             exception
@@ -297,7 +298,7 @@ static int compareWkbToString(
         StringBuilderInit(&builder);
         WriteWkbAsWktToStringBuilder(
             &binaryValue->firstByte,
-            FIFTYONE_DEGREES_WKBToT_REDUCTION_NONE,
+            reductionMode,
             MAX_DOUBLE_DECIMAL_PLACES,
             &builder,
             exception
@@ -365,7 +366,18 @@ int fiftyoneDegreesStoredBinaryValueCompareWithString(
             return compareIpAddressToString(&value->byteArrayValue, target);
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB: {
-            return compareWkbToString(&value->byteArrayValue, target, exception);
+            return compareWkbToString(
+                &value->byteArrayValue,
+                FIFTYONE_DEGREES_WKBToT_REDUCTION_NONE,
+                target,
+                exception);
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R: {
+            return compareWkbToString(
+                &value->byteArrayValue,
+                FIFTYONE_DEGREES_WKBToT_REDUCTION_SHORT,
+                target,
+                exception);
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER: {
             const int32_t intValue = value->intValue;

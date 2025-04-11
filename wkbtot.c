@@ -47,21 +47,31 @@ typedef enum {
 #define ByteOrder_XDR FIFTYONE_DEGREES_WKBToT_ByteOrder_XDR
 #define ByteOrder_NDR FIFTYONE_DEGREES_WKBToT_ByteOrder_NDR
 
-typedef enum {
-    FIFTYONE_DEGREES_WKBToT_INT_PURPOSE_WKB_TYPE = 0,
-    FIFTYONE_DEGREES_WKBToT_INT_PURPOSE_LOOP_COUNT = 1,
-} IntPurpose;
-#define IntPurpose_WkbType FIFTYONE_DEGREES_WKBToT_INT_PURPOSE_WKB_TYPE
-#define IntPurpose_LoopCount FIFTYONE_DEGREES_WKBToT_INT_PURPOSE_LOOP_COUNT
+typedef uint16_t (*RawUShortReader)(const byte **wkbBytes);
+typedef int16_t (*RawShortReader)(const byte **wkbBytes);
+typedef uint32_t (*RawIntReader)(const byte **wkbBytes);
+typedef double (*RawDoubleReader)(const byte **wkbBytes);
 
-typedef uint32_t (*IntReader)(const byte **wkbBytes);
-typedef double (*DoubleReader)(const byte **wkbBytes);
-typedef struct  {
-    const char *name;
-    IntReader readInt[2]; // by IntPurpose
-    DoubleReader readDouble[4]; // by coord index
-} NumReader;
-
+static uint8_t readUByte(const byte ** const wkbBytes) {
+    const uint8_t result = *(uint8_t *)(*wkbBytes);
+    *wkbBytes += 1;
+    return result;
+}
+static int8_t readSByte(const byte ** const wkbBytes) {
+    const int8_t result = *(int8_t *)(*wkbBytes);
+    *wkbBytes += 1;
+    return result;
+}
+static int16_t readShortMatchingByteOrder(const byte ** const wkbBytes) {
+    const int16_t result = *(int16_t *)(*wkbBytes);
+    *wkbBytes += 2;
+    return result;
+}
+static uint16_t readUShortMatchingByteOrder(const byte ** const wkbBytes) {
+    const uint16_t result = *(uint16_t *)(*wkbBytes);
+    *wkbBytes += 2;
+    return result;
+}
 static uint32_t readIntMatchingByteOrder(const byte ** const wkbBytes) {
     const uint32_t result = *(uint32_t *)(*wkbBytes);
     *wkbBytes += 4;
@@ -73,6 +83,22 @@ static double readDoubleMatchingByteOrder(const byte ** const wkbBytes) {
     return result;
 }
 
+static uint16_t readUShortMismatchingByteOrder(const byte ** const wkbBytes) {
+    byte t[2];
+    for (short i = 0; i < 2; i++) {
+        t[i] = (*wkbBytes)[2 - i];
+    }
+    *wkbBytes += 2;
+    return *(uint16_t *)t;
+}
+static int16_t readShortMismatchingByteOrder(const byte ** const wkbBytes) {
+    byte t[2];
+    for (short i = 0; i < 2; i++) {
+        t[i] = (*wkbBytes)[2 - i];
+    }
+    *wkbBytes += 2;
+    return *(int16_t *)t;
+}
 static uint32_t readIntMismatchingByteOrder(const byte ** const wkbBytes) {
     byte t[4];
     for (short i = 0; i < 4; i++) {
@@ -89,24 +115,26 @@ static double readDoubleMismatchingByteOrder(const byte ** const wkbBytes) {
     *wkbBytes += 8;
     return *(double *)t;
 }
+typedef struct {
+    const char *name;
+    RawUShortReader readUShort;
+    RawShortReader readShort;
+    RawIntReader readInt;
+    RawDoubleReader readDouble;
+} RawValueReader;
 
-static const NumReader MATCHING_BYTE_ORDER_NUM_READER = {
-    "Matching Byte Order NumReader",
+static const RawValueReader MATCHING_BYTE_ORDER_RAW_VALUE_READER = {
+    "Matching Byte Order RawValueReader",
+    readUShortMatchingByteOrder,
+    readShortMatchingByteOrder,
     readIntMatchingByteOrder,
-    readIntMatchingByteOrder,
-    readDoubleMatchingByteOrder,
-    readDoubleMatchingByteOrder,
-    readDoubleMatchingByteOrder,
     readDoubleMatchingByteOrder,
 };
-
-static const NumReader MISMATCHING_BYTE_ORDER_NUM_READER = {
-    "Mismatching Byte Order NumReader",
+static const RawValueReader MISMATCHING_BYTE_ORDER_RAW_VALUE_READER = {
+    "Mismatching Byte Order RawValueReader",
+    readUShortMismatchingByteOrder,
+    readShortMismatchingByteOrder,
     readIntMismatchingByteOrder,
-    readIntMismatchingByteOrder,
-    readDoubleMismatchingByteOrder,
-    readDoubleMismatchingByteOrder,
-    readDoubleMismatchingByteOrder,
     readDoubleMismatchingByteOrder,
 };
 
@@ -117,6 +145,83 @@ static ByteOrder getMachineByteOrder() {
 }
 
 
+typedef enum {
+    FIFTYONE_DEGREES_WKBToT_INT_PURPOSE_WKB_TYPE = 0,
+    FIFTYONE_DEGREES_WKBToT_INT_PURPOSE_LOOP_COUNT = 1,
+} IntPurpose;
+#define IntPurpose_WkbType FIFTYONE_DEGREES_WKBToT_INT_PURPOSE_WKB_TYPE
+#define IntPurpose_LoopCount FIFTYONE_DEGREES_WKBToT_INT_PURPOSE_LOOP_COUNT
+
+struct num_reader_t;
+typedef uint32_t (*IntReader)(const RawValueReader *rawReader, const byte **wkbBytes);
+typedef double (*DoubleReader)(const RawValueReader *rawReader, const byte **wkbBytes);
+typedef struct num_reader_t {
+    const char *name;
+    IntReader readInt[2]; // by IntPurpose
+    DoubleReader readDouble[4]; // by coord index
+} NumReader;
+
+static uint32_t readFullInteger(
+    const RawValueReader * const rawReader,
+    const byte ** const wkbBytes) {
+    return rawReader->readInt(wkbBytes);
+}
+static double readFullDouble(
+    const RawValueReader * const rawReader,
+    const byte ** const wkbBytes) {
+    return rawReader->readDouble(wkbBytes);
+}
+static const NumReader NUM_READER_STANDARD = {
+    "Standard NumReader",
+    readFullInteger,
+    readFullInteger,
+    readFullDouble,
+    readFullDouble,
+    readFullDouble,
+    readFullDouble,
+};
+
+static uint32_t readSingleUByte(
+    const RawValueReader * const rawReader,
+    const byte **wkbBytes) {
+    return readUByte(wkbBytes);
+}
+static uint32_t readUShort(
+    const RawValueReader * const rawReader,
+    const byte **wkbBytes) {
+    return rawReader->readUShort(wkbBytes);
+}
+static double readShortAzimuth(
+    const RawValueReader * const rawReader,
+    const byte **wkbBytes) {
+    return (rawReader->readShort(wkbBytes) * 180.0) / INT16_MAX;
+}
+static double readShortDeclination(
+    const RawValueReader * const rawReader,
+    const byte **wkbBytes) {
+    return (rawReader->readShort(wkbBytes) * 90.0) / INT16_MAX;
+}
+static const NumReader NUM_READER_REDUCED_SHORT = {
+    "Short-Reduced NumReader",
+    readSingleUByte,
+    readUShort,
+    readShortAzimuth,
+    readShortDeclination,
+    readShortAzimuth,
+    readShortDeclination,
+};
+
+static const NumReader *selectNumReader(const WkbtotReductionMode reductionMode) {
+    switch (reductionMode) {
+        case FIFTYONE_DEGREES_WKBToT_REDUCTION_NONE:
+        default:
+            return &NUM_READER_STANDARD;
+        case FIFTYONE_DEGREES_WKBToT_REDUCTION_SHORT:
+            return &NUM_READER_REDUCED_SHORT;
+    }
+}
+
+
 typedef struct {
     const byte *binaryBuffer;
     StringBuilder * const stringBuilder;
@@ -124,7 +229,8 @@ typedef struct {
     CoordMode coordMode;
     ByteOrder wkbByteOrder;
     ByteOrder const machineByteOrder;
-    const NumReader *numReader;
+    const RawValueReader *rawValueReader;
+    const NumReader * const numReader;
 
     uint8_t const decimalPlaces;
     Exception * const exception;
@@ -134,14 +240,18 @@ static uint32_t readInt(
     ProcessingContext * const context,
     const IntPurpose purpose) {
 
-    return context->numReader->readInt[purpose](&context->binaryBuffer);
+    return context->numReader->readInt[purpose](
+        context->rawValueReader,
+        &context->binaryBuffer);
 }
 
 static double readDouble(
     ProcessingContext * const context,
     const uint8_t coordIndex) {
 
-    return context->numReader->readDouble[coordIndex](&context->binaryBuffer);
+    return context->numReader->readDouble[coordIndex](
+        context->rawValueReader,
+        &context->binaryBuffer);
 }
 
 static void writeEmpty(
@@ -387,10 +497,10 @@ static void updateWkbByteOrder(
         return;
     }
     context->wkbByteOrder = newByteOrder;
-    context->numReader = (
+    context->rawValueReader = (
         (context->wkbByteOrder == context->machineByteOrder)
-        ? &MATCHING_BYTE_ORDER_NUM_READER
-        : &MISMATCHING_BYTE_ORDER_NUM_READER);
+        ? &MATCHING_BYTE_ORDER_RAW_VALUE_READER
+        : &MISMATCHING_BYTE_ORDER_RAW_VALUE_READER);
 }
 
 static void handleKnownGeometry(
@@ -454,6 +564,7 @@ static void handleKnownGeometry(
 
 static void handleWKBRoot(
     const byte *binaryBuffer,
+    const WkbtotReductionMode reductionMode,
     StringBuilder * const stringBuilder,
     uint8_t const decimalPlaces,
     Exception * const exception) {
@@ -466,6 +577,7 @@ static void handleWKBRoot(
         ~*binaryBuffer,
         getMachineByteOrder(),
         NULL,
+        selectNumReader(reductionMode),
 
         decimalPlaces,
         exception,
@@ -482,7 +594,12 @@ void fiftyoneDegreesWriteWkbAsWktToStringBuilder(
     fiftyoneDegreesStringBuilder * const builder,
     fiftyoneDegreesException * const exception) {
 
-    handleWKBRoot(wellKnownBinary, builder, decimalPlaces, exception);
+    handleWKBRoot(
+        wellKnownBinary,
+        reductionMode,
+        builder,
+        decimalPlaces,
+        exception);
 }
 
 fiftyoneDegreesWkbtotResult fiftyoneDegreesConvertWkbToWkt(
@@ -495,7 +612,12 @@ fiftyoneDegreesWkbtotResult fiftyoneDegreesConvertWkbToWkt(
     StringBuilder stringBuilder = { buffer, length };
     StringBuilderInit(&stringBuilder);
 
-    handleWKBRoot(wellKnownBinary, &stringBuilder, decimalPlaces, exception);
+    handleWKBRoot(
+        wellKnownBinary,
+        reductionMode,
+        &stringBuilder,
+        decimalPlaces,
+        exception);
 
     StringBuilderComplete(&stringBuilder);
 

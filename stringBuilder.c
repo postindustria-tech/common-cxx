@@ -270,6 +270,7 @@ StringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
 		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB: {
 			fiftyoneDegreesWriteWkbAsWktToStringBuilder(
 				&value->byteArrayValue.firstByte,
+				FIFTYONE_DEGREES_WKBToT_REDUCTION_NONE,
 				decimalPlaces,
 				builder,
 				exception);
@@ -285,10 +286,15 @@ StringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
 			}
 			break;
 		}
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH:
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION:
 		case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
 			StringBuilderAddDouble(
 				builder,
-				FLOAT_TO_NATIVE(value->floatValue),
+				StoredBinaryValueToDoubleOrDefault(
+					value,
+					valueType,
+					0),
 				decimalPlaces);
 			break;
 		}

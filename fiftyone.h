@@ -187,6 +187,7 @@ MAP_TYPE(KeyValuePairArray)
 MAP_TYPE(IpType)
 MAP_TYPE(IpAddress)
 MAP_TYPE(WkbtotResult)
+MAP_TYPE(WkbtotReductionMode)
 
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */
 #define OverrideValuesAdd fiftyoneDegreesOverrideValuesAdd /**< Synonym for #fiftyoneDegreesOverrideValuesAdd function. */

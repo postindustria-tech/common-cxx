@@ -47,45 +47,66 @@ typedef enum {
 #define ByteOrder_XDR FIFTYONE_DEGREES_WKBToT_ByteOrder_XDR
 #define ByteOrder_NDR FIFTYONE_DEGREES_WKBToT_ByteOrder_NDR
 
-typedef uint32_t (*IntReader)(const byte *wkbBytes);
-typedef double (*DoubleReader)(const byte *wkbBytes);
+typedef enum {
+    FIFTYONE_DEGREES_WKBToT_INT_PURPOSE_WKB_TYPE = 0,
+    FIFTYONE_DEGREES_WKBToT_INT_PURPOSE_LOOP_COUNT = 1,
+} IntPurpose;
+#define IntPurpose_WkbType FIFTYONE_DEGREES_WKBToT_INT_PURPOSE_WKB_TYPE
+#define IntPurpose_LoopCount FIFTYONE_DEGREES_WKBToT_INT_PURPOSE_LOOP_COUNT
+
+typedef uint32_t (*IntReader)(const byte **wkbBytes);
+typedef double (*DoubleReader)(const byte **wkbBytes);
 typedef struct  {
     const char *name;
-    IntReader readInt;
-    DoubleReader readDouble;
+    IntReader readInt[2]; // by IntPurpose
+    DoubleReader readDouble[4]; // by coord index
 } NumReader;
 
-static uint32_t readIntMatchingByteOrder(const byte *wkbBytes) {
-    return *(uint32_t *)wkbBytes;
+static uint32_t readIntMatchingByteOrder(const byte ** const wkbBytes) {
+    const uint32_t result = *(uint32_t *)(*wkbBytes);
+    *wkbBytes += 4;
+    return result;
 }
-static double readDoubleMatchingByteOrder(const byte *wkbBytes) {
-    return *(double *)wkbBytes;
+static double readDoubleMatchingByteOrder(const byte ** const wkbBytes) {
+    const double result = *(double *)(*wkbBytes);
+    *wkbBytes += 8;
+    return result;
 }
 
-static uint32_t readIntMismatchingByteOrder(const byte *wkbBytes) {
+static uint32_t readIntMismatchingByteOrder(const byte ** const wkbBytes) {
     byte t[4];
     for (short i = 0; i < 4; i++) {
-        t[i] = wkbBytes[3 - i];
+        t[i] = (*wkbBytes)[3 - i];
     }
+    *wkbBytes += 4;
     return *(uint32_t *)t;
 }
-static double readDoubleMismatchingByteOrder(const byte *wkbBytes) {
+static double readDoubleMismatchingByteOrder(const byte ** const wkbBytes) {
     byte t[8];
     for (short i = 0; i < 8; i++) {
-        t[i] = wkbBytes[7 - i];
+        t[i] = (*wkbBytes)[7 - i];
     }
+    *wkbBytes += 8;
     return *(double *)t;
 }
 
 static const NumReader MATCHING_BYTE_ORDER_NUM_READER = {
     "Matching Byte Order NumReader",
     readIntMatchingByteOrder,
+    readIntMatchingByteOrder,
+    readDoubleMatchingByteOrder,
+    readDoubleMatchingByteOrder,
+    readDoubleMatchingByteOrder,
     readDoubleMatchingByteOrder,
 };
 
 static const NumReader MISMATCHING_BYTE_ORDER_NUM_READER = {
     "Mismatching Byte Order NumReader",
     readIntMismatchingByteOrder,
+    readIntMismatchingByteOrder,
+    readDoubleMismatchingByteOrder,
+    readDoubleMismatchingByteOrder,
+    readDoubleMismatchingByteOrder,
     readDoubleMismatchingByteOrder,
 };
 
@@ -109,21 +130,18 @@ typedef struct {
     Exception * const exception;
 } ProcessingContext;
 
-
 static uint32_t readInt(
-    ProcessingContext * const context) {
+    ProcessingContext * const context,
+    const IntPurpose purpose) {
 
-    const uint32_t result = context->numReader->readInt(context->binaryBuffer);
-    context->binaryBuffer += 4;
-    return result;
+    return context->numReader->readInt[purpose](&context->binaryBuffer);
 }
 
 static double readDouble(
-    ProcessingContext * const context) {
+    ProcessingContext * const context,
+    const uint8_t coordIndex) {
 
-    const double result = context->numReader->readDouble(context->binaryBuffer);
-    context->binaryBuffer += 8;
-    return result;
+    return context->numReader->readDouble[coordIndex](&context->binaryBuffer);
 }
 
 static void writeEmpty(
@@ -182,7 +200,7 @@ static void handlePointSegment(
         if (i) {
             StringBuilderAddChar(context->stringBuilder, ' ');
         }
-        const double nextCoord = readDouble(context);
+        const double nextCoord = readDouble(context, i);
         StringBuilderAddDouble(context->stringBuilder, nextCoord, context->decimalPlaces);
     }
 }
@@ -191,7 +209,7 @@ static void handleLoop(
     ProcessingContext * const context,
     const LoopVisitor visitor) {
 
-    const uint32_t count = readInt(context);
+    const uint32_t count = readInt(context, IntPurpose_LoopCount);
     if (count) {
         withParenthesesIterate(context, visitor, count);
     } else {
@@ -384,7 +402,7 @@ static void handleGeometry(
 
     updateWkbByteOrder(context);
 
-    const uint32_t geometryTypeFull = readInt(context);
+    const uint32_t geometryTypeFull = readInt(context, IntPurpose_WkbType);
     const uint32_t coordType = geometryTypeFull / 1000;
     const uint32_t geometryCode = geometryTypeFull % 1000;
 
@@ -459,6 +477,7 @@ static void handleWKBRoot(
 
 void fiftyoneDegreesWriteWkbAsWktToStringBuilder(
     unsigned const char * const wellKnownBinary,
+    const WkbtotReductionMode reductionMode,
     const uint8_t decimalPlaces,
     fiftyoneDegreesStringBuilder * const builder,
     fiftyoneDegreesException * const exception) {
@@ -468,6 +487,7 @@ void fiftyoneDegreesWriteWkbAsWktToStringBuilder(
 
 fiftyoneDegreesWkbtotResult fiftyoneDegreesConvertWkbToWkt(
     const byte * const wellKnownBinary,
+    const WkbtotReductionMode reductionMode,
     char * const buffer, size_t const length,
     uint8_t const decimalPlaces,
     Exception * const exception) {

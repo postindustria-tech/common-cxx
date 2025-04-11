@@ -31,6 +31,7 @@ namespace FiftyoneDegrees::Common {
     /**
      * Converts WKB "string" to WKT string and pushes into a string stream.
      * @param wkbString "string" containing WKB geometry.
+     * @param reductionMode type/value reduction applied to decrease WKB size.
      * @param stream string stream to push WKT into.
      * @param decimalPlaces precision for numbers (places after the decimal dot).
      * @param exception pointer to the exception struct.
@@ -38,6 +39,7 @@ namespace FiftyoneDegrees::Common {
      */
     fiftyoneDegreesWkbtotResult writeWkbStringToStringStream(
         const fiftyoneDegreesVarLengthByteArray *wkbString,
+        fiftyoneDegreesWkbtotReductionMode reductionMode,
         std::stringstream &stream,
         uint8_t decimalPlaces,
         fiftyoneDegreesException *exception);

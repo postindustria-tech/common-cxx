@@ -83,6 +83,7 @@ typedef union fiftyone_degrees_stored_binary_value_t {
  fiftyoneDegreesVarLengthByteArray byteArrayValue; /**< Byte array value (e.g. IP or WKB) */
  fiftyoneDegreesFloat floatValue; /**< single precision floating point value */
  int32_t intValue; /**< Integer value */
+ int16_t shortValue; /**< Short value. Potentially half(-precision float). */
 } fiftyoneDegreesStoredBinaryValue;
 #pragma pack(pop)
 

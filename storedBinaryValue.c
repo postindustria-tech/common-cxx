@@ -381,7 +381,7 @@ int fiftyoneDegreesStoredBinaryValueCompareWithString(
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER: {
             const int32_t intValue = value->intValue;
-            const int32_t searchInt = strtol(target, NULL, 10);
+            const int32_t searchInt = (int32_t) strtol(target, NULL, 10);
             if (errno == ERANGE)
             {
                 errno = 0;

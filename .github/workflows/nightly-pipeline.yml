@@ -12,7 +12,7 @@ on:
 jobs:
   PullRequests:
     name: Nightly Pull Requests
-    uses: 51Degrees/common-ci/.github/workflows/nightly-pull-requests.yml@main
+    uses: postindustria-tech/common-ci/.github/workflows/nightly-pull-requests.yml@main
     with:
       repo-name: ${{ github.event.repository.name }}
       org-name: ${{ github.event.repository.owner.login }}
@@ -24,7 +24,7 @@ jobs:
     if: ${{ !cancelled() }}
     needs: PullRequests
     name: Nightly Publish
-    uses: 51Degrees/common-ci/.github/workflows/nightly-publish.yml@main
+    uses: postindustria-tech/common-ci/.github/workflows/nightly-publish.yml@main
     with:
       repo-name: ${{ github.event.repository.name }}
       org-name: ${{ github.event.repository.owner.login }}

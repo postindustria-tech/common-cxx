@@ -38,8 +38,18 @@ typedef enum e_fiftyone_degrees_property_value_type {
 	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS = 8, /**< Ip Range */
 	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB = 9, /**< Well-known binary for geometry */
 	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_OBJECT = 10, /**<  Mainly this is used for nested AspectData. */
-	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION = 11, /**< Angle north (positive) or south (negative) of the [celestial] equator, */
-	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH = 12, /**< horizontal angle from a cardinal direction */
+	/**
+	 * Angle north (positive) or south (negative) of the [celestial] equator,
+	 * [-90;90] saved as short (int16_t),
+	 * i.e. projected onto [-INT16_MAX;INT16_MAX]
+	 */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION = 11,
+	/**
+	 * Horizontal angle from a cardinal direction (e.g. 0 meridian),
+	 * [-180;180] saved as short (int16_t),
+	 * i.e. projected onto [-INT16_MAX;INT16_MAX]
+	 */
+	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH = 12,
 	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R = 13, /**< Well-known binary (reduced) for geometry */
 } fiftyoneDegreesPropertyValueType;
 

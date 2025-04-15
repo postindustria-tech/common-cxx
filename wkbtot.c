@@ -528,8 +528,7 @@ static void handleGeometry(
         sizeof(GEOMETRIES) / sizeof(GEOMETRIES[0]);
     if (geometryCode >= GeometriesCount) {
         Exception * const exception = context->exception;
-        // TODO: New status code -- Unknown geometry
-        EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_INVALID_INPUT);
+        EXCEPTION_SET(UNKNOWN_GEOMETRY);
         return;
     }
 
@@ -544,8 +543,7 @@ static void handleGeometry(
         : parser->childParser);
     if (!visitor) {
         Exception * const exception = context->exception;
-        // TODO: New status code -- Abstract/reserved geometry
-        EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_INVALID_INPUT);
+        EXCEPTION_SET(RESERVED_GEOMETRY);
         return;
     }
 

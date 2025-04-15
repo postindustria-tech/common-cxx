@@ -42,9 +42,16 @@ static StatusMessage messages[] = {
 	{ FILE_NOT_FOUND,
 		"The data file '%s' could not be found. Check the file path and that "
 		"the program has sufficient read permissions." },
+	{ FILE_BUSY,
+		"The data file '%s' was busy." },
 	{ FILE_FAILURE,
 		"An unknown error occurred accessing the file '%s'. Check the file "
 		"path and that the program has sufficient read permissions." },
+	// `NOT_SET` should NOT return a value.
+	// See `Status.Get_NotSetMessage` unit test.
+	//
+	// { NOT_SET,
+	// 	"This status code should never be returned to the caller." },
 	{ NULL_POINTER,
 		"Null pointer to the existing dataset or memory location." },
 	{ POINTER_OUT_OF_BOUNDS,
@@ -100,18 +107,18 @@ static StatusMessage messages[] = {
 		"The configuration provided was not valid, and has caused a failure "
 		"while building the resource it configures." },
 	{ INSUFFICIENT_HANDLES,
-		"Insufficient handles available in the pool. Verify the pool has " 
+		"Insufficient handles available in the pool. Verify the pool has "
 		"sufficient handles to support the maximum number of concurrent "
 		"threads. This can be set when creating the resource containg the "
 		"pool. Another way to avoid this is by using an in-memory "
 		"configuration, which avoids using file handles completely, and "
 		"removes any limit on concurrency. For info see "
 		"https://51degrees.com/documentation/4.4/_device_detection__features__concurrent_processing.html"},
-	{ COLLECTION_INDEX_OUT_OF_RANGE, 
+	{ COLLECTION_INDEX_OUT_OF_RANGE,
 		"Index used to retrieve an item from a collection was out of range." },
-	{ COLLECTION_OFFSET_OUT_OF_RANGE, 
+	{ COLLECTION_OFFSET_OUT_OF_RANGE,
 		"Offset used to retrieve an item from a collection was out of range." },
-	{ COLLECTION_FILE_SEEK_FAIL, 
+	{ COLLECTION_FILE_SEEK_FAIL,
 		"A seek operation on a file ('%s') failed." },
 	{ COLLECTION_FILE_READ_FAIL,
 		"A read operation on a file ('%s') failed." },
@@ -121,8 +128,13 @@ static StatusMessage messages[] = {
 		"associated input data is also consistent." },
 	{ TEMP_FILE_ERROR,
 		"Error occurs during the creation of a temporary file."},
+	{ INSUFFICIENT_CAPACITY,
+		"Insufficient capacity of the array to hold all the items."},
     { INVALID_INPUT, "The input value is invalid: misformatted or semantically inconsistent."},
     { UNSUPPORTED_STORED_VALUE_TYPE, "Property's StoredValueType is not supported at this version."},
+    { FILE_TOO_LARGE, "File size exceeds malloc capabilities."},
+    { UNKNOWN_GEOMETRY, "Unsupported geometry type found in WKB."},
+    { RESERVED_GEOMETRY, "Geometry type found in WKB is abstract or reserved."},
 };
 
 static char defaultMessage[] = "Status code %i does not have any message text.";

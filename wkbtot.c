@@ -24,8 +24,11 @@
 #include <math.h>
 #include "fiftyone.h"
 
+typedef uint8_t CoordIndexType;
+typedef uint8_t DecimalPlacesType;
+
 typedef struct {
-    short dimensionsCount;
+    CoordIndexType dimensionsCount;
     const char *tag;
     size_t tagLength;
 } CoordMode;
@@ -184,6 +187,9 @@ static const NumReader NUM_READER_STANDARD = {
 static uint32_t readSingleUByte(
     const RawValueReader * const rawReader,
     const byte **wkbBytes) {
+#	ifdef _MSC_VER
+    UNREFERENCED_PARAMETER(rawReader);
+#	endif
     return readUByte(wkbBytes);
 }
 static uint32_t readUShort(
@@ -232,7 +238,7 @@ typedef struct {
     const RawValueReader *rawValueReader;
     const NumReader * const numReader;
 
-    uint8_t const decimalPlaces;
+    DecimalPlacesType const decimalPlaces;
     Exception * const exception;
 } ProcessingContext;
 
@@ -247,7 +253,7 @@ static uint32_t readInt(
 
 static double readDouble(
     ProcessingContext * const context,
-    const uint8_t coordIndex) {
+    const CoordIndexType coordIndex) {
 
     return context->numReader->readDouble[coordIndex](
         context->rawValueReader,
@@ -306,7 +312,7 @@ static void withParenthesesIterate(
 static void handlePointSegment(
     ProcessingContext * const context) {
 
-    for (short i = 0; i < context->coordMode.dimensionsCount; i++) {
+    for (CoordIndexType i = 0; i < context->coordMode.dimensionsCount; i++) {
         if (i) {
             StringBuilderAddChar(context->stringBuilder, ' ');
         }
@@ -566,7 +572,7 @@ static void handleWKBRoot(
     const byte *binaryBuffer,
     const WkbtotReductionMode reductionMode,
     StringBuilder * const stringBuilder,
-    uint8_t const decimalPlaces,
+    DecimalPlacesType const decimalPlaces,
     Exception * const exception) {
 
     ProcessingContext context = {
@@ -590,7 +596,7 @@ static void handleWKBRoot(
 void fiftyoneDegreesWriteWkbAsWktToStringBuilder(
     unsigned const char * const wellKnownBinary,
     const WkbtotReductionMode reductionMode,
-    const uint8_t decimalPlaces,
+    const DecimalPlacesType decimalPlaces,
     fiftyoneDegreesStringBuilder * const builder,
     fiftyoneDegreesException * const exception) {
 
@@ -606,7 +612,7 @@ fiftyoneDegreesWkbtotResult fiftyoneDegreesConvertWkbToWkt(
     const byte * const wellKnownBinary,
     const WkbtotReductionMode reductionMode,
     char * const buffer, size_t const length,
-    uint8_t const decimalPlaces,
+    DecimalPlacesType const decimalPlaces,
     Exception * const exception) {
 
     StringBuilder stringBuilder = { buffer, length };

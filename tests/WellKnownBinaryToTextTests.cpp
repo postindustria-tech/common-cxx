@@ -21,6 +21,7 @@
  * ********************************************************************* */
 
 #include "pch.h"
+#include "../fiftyone.h"
 #include "../string.h"
 #include "../wkbtot.h"
 
@@ -48,6 +49,7 @@ static void convertAndCompare_base(
 
 	auto const result = fiftyoneDegreesConvertWkbToWkt(
 		wkbBytes,
+		FIFTYONE_DEGREES_WKBToT_REDUCTION_NONE,
 		buffer, std::size(buffer),
 		decimalPlaces,
 		exception);
@@ -872,10 +874,10 @@ TEST(WKBToT, WKBToT_Exception_UnknownGeometryRoot)
 		wkbBytes,
 		expected,
 		"Unknown Geometry (Root)",
-		FIFTYONE_DEGREES_STATUS_INVALID_INPUT);
+		UNKNOWN_GEOMETRY);
 }
 
-TEST(WKBToT, WKBToT_Test_LineStringZ_UnknownGeometryEmbedded)
+TEST(WKBToT, WKBToT_Test_LineStringZ_ReservedGeometryEmbedded)
 {
 	const byte wkbBytes[] = {
 		0x01,
@@ -898,8 +900,8 @@ TEST(WKBToT, WKBToT_Test_LineStringZ_UnknownGeometryEmbedded)
 	convertAndCompare_withExceptionStatus(
 		wkbBytes,
 		expected,
-		"Unknown Geometry (Embedded)",
-		FIFTYONE_DEGREES_STATUS_INVALID_INPUT);
+		"Reserved Geometry (Embedded)",
+		RESERVED_GEOMETRY);
 }
 
 TEST(WKBToT, WKBToT_String_Point_2D_NDR)

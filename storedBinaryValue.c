@@ -41,6 +41,12 @@ static uint32_t getFinalIntegerSize(void *initial) {
 #	endif
     return sizeof(int32_t);
 }
+static uint32_t getFinalShortSize(void *initial) {
+#	ifdef _MSC_VER
+    UNREFERENCED_PARAMETER(initial);
+#	endif
+    return sizeof(int16_t);
+}
 
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
@@ -87,6 +93,17 @@ void* fiftyoneDegreesStoredBinaryValueRead(
                 getFinalIntegerSize,
                 exception);
         }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH:
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION: {
+            return CollectionReadFileVariable(
+                file,
+                data,
+                offset,
+                &length,
+                0,
+                getFinalShortSize,
+                exception);
+        }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
             return CollectionReadFileVariable(
                 file,
@@ -98,6 +115,7 @@ void* fiftyoneDegreesStoredBinaryValueRead(
                 exception);
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS:
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R:
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB: {
             return CollectionReadFileVariable(
                 file,
@@ -237,6 +255,7 @@ static int compareIpAddressToString(const VarLengthByteArray * const value, cons
 
 static int compareWkbToString(
     const VarLengthByteArray * const binaryValue,
+    const WkbtotReductionMode reductionMode,
     const char * const target,
     Exception * const exception) {
     WkbtotResult toWktResult = {
@@ -257,6 +276,7 @@ static int compareWkbToString(
         StringBuilderInit(&builder);
         WriteWkbAsWktToStringBuilder(
             &binaryValue->firstByte,
+            reductionMode,
             MAX_DOUBLE_DECIMAL_PLACES,
             &builder,
             exception
@@ -278,6 +298,7 @@ static int compareWkbToString(
         StringBuilderInit(&builder);
         WriteWkbAsWktToStringBuilder(
             &binaryValue->firstByte,
+            reductionMode,
             MAX_DOUBLE_DECIMAL_PLACES,
             &builder,
             exception
@@ -292,6 +313,33 @@ static int compareWkbToString(
         }
     }
     return result;
+}
+
+static double shortToDouble(const StoredBinaryValue * const value, const double maxAngle) {
+    return (value->shortValue * maxAngle) / INT16_MAX;
+}
+static double toAzimuth(const StoredBinaryValue * const value) {
+    return shortToDouble(value, 180);
+}
+static double toDeclination(const StoredBinaryValue * const value) {
+    return shortToDouble(value, 90);
+}
+static double toDoubleFromFloat(const StoredBinaryValue * const value) {
+    return FLOAT_TO_NATIVE(value->floatValue);
+}
+
+static int compareDoubleToString(
+    const double testedValue,
+    const char * const target) {
+
+    const double searchValue = (float)strtod(target, NULL);
+    if (errno == ERANGE)
+    {
+        errno = 0;
+        return -1;
+    }
+    const double dv = testedValue - searchValue;
+    return !dv ? 0 : (dv < 0 ? -1 : 1);
 }
 
 int fiftyoneDegreesStoredBinaryValueCompareWithString(
@@ -318,11 +366,22 @@ int fiftyoneDegreesStoredBinaryValueCompareWithString(
             return compareIpAddressToString(&value->byteArrayValue, target);
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB: {
-            return compareWkbToString(&value->byteArrayValue, target, exception);
+            return compareWkbToString(
+                &value->byteArrayValue,
+                FIFTYONE_DEGREES_WKBToT_REDUCTION_NONE,
+                target,
+                exception);
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R: {
+            return compareWkbToString(
+                &value->byteArrayValue,
+                FIFTYONE_DEGREES_WKBToT_REDUCTION_SHORT,
+                target,
+                exception);
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER: {
             const int32_t intValue = value->intValue;
-            const int32_t searchInt = strtol(target, NULL, 10);
+            const int32_t searchInt = (int32_t) strtol(target, NULL, 10);
             if (errno == ERANGE)
             {
                 errno = 0;
@@ -331,16 +390,13 @@ int fiftyoneDegreesStoredBinaryValueCompareWithString(
             return intValue - searchInt;
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
-            const float floatValue = fiftyoneDegreesFloatToNative(
-                *(fiftyoneDegreesFloatInternal *)&value->floatValue);
-            const float searchFloat = (float)strtod(target, NULL);
-            if (errno == ERANGE)
-            {
-                errno = 0;
-                return -1;
-            }
-            const float dv = floatValue - searchFloat;
-            return !dv ? 0 : (dv < 0 ? -1 : 1);
+            return compareDoubleToString(toDoubleFromFloat(value), target);
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH: {
+            return compareDoubleToString(toAzimuth(value), target);
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION: {
+            return compareDoubleToString(toDeclination(value), target);
         }
         default: {
             EXCEPTION_SET(UNSUPPORTED_STORED_VALUE_TYPE);
@@ -365,6 +421,12 @@ int fiftyoneDegreesStoredBinaryValueToIntOrDefault(
         case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
             return (int)FLOAT_TO_NATIVE(value->floatValue);
         }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH: {
+            return (int)toAzimuth(value);
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION: {
+            return (int)toDeclination(value);
+        }
         default: {
             return defaultValue;
         }
@@ -386,6 +448,12 @@ double fiftyoneDegreesStoredBinaryValueToDoubleOrDefault(
         case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
             return FLOAT_TO_NATIVE(value->floatValue);
         }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH: {
+            return toAzimuth(value);
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION: {
+            return toDeclination(value);
+        }
         default: {
             return defaultValue;
         }
@@ -405,10 +473,16 @@ bool fiftyoneDegreesStoredBinaryValueToBoolOrDefault(
             return !strncmp(&value->stringValue.value, "True", 4);
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER: {
-            return value->intValue;
+            return value->intValue ? true : false;
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
-            return FLOAT_TO_NATIVE(value->floatValue);
+            return FLOAT_TO_NATIVE(value->floatValue) ? true : false;
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH: {
+            return toAzimuth(value) ? true : false;
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION: {
+            return toDeclination(value) ? true : false;
         }
         default: {
             return defaultValue;

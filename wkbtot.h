@@ -46,9 +46,15 @@ typedef struct fiftyone_degrees_transform_wkb_to_t_result {
 	bool bufferTooSmall;
 } fiftyoneDegreesWkbtotResult;
 
+typedef enum {
+	FIFTYONE_DEGREES_WKBToT_REDUCTION_NONE = 0, /**< Standard compliant */
+	FIFTYONE_DEGREES_WKBToT_REDUCTION_SHORT = 1, /**< Some values reduced to int16_t */
+} fiftyoneDegreesWkbtotReductionMode;
+
 /**
  * Converts WKB geometry bytes to WKT string and writes it to string builder.
  * @param wellKnownBinary bytes of WKB geometry.
+ * @param reductionMode type/value reduction applied to decrease WKB size.
  * @param decimalPlaces precision for numbers (places after the decimal dot).
  * @param builder string builder to write WKT into.
  * @param exception pointer to the exception struct.
@@ -57,6 +63,7 @@ typedef struct fiftyone_degrees_transform_wkb_to_t_result {
 EXTERNAL void
 fiftyoneDegreesWriteWkbAsWktToStringBuilder
 (const unsigned char *wellKnownBinary,
+ fiftyoneDegreesWkbtotReductionMode reductionMode,
  uint8_t decimalPlaces,
  fiftyoneDegreesStringBuilder *builder,
  fiftyoneDegreesException *exception);
@@ -64,6 +71,7 @@ fiftyoneDegreesWriteWkbAsWktToStringBuilder
 /**
  * Converts WKB geometry bytes to WKT string written into provided buffer.
  * @param wellKnownBinary bytes of WKB geometry.
+ * @param reductionMode type/value reduction applied to decrease WKB size.
  * @param buffer buffer to write WKT geometry into.
  * @param length length available in the buffer.
  * @param decimalPlaces precision for numbers (places after the decimal dot).
@@ -72,7 +80,9 @@ fiftyoneDegreesWriteWkbAsWktToStringBuilder
  */
 EXTERNAL fiftyoneDegreesWkbtotResult
 fiftyoneDegreesConvertWkbToWkt
-(const unsigned char *wellKnownBinary, char *buffer, size_t length,
+(const unsigned char *wellKnownBinary,
+ fiftyoneDegreesWkbtotReductionMode reductionMode,
+ char *buffer, size_t length,
  uint8_t decimalPlaces,
  fiftyoneDegreesException *exception);
 

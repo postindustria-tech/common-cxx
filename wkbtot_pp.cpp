@@ -35,6 +35,7 @@ namespace FiftyoneDegrees::Common {
 
     WkbtotResult writeWkbStringToStringStream(
         const VarLengthByteArray * const wkbString,
+        WkbtotReductionMode reductionMode,
         std::stringstream &stream,
         const uint8_t decimalPlaces,
         Exception * const exception) {
@@ -60,6 +61,7 @@ namespace FiftyoneDegrees::Common {
             StringBuilderInit(&builder);
             WriteWkbAsWktToStringBuilder(
                 wkbBytes,
+                reductionMode,
                 decimalPlaces,
                 &builder,
                 exception
@@ -82,6 +84,7 @@ namespace FiftyoneDegrees::Common {
             StringBuilderInit(&builder);
             WriteWkbAsWktToStringBuilder(
                 wkbBytes,
+                reductionMode,
                 decimalPlaces,
                 &builder,
                 exception

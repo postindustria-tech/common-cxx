@@ -47,8 +47,8 @@ public:
         Offset ipv6;
         Offset wkb;
         Offset shortValue;
-    } offsets;
-    CollectionHeader header;
+    } offsets = {};
+    CollectionHeader header = {};
 };
 
 static constexpr char string1_rawValueBytes[] = "\x12\0some-string-value";
@@ -238,6 +238,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Azimuth) {
     for (size_t i = 0; i < sizeof(shortValue_rawValueBytes); i++) {
         ASSERT_EQ(shortValue_rawValueBytes[i], ((byte *)value)[i]);
     }
+    ASSERT_EQ(shortValue_rawValue, value->shortValue);
     ASSERT_EQ(shortValue_azimuth, StoredBinaryValueToDoubleOrDefault(
         value,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
@@ -257,6 +258,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Declination) {
     for (size_t i = 0; i < sizeof(shortValue_rawValueBytes); i++) {
         ASSERT_EQ(shortValue_rawValueBytes[i], ((byte *)value)[i]);
     }
+    ASSERT_EQ(shortValue_rawValue, value->shortValue);
     ASSERT_EQ(shortValue_declination, StoredBinaryValueToDoubleOrDefault(
         value,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION,

@@ -61,9 +61,9 @@ public:
 
     struct FileProps {
         fiftyoneDegreesCollectionConfig config = {
-            .loaded = 0,
-            .capacity = 0,
-            .concurrency = 11,
+            0, // loaded
+            0, // capacity
+            11, // concurrency
         };
         FilePoolPtr pool { nullptr, releaseFilePool };
         FileHandlePtr handle { nullptr, FileHandleRelease };
@@ -119,10 +119,10 @@ static CollectionPtr buildMemoryCollection(
     const CollectionHeader &header) {
     byte * const ptr = rawStringsBuffer.data();
     MemoryReader reader = {
-        .startByte = ptr,
-        .current = ptr,
-        .lastByte = ptr + rawStringsBuffer.size(),
-        .length = (FileOffset)rawStringsBuffer.size(),
+        ptr, // startByte
+        ptr, // current
+        ptr + rawStringsBuffer.size(), // lastByte
+        (FileOffset)rawStringsBuffer.size(), // length
     };
     fiftyoneDegreesCollection * const collection = CollectionCreateFromMemory(
         &reader,
@@ -186,9 +186,9 @@ void StoredBinaryValues::SetUp() {
     FileWrite(fileName, rawStringsBuffer.data(), rawStringsBuffer.size());
 
     header = {
-        .startPosition = 0,
-        .length = (uint32_t)rawStringsBuffer.size(),
-        .count = (uint32_t)rawStringsBuffer.size(),
+        0, // startPosition
+        (uint32_t)rawStringsBuffer.size(), // length
+        (uint32_t)rawStringsBuffer.size(), // count
     };
 
     collection.memory = buildMemoryCollection(rawStringsBuffer, header);

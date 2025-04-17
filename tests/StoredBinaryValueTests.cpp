@@ -223,7 +223,7 @@ public:
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
-    String * const value = (String *)collection.memory->get(
+    auto * const value = (String *)collection.memory->get(
         collection.memory.get(),
         offsets.string1,
         *item,
@@ -409,7 +409,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromMemory) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFile) {
     EXCEPTION_CREATE;
     ItemBox item;
-    String * const value = (String *)collection.file->get(
+    auto * const value = (String *)collection.file->get(
         collection.file.get(),
         offsets.string1,
         *item,
@@ -604,4 +604,5 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromFile) {
         exception);
     ASSERT_FALSE(EXCEPTION_OKAY);
     ASSERT_EQ(UNSUPPORTED_STORED_VALUE_TYPE, exception->status);
+    ASSERT_FALSE(value);
 }

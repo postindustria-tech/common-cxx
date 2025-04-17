@@ -65,15 +65,18 @@ static constexpr byte ipv6_rawValueBytes[] = {
     0x03,0x70,0x73,0x34,
 };
 static constexpr byte wkb_rawValueBytes[] = {
-    0x14, 0x00,
+    0x15, 0x00,
     0x00,
     0x00, 0x00, 0x00, 0x01,
     0x40, 0x31, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x40, 0x8b, 0xe0, 0xc0, 0x00, 0x00, 0x00, 0x00,
 };
 static constexpr byte shortValue_rawValueBytes[] = {
-    0x60, 0x60, // 24672
+    0x60, 0x60,
 };
+static constexpr int16_t shortValue_rawValue = 24672;
+static constexpr double shortValue_azimuth = 135.53147984252449110385448774682;
+static constexpr double shortValue_declination = 67.765739921262245551927243873409;
 
 static CollectionPtr buildMemoryCollection(
     ByteBuffer &rawStringsBuffer,
@@ -172,4 +175,90 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String2) {
     for (size_t i = 0; i < sizeof(string2_rawValueBytes) - 2; i++) {
         ASSERT_EQ(string2_rawValueBytes[i + 2], (&value->stringValue.value)[i]);
     }
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_Get_IPv4) {
+    EXCEPTION_CREATE;
+    ItemBox item;
+    StoredBinaryValue * const value = StoredBinaryValueGet(
+        collection.get(),
+        offsets.ipv4,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
+        *item,
+        exception);
+    ASSERT_EQ(rawStringsBuffer.data() + offsets.ipv4, (byte *)value);
+    ASSERT_EQ(sizeof(ipv4_rawValueBytes) - 2, value->byteArrayValue.size);
+    for (size_t i = 0; i < sizeof(ipv4_rawValueBytes) - 2; i++) {
+        ASSERT_EQ(ipv4_rawValueBytes[i + 2], (&value->byteArrayValue.firstByte)[i]);
+    }
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_Get_IPv6) {
+    EXCEPTION_CREATE;
+    ItemBox item;
+    StoredBinaryValue * const value = StoredBinaryValueGet(
+        collection.get(),
+        offsets.ipv6,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
+        *item,
+        exception);
+    ASSERT_EQ(rawStringsBuffer.data() + offsets.ipv6, (byte *)value);
+    ASSERT_EQ(sizeof(ipv6_rawValueBytes) - 2, value->byteArrayValue.size);
+    for (size_t i = 0; i < sizeof(ipv6_rawValueBytes) - 2; i++) {
+        ASSERT_EQ(ipv6_rawValueBytes[i + 2], (&value->byteArrayValue.firstByte)[i]);
+    }
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_Get_WKB) {
+    EXCEPTION_CREATE;
+    ItemBox item;
+    StoredBinaryValue * const value = StoredBinaryValueGet(
+        collection.get(),
+        offsets.wkb,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
+        *item,
+        exception);
+    ASSERT_EQ(rawStringsBuffer.data() + offsets.wkb, (byte *)value);
+    ASSERT_EQ(sizeof(wkb_rawValueBytes) - 2, value->byteArrayValue.size);
+    for (size_t i = 0; i < sizeof(wkb_rawValueBytes) - 2; i++) {
+        ASSERT_EQ(wkb_rawValueBytes[i + 2], (&value->byteArrayValue.firstByte)[i]);
+    }
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Azimuth) {
+    EXCEPTION_CREATE;
+    ItemBox item;
+    StoredBinaryValue * const value = StoredBinaryValueGet(
+        collection.get(),
+        offsets.shortValue,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
+        *item,
+        exception);
+    ASSERT_EQ(rawStringsBuffer.data() + offsets.shortValue, (byte *)value);
+    for (size_t i = 0; i < sizeof(shortValue_rawValueBytes); i++) {
+        ASSERT_EQ(shortValue_rawValueBytes[i], ((byte *)value)[i]);
+    }
+    ASSERT_EQ(shortValue_azimuth, StoredBinaryValueToDoubleOrDefault(
+        value,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
+        0));
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Declination) {
+    EXCEPTION_CREATE;
+    ItemBox item;
+    StoredBinaryValue * const value = StoredBinaryValueGet(
+        collection.get(),
+        offsets.shortValue,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION,
+        *item,
+        exception);
+    ASSERT_EQ(rawStringsBuffer.data() + offsets.shortValue, (byte *)value);
+    for (size_t i = 0; i < sizeof(shortValue_rawValueBytes); i++) {
+        ASSERT_EQ(shortValue_rawValueBytes[i], ((byte *)value)[i]);
+    }
+    ASSERT_EQ(shortValue_declination, StoredBinaryValueToDoubleOrDefault(
+        value,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION,
+        0));
 }

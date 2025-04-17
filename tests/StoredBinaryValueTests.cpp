@@ -387,6 +387,42 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Integer_FromMemory) {
     ASSERT_EQ(intValue_rawValue, value->intValue);
 }
 
+TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromMemory) {
+    EXCEPTION_CREATE;
+    ItemBox item;
+    StoredBinaryValue * const value = StoredBinaryValueGet(
+        collection.memory.get(),
+        offsets.intValue,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_OBJECT,
+        *item,
+        exception);
+    // In-Memory collection does NOT care about property type
+    // => no exception
+    ASSERT_TRUE(EXCEPTION_OKAY);
+    ASSERT_EQ(rawStringsBuffer.data() + offsets.intValue, (byte *)value);
+    for (size_t i = 0; i < sizeof(intValue_rawValueBytes); i++) {
+        ASSERT_EQ(intValue_rawValueBytes[i], ((byte *)value)[i]);
+    }
+    ASSERT_EQ(intValue_rawValue, value->intValue);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFile) {
+    EXCEPTION_CREATE;
+    ItemBox item;
+    String * const value = (String *)collection.file->get(
+        collection.file.get(),
+        offsets.string1,
+        *item,
+        exception);
+    EXCEPTION_THROW;
+    ASSERT_NE(nullptr, value);
+    ASSERT_EQ(sizeof(string1_rawValueBytes), item->data.allocated);
+    ASSERT_EQ(sizeof(string1_rawValueBytes) - 2, value->size);
+    for (size_t i = 0; i < sizeof(string1_rawValueBytes) - 2; i++) {
+        ASSERT_EQ(string1_rawValueBytes[i + 2], (&value->value)[i]);
+    }
+}
+
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_FromFile) {
     EXCEPTION_CREATE;
     ItemBox item;
@@ -519,4 +555,53 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Declination_FromFile) {
         value,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION,
         0));
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Float_FromFile) {
+    EXCEPTION_CREATE;
+    ItemBox item;
+    StoredBinaryValue * const value = StoredBinaryValueGet(
+        collection.file.get(),
+        offsets.floatValue,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        *item,
+        exception);
+    EXCEPTION_THROW;
+    ASSERT_NE(nullptr, value);
+    ASSERT_EQ(sizeof(floatValue_rawValueBytes), item->data.allocated);
+    for (size_t i = 0; i < sizeof(floatValue_rawValueBytes); i++) {
+        ASSERT_EQ(floatValue_rawValueBytes[i], ((byte *)value)[i]);
+    }
+    ASSERT_EQ(floatValue_rawValue, FLOAT_TO_NATIVE(value->floatValue));
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Integer_FromFile) {
+    EXCEPTION_CREATE;
+    ItemBox item;
+    StoredBinaryValue * const value = StoredBinaryValueGet(
+        collection.file.get(),
+        offsets.intValue,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
+        *item,
+        exception);
+    EXCEPTION_THROW;
+    ASSERT_NE(nullptr, value);
+    ASSERT_EQ(sizeof(intValue_rawValueBytes), item->data.allocated);
+    for (size_t i = 0; i < sizeof(intValue_rawValueBytes); i++) {
+        ASSERT_EQ(intValue_rawValueBytes[i], ((byte *)value)[i]);
+    }
+    ASSERT_EQ(intValue_rawValue, value->intValue);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromFile) {
+    EXCEPTION_CREATE;
+    ItemBox item;
+    StoredBinaryValue * const value = StoredBinaryValueGet(
+        collection.file.get(),
+        offsets.intValue,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_OBJECT,
+        *item,
+        exception);
+    ASSERT_FALSE(EXCEPTION_OKAY);
+    ASSERT_EQ(UNSUPPORTED_STORED_VALUE_TYPE, exception->status);
 }

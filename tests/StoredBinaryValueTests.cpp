@@ -202,6 +202,7 @@ public:
         }
     }
     Item *operator*() { return &item; }
+    Item *operator->() { return &item; }
 };
 
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_FromMemory) {
@@ -335,6 +336,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_FromFile) {
         exception);
     EXCEPTION_THROW;
     ASSERT_NE(nullptr, value);
+    ASSERT_EQ(sizeof(string1_rawValueBytes), item->data.allocated);
     ASSERT_EQ(sizeof(string1_rawValueBytes) - 2, value->stringValue.size);
     for (size_t i = 0; i < sizeof(string1_rawValueBytes) - 2; i++) {
         ASSERT_EQ(string1_rawValueBytes[i + 2], (&value->stringValue.value)[i]);
@@ -352,6 +354,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String2_FromFile) {
         exception);
     EXCEPTION_THROW;
     ASSERT_NE(nullptr, value);
+    ASSERT_EQ(sizeof(string2_rawValueBytes), item->data.allocated);
     ASSERT_EQ(sizeof(string2_rawValueBytes) - 2, value->stringValue.size);
     for (size_t i = 0; i < sizeof(string2_rawValueBytes) - 2; i++) {
         ASSERT_EQ(string2_rawValueBytes[i + 2], (&value->stringValue.value)[i]);
@@ -369,6 +372,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_IPv4_FromFile) {
         exception);
     EXCEPTION_THROW;
     ASSERT_NE(nullptr, value);
+    ASSERT_EQ(sizeof(ipv4_rawValueBytes), item->data.allocated);
     ASSERT_EQ(sizeof(ipv4_rawValueBytes) - 2, value->byteArrayValue.size);
     for (size_t i = 0; i < sizeof(ipv4_rawValueBytes) - 2; i++) {
         ASSERT_EQ(ipv4_rawValueBytes[i + 2], (&value->byteArrayValue.firstByte)[i]);
@@ -386,6 +390,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_IPv6_FromFile) {
         exception);
     EXCEPTION_THROW;
     ASSERT_NE(nullptr, value);
+    ASSERT_EQ(sizeof(ipv6_rawValueBytes), item->data.allocated);
     ASSERT_EQ(sizeof(ipv6_rawValueBytes) - 2, value->byteArrayValue.size);
     for (size_t i = 0; i < sizeof(ipv6_rawValueBytes) - 2; i++) {
         ASSERT_EQ(ipv6_rawValueBytes[i + 2], (&value->byteArrayValue.firstByte)[i]);
@@ -403,6 +408,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_WKB_FromFile) {
         exception);
     EXCEPTION_THROW;
     ASSERT_NE(nullptr, value);
+    ASSERT_EQ(sizeof(wkb_rawValueBytes), item->data.allocated);
     ASSERT_EQ(sizeof(wkb_rawValueBytes) - 2, value->byteArrayValue.size);
     for (size_t i = 0; i < sizeof(wkb_rawValueBytes) - 2; i++) {
         ASSERT_EQ(wkb_rawValueBytes[i + 2], (&value->byteArrayValue.firstByte)[i]);
@@ -420,6 +426,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Azimuth_FromFile) {
         exception);
     EXCEPTION_THROW;
     ASSERT_NE(nullptr, value);
+    ASSERT_EQ(sizeof(shortValue_rawValueBytes), item->data.allocated);
     for (size_t i = 0; i < sizeof(shortValue_rawValueBytes); i++) {
         ASSERT_EQ(shortValue_rawValueBytes[i], ((byte *)value)[i]);
     }
@@ -441,6 +448,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Declination_FromFile) {
         exception);
     EXCEPTION_THROW;
     ASSERT_NE(nullptr, value);
+    ASSERT_EQ(sizeof(shortValue_rawValueBytes), item->data.allocated);
     for (size_t i = 0; i < sizeof(shortValue_rawValueBytes); i++) {
         ASSERT_EQ(shortValue_rawValueBytes[i], ((byte *)value)[i]);
     }

@@ -220,6 +220,10 @@ public:
     Item *operator->() { return &item; }
 };
 
+
+// ============== StoredBinaryValueGet (from memory) ==============
+
+
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
@@ -405,6 +409,10 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromMemory) {
     }
     ASSERT_EQ(intValue_rawValue, value->intValue);
 }
+
+
+// ============== StoredBinaryValueGet (from file) ==============
+
 
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFile) {
     EXCEPTION_CREATE;
@@ -605,4 +613,535 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromFile) {
     ASSERT_FALSE(EXCEPTION_OKAY);
     ASSERT_EQ(UNSUPPORTED_STORED_VALUE_TYPE, exception->status);
     ASSERT_FALSE(value);
+}
+
+
+// ============== StoredBinaryValueToIntOrDefault ==============
+
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_String_DoubleZero) {
+    const char rawBytes[] = { 3, 0, '0', '0', 0 };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        -1);
+    EXPECT_EQ(0, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_String_x7) {
+    const char rawBytes[] = { 3, 0, 'x', '7', 0 };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        -1);
+    EXPECT_EQ(0, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_String_7x4) {
+    const char rawBytes[] = { 4, 0, '7', 'x', '4', 0 };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        -1);
+    EXPECT_EQ(7, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_String_15) {
+    const char rawBytes[] = { 3, 0, '1', '5', 0 };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        -1);
+    EXPECT_EQ(15, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_String_minus827) {
+    const char rawBytes[] = { 5, 0, '-', '8', '2', '7', 0 };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        -1);
+    EXPECT_EQ(-827, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_String_3_95) {
+    const char rawBytes[] = { 5, 0, '3', '.', '9', '5', 0 };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        -1);
+    EXPECT_EQ(3, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Integer_0) {
+    const char rawBytes[] = { 0, 0, 0, 0 };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
+        -1);
+    EXPECT_EQ(0, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Integer_Positive) {
+    const unsigned char rawBytes[] = { 0x50, 0xBE, 0x09, 0x1B };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
+        -1);
+    EXPECT_EQ(453623376, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Integer_Negative) {
+    const unsigned char rawBytes[] = { 0xB0, 0x41, 0xF6, 0xE4 };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
+        -1);
+    EXPECT_EQ(-453623376, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Float_Zero) {
+    const unsigned char rawBytes[] = { 0, 0, 0, 0 }; // 0.0
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        -1);
+    EXPECT_EQ(0, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Float_Positive) {
+    const unsigned char rawBytes[] = { 0xCD, 0x5A, 0x34, 0x43 };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        -1);
+    EXPECT_EQ(180, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Float_LargePositive) {
+    const unsigned char rawBytes[] = { 0x5F, 0x43, 0xC2, 0x47 };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        -1);
+    EXPECT_EQ(99462, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Float_Negative) {
+    const unsigned char rawBytes[] = { 0x9E, 0x86, 0x90, 0xC2 };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        -1);
+    EXPECT_EQ(-72, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Float_LargeNegative) {
+    const unsigned char rawBytes[] = { 0xA6, 0x0B, 0xA0, 0xC7 };
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        -1);
+    EXPECT_EQ(-81943, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Azimuth) {
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)shortValue_rawValueBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
+        -1);
+    EXPECT_EQ((int)shortValue_azimuth, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Declination) {
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)shortValue_rawValueBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION,
+        -1);
+    EXPECT_EQ((int)shortValue_declination, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Default_minus1) {
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)shortValue_rawValueBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_OBJECT,
+        -1);
+    EXPECT_EQ(-1, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Default_542) {
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)shortValue_rawValueBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_OBJECT,
+        542);
+    EXPECT_EQ(542, result);
+}
+
+
+// ============== StoredBinaryValueToDoubleOrDefault ==============
+
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_String_DoubleZero) {
+    const char rawBytes[] = { 3, 0, '0', '0', 0 };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        -1);
+    EXPECT_EQ(0, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_String_x7) {
+    const char rawBytes[] = { 3, 0, 'x', '7', 0 };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        -1);
+    EXPECT_EQ(0, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_String_7x4) {
+    const char rawBytes[] = { 4, 0, '7', 'x', '4', 0 };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        -1);
+    EXPECT_EQ(7, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_String_15) {
+    const char rawBytes[] = { 3, 0, '1', '5', 0 };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        -1);
+    EXPECT_EQ(15, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_String_minus827) {
+    const char rawBytes[] = { 5, 0, '-', '8', '2', '7', 0 };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        -1);
+    EXPECT_EQ(-827, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_String_3_95) {
+    const char rawBytes[] = { 5, 0, '3', '.', '9', '5', 0 };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        -1);
+    EXPECT_EQ(3.95, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Integer_0) {
+    const char rawBytes[] = { 0, 0, 0, 0 };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
+        -1);
+    EXPECT_EQ(0, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Integer_Positive) {
+    const unsigned char rawBytes[] = { 0x50, 0xBE, 0x09, 0x1B };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
+        -1);
+    EXPECT_EQ(453623376, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Integer_Negative) {
+    const unsigned char rawBytes[] = { 0xB0, 0x41, 0xF6, 0xE4 };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
+        -1);
+    EXPECT_EQ(-453623376, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Float_Zero) {
+    const unsigned char rawBytes[] = { 0, 0, 0, 0 }; // 0.0
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        -1);
+    EXPECT_EQ(0, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Float_Positive) {
+    const unsigned char rawBytes[] = { 0xCD, 0x5A, 0x34, 0x43 };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        -1);
+    EXPECT_EQ(180.3546905517578125, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Float_LargePositive) {
+    const unsigned char rawBytes[] = { 0x5F, 0x43, 0xC2, 0x47 };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        -1);
+    EXPECT_EQ(99462.7421875, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Float_Negative) {
+    const unsigned char rawBytes[] = { 0x9E, 0x86, 0x90, 0xC2 };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        -1);
+    EXPECT_EQ(-72.2629241943359375, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Float_LargeNegative) {
+    const unsigned char rawBytes[] = { 0xA6, 0x0B, 0xA0, 0xC7 };
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        -1);
+    EXPECT_EQ(-81943.296875, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Azimuth) {
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)shortValue_rawValueBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
+        -1);
+    EXPECT_EQ(shortValue_azimuth, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Declination) {
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)shortValue_rawValueBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION,
+        -1);
+    EXPECT_EQ(shortValue_declination, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Default_minus1) {
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)shortValue_rawValueBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_OBJECT,
+        -1);
+    EXPECT_EQ(-1, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Default_54_2) {
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)shortValue_rawValueBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_OBJECT,
+        54.2);
+    EXPECT_EQ(54.2, result);
+}
+
+
+// ============== StoredBinaryValueToBoolOrDefault ==============
+
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_String_True) {
+    const char rawBytes[] = { 5, 0, 't', 'r', 'u', 'e', 0 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_String_TrueCapitalized) {
+    const char rawBytes[] = { 5, 0, 'T', 'r', 'u', 'e', 0 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        false);
+    EXPECT_EQ(true, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_String_TrueAllCaps) {
+    const char rawBytes[] = { 5, 0, 'T', 'R', 'U', 'E', 0 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_String_TrueMixed) {
+    const char rawBytes[] = { 5, 0, 't', 'R', 'U', 'e', 0 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_String_Trueish) {
+    const char rawBytes[] = { 8, 0, 't', 'r', 'u', 'e', 'i', 's', 'h', 0 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_String_DoubleZero) {
+    const char rawBytes[] = { 3, 0, '0', '0', 0 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_String_x7) {
+    const char rawBytes[] = { 3, 0, 'x', '7', 0 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_String_7x4) {
+    const char rawBytes[] = { 4, 0, '7', 'x', '4', 0 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_String_15) {
+    const char rawBytes[] = { 3, 0, '1', '5', 0 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_String_minus827) {
+    const char rawBytes[] = { 5, 0, '-', '8', '2', '7', 0 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_String_3_95) {
+    const char rawBytes[] = { 5, 0, '3', '.', '9', '5', 0 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Integer_0) {
+    const char rawBytes[] = { 0, 0, 0, 0 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Integer_Positive) {
+    const unsigned char rawBytes[] = { 0x50, 0xBE, 0x09, 0x1B };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
+        false);
+    EXPECT_EQ(true, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Integer_Negative) {
+    const unsigned char rawBytes[] = { 0xB0, 0x41, 0xF6, 0xE4 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
+        false);
+    EXPECT_EQ(true, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Float_Zero) {
+    const unsigned char rawBytes[] = { 0, 0, 0, 0 }; // 0.0
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Float_Positive) {
+    const unsigned char rawBytes[] = { 0xCD, 0x5A, 0x34, 0x43 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        false);
+    EXPECT_EQ(true, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Float_LargePositive) {
+    const unsigned char rawBytes[] = { 0x5F, 0x43, 0xC2, 0x47 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        false);
+    EXPECT_EQ(true, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Float_Negative) {
+    const unsigned char rawBytes[] = { 0x9E, 0x86, 0x90, 0xC2 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        false);
+    EXPECT_EQ(true, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Float_LargeNegative) {
+    const unsigned char rawBytes[] = { 0xA6, 0x0B, 0xA0, 0xC7 };
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)rawBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+        false);
+    EXPECT_EQ(true, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Azimuth) {
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)shortValue_rawValueBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
+        false);
+    EXPECT_EQ(true, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Declination) {
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)shortValue_rawValueBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION,
+        false);
+    EXPECT_EQ(true, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Default_minus1) {
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)shortValue_rawValueBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_OBJECT,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Default_54_2) {
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)shortValue_rawValueBytes,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_OBJECT,
+        true);
+    EXPECT_EQ(true, result);
 }

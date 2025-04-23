@@ -220,12 +220,15 @@ fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
 	fiftyoneDegreesStringBuilder* builder,
 	const char * const value,
 	size_t const length) {
-	if (length < builder->remaining &&
-		memcpy(builder->current, value, length) == builder->current) {
-		builder->remaining -= length;
-		builder->current += length;
+	const bool fitsIn = length < builder->remaining;
+	const size_t clippedLength = (
+		fitsIn ? length : (builder->remaining ? builder->remaining - 1 : 0));
+	if (0 < clippedLength &&
+		memcpy(builder->current, value, clippedLength) == builder->current) {
+		builder->remaining -= clippedLength;
+		builder->current += clippedLength;
 	}
-	else {
+	if (!fitsIn) {
 		builder->full = true;
 	}
 	builder->added += length;

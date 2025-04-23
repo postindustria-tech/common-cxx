@@ -232,7 +232,7 @@ int fiftyoneDegreesStoredBinaryValueCompareWithString(
     EXCEPTION_CLEAR;
     const uint8_t decimalPlaces = (
         tempBuilder->length < MAX_DOUBLE_DECIMAL_PLACES
-        ? tempBuilder->length
+        ? (uint8_t)tempBuilder->length
         : MAX_DOUBLE_DECIMAL_PLACES);
     StringBuilderAddStringValue(
         tempBuilder,

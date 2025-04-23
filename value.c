@@ -31,6 +31,7 @@ typedef struct value_search_t {
 	Collection *strings;
 	const char *valueName;
 	PropertyValueType valueType;
+	StringBuilder *tempBuilder;
 } valueSearch;
 
 #ifdef _MSC_VER
@@ -44,6 +45,9 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 	StoredBinaryValue *value;
 	valueSearch *search = (valueSearch*)state;
 	DataReset(&name.data);
+	if (search->tempBuilder) {
+		StringBuilderInit(search->tempBuilder);
+	}
 	value = ValueGetContent(
 		search->strings,
 		(Value*)item->data.ptr,
@@ -55,6 +59,7 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 			value,
 			search->valueType,
 			search->valueName,
+			search->tempBuilder,
 			exception);
 		COLLECTION_RELEASE(search->strings, &name);
 	}
@@ -155,6 +160,13 @@ long fiftyoneDegreesValueGetIndexByNameAndType(
 	search.valueName = valueName;
 	search.strings = strings;
 	search.valueType = storedValueType;
+
+	const bool isString = (storedValueType == FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING);
+	const size_t requiredSize = strlen(valueName) + 3;
+	char * const buffer = isString ? NULL : Malloc(requiredSize);
+	StringBuilder tempBuilder = { buffer, requiredSize };
+	search.tempBuilder = isString ? NULL : &tempBuilder;
+
 	index = CollectionBinarySearch(
 		values,
 		&item,
@@ -163,6 +175,9 @@ long fiftyoneDegreesValueGetIndexByNameAndType(
 		(void*)&search,
 		compareValueByName,
 		exception);
+	if (buffer) {
+		Free(buffer);
+	}
 	if (EXCEPTION_OKAY) {
 		COLLECTION_RELEASE(values, &item);
 	}
@@ -200,6 +215,13 @@ Value* fiftyoneDegreesValueGetByNameAndType(
 	search.valueName = valueName;
 	search.strings = strings;
 	search.valueType = storedValueType;
+
+	const bool isString = (storedValueType == FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING);
+	const size_t requiredSize = strlen(valueName) + 3;
+	char * const buffer = isString ? NULL : Malloc(requiredSize);
+	StringBuilder tempBuilder = { buffer, requiredSize };
+	search.tempBuilder = isString ? NULL : &tempBuilder;
+
 	if (
 		(int)property->firstValueIndex != -1 &&
 		CollectionBinarySearch(
@@ -212,6 +234,9 @@ Value* fiftyoneDegreesValueGetByNameAndType(
 			exception) >= 0 &&
 		EXCEPTION_OKAY) {
 		value = (Value*)item->data.ptr;
+	}
+	if (buffer) {
+		Free(buffer);
 	}
 	return value;
 }

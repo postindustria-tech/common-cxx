@@ -132,6 +132,7 @@ EXTERNAL fiftyoneDegreesStoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
  * @param value the current binary value item
  * @param storedValueType format of byte array representation
  * @param target the target search value.
+ * @param tempBuilder temporary builder to stringify value into.
  * @return 0 if they are equal, otherwise negative
  * for smaller and positive for bigger
  */
@@ -139,6 +140,7 @@ EXTERNAL int fiftyoneDegreesStoredBinaryValueCompareWithString(
  const fiftyoneDegreesStoredBinaryValue *value,
  fiftyoneDegreesPropertyValueType storedValueType,
  const char *target,
+ fiftyoneDegreesStringBuilder *tempBuilder,
  fiftyoneDegreesException *exception);
 
 /**

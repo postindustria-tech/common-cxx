@@ -88,9 +88,13 @@ bool fiftyoneDegreesCollectionGetIsMemoryOnly() { return true; }
  * Used by memory collection where there is nothing to be done when the release
  * occurs because the memory it uses is only freed when the collection is 
  * freed. 
+ *
+ * The data is reset so that further item operations
+ * no longer access collection-controlled memory.
  */
 static void releaseNothing(Item *item) {
 	assert(item != NULL);
+	DataReset(&item->data);
 }
 #ifdef _MSC_VER
 #pragma warning (default: 4100) 

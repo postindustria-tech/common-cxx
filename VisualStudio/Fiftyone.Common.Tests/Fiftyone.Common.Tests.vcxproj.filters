@@ -129,6 +129,9 @@
     <ClCompile Include="..\..\tests\PropertyTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\tests\StoredBinaryValueTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\tests\Base.hpp">

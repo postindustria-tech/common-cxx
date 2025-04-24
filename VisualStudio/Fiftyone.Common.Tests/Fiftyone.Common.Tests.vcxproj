@@ -47,6 +47,7 @@
     <ClCompile Include="..\..\tests\RequiredPropertiesConfigTests.cpp" />
     <ClCompile Include="..\..\tests\ResourceManagerTests.cpp" />
     <ClCompile Include="..\..\tests\StatusTests.cpp" />
+    <ClCompile Include="..\..\tests\StoredBinaryValueTests.cpp" />
     <ClCompile Include="..\..\tests\StringCollection.cpp" />
     <ClCompile Include="..\..\tests\StringsTests.cpp" />
     <ClCompile Include="..\..\tests\TestStrings.cpp" />

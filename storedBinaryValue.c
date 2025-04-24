@@ -205,116 +205,6 @@ StoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
     return result;
 }
 
-/**
- * Function to compare the current String item to the
- * target search value using the IpAddress format.
- * @param value the current String item
- * @param target the target search value. This should
- * be in string readable format of an IP address.
- * @return 0 if they are equal, otherwise negative
- * for smaller and positive for bigger
- */
-static int compareIpAddressToString(const VarLengthByteArray * const value, const char * const target) {
-    int result = 0;
-    IpAddress ipAddress;
-    bool parsed = IpAddressParse(
-            target,
-            target + strlen(target),
-            &ipAddress);
-    if (parsed) {
-        const int16_t valueLength = value->size;
-        int16_t searchLength = 0;
-        switch (ipAddress.type) {
-            case IP_TYPE_IPV4:
-                searchLength = IPV4_LENGTH;
-            break;
-            case IP_TYPE_IPV6:
-                searchLength = IPV6_LENGTH;
-            break;
-            case IP_TYPE_INVALID:
-                default:
-                    break;
-        }
-
-        if (searchLength == 0) {
-            result = valueLength;
-        }
-        else {
-            // Compare length first
-            const size_t compareLength = ((valueLength < searchLength)
-                ? valueLength : searchLength);
-            result = memcmp(&value->firstByte,
-                ipAddress.value, compareLength);
-            if (result == 0) {
-                result = valueLength - searchLength;
-            }
-        }
-    }
-    return result;
-}
-
-static int compareWkbToString(
-    const VarLengthByteArray * const binaryValue,
-    const WkbtotReductionMode reductionMode,
-    const char * const target,
-    Exception * const exception) {
-    WkbtotResult toWktResult = {
-        0,
-        false,
-    };
-
-    if (!binaryValue || !exception) {
-        EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_NULL_POINTER);
-        return -1;
-    }
-
-    int result = -1;
-
-    {
-        char buffer[REASONABLE_WKT_STRING_LENGTH];
-        StringBuilder builder = { buffer, REASONABLE_WKT_STRING_LENGTH };
-        StringBuilderInit(&builder);
-        WriteWkbAsWktToStringBuilder(
-            &binaryValue->firstByte,
-            reductionMode,
-            MAX_DOUBLE_DECIMAL_PLACES,
-            &builder,
-            exception
-            );
-        StringBuilderComplete(&builder);
-        toWktResult = (WkbtotResult){
-            builder.added,
-            builder.full,
-        };
-        if (EXCEPTION_OKAY && !toWktResult.bufferTooSmall) {
-            result = strcmp(buffer, target);
-        }
-    }
-    if (toWktResult.bufferTooSmall) {
-        EXCEPTION_CLEAR;
-        const size_t requiredSize = toWktResult.written + 1;
-        char * const buffer = Malloc(requiredSize);
-        StringBuilder builder = { buffer, requiredSize };
-        StringBuilderInit(&builder);
-        WriteWkbAsWktToStringBuilder(
-            &binaryValue->firstByte,
-            reductionMode,
-            MAX_DOUBLE_DECIMAL_PLACES,
-            &builder,
-            exception
-            );
-        StringBuilderComplete(&builder);
-        toWktResult = (WkbtotResult){
-            builder.added,
-            builder.full,
-        };
-        if (EXCEPTION_OKAY && !toWktResult.bufferTooSmall) {
-            result = strcmp(buffer, target);
-        }
-    }
-    return result;
-}
-
 static double shortToDouble(const StoredBinaryValue * const value, const double maxAngle) {
     return (value->shortValue * maxAngle) / INT16_MAX;
 }
@@ -324,87 +214,38 @@ static double toAzimuth(const StoredBinaryValue * const value) {
 static double toDeclination(const StoredBinaryValue * const value) {
     return shortToDouble(value, 90);
 }
-static double toDoubleFromFloat(const StoredBinaryValue * const value) {
-    return FLOAT_TO_NATIVE(value->floatValue);
-}
-
-static int compareDoubleToString(
-    const double testedValue,
-    const char * const target) {
-
-    const double searchValue = (float)strtod(target, NULL);
-    if (errno == ERANGE)
-    {
-        errno = 0;
-        return -1;
-    }
-    const double dv = testedValue - searchValue;
-    return !dv ? 0 : (dv < 0 ? -1 : 1);
-}
 
 int fiftyoneDegreesStoredBinaryValueCompareWithString(
     const StoredBinaryValue * const value,
     const PropertyValueType storedValueType,
     const char * const target,
+    StringBuilder * const tempBuilder,
     Exception * const exception) {
 
-    switch (storedValueType) {
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
-            const size_t targetLength = strlen(target);
-            const size_t valueLength = value->stringValue.size - 1;
-            const size_t cmpLength = (targetLength < valueLength) ? targetLength : valueLength;
-            const int result = strncmp(&value->stringValue.value, target, cmpLength);
-            if (result) {
-                return result;
-            }
-            if (cmpLength < targetLength) {
-                return -1;
-            }
-            return 0;
-        }
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS: {
-            return compareIpAddressToString(&value->byteArrayValue, target);
-        }
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB: {
-            return compareWkbToString(
-                &value->byteArrayValue,
-                FIFTYONE_DEGREES_WKBToT_REDUCTION_NONE,
-                target,
-                exception);
-        }
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R: {
-            return compareWkbToString(
-                &value->byteArrayValue,
-                FIFTYONE_DEGREES_WKBToT_REDUCTION_SHORT,
-                target,
-                exception);
-        }
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER: {
-            const int32_t intValue = value->intValue;
-            const int32_t searchInt = (int32_t) strtol(target, NULL, 10);
-            if (errno == ERANGE)
-            {
-                errno = 0;
-                return -1;
-            }
-            return intValue - searchInt;
-        }
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
-            return compareDoubleToString(toDoubleFromFloat(value), target);
-        }
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH: {
-            return compareDoubleToString(toAzimuth(value), target);
-        }
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION: {
-            return compareDoubleToString(toDeclination(value), target);
-        }
-        default: {
-            EXCEPTION_SET(UNSUPPORTED_STORED_VALUE_TYPE);
-            return -1;
-        }
+    if (storedValueType == FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING) {
+        const int cmpResult = strncmp(
+            &value->stringValue.value,
+            target,
+            value->stringValue.size);
+        return cmpResult;
     }
+    EXCEPTION_CLEAR;
+    const uint8_t decimalPlaces = (
+        tempBuilder->length < MAX_DOUBLE_DECIMAL_PLACES
+        ? (uint8_t)tempBuilder->length
+        : MAX_DOUBLE_DECIMAL_PLACES);
+    StringBuilderAddStringValue(
+        tempBuilder,
+        value,
+        storedValueType,
+        decimalPlaces,
+        exception);
+    StringBuilderComplete(tempBuilder);
+    const int result = (EXCEPTION_OKAY
+        ? strcmp(tempBuilder->ptr, target)
+        : -1);
+    return result;
 }
-
 
 int fiftyoneDegreesStoredBinaryValueToIntOrDefault(
     const fiftyoneDegreesStoredBinaryValue * const value,

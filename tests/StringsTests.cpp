@@ -124,15 +124,14 @@ TEST_F(Strings, StringBuilder_AddCharsPastEnd) {
     ASSERT_EQ(builder->added, bufferSize + (len - bufferSize % len));
     ASSERT_EQ(builder->length, bufferSize);
     
-    // 512 % 6 = 2
-    ASSERT_EQ(builder->remaining, bufferSize % len);
+    // all available space filled, except last byte reserved for NUL-terminator
+    ASSERT_EQ(builder->remaining, 1);
     
-    // is marked as full when could not add stuff... which might be slightly incorrect,
-    // since it still can fit several characters (precisely 2)
+    // is marked as full when could not add stuff.
     ASSERT_TRUE(builder->full);
     
     fiftyoneDegreesStringBuilderComplete(builder);
-    ASSERT_EQ(strlen(builder->ptr), bufferSize - bufferSize % len);
+    ASSERT_EQ(strlen(builder->ptr), bufferSize - 1);
 }
 
 TEST_F(Strings, StringBuilder_AddInteger) {
@@ -268,7 +267,7 @@ static const byte invalidIpValueString[] = {
     0x00,0x00,0x00,0x00,
 };
 static const byte wkbValueString[] = {
-    0x14, 0x00,
+    0x15, 0x00,
     0x00,
     0x00, 0x00, 0x00, 0x01,
     0x40, 0x31, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00,

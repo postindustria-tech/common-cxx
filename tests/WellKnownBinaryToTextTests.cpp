@@ -286,6 +286,18 @@ TEST(WKBToT, WKBToT_Standard_LineString)
 	convertAndCompare(wkbBytes, expected, "LineString");
 }
 
+TEST(WKBToT, WKBToT_Standard_LineString_Empty)
+{
+	const byte wkbBytes[] = {
+		0x01,
+		0x02, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, // 0 points
+	};
+	const char * const expected = "LINESTRING EMPTY";
+
+	convertAndCompare(wkbBytes, expected, "LineString_Empty");
+}
+
 TEST(WKBToT, WKBToT_Standard_Polygon)
 {
 	const byte wkbBytes[] = {
@@ -310,6 +322,48 @@ TEST(WKBToT, WKBToT_Standard_Polygon)
 	convertAndCompare(wkbBytes, expected, "Polygon");
 }
 
+TEST(WKBToT, WKBToT_Standard_Polygon_EmptyRings)
+{
+	const byte wkbBytes[] = {
+		0x01,
+		0x03, 0x00, 0x00, 0x00,
+		0x05, 0x00, 0x00, 0x00, // 5 rings
+		0x00, 0x00, 0x00, 0x00, // 0 points
+		0x03, 0x00, 0x00, 0x00, // 3 points
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x40,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x40,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x40,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x34, 0x40,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x34, 0x40,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x34, 0x40,
+		0x00, 0x00, 0x00, 0x00, // 0 points
+		0x03, 0x00, 0x00, 0x00, // 3 points
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x34, 0x40,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x34, 0x40,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x34, 0x40,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2e, 0x40,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x40,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x40,
+		0x00, 0x00, 0x00, 0x00, // 0 points
+	};
+	const char * const expected = "POLYGON"
+	"(EMPTY,(10 10,10 20,20 20),EMPTY,(20 20,20 15,10 10),EMPTY)";
+
+	convertAndCompare(wkbBytes, expected, "Polygon_EmptyRings");
+}
+
+TEST(WKBToT, WKBToT_Standard_Polygon_Empty)
+{
+	const byte wkbBytes[] = {
+		0x01,
+		0x03, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, // 0 rings
+	};
+	const char * const expected = "POLYGON EMPTY";
+
+	convertAndCompare(wkbBytes, expected, "Polygon_Empty");
+}
+
 TEST(WKBToT, WKBToT_Standard_MultiPoint)
 {
 	const byte wkbBytes[] = {
@@ -328,6 +382,18 @@ TEST(WKBToT, WKBToT_Standard_MultiPoint)
 	const char * const expected = "MULTIPOINT((10 10),(20 20))";
 
 	convertAndCompare(wkbBytes, expected, "MultiPoint");
+}
+
+TEST(WKBToT, WKBToT_Standard_MultiPoint_Empty)
+{
+	const byte wkbBytes[] = {
+		0x01,
+		0x04, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, // 0 points
+	};
+	const char * const expected = "MULTIPOINT EMPTY";
+
+	convertAndCompare(wkbBytes, expected, "MultiPoint_Empty");
 }
 
 TEST(WKBToT, WKBToT_Standard_MultiLineString)
@@ -357,6 +423,18 @@ TEST(WKBToT, WKBToT_Standard_MultiLineString)
 	")";
 
 	convertAndCompare(wkbBytes, expected, "MultiLineString");
+}
+
+TEST(WKBToT, WKBToT_Standard_MultiLineString_Empty)
+{
+	const byte wkbBytes[] = {
+		0x01,
+		0x05, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, // 2 lines
+	};
+	const char * const expected = "MULTILINESTRING EMPTY";
+
+	convertAndCompare(wkbBytes, expected, "MultiLineString_Empty");
 }
 
 TEST(WKBToT, WKBToT_Standard_MultiPolygon)
@@ -401,6 +479,18 @@ TEST(WKBToT, WKBToT_Standard_MultiPolygon)
 	convertAndCompare(wkbBytes, expected, "MultiPolygon");
 }
 
+TEST(WKBToT, WKBToT_Standard_MultiPolygon_Empty)
+{
+	const byte wkbBytes[] = {
+		0x01,
+		0x06, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, // 0 polygons
+	};
+	const char * const expected = "MULTIPOLYGON EMPTY";
+
+	convertAndCompare(wkbBytes, expected, "MultiPolygon_Empty");
+}
+
 TEST(WKBToT, WKBToT_Standard_GeometryCollection)
 {
 	const byte wkbBytes[] = {
@@ -431,6 +521,18 @@ TEST(WKBToT, WKBToT_Standard_GeometryCollection)
 	")";
 
 	convertAndCompare(wkbBytes, expected, "GeometryCollection");
+}
+
+TEST(WKBToT, WKBToT_Standard_GeometryCollection_Empty)
+{
+	const byte wkbBytes[] = {
+		0x01,
+		0x07, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, // 0 geometries
+	};
+	const char * const expected = "GEOMETRYCOLLECTION EMPTY";
+
+	convertAndCompare(wkbBytes, expected, "GeometryCollection_Empty");
 }
 
 TEST(WKBToT, WKBToT_Standard_PolyhedronZ)

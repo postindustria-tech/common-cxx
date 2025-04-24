@@ -227,10 +227,14 @@ static const NumReader *selectNumReader(const WkbtotReductionMode reductionMode)
     }
 }
 
+typedef struct {
+    StringBuilder * const stringBuilder;
+    bool isSeparated;
+} OutputState;
 
 typedef struct {
     const byte *binaryBuffer;
-    StringBuilder * const stringBuilder;
+    OutputState output;
 
     CoordMode coordMode;
     ByteOrder wkbByteOrder;
@@ -264,24 +268,29 @@ static void writeEmpty(
     ProcessingContext * const context) {
 
     static const char empty[] = "EMPTY";
-    StringBuilderAddChars(context->stringBuilder, empty, sizeof(empty));
+    if (!context->output.isSeparated) {
+        StringBuilderAddChar(context->output.stringBuilder, ' ');
+    }
+    StringBuilderAddChars(context->output.stringBuilder, empty, sizeof(empty) - 1);
+    context->output.isSeparated = false;
 }
 
 static void writeTaggedGeometryName(
-    const ProcessingContext * const context,
+    ProcessingContext * const context,
     const char * const geometryName) {
 
     StringBuilderAddChars(
-        context->stringBuilder,
+        context->output.stringBuilder,
         geometryName,
         strlen(geometryName));
     if (context->coordMode.tag) {
-        StringBuilderAddChar(context->stringBuilder, ' ');
+        StringBuilderAddChar(context->output.stringBuilder, ' ');
         StringBuilderAddChars(
-            context->stringBuilder,
+            context->output.stringBuilder,
             context->coordMode.tag,
             context->coordMode.tagLength);
     }
+    context->output.isSeparated = false;
 }
 
 
@@ -296,17 +305,20 @@ static void withParenthesesIterate(
 
     Exception * const exception = context->exception;
 
-    StringBuilderAddChar(context->stringBuilder, '(');
+    StringBuilderAddChar(context->output.stringBuilder, '(');
+    context->output.isSeparated = true;
     for (uint32_t i = 0; i < count; i++) {
         if (i) {
-            StringBuilderAddChar(context->stringBuilder, ',');
+            StringBuilderAddChar(context->output.stringBuilder, ',');
+            context->output.isSeparated = true;
         }
         visitor(context);
         if (EXCEPTION_FAILED) {
             return;
         }
     }
-    StringBuilderAddChar(context->stringBuilder, ')');
+    StringBuilderAddChar(context->output.stringBuilder, ')');
+    context->output.isSeparated = true;
 }
 
 static void handlePointSegment(
@@ -314,10 +326,12 @@ static void handlePointSegment(
 
     for (CoordIndexType i = 0; i < context->coordMode.dimensionsCount; i++) {
         if (i) {
-            StringBuilderAddChar(context->stringBuilder, ' ');
+            StringBuilderAddChar(context->output.stringBuilder, ' ');
+            context->output.isSeparated = true;
         }
         const double nextCoord = readDouble(context, i);
-        StringBuilderAddDouble(context->stringBuilder, nextCoord, context->decimalPlaces);
+        StringBuilderAddDouble(context->output.stringBuilder, nextCoord, context->decimalPlaces);
+        context->output.isSeparated = false;
     }
 }
 
@@ -575,7 +589,10 @@ static void handleWKBRoot(
 
     ProcessingContext context = {
         binaryBuffer,
-        stringBuilder,
+        {
+            stringBuilder,
+            true,
+        },
 
         CoordModes[0],
         ~*binaryBuffer,

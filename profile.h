@@ -108,6 +108,31 @@ typedef struct fiftyoneDegrees_profile_offset_t {
 #pragma pack(pop)
 
 /**
+ * Function that extracts "pure" profile offset
+ * from a value inside `profileOffsets` collection
+ * @param rawProfileOffset a "raw" value retrieved from `profileOffsets`
+ * @return Offset to the profile in the profiles structure
+ */
+typedef uint32_t (*fiftyoneDegreesProfileOffsetValueExtractor)(const void *rawProfileOffset);
+
+/**
+ * Function that extracts "pure" profile offset
+ * from a fiftyoneDegreesProfileOffset.
+ * @param rawProfileOffset a "raw" ProfileOffset retrieved from `profileOffsets`
+ * @return Offset to the profile in the profiles structure
+ */
+uint32_t fiftyoneDegreesProfileOffsetToPureOffset(const void *rawProfileOffset);
+
+/**
+ * Function that extracts "pure" profile offset
+ * from a value (that starts with a "pure" profile offset)
+ * inside `profileOffsets` collection
+ * @param rawProfileOffset a "raw" value retrieved from `profileOffsets`
+ * @return Offset to the profile in the profiles structure
+ */
+uint32_t fiftyoneDegreesProfileOffsetAsPureOffset(const void *rawProfileOffset);
+
+/**
  * Definition of a callback function which is passed an item of a type 
  * determined by the iteration method.
  * @param state pointer to data needed by the method
@@ -242,7 +267,7 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateValuesForPropertyWithIndex(
  * @param values collection containing all values
  * @param profiles collection containing the profiles referenced by the profile
  * offsets
- * @param profileOffsets collection containing all profile offsets
+ * @param profileOffsets collection containing all profile offsets (with IDs)
  * @param propertyName name of the property the value relates to
  * @param valueName name of the value to iterate the profiles for
  * @param state pointer to data needed by the callback method
@@ -258,6 +283,40 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndVal
 	fiftyoneDegreesCollection *values,
 	fiftyoneDegreesCollection *profiles,
 	fiftyoneDegreesCollection *profileOffsets,
+	const char *propertyName,
+	const char* valueName,
+	void *state,
+	fiftyoneDegreesProfileIterateMethod callback,
+	fiftyoneDegreesException *exception);
+
+/**
+ * Iterate all profiles which contain the specified value, calling the callback
+ * method for each.
+ * @param strings collection containing the strings referenced properties and
+ * values
+ * @param properties collection containing all properties
+ * @param propertyTypes collection containing types for all properties
+ * @param values collection containing all values
+ * @param profiles collection containing the profiles referenced by the profile
+ * offsets
+ * @param profileOffsets collection containing all profile offsets (any form)
+ * @param offsetValueExtractor converts `profileOffsets` value to "pure" offset
+ * @param propertyName name of the property the value relates to
+ * @param valueName name of the value to iterate the profiles for
+ * @param state pointer to data needed by the callback method
+ * @param callback method to be called for each matching profile
+ * @param exception pointer to an exception data structure to be used if an
+ * exception occurs. See exceptions.h
+ * @return the number matching profiles which have been iterated
+ */
+EXTERNAL uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndValueAndOffsetExtractor(
+	fiftyoneDegreesCollection *strings,
+	fiftyoneDegreesCollection *properties,
+	fiftyoneDegreesCollection *propertyTypes,
+	fiftyoneDegreesCollection *values,
+	fiftyoneDegreesCollection *profiles,
+	fiftyoneDegreesCollection *profileOffsets,
+	fiftyoneDegreesProfileOffsetValueExtractor offsetValueExtractor,
 	const char *propertyName,
 	const char* valueName,
 	void *state,

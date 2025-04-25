@@ -426,24 +426,58 @@ uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyAndValue(
 		exception);
 }
 
+uint32_t fiftyoneDegreesProfileOffsetToPureOffset(const void * const rawProfileOffset) {
+	return ((const ProfileOffset*)rawProfileOffset)->offset;
+}
+uint32_t fiftyoneDegreesProfileOffsetAsPureOffset(const void * const rawProfileOffset) {
+	return *(const uint32_t*)rawProfileOffset;
+}
+
 uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndValue(
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesCollection *properties,
-	fiftyoneDegreesCollection *propertyTypes,
-	fiftyoneDegreesCollection *values,
-	fiftyoneDegreesCollection *profiles,
-	fiftyoneDegreesCollection *profileOffsets,
-	const char *propertyName,
-	const char* valueName,
-	void *state,
-	fiftyoneDegreesProfileIterateMethod callback,
-	fiftyoneDegreesException *exception) {
+	fiftyoneDegreesCollection * const strings,
+	fiftyoneDegreesCollection * const properties,
+	fiftyoneDegreesCollection * const propertyTypes,
+	fiftyoneDegreesCollection * const values,
+	fiftyoneDegreesCollection * const profiles,
+	fiftyoneDegreesCollection * const profileOffsets,
+	const char * const propertyName,
+	const char * const valueName,
+	void * const state,
+	const fiftyoneDegreesProfileIterateMethod callback,
+	fiftyoneDegreesException * const exception) {
+	return ProfileIterateProfilesForPropertyWithTypeAndValueAndOffsetExtractor(
+		strings,
+		properties,
+		propertyTypes,
+		values,
+		profiles,
+		profileOffsets,
+		ProfileOffsetToPureOffset,
+		propertyName,
+		valueName,
+		state,
+		callback,
+		exception);
+}
+
+uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndValueAndOffsetExtractor(
+	fiftyoneDegreesCollection * const strings,
+	fiftyoneDegreesCollection * const properties,
+	fiftyoneDegreesCollection * const propertyTypes,
+	fiftyoneDegreesCollection * const values,
+	fiftyoneDegreesCollection * const profiles,
+	fiftyoneDegreesCollection * const profileOffsets,
+	const fiftyoneDegreesProfileOffsetValueExtractor offsetValueExtractor,
+	const char * const propertyName,
+	const char * const valueName,
+	void *const state,
+	const fiftyoneDegreesProfileIterateMethod callback,
+	fiftyoneDegreesException * const exception) {
 	uint32_t i, count = 0;
 	Item propertyItem, offsetItem, profileItem;
 	uint32_t *profileValueIndex, *maxProfileValueIndex;
 	Property *property;
 	Profile *profile;
-	ProfileOffset *profileOffset;
 	DataReset(&propertyItem.data);
 	property = PropertyGetByName(
 		properties, 
@@ -475,15 +509,16 @@ uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndValue(
 			DataReset(&profileItem.data);
 			uint32_t profileOffsetsCount = CollectionGetCount(profileOffsets);
 			for (i = 0; i < profileOffsetsCount; i++) {
-				profileOffset = (ProfileOffset*)profileOffsets->get(
+				const void * const rawProfileOffset = profileOffsets->get(
 					profileOffsets,
 					i,
 					&offsetItem, 
 					exception);
-				if (profileOffset != NULL && EXCEPTION_OKAY) {
+				if (rawProfileOffset != NULL && EXCEPTION_OKAY) {
+					const uint32_t pureProfileOffset = offsetValueExtractor(rawProfileOffset);
 					profile = getProfileByOffset(
 						profiles,
-						profileOffset->offset,
+						pureProfileOffset,
 						&profileItem,
 						exception);
 					if (profile != NULL && EXCEPTION_OKAY) {

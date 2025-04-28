@@ -223,11 +223,18 @@ int fiftyoneDegreesStoredBinaryValueCompareWithString(
     Exception * const exception) {
 
     if (storedValueType == FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING) {
-        const int cmpResult = strncmp(
+        const int cmpResult = strncasecmp(
             &value->stringValue.value,
             target,
             value->stringValue.size);
-        return cmpResult;
+        if (cmpResult) {
+            return cmpResult;
+        }
+        const int cmpResult2 = strncmp(
+            &value->stringValue.value,
+            target,
+            value->stringValue.size);
+        return -cmpResult2;
     }
     EXCEPTION_CLEAR;
     const uint8_t decimalPlaces = (
@@ -241,9 +248,13 @@ int fiftyoneDegreesStoredBinaryValueCompareWithString(
         decimalPlaces,
         exception);
     StringBuilderComplete(tempBuilder);
-    const int result = (EXCEPTION_OKAY
-        ? strcmp(tempBuilder->ptr, target)
-        : -1);
+    int result = -1;
+    if (EXCEPTION_OKAY) {
+        result = strcasecmp(tempBuilder->ptr, target);
+        if (!result) {
+            result = -strcmp(tempBuilder->ptr, target);
+        }
+    }
     return result;
 }
 

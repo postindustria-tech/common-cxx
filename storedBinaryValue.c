@@ -223,10 +223,9 @@ int fiftyoneDegreesStoredBinaryValueCompareWithString(
     Exception * const exception) {
 
     if (storedValueType == FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING) {
-        const int cmpResult = strncasecmp(
+        const int cmpResult = StringCompare(
             &value->stringValue.value,
-            target,
-            value->stringValue.size);
+            target);
         if (cmpResult) {
             return cmpResult;
         }
@@ -250,7 +249,7 @@ int fiftyoneDegreesStoredBinaryValueCompareWithString(
     StringBuilderComplete(tempBuilder);
     int result = -1;
     if (EXCEPTION_OKAY) {
-        result = strcasecmp(tempBuilder->ptr, target);
+        result = StringCompare(tempBuilder->ptr, target);
         if (!result) {
             result = -strcmp(tempBuilder->ptr, target);
         }

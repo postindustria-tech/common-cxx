@@ -232,6 +232,13 @@ if(FIFTYONE_COMMON_CXX_BUILD_TESTING)
 		target_link_libraries(CommonTests fiftyone-common-cxx gtest_main)
 	endif()
 
+	if (LargeDataFileSupport)
+		# global -- to propagate through whole build graph, including tests
+		add_compile_definitions(FIFTYONE_DEGREES_LARGE_DATA_FILE_SUPPORT)
+		# global -- in case sibling lib uses stdio as well.
+		add_compile_definitions(_FILE_OFFSET_BITS=64)
+	endif ()
+
 	gtest_discover_tests(CommonTests PROPERTIES TEST_DISCOVERY_TIMEOUT 600 DISCOVERY_MODE PRE_TEST)
 	set_target_properties(CommonTests PROPERTIES FOLDER "Tests") 
 

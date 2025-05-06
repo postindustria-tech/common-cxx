@@ -111,8 +111,10 @@ TEST_P(CollectionOffsetTest, DirectRead) {
 static constexpr FileOffsetUnsigned testOffsets[] = {
     0,
     UINT16_MAX,
+    UINT16_MAX + 5,
 #ifdef FIFTYONE_DEGREES_LARGE_DATA_FILE_SUPPORT
     UINT32_MAX,
+    UINT32_MAX + 7,
 #endif
 };
 

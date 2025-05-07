@@ -20,6 +20,7 @@
     <ClCompile Include="..\..\tests\Base.cpp" />
     <ClCompile Include="..\..\tests\CacheTests.cpp" />
     <ClCompile Include="..\..\tests\CollectionConfigTests.cpp" />
+    <ClCompile Include="..\..\tests\CollectionOffsetTests.cpp" />
     <ClCompile Include="..\..\tests\CollectionTests.cpp" />
     <ClCompile Include="..\..\tests\EngineTests.cpp" />
     <ClCompile Include="..\..\tests\EvidenceTests.cpp" />
@@ -68,6 +69,7 @@
     <ClInclude Include="..\..\tests\StringCollection.hpp" />
     <ClInclude Include="..\..\tests\TestStrings.hpp" />
     <ClInclude Include="..\..\tests\FixedSizeCollection.hpp" />
+    <ClInclude Include="..\..\tests\TestUtils_Pointers.hpp" />
     <ClInclude Include="..\..\tests\VariableSizeCollection.hpp" />
     <ClInclude Include="..\..\tests\HeadersContainer.hpp" />
   </ItemGroup>

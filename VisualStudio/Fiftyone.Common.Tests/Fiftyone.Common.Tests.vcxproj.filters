@@ -132,6 +132,9 @@
     <ClCompile Include="..\..\tests\StoredBinaryValueTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\tests\CollectionOffsetTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\tests\Base.hpp">
@@ -165,6 +168,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\tests\VariableSizeCollection.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tests\TestUtils_Pointers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

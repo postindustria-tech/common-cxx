@@ -23,13 +23,8 @@
 #include "../fiftyone.h"
 #include "../string.h"
 #include "Base.hpp"
+#include "TestUtils_Pointers.hpp"
 
-static void freeCollection(fiftyoneDegreesCollection * const ptr) {
-    if (ptr) {
-        ptr->freeCollection(ptr);
-    }
-}
-using CollectionPtr = std::unique_ptr<fiftyoneDegreesCollection, decltype(&freeCollection)>;
 static void releaseFilePool(FilePool * const ptr) {
     if (ptr) {
         FilePoolRelease(ptr);
@@ -197,28 +192,6 @@ void StoredBinaryValues::SetUp() {
 
 void StoredBinaryValues::TearDown() {
 }
-
-static void releaseItem(Item * const item) {
-    if (item) {
-        COLLECTION_RELEASE(item->collection, item);
-    }
-}
-using ItemPtr = std::unique_ptr<Item, decltype(&releaseItem)>;
-
-class ItemBox {
-    Item item = {};
-public:
-    ItemBox() {
-        DataReset(&item.data);
-    }
-    ~ItemBox() {
-        if (item.collection) {
-            COLLECTION_RELEASE(item.collection, &item);
-        }
-    }
-    Item *operator*() { return &item; }
-    Item *operator->() { return &item; }
-};
 
 
 // ============== StoredBinaryValueGet (from memory) ==============

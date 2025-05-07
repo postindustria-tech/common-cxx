@@ -30,7 +30,7 @@ typedef struct map_t {
 } map;
 
 // Gets the index of the profile id in the property profile index.
-static uint32_t getProfileIndex(
+static uint32_t getProfileIdIndex(
 	IndicesPropertyProfile* index, 
 	uint32_t profileId) {
 	return profileId - index->minProfileId;
@@ -51,7 +51,7 @@ static void addProfileValuesMethod(
 	DataReset(&valueItem.data);
 	
 	uint32_t* first = (uint32_t*)(profile + 1); // First value for the profile
-	uint32_t base = getProfileIndex(index, profile->profileId) * 
+	uint32_t base = getProfileIdIndex(index, profile->profileId) * 
 		index->availablePropertyCount;
 
 	// For each of the values associated with the profile check to see if it
@@ -256,7 +256,7 @@ uint32_t fiftyoneDegreesIndicesPropertyProfileLookup(
 	uint32_t profileId,
 	uint32_t availablePropertyIndex) {
 	uint32_t valueIndex = 
-		(getProfileIndex(index, profileId) * index->availablePropertyCount) + 
+		(getProfileIdIndex(index, profileId) * index->availablePropertyCount) + 
 		availablePropertyIndex;
 	assert(valueIndex < index->size);
 	return index->valueIndexes[valueIndex];

@@ -214,8 +214,6 @@ StringBuilder* fiftyoneDegreesStringBuilderAddDouble(
 	return builder;
 }
 
-#undef MAX_DOUBLE_DECIMAL_PLACES
-
 fiftyoneDegreesStringBuilder* fiftyoneDegreesStringBuilderAddChars(
 	fiftyoneDegreesStringBuilder* builder,
 	const char * const value,

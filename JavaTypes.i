@@ -117,3 +117,16 @@ nofinalize(EvidenceBase);
 nofinalize(Value);
 nofinalize(std::map);
 nofinalize(std::vector);
+
+/* Byte Array Mapping */
+%include "arrays_java.i"
+
+%typemap(ctype) (unsigned char *UCHAR) "unsigned char*"
+%typemap(jtype) (unsigned char *UCHAR) "byte[]"
+%typemap(jstype) (unsigned char *UCHAR) "byte[]"
+%typemap(jni) (unsigned char *UCHAR) "jbyteArray"
+%typemap(in) (unsigned char *UCHAR) "$javainput"
+
+%apply unsigned char *UCHAR {unsigned char data[]}
+%apply unsigned char *UCHAR {unsigned char ipAddress[]}
+%apply unsigned char *UCHAR {unsigned char copy[]}

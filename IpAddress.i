@@ -1,3 +1,7 @@
+
+#ifdef SWIGJAVA
+%include "common-cxx/JavaTypes.i"
+#endif
 %include "common-cxx/ip.i"
 
 %nodefaultctor IpAddress;

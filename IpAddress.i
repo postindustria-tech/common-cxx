@@ -1,4 +1,4 @@
-%include "common-cxx/ip.i"
+%include "ip.i"
 
 %nodefaultctor IpAddress;
 

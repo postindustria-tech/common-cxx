@@ -25,17 +25,15 @@
 %include std_string.i
 %include various.i
 
-%typemap(jni) (unsigned char *UCHAR, long LONG) "jbyteArray"
-%typemap(jtype) (unsigned char *UCHAR, long LONG) "byte[]"
-%typemap(jstype) (unsigned char *UCHAR, long LONG) "byte[]"
-%typemap(in) (unsigned char *UCHAR, long LONG) {
+%define JAVA_UBYTE_ARR_TYPEMAP_BODY
+    long arrSize = 0;
 	if ($input != NULL) {
 	    // Get the number of bytes in the byte array.
-		$2 = jenv->GetArrayLength($input);
+		arrSize = jenv->GetArrayLength($input);
 		// Allocate memory for the destination byte array used internally by
 		// the data set. This memory is required for the lifetime of the data
 		// set.
-		$1 = (unsigned char*)malloc($2);
+		$1 = (unsigned char*)malloc(arrSize);
 		if ($1 == NULL) {
 		    SWIG_JavaThrowException(
 		        jenv,
@@ -54,22 +52,56 @@
 		}
         // Copy the input byte array to the destination and release the
         // reference to source pointer.
-        memcpy($1, data, $2);
+        memcpy($1, data, arrSize);
         jenv->ReleaseByteArrayElements($input, data, JNI_ABORT);
 	}
 	else {
 	    // Let the underlying C implementation throw the null pointer exception.
 		$1 = (unsigned char*)NULL;
-		$2 = 0;
 	}
+%enddef
+
+
+%typemap(jni) (unsigned char *UCHAR) "jbyteArray"
+%typemap(jtype) (unsigned char *UCHAR) "byte[]"
+%typemap(jstype) (unsigned char *UCHAR) "byte[]"
+%typemap(in) (unsigned char *UCHAR) {
+    JAVA_UBYTE_ARR_TYPEMAP_BODY
 }
 
-%typemap(javain) (unsigned char *UCHAR, long LONG) "$javainput"
+%typemap(javain) (unsigned char *UCHAR) "$javainput"
 
 /* Prevent default freearg typemap from being used */
-%typemap(freearg) (unsigned char *UCHAR, long LONG) ""
+%typemap(freearg) (unsigned char *UCHAR) ""
 
-%apply (unsigned char *UCHAR, long LONG) { (unsigned char data[], long length) };
+%apply (unsigned char *UCHAR) { (unsigned char copy[]) };
+%apply (unsigned char *UCHAR) { (unsigned char data[]) };
+%apply (unsigned char *UCHAR) { (unsigned char ipAddress[]) };
+
+
+%define JAVA_UBYTE_ARR_DECL(CTYPE, CTYPEVAR)
+%typemap(jni) (unsigned char *UCHAR, CTYPE CTYPEVAR) "jbyteArray"
+%typemap(jtype) (unsigned char *UCHAR, CTYPE CTYPEVAR) "byte[]"
+%typemap(jstype) (unsigned char *UCHAR, CTYPE CTYPEVAR) "byte[]"
+%typemap(in) (unsigned char *UCHAR, CTYPE CTYPEVAR) {
+    JAVA_UBYTE_ARR_TYPEMAP_BODY
+    $2 = arrSize;
+}
+
+%typemap(javain) (unsigned char *UCHAR, CTYPE CTYPEVAR) "$javainput"
+
+/* Prevent default freearg typemap from being used */
+%typemap(freearg) (unsigned char *UCHAR, CTYPE CTYPEVAR) ""
+
+%apply (unsigned char *UCHAR, CTYPE CTYPEVAR) { (unsigned char data[], CTYPE length) };
+%apply (unsigned char *UCHAR, CTYPE CTYPEVAR) { (unsigned char ipAddress[], CTYPE length) };
+%enddef
+
+
+JAVA_UBYTE_ARR_DECL(long, LONG)
+JAVA_UBYTE_ARR_DECL(uint32_t, UINT32)
+
+
 
 /* Use byte correctly where methods would otherwise not take a proper type. */
 %typemap(jni) (unsigned char UCHAR) "int"
@@ -117,16 +149,3 @@ nofinalize(EvidenceBase);
 nofinalize(Value);
 nofinalize(std::map);
 nofinalize(std::vector);
-
-/* Byte Array Mapping */
-%include "arrays_java.i"
-
-%typemap(ctype) (unsigned char *UCHAR) "unsigned char*"
-%typemap(jtype) (unsigned char *UCHAR) "byte[]"
-%typemap(jstype) (unsigned char *UCHAR) "byte[]"
-%typemap(jni) (unsigned char *UCHAR) "jbyteArray"
-%typemap(in) (unsigned char *UCHAR) "$javainput"
-
-%apply unsigned char *UCHAR {unsigned char data[]}
-%apply unsigned char *UCHAR {unsigned char ipAddress[]}
-%apply unsigned char *UCHAR {unsigned char copy[]}

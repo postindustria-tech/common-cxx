@@ -74,7 +74,6 @@
 /* Prevent default freearg typemap from being used */
 %typemap(freearg) (unsigned char *UCHAR) ""
 
-%apply (unsigned char *UCHAR) { (unsigned char copy[]) };
 %apply (unsigned char *UCHAR) { (unsigned char data[]) };
 %apply (unsigned char *UCHAR) { (unsigned char ipAddress[]) };
 

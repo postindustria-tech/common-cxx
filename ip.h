@@ -56,7 +56,7 @@
 /**
  * Enum indicating the type of IP address.
  */
-typedef enum e_fiftyone_degrees_ip_evidence_type {
+typedef enum e_fiftyone_degrees_ip_type {
 	FIFTYONE_DEGREES_IP_TYPE_INVALID = 0, /**< Invalid IP address */
 	FIFTYONE_DEGREES_IP_TYPE_IPV4 = 4, /**< An IPv4 address */
 	FIFTYONE_DEGREES_IP_TYPE_IPV6 = 6, /**< An IPv6 address */

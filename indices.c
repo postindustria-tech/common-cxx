@@ -54,6 +54,14 @@ static void addProfileValuesMethod(
 	uint32_t base = getProfileIdIndex(index, profile->profileId) * 
 		index->availablePropertyCount;
 
+	CollectionKey valueKey = {
+		0,
+		{
+			FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_VALUE,
+			sizeof(Value),
+			NULL,
+		},
+	};
 	// For each of the values associated with the profile check to see if it
 	// relates to a new property index. If it does then record the first value
 	// index and advance the current index to the next pointer.
@@ -62,7 +70,8 @@ static void addProfileValuesMethod(
 		p < index->availablePropertyCount &&
 		EXCEPTION_OKAY;
 		i++) {
-		value = values->get(values, *(first + i), &valueItem, exception);
+		valueKey.indexOrOffset.offset = *(first + i);
+		value = values->get(values, valueKey, &valueItem, exception);
 		if (value != NULL && EXCEPTION_OKAY) {
 
 			// If the value doesn't relate to the next property index then 
@@ -101,18 +110,36 @@ static void iterateProfiles(
 	Item profileOffsetItem; // The current profile offset memory
 	DataReset(&profileItem.data);
 	DataReset(&profileOffsetItem.data);
+	CollectionKey profileOffsetKey = {
+		0,
+		{
+			FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE_OFFSET,
+			sizeof(ProfileOffset),
+			NULL,
+		},
+	};
+	CollectionKey profileKey = {
+		0,
+		{
+			FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE,
+			sizeof(Profile),
+			ProfileGetFinalSize,
+		},
+	};
 	for (uint32_t i = 0; 
 		i < index->profileCount && EXCEPTION_OKAY;
 		i++) {
+		profileOffsetKey.indexOrOffset.offset = i;
 		profileOffset = profileOffsets->get(
 			profileOffsets,
-			i,
+			profileOffsetKey,
 			&profileOffsetItem,
 			exception);
 		if (profileOffset != NULL && EXCEPTION_OKAY) {
+			profileKey.indexOrOffset.offset = profileOffset->offset;
 			profile = profiles->get(
 				profiles,
-				profileOffset->offset,
+				profileKey,
 				&profileItem,
 				exception);
 			if (profile != NULL && EXCEPTION_OKAY) {
@@ -141,7 +168,14 @@ static uint32_t getProfileId(
 	DataReset(&profileOffsetItem.data);
 	profileOffset = profileOffsets->get(
 		profileOffsets,
-		index,
+		{
+			index,
+			{
+				FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE_OFFSET,
+				sizeof(ProfileOffset),
+				NULL,
+			},
+		},
 		&profileOffsetItem,
 		exception);
 	if (profileOffset != NULL && EXCEPTION_OKAY) {

@@ -104,6 +104,9 @@ typedef fiftyoneDegreesCollectionItem Item; /**< Synonym for #fiftyoneDegreesCol
  */
 
 MAP_TYPE(Exception);
+MAP_TYPE(CollectionIndexOrOffset)
+MAP_TYPE(CollectionKey)
+MAP_TYPE(CollectionKeyType)
 MAP_TYPE(CollectionIterateMethod)
 MAP_TYPE(CollectionMemory)
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
@@ -189,6 +192,7 @@ MAP_TYPE(IpAddress)
 MAP_TYPE(WkbtotResult)
 MAP_TYPE(WkbtotReductionMode)
 
+#define ProfileGetFinalSize fiftyoneDegreesProfileGetFinalSize /**< Synonym for #fiftyoneDegreesProfileGetFinalSize function. */
 #define ProfileGetOffsetForProfileId fiftyoneDegreesProfileGetOffsetForProfileId /**< Synonym for #fiftyoneDegreesProfileGetOffsetForProfileId function. */
 #define OverrideValuesAdd fiftyoneDegreesOverrideValuesAdd /**< Synonym for #fiftyoneDegreesOverrideValuesAdd function. */
 #define ExceptionGetMessage fiftyoneDegreesExceptionGetMessage /**< Synonym for #fiftyoneDegreesExceptionGetMessage function. */

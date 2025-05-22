@@ -238,6 +238,7 @@
 #define NDEBUG
 #endif
 
+#include "collectionKey.h"
 #include "data.h"
 #include "exceptions.h"
 #include "cache.h"
@@ -246,6 +247,8 @@
 #include "common.h"
 #include <stdio.h>
 #include <string.h>
+
+#include "propertyValueType.h"
 
 /**
  * Free a collection by checking if it is NULL first.
@@ -284,8 +287,7 @@ typedef struct fiftyone_degrees_collection_header_t {
  * be created by the create methods.
  */
 typedef struct fiftyone_degrees_collection_config_t {
-	uint32_t loaded; /**< Number of items to load into memory from the start of
-					     the collection */
+	bool loaded; /**< Collection is loaded entirely into memory */
 	uint32_t capacity; /**< Number of items the cache should store, 0 for no
 	                       cache */
 	uint16_t concurrency; /**< Expected number of concurrent requests, 1 or
@@ -307,10 +309,12 @@ typedef struct fiftyone_degrees_collection_file_t fiftyoneDegreesCollectionFile;
 typedef struct fiftyone_degrees_collection_item_t {
 	fiftyoneDegreesData data; /**< Item data including allocated memory */
 	void *handle; /**< A handle that relates to the data. i.e. a cache node */
-	fiftyoneDegreesCollection *collection; /**< Collection the item came from
-	                                           which may not have been set.
-	                                           Should not be used by external
-	                                           code */
+
+	/**
+	 * Collection the item came from which may not have been set.
+	 * Should not be used by external code.
+	 */
+	const fiftyoneDegreesCollection *collection;
 } fiftyoneDegreesCollectionItem;
 
 /**
@@ -318,32 +322,23 @@ typedef struct fiftyone_degrees_collection_item_t {
  * if the item could not be loaded. The exception parameter is set to the 
  * status code to indicate the failure.
  * @param collection pointer to the file collection
- * @param indexOrOffset index or offset to the item in the data structure
+ * @param key key of the item in the data structure
  * @param item pointer to the item structure to place the result in
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h.
  * @return the value in the data->ptr field, or NULL if not successful
  */
 typedef void* (*fiftyoneDegreesCollectionGetMethod)(
-	fiftyoneDegreesCollection *collection,
-	uint32_t indexOrOffset,
+	const fiftyoneDegreesCollection *collection,
+	fiftyoneDegreesCollectionKey key,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
-
-/**
- * Passed a pointer to the first part of a variable size item and returns
- * the size of the entire item.
- * @param initial pointer to the start of the item
- * @return size of the item in bytes
- */
-typedef uint32_t (*fiftyoneDegreesCollectionGetFileVariableSizeMethod)(
-	void *initial);
 
 /**
  * Reads the item from the underlying data file. Used by the file related
  * collection methods.
  * @param collection pointer to the file collection
- * @param offsetOrIndex index or offset to the item in the data structure
+ * @param key key of the item in the data structure
  * @param data pointer to the data structure to store the item
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h.
@@ -351,7 +346,7 @@ typedef uint32_t (*fiftyoneDegreesCollectionGetFileVariableSizeMethod)(
  */
 typedef void* (*fiftyoneDegreesCollectionFileRead)(
 	const fiftyoneDegreesCollectionFile *collection,
-	uint32_t offsetOrIndex,
+	fiftyoneDegreesCollectionKey key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception);
 
@@ -360,7 +355,7 @@ typedef void* (*fiftyoneDegreesCollectionFileRead)(
  * of a binary search of ordering operation.
  * @param state to be used for the comparison
  * @param item the value to compare against the state
- * @param curIndex the index of the current item in the collection
+ * @param key key of the item in the data structure
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h
  * @return negative if a is lower than b, positive if a is higher than b or 0 
@@ -369,7 +364,7 @@ typedef void* (*fiftyoneDegreesCollectionFileRead)(
 typedef int(*fiftyoneDegreesCollectionItemComparer)(
 	void *state,
 	fiftyoneDegreesCollectionItem *item,
-	long curIndex,
+	fiftyoneDegreesCollectionKey key,
 	fiftyoneDegreesException *exception);
 
 /**
@@ -419,8 +414,6 @@ typedef struct fiftyone_degrees_collection_t {
 	                #fiftyoneDegreesCollectionMemory,
 	                #fiftyoneDegreesCollectionFile or 
 	                #fiftyoneDegreesCollectionCache */
-	fiftyoneDegreesCollection *next; /**< The next collection implementation or
-	                                    NULL */
 	uint32_t count; /**< The number of items, or 0 if not available */
 	uint32_t elementSize; /**< The size of each entry, or 0 if variable length */
 	uint32_t size; /**< Number of bytes in the source data structure containing
@@ -481,7 +474,7 @@ EXTERNAL bool fiftyoneDegreesCollectionGetIsMemoryOnly();
  * @return the 32 bit integer at the index or offset provided
  */
 EXTERNAL int32_t fiftyoneDegreesCollectionGetInteger32(
-	fiftyoneDegreesCollection *collection,
+	const fiftyoneDegreesCollection *collection,
 	uint32_t indexOrOffset,
 	fiftyoneDegreesException *exception);
 
@@ -584,10 +577,8 @@ fiftyoneDegreesCollectionHeaderFromFile(
  * @param file pointer to the #fiftyoneDegreesCollectionFile to use for the
  * read
  * @param data structure to populate with a reference to the item
- * @param offset zero based offset to the item within the data structure
+ * @param key key of the item in the data structure
  * @param initial pointer to enough memory to store the initial data
- * @param initialSize amount of initial data to read
- * @param getFinalSize method pass the initial pointer to get the final size
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h.
  * @return a pointer to the item in the data structure or NULL if can't be
@@ -596,10 +587,8 @@ fiftyoneDegreesCollectionHeaderFromFile(
 EXTERNAL void* fiftyoneDegreesCollectionReadFileVariable(
 	const fiftyoneDegreesCollectionFile *file,
 	fiftyoneDegreesData *data,
-	uint32_t offset,
-	void *initial,
-	size_t initialSize,
-	fiftyoneDegreesCollectionGetFileVariableSizeMethod getFinalSize,
+	fiftyoneDegreesCollectionKey key,
+	const void *initial,
 	fiftyoneDegreesException *exception);
 
 /**
@@ -632,8 +621,9 @@ fiftyoneDegreesCollectionHeaderFromMemory(
  * @param item memory to be used to store the current value being compared. 
  * Will have a lock on the item at the index returned if an item is found.
  * The caller should release the item when finished with it.
- * @param lowerIndex to start the search at
- * @param upperIndex to end the search at
+ * @param lowerKey to start the search at
+ * @param upperKey to end the search at
+ * @param keyType type of lower/upper keys
  * @param state used with the compare method when comparing items
  * @param comparer method used to perform the comparison
  * @param exception pointer to an exception data structure to be used if an
@@ -641,10 +631,11 @@ fiftyoneDegreesCollectionHeaderFromMemory(
  * @return the index of the item if found, otherwise -1.
  */
 EXTERNAL long fiftyoneDegreesCollectionBinarySearch(
-	fiftyoneDegreesCollection *collection,
+	const fiftyoneDegreesCollection *collection,
 	fiftyoneDegreesCollectionItem *item,
-	uint32_t lowerIndex,
-	uint32_t upperIndex,
+	fiftyoneDegreesCollectionIndexOrOffset lowerKey,
+	fiftyoneDegreesCollectionIndexOrOffset upperKey,
+	fiftyoneDegreesCollectionKeyType keyType,
 	void *state,
 	fiftyoneDegreesCollectionItemComparer comparer,
 	fiftyoneDegreesException *exception);
@@ -662,8 +653,7 @@ EXTERNAL long fiftyoneDegreesCollectionBinarySearch(
  * @param collection to get the count for
  * @return the number of items in the collection
  */
-EXTERNAL uint32_t fiftyoneDegreesCollectionGetCount(
-	fiftyoneDegreesCollection *collection);
+#define fiftyoneDegreesCollectionGetCount(collection) ((collection)->count)
 
 /**
  * @}

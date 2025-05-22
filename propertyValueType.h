@@ -51,6 +51,12 @@ typedef enum e_fiftyone_degrees_property_value_type {
 	 */
 	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH = 12,
 	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R = 13, /**< Well-known binary (reduced) for geometry */
+
+	// Non-Property Collection Value Types
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_VALUE = 1001, /**< fiftyoneDegreesValue */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE = 1002, /**< fiftyoneDegreesProfile */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE_OFFSET = 1003, /**< fiftyoneDegreesProfileOffset */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT = 1004, /**< fiftyoneDegreesComponent */
 } fiftyoneDegreesPropertyValueType;
 
 #endif

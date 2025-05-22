@@ -155,6 +155,13 @@ typedef bool(*fiftyoneDegreesProfileIterateValueIndexesMethod)(
 	uint32_t valueIndex);
 
 /**
+ * Gets size of Profile with trailing values.
+ * @param initial pointer to profile "head"
+ * @return full (with tail) struct size
+ */
+EXTERNAL uint32_t fiftyoneDegreesProfileGetFinalSize(const void *initial);
+
+/**
  * Gets the profile associated with the profileId or NULL if there is no
  * corresponding profile.
  * @param profileOffsets collection containing the profile offsets (with profile ID)

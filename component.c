@@ -23,7 +23,7 @@
 #include "component.h"
 #include "fiftyone.h"
 
-static uint32_t getFinalComponentSize(void *initial) {
+static uint32_t getFinalComponentSize(const void *initial) {
 	Component *component = (Component*)initial;
 	int32_t trailing = (component->keyValuesCount - 1) * 
 		sizeof(fiftyoneDegreesComponentKeyValuePair);
@@ -40,7 +40,14 @@ uint32_t fiftyoneDegreesComponentGetDefaultProfileId(
 	DataReset(&profileItem.data);
 	profile = (Profile*)profiles->get(
 		profiles,
-		component->defaultProfileOffset,
+		(CollectionKey){
+			component->defaultProfileOffset,
+			{
+				FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE,
+				sizeof(Profile),
+				ProfileGetFinalSize,
+			},
+		},
 		&profileItem,
 		exception);
 	if (profile != NULL && EXCEPTION_OKAY) {
@@ -88,10 +95,15 @@ void* fiftyoneDegreesComponentReadFromFile(
 	return CollectionReadFileVariable(
 		file,
 		data,
-		offset,
+		(CollectionKey){
+			offset,
+			{
+				FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT,
+				sizeof(Component) - sizeof(fiftyoneDegreesComponentKeyValuePair),
+				getFinalComponentSize,
+			},
+		},
 		&component,
-		sizeof(Component) - sizeof(fiftyoneDegreesComponentKeyValuePair),
-		getFinalComponentSize,
 		exception);
 }
 

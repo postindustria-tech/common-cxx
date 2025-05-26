@@ -53,10 +53,13 @@ typedef enum e_fiftyone_degrees_property_value_type {
 	FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R = 13, /**< Well-known binary (reduced) for geometry */
 
 	// Non-Property Collection Value Types
-	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_VALUE = 1001, /**< fiftyoneDegreesValue */
-	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE = 1002, /**< fiftyoneDegreesProfile */
-	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE_OFFSET = 1003, /**< fiftyoneDegreesProfileOffset */
-	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT = 1004, /**< fiftyoneDegreesComponent */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_CUSTOM = 1000, /**< Reservation start. Should not be used. */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_VALUE, /**< fiftyoneDegreesValue */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE, /**< fiftyoneDegreesProfile */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE_OFFSET, /**< fiftyoneDegreesProfileOffset */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT, /**< fiftyoneDegreesComponent */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROPERTY, /**< fiftyoneDegreesProperty */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROPERTY_TYPE_RECORD, /**< fiftyoneDegreesPropertyTypeRecord */
 } fiftyoneDegreesPropertyValueType;
 
 #endif

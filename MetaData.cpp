@@ -43,7 +43,7 @@ string MetaData::getValue(
 	fiftyoneDegreesPropertyValueType storedValueType) {
 	EXCEPTION_CREATE;
 	Item item;
-	StoredBinaryValue *binaryValue;
+	const StoredBinaryValue *binaryValue;
 	DataReset(&item.data);
 	binaryValue = StoredBinaryValueGet(
 		strings,

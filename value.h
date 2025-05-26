@@ -92,9 +92,9 @@ typedef struct fiftyoneDegrees_value_t {
  * exception occurs. See exceptions.h.
  * @return a pointer to a contents in the collection item data structure.
  */
-EXTERNAL fiftyoneDegreesStoredBinaryValue* fiftyoneDegreesValueGetContent(
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesValue *value,
+EXTERNAL const fiftyoneDegreesStoredBinaryValue* fiftyoneDegreesValueGetContent(
+	const fiftyoneDegreesCollection *strings,
+	const fiftyoneDegreesValue *value,
 	fiftyoneDegreesPropertyValueType storedValueType,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
@@ -110,9 +110,9 @@ EXTERNAL fiftyoneDegreesStoredBinaryValue* fiftyoneDegreesValueGetContent(
  * exception occurs. See exceptions.h.
  * @return a pointer to a string in the collection item data structure.
  */
-EXTERNAL fiftyoneDegreesString* fiftyoneDegreesValueGetName(
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesValue *value,
+EXTERNAL const fiftyoneDegreesString* fiftyoneDegreesValueGetName(
+	const fiftyoneDegreesCollection *strings,
+	const fiftyoneDegreesValue *value,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
 
@@ -127,9 +127,9 @@ EXTERNAL fiftyoneDegreesString* fiftyoneDegreesValueGetName(
  * exception occurs. See exceptions.h.
  * @return a pointer to a string in the collection item data structure.
  */
-EXTERNAL fiftyoneDegreesString* fiftyoneDegreesValueGetDescription(
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesValue *value,
+EXTERNAL const fiftyoneDegreesString* fiftyoneDegreesValueGetDescription(
+	const fiftyoneDegreesCollection *strings,
+	const fiftyoneDegreesValue *value,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
 
@@ -144,9 +144,9 @@ EXTERNAL fiftyoneDegreesString* fiftyoneDegreesValueGetDescription(
  * exception occurs. See exceptions.h.
  * @return a pointer to a string in the collection item data structure.
  */
-EXTERNAL fiftyoneDegreesString* fiftyoneDegreesValueGetUrl(
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesValue *value,
+EXTERNAL const fiftyoneDegreesString* fiftyoneDegreesValueGetUrl(
+	const fiftyoneDegreesCollection *strings,
+	const fiftyoneDegreesValue *value,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
 
@@ -159,8 +159,8 @@ EXTERNAL fiftyoneDegreesString* fiftyoneDegreesValueGetUrl(
  * exception occurs. See exceptions.h.
  * @return pointer to the value or NULL
  */
-EXTERNAL fiftyoneDegreesValue* fiftyoneDegreesValueGet(
-	fiftyoneDegreesCollection *values,
+EXTERNAL const fiftyoneDegreesValue* fiftyoneDegreesValueGet(
+	const fiftyoneDegreesCollection *values,
 	uint32_t valueIndex,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
@@ -217,9 +217,9 @@ EXTERNAL fiftyoneDegreesValue* fiftyoneDegreesValueGetByName(
  * @return the 0 based index of the item if found, otherwise -1
  */
 EXTERNAL long fiftyoneDegreesValueGetIndexByNameAndType(
-	fiftyoneDegreesCollection *values,
-	fiftyoneDegreesCollection *strings,
-	fiftyoneDegreesProperty *property,
+	const fiftyoneDegreesCollection *values,
+	const fiftyoneDegreesCollection *strings,
+	const fiftyoneDegreesProperty *property,
 	fiftyoneDegreesPropertyValueType storedValueType,
 	const char *valueName,
 	fiftyoneDegreesException *exception);

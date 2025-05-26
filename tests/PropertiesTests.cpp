@@ -24,6 +24,7 @@
 #include "Base.hpp"
 #include "StringCollection.hpp"
 #include "../properties.h"
+#include "../collectionKeyTypes.h"
 
 // Property names
 static const char* testValues[] = {
@@ -105,7 +106,10 @@ protected:
 			fiftyoneDegreesString* currentName = (fiftyoneDegreesString*)
 				stringState->collection->get(
 					stringState->collection,
-					stringState->offsets[i],
+					(fiftyoneDegreesCollectionKey){
+						stringState->offsets[i],
+						CollectionKeyType_String,
+					},
 					&item,
 					exception);
 			if (strcmp(&currentName->value, jsName) == 0) {

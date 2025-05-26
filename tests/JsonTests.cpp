@@ -146,12 +146,12 @@ TEST_F(JsonTests, basicJsonForming) {
             fiftyoneDegreesCollectionItem valueItem;
             fiftyoneDegreesCollectionItem valueItem2;
             
-            fiftyoneDegreesValue *value = fiftyoneDegreesValueGet(valuesCollection, propIdx * (N_PER_PROPERTY - 1), &valueItem, exception);
+            const fiftyoneDegreesValue *value = fiftyoneDegreesValueGet(valuesCollection, propIdx * (N_PER_PROPERTY - 1), &valueItem, exception);
             fiftyoneDegreesValueGetName(stringsCollection, value, &valueItem, exception);
             fiftyoneDegreesListAdd(&valuesList, &valueItem);
             
             if (property->isList) {
-                fiftyoneDegreesValue *value2 = fiftyoneDegreesValueGet(valuesCollection, propIdx * (N_PER_PROPERTY - 1) + 1, &valueItem2, exception);
+                const fiftyoneDegreesValue *value2 = fiftyoneDegreesValueGet(valuesCollection, propIdx * (N_PER_PROPERTY - 1) + 1, &valueItem2, exception);
                 fiftyoneDegreesValueGetName(stringsCollection, value2, &valueItem2, exception);
                 fiftyoneDegreesListAdd(&valuesList, &valueItem2);
             }

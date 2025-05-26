@@ -24,13 +24,13 @@
 #include "../CollectionConfig.hpp"
 
 static fiftyoneDegreesCollectionConfig testValues = {
-	3, /* Loaded */
+	true, /* Loaded */
 	1, /* Capacity */
 	2 /* Concurrency */
 };
 
 static fiftyoneDegreesCollectionConfig otherTestValues = {
-	6, /* Loaded */
+	true, /* Loaded */
 	4, /* Capacity */
 	5 /* Concurrency */
 };

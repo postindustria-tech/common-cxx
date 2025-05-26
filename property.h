@@ -121,9 +121,9 @@ typedef struct property_type_record_t {
  * exception occurs. See exceptions.h.
  * @return a pointer to a string in the collection item data structure.
  */
-EXTERNAL fiftyoneDegreesString* fiftyoneDegreesPropertyGetName(
-	fiftyoneDegreesCollection *stringsCollection,
-	fiftyoneDegreesProperty *property,
+EXTERNAL const fiftyoneDegreesString* fiftyoneDegreesPropertyGetName(
+	const fiftyoneDegreesCollection *stringsCollection,
+	const fiftyoneDegreesProperty *property,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
 
@@ -136,8 +136,8 @@ EXTERNAL fiftyoneDegreesString* fiftyoneDegreesPropertyGetName(
  * @return a type the property is stored as.
  */
 EXTERNAL fiftyoneDegreesPropertyValueType fiftyoneDegreesPropertyGetStoredType(
-	fiftyoneDegreesCollection *propertyTypesCollection,
-	fiftyoneDegreesProperty *property,
+	const fiftyoneDegreesCollection *propertyTypesCollection,
+	const fiftyoneDegreesProperty *property,
 	fiftyoneDegreesException *exception);
 
 /**
@@ -149,7 +149,7 @@ EXTERNAL fiftyoneDegreesPropertyValueType fiftyoneDegreesPropertyGetStoredType(
  * @return a type the property is stored as.
  */
 EXTERNAL fiftyoneDegreesPropertyValueType fiftyoneDegreesPropertyGetStoredTypeByIndex(
-	fiftyoneDegreesCollection *propertyTypesCollection,
+	const fiftyoneDegreesCollection *propertyTypesCollection,
 	uint32_t index,
 	fiftyoneDegreesException *exception);
 
@@ -164,9 +164,9 @@ EXTERNAL fiftyoneDegreesPropertyValueType fiftyoneDegreesPropertyGetStoredTypeBy
  * exception occurs. See exceptions.h.
  * @return a pointer to a string in the collection item data structure.
  */
-EXTERNAL fiftyoneDegreesString* fiftyoneDegreesPropertyGetDescription(
-	fiftyoneDegreesCollection *stringsCollection,
-	fiftyoneDegreesProperty *property,
+EXTERNAL const fiftyoneDegreesString* fiftyoneDegreesPropertyGetDescription(
+	const fiftyoneDegreesCollection *stringsCollection,
+	const fiftyoneDegreesProperty *property,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
 
@@ -181,9 +181,9 @@ EXTERNAL fiftyoneDegreesString* fiftyoneDegreesPropertyGetDescription(
  * exception occurs. See exceptions.h.
  * @return a pointer to a string in the collection item data structure.
  */
-EXTERNAL fiftyoneDegreesString* fiftyoneDegreesPropertyGetCategory(
-	fiftyoneDegreesCollection *stringsCollection,
-	fiftyoneDegreesProperty *property,
+EXTERNAL const fiftyoneDegreesString* fiftyoneDegreesPropertyGetCategory(
+	const fiftyoneDegreesCollection *stringsCollection,
+	const fiftyoneDegreesProperty *property,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
 
@@ -198,9 +198,9 @@ EXTERNAL fiftyoneDegreesString* fiftyoneDegreesPropertyGetCategory(
  * exception occurs. See exceptions.h.
  * @return a pointer to a string in the collection item data structure.
  */
-EXTERNAL fiftyoneDegreesString* fiftyoneDegreesPropertyGetUrl(
-	fiftyoneDegreesCollection *stringsCollection,
-	fiftyoneDegreesProperty *property,
+EXTERNAL const fiftyoneDegreesString* fiftyoneDegreesPropertyGetUrl(
+	const fiftyoneDegreesCollection *stringsCollection,
+	const fiftyoneDegreesProperty *property,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
 
@@ -244,7 +244,7 @@ EXTERNAL fiftyoneDegreesProperty* fiftyoneDegreesPropertyGet(
  * exception occurs. See exceptions.h.
  * @return the property requested or NULL
  */
-EXTERNAL fiftyoneDegreesProperty* fiftyoneDegreesPropertyGetByName(
+EXTERNAL const fiftyoneDegreesProperty* fiftyoneDegreesPropertyGetByName(
 	fiftyoneDegreesCollection *properties,
 	fiftyoneDegreesCollection *strings,
 	const char *requiredPropertyName,

@@ -62,6 +62,12 @@ void CollectionOffsetTest::rebuildCollection(const FileOffsetUnsigned offset) {
     this->collection = CollectionPtr(rawCollection, freeCollection);
 }
 
+static const CollectionKeyType CollectionKeyType_Byte = {
+    FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_CUSTOM,
+    1,
+    nullptr,
+};
+
 TEST_P(CollectionOffsetTest, DirectWrite) {
     EXCEPTION_CREATE;
     const FileOffsetUnsigned offset = GetParam();
@@ -72,7 +78,10 @@ TEST_P(CollectionOffsetTest, DirectWrite) {
         ItemBox item;
         auto const ptr = (const byte *)collection->get(
             collection.get(),
-            (uint32_t)i,
+            (CollectionKey){
+                (uint32_t)i,
+                CollectionKeyType_Byte,
+            },
             *item,
             exception);
 
@@ -95,7 +104,10 @@ TEST_P(CollectionOffsetTest, DirectRead) {
         ItemBox item;
         auto const ptr = (byte *)collection->get(
             collection.get(),
-            (uint32_t)i,
+            (CollectionKey){
+                (uint32_t)i,
+                CollectionKeyType_Byte,
+            },
             *item,
             exception);
 

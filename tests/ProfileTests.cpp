@@ -51,8 +51,8 @@ public:
     virtual void SetUp();
     virtual void TearDown();
     void CreateObjects();
-    void assessProperty(fiftyoneDegreesProperty *property, int i);
-    void assessValue(fiftyoneDegreesValue *value, int i);
+    void assessProperty(const fiftyoneDegreesProperty *property, int i);
+    void assessValue(const fiftyoneDegreesValue *value, int i);
     
     int valueNameStringIndexFromValueIndex(int i);
     uint32_t profileIdFromProfileIndex(int i);
@@ -258,7 +258,7 @@ uint32_t ProfileTests::profileIndexFromProfileId(int id) {
     return (id - 1) / 101;
 }
 
-void ProfileTests::assessValue(fiftyoneDegreesValue *value, int i) {
+void ProfileTests::assessValue(const fiftyoneDegreesValue *value, int i) {
     EXCEPTION_CREATE
     int valueNameIdx = valueNameStringIndexFromValueIndex(i);
     
@@ -278,7 +278,7 @@ TEST_F(ProfileTests, Values) {
     for (int i=0;i<(N_PER_PROPERTY-1) * N_PROPERTIES;i++) {
         EXCEPTION_CREATE
 
-        fiftyoneDegreesValue *value = fiftyoneDegreesValueGet(valuesCollection, i, &item, exception);
+        const fiftyoneDegreesValue *value = fiftyoneDegreesValueGet(valuesCollection, i, &item, exception);
         COLLECTION_RELEASE(item.collection, &item);
         assessValue(value, i);
         
@@ -348,9 +348,9 @@ TEST_F(ProfileTests, ProfileIterateValues) {
 int ProfileTests::propertyIndexFromPropertyName(std::string &propertyName) {
     EXCEPTION_CREATE
     for (int i=0;i<N_PROPERTIES;++i) {
-        fiftyoneDegreesProperty *property = fiftyoneDegreesPropertyGet(propertiesCollection, i, &item, exception);
+        const fiftyoneDegreesProperty *property = fiftyoneDegreesPropertyGet(propertiesCollection, i, &item, exception);
         COLLECTION_RELEASE(item.collection, &item);
-        fiftyoneDegreesString *name = fiftyoneDegreesPropertyGetName(stringsCollection, property, &item, exception);
+        const fiftyoneDegreesString *name = fiftyoneDegreesPropertyGetName(stringsCollection, property, &item, exception);
         COLLECTION_RELEASE(item.collection, &item);
         if (0 == strcmp(propertyName.c_str(), &name->value)) {
             return i;
@@ -391,9 +391,9 @@ void ProfileTests::iterateValueIndicesForAvailableProperties(std::vector<std::st
         fiftyoneDegreesProfileIterateValueIndexes(profile, propertiesAvailable, valuesCollection, &valueIndices, iterateValueIndices, exception);
         EXPECT_EQ(valueIndices.size(), propertiesAvailable->count);
         for (auto index: valueIndices) {
-            fiftyoneDegreesValue *value = fiftyoneDegreesValueGet(valuesCollection, index, &item, exception);
+            const fiftyoneDegreesValue *value = fiftyoneDegreesValueGet(valuesCollection, index, &item, exception);
             COLLECTION_RELEASE(item.collection, &item);
-            fiftyoneDegreesString *s = fiftyoneDegreesStringGet(stringsCollection, value->nameOffset, &item, exception);
+            const fiftyoneDegreesString *s = fiftyoneDegreesStringGet(stringsCollection, value->nameOffset, &item, exception);
             COLLECTION_RELEASE(item.collection, &item);
             const char **found = std::find_if(&profileValueNames[i][0], &profileValueNames[i][0] + N_PROPERTIES, [s](const char *p){ return 0 == strcmp(&s->value, p); });
             EXPECT_NE(&profileValueNames[i][0] + N_PROPERTIES, found);  //belongs to current profile
@@ -459,7 +459,7 @@ void ProfileTests::indicesLookup(std::vector<std::string> &propertyNames) {
             uint32_t *first = (uint32_t*)(profile + 1);
             uint32_t valueIdx = *(first + valueIdxIdxWithinProfile);
             //now retrieve value and check that it belongs to the property above
-            fiftyoneDegreesValue *value = fiftyoneDegreesValueGet(valuesCollection, valueIdx, &item, exception);
+            const fiftyoneDegreesValue *value = fiftyoneDegreesValueGet(valuesCollection, valueIdx, &item, exception);
             COLLECTION_RELEASE(item.collection, &item);
             EXPECT_EQ(value->propertyIndex, property.propertyIndex);
         }
@@ -494,17 +494,17 @@ void ProfileTests::iterateValueIndicesForEachAvailableProperty(std::vector<std::
         COLLECTION_RELEASE(item.collection, &item);
         
         for (size_t j=0;j<propertyNames.size();++j) {
-            fiftyoneDegreesProperty *property = fiftyoneDegreesPropertyGetByName(propertiesCollection, stringsCollection, propertyNames[j].c_str(), &item, exception);
+            const fiftyoneDegreesProperty *property = fiftyoneDegreesPropertyGetByName(propertiesCollection, stringsCollection, propertyNames[j].c_str(), &item, exception);
             COLLECTION_RELEASE(item.collection, &item);
             
             std::vector<fiftyoneDegreesValue *> values;
             fiftyoneDegreesProfileIterateValuesForPropertyWithIndex(valuesCollection, index, (uint32_t) j, profile, property, &values, collectValues, exception);
             EXPECT_EQ(values.size(), 1);
-            fiftyoneDegreesValue *expectedValue = NULL;
-            uint32_t *first = (uint32_t *) (profile + 1);
+            const fiftyoneDegreesValue *expectedValue = NULL;
+            const uint32_t *first = (uint32_t *) (profile + 1);
             for (uint32_t k=0;k<profile->valueCount;++k) {
                 uint32_t valueIdx = *(first + k);
-                fiftyoneDegreesValue *candidate = fiftyoneDegreesValueGet(valuesCollection, valueIdx, &item, exception);
+                const fiftyoneDegreesValue *candidate = fiftyoneDegreesValueGet(valuesCollection, valueIdx, &item, exception);
                 COLLECTION_RELEASE(item.collection, &item);
                 if ((uint32_t) candidate->propertyIndex == availableProperties->items[j].propertyIndex) {
                     expectedValue = candidate;

@@ -99,6 +99,13 @@ typedef struct fiftyone_degrees_string_t {
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
 /**
+ * Gets size of String with trailing characters.
+ * @param initial pointer to string "head"
+ * @return full (with tail) struct size
+ */
+EXTERNAL uint32_t fiftyoneDegreesStringGetFinalSize(const void *initial);
+
+/**
  * Reads a string from the source file at the offset within the string
  * structure.
  * @param file collection to read from
@@ -125,7 +132,7 @@ EXTERNAL void* fiftyoneDegreesStringRead(
  * exception occurs. See exceptions.h.
  * @return a pointer to string of NULL if the offset is not valid
  */
-EXTERNAL fiftyoneDegreesString* fiftyoneDegreesStringGet(
+EXTERNAL const fiftyoneDegreesString* fiftyoneDegreesStringGet(
 	fiftyoneDegreesCollection *strings,
 	uint32_t offset,
 	fiftyoneDegreesCollectionItem *item,

@@ -540,7 +540,7 @@ EXTERNAL fiftyoneDegreesFileHandle* fiftyoneDegreesCollectionReadFilePosition(
  * @param file pointer to the #fiftyoneDegreesCollectionFile to use for the
  * read
  * @param data structure to populate with a reference to the item
- * @param index zero based index of the item required in the fixed with data 
+ * @param key zero based index of the item required in the fixed with data
  * structure
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h.
@@ -549,7 +549,7 @@ EXTERNAL fiftyoneDegreesFileHandle* fiftyoneDegreesCollectionReadFilePosition(
  */
 EXTERNAL void* fiftyoneDegreesCollectionReadFileFixed(
 	const fiftyoneDegreesCollectionFile *file,
-	uint32_t index,
+	fiftyoneDegreesCollectionKey key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception);
 
@@ -588,7 +588,7 @@ EXTERNAL void* fiftyoneDegreesCollectionReadFileVariable(
 	const fiftyoneDegreesCollectionFile *file,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesCollectionKey key,
-	const void *initial,
+	void *initial,
 	fiftyoneDegreesException *exception);
 
 /**

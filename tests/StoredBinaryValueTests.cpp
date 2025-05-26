@@ -24,6 +24,7 @@
 #include "../string.h"
 #include "Base.hpp"
 #include "TestUtils_Pointers.hpp"
+#include "../collectionKeyTypes.h"
 
 static void releaseFilePool(FilePool * const ptr) {
     if (ptr) {
@@ -202,7 +203,10 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromMemory) {
     ItemBox item;
     auto * const value = (String *)collection.memory->get(
         collection.memory.get(),
-        offsets.string1,
+        (CollectionKey){
+            offsets.string1,
+            CollectionKeyType_String,
+        },
         *item,
         exception);
     ASSERT_EQ(rawStringsBuffer.data() + offsets.string1, (byte *)value);
@@ -215,7 +219,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromMemory) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.memory.get(),
         offsets.string1,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
@@ -231,7 +235,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_FromMemory) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String2_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.memory.get(),
         offsets.string2,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
@@ -247,7 +251,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String2_FromMemory) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_IPv4_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.memory.get(),
         offsets.ipv4,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
@@ -263,7 +267,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_IPv4_FromMemory) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_IPv6_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.memory.get(),
         offsets.ipv6,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
@@ -279,7 +283,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_IPv6_FromMemory) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_WKB_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.memory.get(),
         offsets.wkb,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
@@ -295,7 +299,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_WKB_FromMemory) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Azimuth_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.memory.get(),
         offsets.shortValue,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
@@ -315,7 +319,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Azimuth_FromMemory) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Declination_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.memory.get(),
         offsets.shortValue,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION,
@@ -335,7 +339,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Declination_FromMemory) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Float_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.memory.get(),
         offsets.floatValue,
         FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
@@ -351,7 +355,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Float_FromMemory) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Integer_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.memory.get(),
         offsets.intValue,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
@@ -367,7 +371,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Integer_FromMemory) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.memory.get(),
         offsets.intValue,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_OBJECT,
@@ -392,7 +396,10 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFile) {
     ItemBox item;
     auto * const value = (String *)collection.file->get(
         collection.file.get(),
-        offsets.string1,
+        (CollectionKey){
+            offsets.string1,
+            CollectionKeyType_String,
+        },
         *item,
         exception);
     EXCEPTION_THROW;
@@ -407,7 +414,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFile) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_FromFile) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.file.get(),
         offsets.string1,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
@@ -425,7 +432,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_FromFile) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String2_FromFile) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.file.get(),
         offsets.string2,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
@@ -443,7 +450,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String2_FromFile) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_IPv4_FromFile) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.file.get(),
         offsets.ipv4,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
@@ -461,7 +468,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_IPv4_FromFile) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_IPv6_FromFile) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.file.get(),
         offsets.ipv6,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
@@ -479,7 +486,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_IPv6_FromFile) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_WKB_FromFile) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.file.get(),
         offsets.wkb,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
@@ -497,7 +504,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_WKB_FromFile) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Azimuth_FromFile) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.file.get(),
         offsets.shortValue,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
@@ -519,7 +526,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Azimuth_FromFile) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Declination_FromFile) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.file.get(),
         offsets.shortValue,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION,
@@ -541,7 +548,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Declination_FromFile) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Float_FromFile) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.file.get(),
         offsets.floatValue,
         FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
@@ -559,7 +566,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Float_FromFile) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Integer_FromFile) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.file.get(),
         offsets.intValue,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
@@ -577,7 +584,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Integer_FromFile) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromFile) {
     EXCEPTION_CREATE;
     ItemBox item;
-    StoredBinaryValue * const value = StoredBinaryValueGet(
+    const StoredBinaryValue * const value = StoredBinaryValueGet(
         collection.file.get(),
         offsets.intValue,
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_OBJECT,

@@ -21,6 +21,8 @@
  * ********************************************************************* */
 
 #include "value.h"
+
+#include "collectionKeyTypes.h"
 #include "fiftyone.h"
 
 MAP_TYPE(Value);
@@ -28,21 +30,23 @@ MAP_TYPE(Collection);
 MAP_TYPE(CollectionItem);
 
 typedef struct value_search_t {
-	Collection *strings;
+	const Collection *strings;
 	const char *valueName;
 	PropertyValueType valueType;
 	StringBuilder *tempBuilder;
 } valueSearch;
 
-#ifdef _MSC_VER
-// Not all parameters are used for this implementation of
-// #fiftyoneDegreesCollentionItemComparer
-#pragma warning (disable: 4100)
-#endif
-static int compareValueByName(void *state, Item *item, long curIndex, Exception *exception) {
+static int compareValueByName(
+	void *state,
+	Item *item,
+	CollectionKey key,
+	Exception *exception) {
+#	ifdef _MSC_VER
+	UNREFERENCED_PARAMETER(key);
+#	endif
 	int result = 0;
 	Item name;
-	StoredBinaryValue *value;
+	const StoredBinaryValue *value;
 	valueSearch *search = (valueSearch*)state;
 	DataReset(&name.data);
 	if (search->tempBuilder) {
@@ -65,13 +69,10 @@ static int compareValueByName(void *state, Item *item, long curIndex, Exception 
 	}
 	return result;
 }
-#ifdef _MSC_VER
-#pragma warning (default: 4100)
-#endif
 
-StoredBinaryValue* fiftyoneDegreesValueGetContent(
-	Collection *strings,
-	Value *value,
+const StoredBinaryValue* fiftyoneDegreesValueGetContent(
+	const Collection *strings,
+	const Value *value,
 	PropertyValueType storedValueType,
 	CollectionItem *item,
 	Exception *exception) {
@@ -79,9 +80,9 @@ StoredBinaryValue* fiftyoneDegreesValueGetContent(
 	return StoredBinaryValueGet(strings, value->nameOffset, storedValueType, item, exception);
 }
 
-String* fiftyoneDegreesValueGetName(
-	Collection *strings,
-	Value *value,
+const String* fiftyoneDegreesValueGetName(
+	const Collection *strings,
+	const Value *value,
 	CollectionItem *item,
 	Exception *exception) {
 	return &StoredBinaryValueGet(
@@ -92,9 +93,9 @@ String* fiftyoneDegreesValueGetName(
 		exception)->stringValue;
 }
 
-String* fiftyoneDegreesValueGetDescription(
-	Collection *strings,
-	Value *value,
+const String* fiftyoneDegreesValueGetDescription(
+	const Collection *strings,
+	const Value *value,
 	CollectionItem *item,
 	Exception *exception) {
 	return &StoredBinaryValueGet(
@@ -105,9 +106,9 @@ String* fiftyoneDegreesValueGetDescription(
 		exception)->stringValue;
 }
 
-String* fiftyoneDegreesValueGetUrl(
-	Collection *strings,
-	Value *value,
+const String* fiftyoneDegreesValueGetUrl(
+	const Collection *strings,
+	const Value *value,
 	CollectionItem *item,
 	Exception *exception) {
 	return &StoredBinaryValueGet(
@@ -118,14 +119,17 @@ String* fiftyoneDegreesValueGetUrl(
 		exception)->stringValue;
 }
 
-Value* fiftyoneDegreesValueGet(
-	Collection *values,
+const Value* fiftyoneDegreesValueGet(
+	const Collection *values,
 	uint32_t valueIndex,
 	CollectionItem *item,
 	Exception *exception) {
-	return (Value*)values->get(
-		values, 
-		valueIndex, 
+	return (const Value*)values->get(
+		values,
+		(CollectionKey){
+			valueIndex,
+			CollectionKeyType_Value,
+		},
 		item, 
 		exception);
 }
@@ -147,9 +151,9 @@ long fiftyoneDegreesValueGetIndexByName(
 }
 
 long fiftyoneDegreesValueGetIndexByNameAndType(
-	Collection *values,
-	Collection *strings,
-	Property *property,
+	const Collection *values,
+	const Collection *strings,
+	const Property *property,
 	fiftyoneDegreesPropertyValueType storedValueType,
 	const char *valueName,
 	Exception *exception) {
@@ -170,8 +174,9 @@ long fiftyoneDegreesValueGetIndexByNameAndType(
 	index = CollectionBinarySearch(
 		values,
 		&item,
-		property->firstValueIndex,
-		property->lastValueIndex,
+		(CollectionIndexOrOffset){property->firstValueIndex},
+		(CollectionIndexOrOffset){property->lastValueIndex},
+		CollectionKeyType_Value,
 		(void*)&search,
 		compareValueByName,
 		exception);
@@ -227,8 +232,9 @@ Value* fiftyoneDegreesValueGetByNameAndType(
 		CollectionBinarySearch(
 			values,
 			item,
-			property->firstValueIndex,
-			property->lastValueIndex,
+			(CollectionIndexOrOffset){property->firstValueIndex},
+			(CollectionIndexOrOffset){property->lastValueIndex},
+			CollectionKeyType_Value,
 			(void*)&search,
 			compareValueByName,
 			exception) >= 0 &&

@@ -26,180 +26,45 @@
 #include "fiftyone.h"
 #include <inttypes.h>
 
-static uint32_t getFinalByteArraySize(void *initial) {
-    return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
-}
-static uint32_t getFinalFloatSize(void *initial) {
-#	ifdef _MSC_VER
-    UNREFERENCED_PARAMETER(initial);
-#	endif
-    return sizeof(fiftyoneDegreesFloat);
-}
-static uint32_t getFinalIntegerSize(void *initial) {
-#	ifdef _MSC_VER
-    UNREFERENCED_PARAMETER(initial);
-#	endif
-    return sizeof(int32_t);
-}
-static uint32_t getFinalShortSize(void *initial) {
-#	ifdef _MSC_VER
-    UNREFERENCED_PARAMETER(initial);
-#	endif
-    return sizeof(int16_t);
-}
+#include "collectionKeyTypes.h"
 
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
-/**
- * Type for temporary memory keeping the value of
- * `storedValueType`: `fiftyoneDegreesPropertyValueType`
- * for "File" and/or "Partial" collections
- * between calls from `StoredBinaryValueGet` to `StoredBinaryValueRead`.
- */
-typedef uint8_t PropertyValueTypeInData;
-
 void* fiftyoneDegreesStoredBinaryValueRead(
-    const fiftyoneDegreesCollectionFile * const file,
-    const uint32_t offset,
-    fiftyoneDegreesData * const data,
-    fiftyoneDegreesException * const exception) {
+    const CollectionFile * const file,
+    const CollectionKey key,
+    Data * const data,
+    Exception * const exception) {
     int16_t length;
 
-    // When collection getter is called from `StoredBinaryValueRead`,
-    // the latter will save `storedValueType` into item's Data.
-    //
-    // Otherwise -- if the data is in clear state (e.g. after DataReset),
-    // the caller is assumed to have requested a "String" value.
-    // (for compatibility with `StringRead`-initialized collections).
-
-    if (data->used < sizeof(PropertyValueTypeInData)) {
-        // stored value type not known,
-        // => assume String
-        return fiftyoneDegreesStringRead(file, offset, data, exception);
-    };
-
-    const PropertyValueType storedValueType = *(const PropertyValueTypeInData *)data->ptr;
-    switch (storedValueType) {
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING: {
-            return fiftyoneDegreesStringRead(file, offset, data, exception);
-        }
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER: {
-            return CollectionReadFileVariable(
-                file,
-                data,
-                offset,
-                &length,
-                0,
-                getFinalIntegerSize,
-                exception);
-        }
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH:
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION: {
-            return CollectionReadFileVariable(
-                file,
-                data,
-                offset,
-                &length,
-                0,
-                getFinalShortSize,
-                exception);
-        }
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT: {
-            return CollectionReadFileVariable(
-                file,
-                data,
-                offset,
-                &length,
-                0,
-                getFinalFloatSize,
-                exception);
-        }
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS:
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R:
-        case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB: {
-            return CollectionReadFileVariable(
-                file,
-                data,
-                offset,
-                &length,
-                sizeof(length),
-                getFinalByteArraySize,
-                exception);
-        }
-        default: {
-            EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_UNSUPPORTED_STORED_VALUE_TYPE);
-            return NULL;
-        }
-    }
+    return CollectionReadFileVariable(
+        file,
+        data,
+        key,
+        &length,
+        exception);
 }
 
 #endif
 
-StoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
-    fiftyoneDegreesCollection *strings,
+const StoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
+    const fiftyoneDegreesCollection *strings,
     uint32_t offset,
     PropertyValueType storedValueType,
     fiftyoneDegreesCollectionItem *item,
     Exception *exception) {
 
-#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
-    // CollectionReadFileVariable subroutine needs to know
-    // - how many bytes constitute the "header" of the variable
-    // - how to extract the remaining "length" of the variable from the "header"
-    //
-    // for that we must pass `storedValueType`
-
-    // Allocate a memory to hold `storedValueType` on stack.
-    //
-    // Use an array to prevent a warning
-    // > `pointer to a local variable potentially escaping scope`
-    //
-    // The data will either:
-    // - remain unowned
-    //   (and `ptr` won't be dereferenced),
-    // or
-    // - is already owned and considered disposable
-    //   (so `storedValueType` will be copied, and no escaping will occur).
-
-    PropertyValueTypeInData storedValueTypeInData[1] = { storedValueType };
-
-    if (!item->data.allocated) {
-        // It is assumed -- as part of the Collection-CollectionItem contract --
-        // that data of the Item passed into "get" is NOT owned by that item.
-
-        item->data.ptr = (byte *)&storedValueTypeInData[0];
-    } else {
-        // Since _this_ function _technically_ is NOT a "getter method"
-        // we might still get an Item that owns some memory.
-        //
-        // Since no collection would leave Data pointing to internal memory
-        // (past COLLECTION_RELEASE call -- mandatory for Item to be reused)
-        // assume the Data is disposable.
-        //
-        // Ensure Data is of sufficient size and copy `storedValueType` into it.
-
-        DataMalloc(&item->data, sizeof(PropertyValueTypeInData));
-        *((PropertyValueTypeInData*)item->data.ptr) = storedValueTypeInData[0];
-    }
-    item->data.used = sizeof(PropertyValueTypeInData);
-
-#else
-    // In MEMORY_ONLY mode,
-    //
-    // we only need to get the pointer to beginning of the data structure
-    // inside the whole body of the data file.
-    //
-    // `storedValueType` is not used, since we do not need to allocate
-    // a sufficient (unknown before reading starts) amount of memory
-    // to read the bytes into.
-#	ifdef _MSC_VER
-    UNREFERENCED_PARAMETER(storedValueType);
-#	endif
-#endif
-
-    StoredBinaryValue * const result = strings->get(
-        strings,
+    const CollectionKey key = {
         offset,
+        GetCollectionKeyTypeForStoredValueType(storedValueType, exception),
+    };
+    if (EXCEPTION_FAILED) {
+        return NULL;
+    }
+
+    const fiftyoneDegreesStoredBinaryValue * const result = strings->get(
+        strings,
+        key,
         item,
         exception);
     return result;

@@ -92,6 +92,13 @@ typedef struct fiftyoneDegrees_component_t {
 #pragma pack(pop)
 
 /**
+ * Gets size of Component with trailing key-value pair.
+ * @param initial pointer to component "head"
+ * @return full (with tail) struct size
+ */
+EXTERNAL uint32_t fiftyoneDegreesComponentGetFinalSize(const void *initial);
+
+/**
  * Returns the string name of the component using the item provided. The
  * collection item must be released when the caller is finished with the
  * string.
@@ -102,7 +109,7 @@ typedef struct fiftyoneDegrees_component_t {
  * exception occurs. See exceptions.h
  * @return a pointer to a string in the collection item data structure.
  */
-EXTERNAL fiftyoneDegreesString* fiftyoneDegreesComponentGetName(
+EXTERNAL const fiftyoneDegreesString* fiftyoneDegreesComponentGetName(
 	fiftyoneDegreesCollection *stringsCollection,
 	fiftyoneDegreesComponent *component,
 	fiftyoneDegreesCollectionItem *item,

@@ -58,7 +58,7 @@ typedef union fiftyone_degrees_collection_intex_or_offset_t {
 typedef struct fiftyone_degrees_collection_key_type_t {
 	const fiftyoneDegreesPropertyValueType valueType;  /**< Size of known-length "head" of the item. */
 	const uint32_t initialBytesCount; /**< Size of known-length "head" of the item. */
-	const fiftyoneDegreesCollectionGetVariableSizeMethod getSizeMethod; /**< Size of unknown-length "tail" of the item. */
+	const fiftyoneDegreesCollectionGetVariableSizeMethod getFinalSizeMethod; /**< Size of unknown-length "tail" of the item. */
 } fiftyoneDegreesCollectionKeyType;
 
 /**

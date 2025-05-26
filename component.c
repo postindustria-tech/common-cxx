@@ -22,8 +22,9 @@
 
 #include "component.h"
 #include "fiftyone.h"
+#include "collectionKeyTypes.h"
 
-static uint32_t getFinalComponentSize(const void *initial) {
+uint32_t fiftyoneDegreesComponentGetFinalSize(const void *initial) {
 	Component *component = (Component*)initial;
 	int32_t trailing = (component->keyValuesCount - 1) * 
 		sizeof(fiftyoneDegreesComponentKeyValuePair);
@@ -42,11 +43,7 @@ uint32_t fiftyoneDegreesComponentGetDefaultProfileId(
 		profiles,
 		(CollectionKey){
 			component->defaultProfileOffset,
-			{
-				FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE,
-				sizeof(Profile),
-				ProfileGetFinalSize,
-			},
+			CollectionKeyType_Profile,
 		},
 		&profileItem,
 		exception);
@@ -57,7 +54,7 @@ uint32_t fiftyoneDegreesComponentGetDefaultProfileId(
 	return profileId;
 }
 
-fiftyoneDegreesString* fiftyoneDegreesComponentGetName(
+const fiftyoneDegreesString* fiftyoneDegreesComponentGetName(
 	fiftyoneDegreesCollection *stringsCollection,
 	fiftyoneDegreesComponent *component,
 	fiftyoneDegreesCollectionItem *item,
@@ -97,11 +94,7 @@ void* fiftyoneDegreesComponentReadFromFile(
 		data,
 		(CollectionKey){
 			offset,
-			{
-				FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT,
-				sizeof(Component) - sizeof(fiftyoneDegreesComponentKeyValuePair),
-				getFinalComponentSize,
-			},
+			CollectionKeyType_Component,
 		},
 		&component,
 		exception);
@@ -124,14 +117,21 @@ void fiftyoneDegreesComponentInitList(
 			DataReset(&item.data);
 			component = (Component*)components->get(
 				components,
-				offset,
+				(CollectionKey){
+					offset,
+					{
+						FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT,
+						sizeof(Component) - sizeof(fiftyoneDegreesComponentKeyValuePair),
+						fiftyoneDegreesComponentGetFinalSize,
+					},
+				},
 				&item,
 				exception);
 			if (component != NULL && EXCEPTION_OKAY) {
 				ListAdd(list, &item);
 
 				// Move to the next component in the collection.
-				offset += getFinalComponentSize((void*)component);
+				offset += fiftyoneDegreesComponentGetFinalSize((void*)component);
 			}
 		}
 	}

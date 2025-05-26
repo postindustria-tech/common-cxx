@@ -1,0 +1,126 @@
+/* *********************************************************************
+ * This Original Work is copyright of 51 Degrees Mobile Experts Limited.
+ * Copyright 2023 51 Degrees Mobile Experts Limited, Davidson House,
+ * Forbury Square, Reading, Berkshire, United Kingdom RG1 3EU.
+ *
+ * This Original Work is licensed under the European Union Public Licence
+ * (EUPL) v.1.2 and is subject to its terms as set out below.
+ *
+ * If a copy of the EUPL was not distributed with this file, You can obtain
+ * one at https://opensource.org/licenses/EUPL-1.2.
+ *
+ * The 'Compatible Licences' set out in the Appendix to the EUPL (as may be
+ * amended by the European Commission) shall be deemed incompatible for
+ * the purposes of the Work and the provisions of the compatibility
+ * clause in Article 5 of the EUPL shall not apply.
+ *
+ * If using the Work as, or as part of, a network application, by
+ * including the attribution notice(s) required under Article 5 of the EUPL
+ * in the end user terms of the application under an appropriate heading,
+ * such notice(s) shall fulfill the requirements of that article.
+ * ********************************************************************* */
+
+#ifndef FIFTYONE_DEGREES_COLLECTION_KEY_TYPES_H_INCLUDED
+#define FIFTYONE_DEGREES_COLLECTION_KEY_TYPES_H_INCLUDED
+
+/**
+ * @ingroup FiftyOneDegreesCommon
+ * @defgroup FiftyOneDegreesCollectionKeyTypes CollectionKeyTypes
+ *
+ * Group of related items such as collection key type constants.
+ *
+ * @{
+ */
+
+#include "collectionKey.h"
+#include "common.h"
+#include "component.h"
+#include "exceptions.h"
+#include "profile.h"
+
+static uint32_t getFinalByteArraySize(const void *initial) {
+    return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
+}
+
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Azimuth = {
+    FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
+    sizeof(int16_t),
+    NULL,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Component = {
+    FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT,
+    sizeof(fiftyoneDegreesComponent) - sizeof(fiftyoneDegreesComponentKeyValuePair),
+    fiftyoneDegreesComponentGetFinalSize,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Declination = {
+    FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION,
+    sizeof(int16_t),
+    NULL,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Integer = {
+    FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT,
+    sizeof(uint32_t),
+    NULL,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_IPAddress = {
+    FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
+    sizeof(uint16_t),
+    getFinalByteArraySize,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Float = {
+    FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
+    sizeof(fiftyoneDegreesFloat),
+    NULL,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Profile = {
+    FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE,
+    sizeof(fiftyoneDegreesProfile),
+    fiftyoneDegreesProfileGetFinalSize,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_ProfileOffset = {
+    FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE_OFFSET,
+    sizeof(fiftyoneDegreesProfileOffset),
+    NULL,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Property = {
+    FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROPERTY,
+    sizeof(fiftyoneDegreesProperty),
+    NULL,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_PropertyTypeRecord = {
+    FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROPERTY_TYPE_RECORD,
+    sizeof(fiftyoneDegreesPropertyTypeRecord),
+    NULL,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_String = {
+    FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
+    sizeof(uint16_t),
+    fiftyoneDegreesStringGetFinalSize,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Value = {
+    FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_VALUE,
+    sizeof(fiftyoneDegreesValue),
+    NULL,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_WKB = {
+    FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB,
+    sizeof(uint16_t),
+    getFinalByteArraySize,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_WKB_R = {
+    FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R,
+    sizeof(uint16_t),
+    getFinalByteArraySize,
+};
+
+EXTERNAL fiftyoneDegreesCollectionKeyType fiftyoneDegreesGetCollectionKeyTypeForStoredValueType(
+    fiftyoneDegreesPropertyValueType storedValueType,
+    fiftyoneDegreesException *exception);
+
+#define GetCollectionKeyTypeForStoredValueType fiftyoneDegreesGetCollectionKeyTypeForStoredValueType /**< Synonym for #fiftyoneDegreesGetCollectionKeyTypeForStoredValueType function. */
+
+/**
+ * @}
+ */
+
+#endif

@@ -21,6 +21,8 @@
  * ********************************************************************* */
 
 #include "indices.h"
+
+#include "collectionKeyTypes.h"
 #include "fiftyone.h"
 
 // Working data structure used to construct the index.
@@ -56,11 +58,7 @@ static void addProfileValuesMethod(
 
 	CollectionKey valueKey = {
 		0,
-		{
-			FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_VALUE,
-			sizeof(Value),
-			NULL,
-		},
+		CollectionKeyType_Value,
 	};
 	// For each of the values associated with the profile check to see if it
 	// relates to a new property index. If it does then record the first value
@@ -120,11 +118,7 @@ static void iterateProfiles(
 	};
 	CollectionKey profileKey = {
 		0,
-		{
-			FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE,
-			sizeof(Profile),
-			ProfileGetFinalSize,
-		},
+		CollectionKeyType_Profile,
 	};
 	for (uint32_t i = 0; 
 		i < index->profileCount && EXCEPTION_OKAY;
@@ -168,13 +162,9 @@ static uint32_t getProfileId(
 	DataReset(&profileOffsetItem.data);
 	profileOffset = profileOffsets->get(
 		profileOffsets,
-		{
+		(CollectionKey){
 			index,
-			{
-				FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE_OFFSET,
-				sizeof(ProfileOffset),
-				NULL,
-			},
+			CollectionKeyType_ProfileOffset,
 		},
 		&profileOffsetItem,
 		exception);

@@ -115,7 +115,7 @@ void fiftyoneDegreesJsonPropertySeparator(fiftyoneDegreesJson* s) {
 }
 
 void fiftyoneDegreesJsonPropertyStart(fiftyoneDegreesJson* s) {
-	fiftyoneDegreesStoredBinaryValue* name;
+	const fiftyoneDegreesStoredBinaryValue* name;
 	fiftyoneDegreesCollectionItem stringItem;
 	fiftyoneDegreesException* exception = s->exception;
 

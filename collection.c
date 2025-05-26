@@ -21,6 +21,8 @@
  * ********************************************************************* */
 
 #include "collection.h"
+
+#include "collectionKeyTypes.h"
 #include "fiftyone.h"
 
 MAP_TYPE(Collection)
@@ -203,12 +205,12 @@ static void* getMemoryVariable(
 
 static void* getMemoryFixed(
 	const Collection *collection,
-	uint32_t index,
+	const CollectionKey key,
 	Item *item,
 	Exception *exception) {
 	CollectionMemory *memory = (CollectionMemory*)collection->state;
-	if (index < collection->count) {
-		item->data.ptr = memory->firstByte + ((uint64_t)index * collection->elementSize);
+	if (key.indexOrOffset.index < collection->count) {
+		item->data.ptr = memory->firstByte + ((uint64_t)key.indexOrOffset.index * collection->elementSize);
 		assert(item->data.ptr < memory->lastByte);
 		item->collection = collection;
 	}
@@ -261,7 +263,7 @@ static void* getFile(
  * @return a pointer to the data retrieved, or NULL if no data retrieved.
  */
 static void* getFromCache(
-	Collection *collection,
+	const Collection *collection,
 	fiftyoneDegreesCollectionKey key,
 	Item *item,
 	Exception *exception) {
@@ -807,18 +809,18 @@ fiftyoneDegreesFileHandle* fiftyoneDegreesCollectionReadFilePosition(
 
 void* fiftyoneDegreesCollectionReadFileFixed(
 	const fiftyoneDegreesCollectionFile *file,
-	uint32_t index,
+	CollectionKey key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception) {
 	void *ptr = NULL;
 	FileHandle *handle = NULL;
-	uint32_t offset = index * file->collection->elementSize;
+	uint32_t offset = key.indexOrOffset.index * file->collection->elementSize;
 	
 	// Indicate that no data is being used at the start of the operation.
 	data->used = 0;
 
 	// If the index is outside the range of the collection then return NULL.
-	if (index < file->collection->count) {
+	if (key.indexOrOffset.index < file->collection->count) {
 
 		// Get the handle positioned at the start of the item to be read.
 		handle = CollectionReadFilePosition(file, offset, exception);
@@ -883,7 +885,7 @@ static void* readFileVariable(
 		if ((!initialSize) || (fread(initial, initialSize, 1, handle->file) == 1)) {
 
 			// Calculate the number of bytes needed to store the item.
-			bytesNeeded = getFinalSize(initial);
+			bytesNeeded = getFinalSize ? getFinalSize(initial) : initialSize;
 
 			// Ensure sufficient memory is allocated for the item being
 			// read and that the header is copied to the data buffer
@@ -941,10 +943,8 @@ static void* readFileVariable(
 void* fiftyoneDegreesCollectionReadFileVariable(
 	const fiftyoneDegreesCollectionFile *fileCollection,
 	fiftyoneDegreesData *data,
-	uint32_t offset,
+	fiftyoneDegreesCollectionKey key,
 	void *initial,
-	size_t initialSize,
-	fiftyoneDegreesCollectionGetVariableSizeMethod getFinalSize,
 	fiftyoneDegreesException *exception) {
 	void *ptr = NULL;
 
@@ -956,7 +956,7 @@ void* fiftyoneDegreesCollectionReadFileVariable(
 	data->used = 0;
 
 	// Check that the item offset is within the range available.
-	if (offset < fileCollection->collection->size) {
+	if (key.indexOrOffset.offset < fileCollection->collection->size) {
 
 		// Get the handle for the file operation.
 		handle = FileHandleGet(fileCollection->reader, exception);
@@ -969,10 +969,10 @@ void* fiftyoneDegreesCollectionReadFileVariable(
 				fileCollection,
 				handle,
 				data, 
-				offset,
-				initial, 
-				initialSize,
-				getFinalSize,
+				key.indexOrOffset.offset,
+				initial,
+				key.keyType.initialBytesCount,
+				key.keyType.getFinalSizeMethod,
 				exception);
 			FileHandleRelease(handle);
 		}
@@ -990,19 +990,18 @@ void* fiftyoneDegreesCollectionReadFileVariable(
 #endif
 
 int32_t fiftyoneDegreesCollectionGetInteger32(
-	fiftyoneDegreesCollection *collection,
-	uint32_t indexOrOffset,
-	fiftyoneDegreesException *exception) {
+	const Collection * const collection,
+	const uint32_t indexOrOffset,
+	Exception * const exception) {
 	Item item;
 	int32_t value = 0;
 	DataReset(&item.data);
-	const CollectionKey key = {
-		indexOrOffset,
-
-	};
 	if (collection->get(
 		collection,
-		indexOrOffset,
+		(CollectionKey){
+			indexOrOffset,
+			CollectionKeyType_Integer,
+		},
 		&item,
 		exception) != NULL) {
 		value = *((int32_t*)item.data.ptr);
@@ -1012,7 +1011,7 @@ int32_t fiftyoneDegreesCollectionGetInteger32(
 }
 
 long fiftyoneDegreesCollectionBinarySearch(
-	fiftyoneDegreesCollection *collection,
+	const fiftyoneDegreesCollection *collection,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesCollectionIndexOrOffset lowerKey,
 	fiftyoneDegreesCollectionIndexOrOffset upperKey,

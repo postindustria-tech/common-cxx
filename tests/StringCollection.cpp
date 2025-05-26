@@ -21,6 +21,8 @@
  * ********************************************************************* */
 #include "pch.h"
 #include "StringCollection.hpp"
+
+#include "../collectionKeyTypes.h"
 #include "../fiftyone.h"
 #include "../Exceptions.hpp"
 
@@ -35,8 +37,11 @@ fiftyoneDegreesString* getStringValue(
 	stringCollectionState *strings = (stringCollectionState*)state;
 	if (index < strings->count) {
 		value = (String*)strings->collection->get(
-			strings->collection, 
-			strings->offsets[index],
+			strings->collection,
+			(CollectionKey){
+				strings->offsets[index],
+				CollectionKeyType_String,
+			},
 			item,
 			exception);
 		FIFTYONE_DEGREES_EXCEPTION_THROW
@@ -57,7 +62,10 @@ long getHeaderUniqueId(
 	if (index >= 0 && index < strings->count) {
 		strings->collection->get(
 			strings->collection,
-			strings->offsets[index],
+			(CollectionKey){
+				strings->offsets[index],
+				CollectionKeyType_String,
+			},
 			item,
 			exception);
 		FIFTYONE_DEGREES_EXCEPTION_THROW

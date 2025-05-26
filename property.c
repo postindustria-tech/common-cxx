@@ -21,14 +21,16 @@
  * ********************************************************************* */
 
 #include "property.h"
+
+#include "collectionKeyTypes.h"
 #include "fiftyone.h"
 
 MAP_TYPE(Collection)
 
 #ifndef FIFTYONE_DEGREES_GET_STRING_DEFINED
 #define FIFTYONE_DEGREES_GET_STRING_DEFINED
-static fiftyoneDegreesString* getString(
-	Collection *stringsCollection,
+static const fiftyoneDegreesString* getString(
+	const Collection *stringsCollection,
 	uint32_t offset,
 	Item *item,
 	Exception *exception) {
@@ -41,9 +43,9 @@ static fiftyoneDegreesString* getString(
 }
 #endif
 
-fiftyoneDegreesString* fiftyoneDegreesPropertyGetName(
-	fiftyoneDegreesCollection *stringsCollection,
-	fiftyoneDegreesProperty *property,
+const fiftyoneDegreesString* fiftyoneDegreesPropertyGetName(
+	const fiftyoneDegreesCollection *stringsCollection,
+	const fiftyoneDegreesProperty *property,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception) {
 	return getString(
@@ -53,9 +55,13 @@ fiftyoneDegreesString* fiftyoneDegreesPropertyGetName(
 		exception);
 }
 
-static int comparePropertyTypeRecordByName(void *state, Item *item, long curIndex, Exception *exception) {
+static int comparePropertyTypeRecordByName(
+	void *state,
+	Item *item,
+	const CollectionKey key,
+	Exception *exception) {
 #	ifdef _MSC_VER
-	UNREFERENCED_PARAMETER(curIndex);
+	UNREFERENCED_PARAMETER(key);
 	UNREFERENCED_PARAMETER(exception);
 #	endif
 	const uint32_t searchNameOffset = *(uint32_t*)state;
@@ -65,8 +71,8 @@ static int comparePropertyTypeRecordByName(void *state, Item *item, long curInde
 }
 
 PropertyValueType fiftyoneDegreesPropertyGetStoredType(
-	fiftyoneDegreesCollection * const propertyTypesCollection,
-	Property * const property,
+	const fiftyoneDegreesCollection * const propertyTypesCollection,
+	const Property * const property,
 	Exception * const exception) {
 
 	PropertyValueType result = FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING; // overwritten later
@@ -76,8 +82,9 @@ PropertyValueType fiftyoneDegreesPropertyGetStoredType(
 	CollectionBinarySearch(
 		propertyTypesCollection,
 		&item,
-		0,
-		CollectionGetCount(propertyTypesCollection),
+		(CollectionIndexOrOffset){0},
+		(CollectionIndexOrOffset){CollectionGetCount(propertyTypesCollection)},
+		CollectionKeyType_PropertyTypeRecord,
 		(void*)&property->nameOffset,
 		comparePropertyTypeRecordByName,
 		exception);
@@ -89,7 +96,7 @@ PropertyValueType fiftyoneDegreesPropertyGetStoredType(
 }
 
 PropertyValueType fiftyoneDegreesPropertyGetStoredTypeByIndex(
-	fiftyoneDegreesCollection * const propertyTypesCollection,
+	const fiftyoneDegreesCollection * const propertyTypesCollection,
 	const uint32_t propertyOffset,
 	Exception * const exception) {
 
@@ -99,7 +106,10 @@ PropertyValueType fiftyoneDegreesPropertyGetStoredTypeByIndex(
 	DataReset(&item.data);
 	const PropertyTypeRecord * const record = (PropertyTypeRecord*)propertyTypesCollection->get(
 		propertyTypesCollection,
-		propertyOffset,
+		(CollectionKey){
+			propertyOffset,
+			CollectionKeyType_PropertyTypeRecord,
+		},
 		&item,
 		exception);
 	if (EXCEPTION_OKAY) {
@@ -109,9 +119,9 @@ PropertyValueType fiftyoneDegreesPropertyGetStoredTypeByIndex(
 	return result;
 }
 
-fiftyoneDegreesString* fiftyoneDegreesPropertyGetDescription(
-	fiftyoneDegreesCollection *stringsCollection,
-	fiftyoneDegreesProperty *property,
+const fiftyoneDegreesString* fiftyoneDegreesPropertyGetDescription(
+	const fiftyoneDegreesCollection *stringsCollection,
+	const fiftyoneDegreesProperty *property,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception) {
 	return getString(
@@ -121,9 +131,9 @@ fiftyoneDegreesString* fiftyoneDegreesPropertyGetDescription(
 		exception);
 }
 
-fiftyoneDegreesString* fiftyoneDegreesPropertyGetCategory(
-	fiftyoneDegreesCollection *stringsCollection,
-	fiftyoneDegreesProperty *property,
+const fiftyoneDegreesString* fiftyoneDegreesPropertyGetCategory(
+	const fiftyoneDegreesCollection *stringsCollection,
+	const fiftyoneDegreesProperty *property,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception) {
 	return getString(
@@ -133,9 +143,9 @@ fiftyoneDegreesString* fiftyoneDegreesPropertyGetCategory(
 		exception);
 }
 
-fiftyoneDegreesString* fiftyoneDegreesPropertyGetUrl(
-	fiftyoneDegreesCollection *stringsCollection,
-	fiftyoneDegreesProperty *property,
+const fiftyoneDegreesString* fiftyoneDegreesPropertyGetUrl(
+	const fiftyoneDegreesCollection *stringsCollection,
+	const fiftyoneDegreesProperty *property,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception) {
 	return getString(
@@ -152,20 +162,23 @@ fiftyoneDegreesProperty* fiftyoneDegreesPropertyGet(
 	fiftyoneDegreesException *exception) {
 	return (fiftyoneDegreesProperty*)properties->get(
 		properties,
-		index,
+		(CollectionKey){
+			index,
+			CollectionKeyType_Property,
+		},
 		item,
 		exception);
 }
 
-fiftyoneDegreesProperty* fiftyoneDegreesPropertyGetByName(
+const fiftyoneDegreesProperty* fiftyoneDegreesPropertyGetByName(
 	fiftyoneDegreesCollection *properties,
 	fiftyoneDegreesCollection *strings,
 	const char *requiredPropertyName,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception) {
 	Item propertyNameItem;
-	String *name;
-	Property *property = NULL;
+	const String *name;
+	const Property *property = NULL;
 	uint32_t i = 0;
 	DataReset(&propertyNameItem.data);
 	uint32_t propertiesCount = CollectionGetCount(properties);
@@ -174,7 +187,10 @@ fiftyoneDegreesProperty* fiftyoneDegreesPropertyGetByName(
 		// Get the property for this index.
 		property = (Property*)properties->get(
 			properties, 
-			i++, 
+			(CollectionKey){
+				i++,
+				CollectionKeyType_Property,
+			},
 			item, 
 			exception);
 		if (property != NULL && EXCEPTION_OKAY) {
@@ -213,7 +229,14 @@ byte fiftyoneDegreesPropertyGetValueType(
 	Item item;
 	Property *property;
 	DataReset(&item.data);
-	property = (Property*)properties->get(properties, index, &item, exception);
+	property = (Property*)properties->get(
+		properties,
+		(CollectionKey){
+			index,
+			CollectionKeyType_Property,
+		},
+		&item,
+		exception);
 	if (property != NULL && EXCEPTION_OKAY) {
 		result = property->valueType;
 		COLLECTION_RELEASE(properties, &item);

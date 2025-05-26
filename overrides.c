@@ -64,11 +64,11 @@ static const Collection dummyCollection = {
 	NULL, 
 	collectionRelease, 
 	NULL, 
-	NULL, 
-	NULL, 
+	NULL,
 	0, 
 	0, 
-	0 };
+	0,
+};
 
 /**
  * Checks if the string starts with the prefix string.

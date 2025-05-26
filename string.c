@@ -26,7 +26,9 @@
 #include "fiftyone.h"
 #include <inttypes.h>
 
-static uint32_t getFinalStringSize(void *initial) {
+#include "collectionKeyTypes.h"
+
+uint32_t fiftyoneDegreesStringGetFinalSize(const void *initial) {
 	return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
 }
 
@@ -41,23 +43,27 @@ void* fiftyoneDegreesStringRead(
 	return CollectionReadFileVariable(
 		file,
 		data,
-		offset,
+		(CollectionKey){
+			offset,
+			CollectionKeyType_String,
+		},
 		&length,
-		sizeof(int16_t),
-		getFinalStringSize,
 		exception);
 }
 
 #endif
 
-fiftyoneDegreesString* fiftyoneDegreesStringGet(
+const fiftyoneDegreesString* fiftyoneDegreesStringGet(
 	fiftyoneDegreesCollection *strings,
 	uint32_t offset,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception) {
 	return (String*)strings->get(
 		strings,
-		offset,
+		(CollectionKey){
+			offset,
+			CollectionKeyType_String,
+		},
 		item,
 		exception);
 }

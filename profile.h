@@ -255,11 +255,11 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateValuesForProperty(
  * @return the number of matching values which have been iterated
  */
 EXTERNAL uint32_t fiftyoneDegreesProfileIterateValuesForPropertyWithIndex(
-	fiftyoneDegreesCollection* values,
+	const fiftyoneDegreesCollection* values,
 	fiftyoneDegreesIndicesPropertyProfile* index,
 	uint32_t availablePropertyIndex,
-	fiftyoneDegreesProfile* profile,
-	fiftyoneDegreesProperty* property,
+	const fiftyoneDegreesProfile* profile,
+	const fiftyoneDegreesProperty* property,
 	void* state,
 	fiftyoneDegreesProfileIterateMethod callback,
 	fiftyoneDegreesException* exception);
@@ -322,7 +322,7 @@ EXTERNAL uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndVal
 	fiftyoneDegreesCollection *propertyTypes,
 	fiftyoneDegreesCollection *values,
 	fiftyoneDegreesCollection *profiles,
-	fiftyoneDegreesCollection *profileOffsets,
+	const fiftyoneDegreesCollection *profileOffsets,
 	fiftyoneDegreesProfileOffsetValueExtractor offsetValueExtractor,
 	const char *propertyName,
 	const char* valueName,

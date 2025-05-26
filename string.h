@@ -111,7 +111,7 @@ EXTERNAL uint32_t fiftyoneDegreesStringGetFinalSize(
  * Reads a string from the source file at the offset within the string
  * structure.
  * @param file collection to read from
- * @param offset of the string in the collection
+ * @param key of the string in the collection
  * @param data to store the new string in
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h.
@@ -119,7 +119,7 @@ EXTERNAL uint32_t fiftyoneDegreesStringGetFinalSize(
  */
 EXTERNAL void* fiftyoneDegreesStringRead(
 	const fiftyoneDegreesCollectionFile *file,
-	uint32_t offset,
+	fiftyoneDegreesCollectionKey key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception);
 

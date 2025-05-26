@@ -361,17 +361,14 @@ fiftyoneDegreesProfile* fiftyoneDegreesProfileGetByIndex(
 
 void* fiftyoneDegreesProfileReadFromFile(
 	const fiftyoneDegreesCollectionFile *file,
-	uint32_t offset,
+	CollectionKey key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception) {
 	Profile profile = { 0, 0, 0 };
 	return CollectionReadFileVariable(
 		file,
 		data,
-		(CollectionKey) {
-			offset,
-			CollectionKeyType_Profile,
-		},
+		key,
 		&profile,
 		exception);
 }

@@ -90,17 +90,14 @@ fiftyoneDegreesComponentGetKeyValuePair(
 
 void* fiftyoneDegreesComponentReadFromFile(
 	const fiftyoneDegreesCollectionFile *file,
-	uint32_t offset,
+	CollectionKey key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception) {
 	Component component = { 0, 0, 0, 0, { 0, 0 } };
 	return CollectionReadFileVariable(
 		file,
 		data,
-		(CollectionKey){
-			offset,
-			CollectionKeyType_Component,
-		},
+		key,
 		&component,
 		exception);
 }

@@ -192,7 +192,7 @@ EXTERNAL typedef struct fiftyone_degrees_properties_required_t {
  * @param item used to obtain a handle to the string
  * @return pointer to the string or NULL if no property available
  */
-typedef fiftyoneDegreesString*(*fiftyoneDegreesPropertiesGetMethod)(
+typedef const fiftyoneDegreesString*(*fiftyoneDegreesPropertiesGetMethod)(
 	void *state,
 	uint32_t index,
 	fiftyoneDegreesCollectionItem *item);

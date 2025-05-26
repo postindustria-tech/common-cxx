@@ -41,17 +41,14 @@ uint32_t fiftyoneDegreesStringGetFinalSize(
 
 void* fiftyoneDegreesStringRead(
 	const fiftyoneDegreesCollectionFile *file,
-	uint32_t offset,
+	CollectionKey key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception) {
 	int16_t length;
 	return CollectionReadFileVariable(
 		file,
 		data,
-		(CollectionKey){
-			offset,
-			CollectionKeyType_String,
-		},
+		key,
 		&length,
 		exception);
 }

@@ -115,7 +115,7 @@ static int getPropertyIndex(
 	propertiesSource *source,
 	const char *requiredPropertyName,
 	int requiredPropertyLength) {
-	String *test;
+	const String *test;
 	Item stringItem;
 	uint32_t i = 0;
 	DataReset(&stringItem.data);

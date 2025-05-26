@@ -209,15 +209,15 @@ EXTERNAL fiftyoneDegreesProfile* fiftyoneDegreesProfileGetByIndex(
  * Read a profile from the file collection provided and store in the data
  * pointer. This method is used when creating a collection from file.
  * @param file collection to read from
- * @param offset of the profile in the collection
+ * @param key of the profile in the collection
  * @param data to store the resulting profile in
  * @param exception pointer to an exception data structure to be used if an
  * exception occurs. See exceptions.h
  * @return pointer to the profile allocated within the data structure
  */
-void* fiftyoneDegreesProfileReadFromFile(
+EXTERNAL void* fiftyoneDegreesProfileReadFromFile(
 	const fiftyoneDegreesCollectionFile *file,
-	uint32_t offset,
+	fiftyoneDegreesCollectionKey key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception);
 #endif

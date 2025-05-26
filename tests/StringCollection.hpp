@@ -35,7 +35,7 @@ typedef struct string_collection_state_t {
 
 // Function used to return string names when the collections code 
 // requests them
-fiftyoneDegreesString* getStringValue(
+const fiftyoneDegreesString* getStringValue(
 	void *state,
 	uint32_t index,
 	fiftyoneDegreesCollectionItem *item);

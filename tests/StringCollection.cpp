@@ -28,7 +28,7 @@
 
 // Function used to return string names when the collections code 
 // requests them
-fiftyoneDegreesString* getStringValue(
+const fiftyoneDegreesString* getStringValue(
 	void *state,
 	uint32_t index,
 	fiftyoneDegreesCollectionItem *item) {

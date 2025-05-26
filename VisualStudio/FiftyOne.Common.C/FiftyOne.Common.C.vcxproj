@@ -5,6 +5,8 @@
     <ClInclude Include="..\..\array.h" />
     <ClInclude Include="..\..\cache.h" />
     <ClInclude Include="..\..\collection.h" />
+    <ClInclude Include="..\..\collectionKey.h" />
+    <ClInclude Include="..\..\collectionKeyTypes.h" />
     <ClInclude Include="..\..\common.h" />
     <ClInclude Include="..\..\component.h" />
     <ClInclude Include="..\..\config.h" />
@@ -50,6 +52,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\cache.c" />
     <ClCompile Include="..\..\collection.c" />
+    <ClCompile Include="..\..\collectionKeyTypes.c" />
     <ClCompile Include="..\..\component.c" />
     <ClCompile Include="..\..\data.c" />
     <ClCompile Include="..\..\dataset.c" />

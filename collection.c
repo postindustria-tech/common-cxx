@@ -723,7 +723,7 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromFile(
 	}
 
 	if (result == NULL || (
-		result->count == config->loaded &&
+		(((bool)result->count) == config->loaded) &&
 		(FileOffset)result->size < (FileTell(file) - (FileOffset)header.startPosition))) {
 
 		// Create the next collection if one is needed.
@@ -887,7 +887,7 @@ static void* readFileVariable(
 		if ((!initialSize) || (fread(initial, initialSize, 1, handle->file) == 1)) {
 
 			// Calculate the number of bytes needed to store the item.
-			bytesNeeded = getFinalSize ? getFinalSize(initial, exception) : initialSize;
+			bytesNeeded = getFinalSize ? getFinalSize(initial, exception) : (uint32_t)initialSize;
 			if (EXCEPTION_FAILED) {
 				return NULL;
 			}

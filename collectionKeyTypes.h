@@ -67,7 +67,7 @@ static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Declination = {
     NULL,
 };
 static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Integer = {
-    FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT,
+    FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
     sizeof(uint32_t),
     NULL,
 };

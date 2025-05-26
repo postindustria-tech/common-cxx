@@ -35,8 +35,10 @@ using namespace FiftyoneDegrees::Common;
 
 class CollectionTestData {
 public:
-	CollectionTestData(uint32_t count) {
-		this->count = count;
+	const fiftyoneDegreesCollectionKeyType &keyType;
+	CollectionTestData(
+		uint32_t count,
+		const fiftyoneDegreesCollectionKeyType &keyType): keyType(keyType), count(count) {
 		map = new uint32_t[count];
 		data = nullptr;
 	}
@@ -59,7 +61,7 @@ public:
 #endif
 	virtual uint32_t outOfRange() { return 0; }
 	fiftyoneDegreesCollectionItemComparer itemComparer;
-	uint32_t count;
+	const uint32_t count;
 	byte *data;
 	size_t size;
 	uint32_t elementSize;
@@ -69,11 +71,11 @@ public:
 
 class CollectionTestDataFixed : public CollectionTestData {
 public:
-	CollectionTestDataFixed(uint32_t count) : CollectionTestData(count) {
+	CollectionTestDataFixed(uint32_t count) : CollectionTestData(count, CollectionKeyType_Integer) {
 		elementSize = sizeof(int);
 		size = (count * elementSize) + sizeof(uint32_t);
 		data = new byte[size];
-		int *values = (int*)(data + sizeof(uint32_t));
+		uint32_t * const values = (uint32_t*)(data + sizeof(uint32_t));
 		for (uint32_t i = 0; i < count; i++) {
 			values[i] = i;
 			map[i] = i;
@@ -95,13 +97,15 @@ public:
 #		ifdef _MSC_VER
 		UNREFERENCED_PARAMETER(key);
 #		endif
-		return *((int*)item->data.ptr) - *(int*)state;
+		const uint32_t * const itemValue = (const uint32_t*)item->data.ptr;
+		const uint32_t * const stateValue = (const uint32_t*)state;
+		return *itemValue - *stateValue;
 	}
 };
 
 class CollectionTestDataVariable : public CollectionTestData {
 public:
-	CollectionTestDataVariable(uint32_t count) : CollectionTestData(count) {
+	CollectionTestDataVariable(uint32_t count) : CollectionTestData(count, CollectionKeyType_String) {
 		size = sizeof(uint32_t);
 		for (uint32_t i = 0; i < count; i++) {
 			size += strlen(TEST_STRINGS[i]) + 1;
@@ -200,7 +204,7 @@ public:
 				collection,
 				(fiftyoneDegreesCollectionKey){
 					data->map[i],
-					CollectionKeyType_String,
+					data->keyType,
 				},
 				&item,
 				exception);
@@ -213,7 +217,6 @@ public:
 	}
 
 	void binarySearch() {
-		
 		if (this->data->isCount == false) {
 			cout << "Skipping binary search test for as the collection "
 				<< "contains variable size elements.\n";
@@ -225,24 +228,25 @@ public:
 			fiftyoneDegreesDataReset(&targetItem.data);
 
 			for (uint32_t i = 0; i < data->count; i++) {
-				collection->get(
+				auto const theValue = (const uint32_t *)collection->get(
 					collection,
 					(fiftyoneDegreesCollectionKey){
 						data->map[i],
-						CollectionKeyType_String,
+						data->keyType,
 					},
 					&targetItem,
 					exception);
 				FIFTYONE_DEGREES_EXCEPTION_THROW;
-				EXPECT_TRUE(fiftyoneDegreesCollectionBinarySearch(
+				const long index = fiftyoneDegreesCollectionBinarySearch(
 					collection,
 					&resultItem,
 					(fiftyoneDegreesCollectionIndexOrOffset){0},
 					(fiftyoneDegreesCollectionIndexOrOffset){data->count - 1},
-					CollectionKeyType_String,
+					data->keyType,
 					targetItem.data.ptr,
 					data->itemComparer,
-					exception) >= 0);
+					exception);
+				EXPECT_GE(index, 0);
 				EXPECT_FALSE(FIFTYONE_DEGREES_EXCEPTION_FAILED);
 				data->verify(&resultItem.data, i);
 				if (fiftyoneDegreesCollectionGetIsMemoryOnly() == false) {
@@ -274,7 +278,7 @@ public:
 					&resultItem,
 					(fiftyoneDegreesCollectionIndexOrOffset){0},
 					(fiftyoneDegreesCollectionIndexOrOffset){data->count - 1},
-					CollectionKeyType_String,
+					data->keyType,
 					&(DummyIDs[i]),
 					data->itemComparer,
 					exception));
@@ -291,7 +295,7 @@ public:
 			collection,
 			(fiftyoneDegreesCollectionKey){
 				data->outOfRange(),
-				CollectionKeyType_String,
+				data->keyType,
 			},
 			&item,
 			exception), nullptr) << "Returned pointer should always be "
@@ -320,7 +324,7 @@ public:
 				collection,
 				(fiftyoneDegreesCollectionKey){
 					data->map[index],
-					CollectionKeyType_String,
+					data->keyType,
 				},
 				&item, 
 				exception), nullptr);
@@ -348,7 +352,7 @@ public:
 				collection,
 				(fiftyoneDegreesCollectionKey){
 					data->map[i],
-					CollectionKeyType_String,
+					data->keyType,
 				},
 				&item,
 				exception), nullptr);

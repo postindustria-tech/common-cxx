@@ -35,13 +35,18 @@ void* fiftyoneDegreesStoredBinaryValueRead(
     const CollectionKey key,
     Data * const data,
     Exception * const exception) {
-    int16_t length;
+    const size_t maxLength = 8;
+    if (key.keyType.initialBytesCount > maxLength) {
+        EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
+        return NULL;
+    }
+    byte initial[maxLength];
 
     return CollectionReadFileVariable(
         file,
         data,
         key,
-        &length,
+        &initial,
         exception);
 }
 

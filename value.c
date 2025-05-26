@@ -189,10 +189,10 @@ long fiftyoneDegreesValueGetIndexByNameAndType(
 	return index;
 }
 
-Value* fiftyoneDegreesValueGetByName(
-	Collection *values,
-	Collection *strings,
-	Property *property,
+const Value* fiftyoneDegreesValueGetByName(
+	const Collection *values,
+	const Collection *strings,
+	const Property *property,
 	const char *valueName,
 	CollectionItem *item,
 	Exception *exception) {
@@ -207,10 +207,10 @@ Value* fiftyoneDegreesValueGetByName(
 		exception);
 }
 
-Value* fiftyoneDegreesValueGetByNameAndType(
-	Collection * const values,
-	Collection * const strings,
-	Property * const property,
+const Value* fiftyoneDegreesValueGetByNameAndType(
+	const Collection * const values,
+	const Collection * const strings,
+	const Property * const property,
 	const fiftyoneDegreesPropertyValueType storedValueType,
 	const char * const valueName,
 	CollectionItem * const item,

@@ -135,7 +135,7 @@ EXTERNAL void* fiftyoneDegreesStringRead(
  * @return a pointer to string of NULL if the offset is not valid
  */
 EXTERNAL const fiftyoneDegreesString* fiftyoneDegreesStringGet(
-	fiftyoneDegreesCollection *strings,
+	const fiftyoneDegreesCollection *strings,
 	uint32_t offset,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);

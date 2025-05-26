@@ -78,7 +78,12 @@ public:
     struct {
         CollectionPtr memory { nullptr, freeCollection };
         FileCollectionBox fileNoCache = {{ false, 0, requiredCollectionConcurrency }};
-        FileCollectionBox fileCache = {{ false, requiredCollectionConcurrency, requiredCollectionConcurrency }};
+        FileCollectionBox fileCache = {
+            {
+                false,
+                requiredCollectionConcurrency * requiredCollectionConcurrency,
+                requiredCollectionConcurrency,
+            }};
         FileCollectionBox fileLoadedNoCache = {{ true, 0, 0 }};
         FileCollectionBox fileLoadedCache = {{ true, requiredCollectionConcurrency, 0 }};
     } collection;

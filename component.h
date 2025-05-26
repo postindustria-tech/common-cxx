@@ -96,7 +96,9 @@ typedef struct fiftyoneDegrees_component_t {
  * @param initial pointer to component "head"
  * @return full (with tail) struct size
  */
-EXTERNAL uint32_t fiftyoneDegreesComponentGetFinalSize(const void *initial);
+EXTERNAL uint32_t fiftyoneDegreesComponentGetFinalSize(
+	const void *initial,
+	fiftyoneDegreesException *exception);
 
 /**
  * Returns the string name of the component using the item provided. The

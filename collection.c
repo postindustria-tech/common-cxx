@@ -885,7 +885,10 @@ static void* readFileVariable(
 		if ((!initialSize) || (fread(initial, initialSize, 1, handle->file) == 1)) {
 
 			// Calculate the number of bytes needed to store the item.
-			bytesNeeded = getFinalSize ? getFinalSize(initial) : initialSize;
+			bytesNeeded = getFinalSize ? getFinalSize(initial, exception) : initialSize;
+			if (EXCEPTION_FAILED) {
+				return NULL;
+			}
 
 			// Ensure sufficient memory is allocated for the item being
 			// read and that the header is copied to the data buffer

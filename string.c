@@ -28,7 +28,12 @@
 
 #include "collectionKeyTypes.h"
 
-uint32_t fiftyoneDegreesStringGetFinalSize(const void *initial) {
+uint32_t fiftyoneDegreesStringGetFinalSize(
+	const void *initial,
+    Exception * const exception) {
+#	ifdef _MSC_VER
+    UNREFERENCED_PARAMETER(exception);
+#	endif
 	return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
 }
 

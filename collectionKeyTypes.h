@@ -38,9 +38,18 @@
 #include "exceptions.h"
 #include "profile.h"
 
-static uint32_t getFinalByteArraySize(const void *initial) {
+static uint32_t getFinalByteArraySize(
+    const void *initial,
+    fiftyoneDegreesException * const exception) {
+#	ifdef _MSC_VER
+    UNREFERENCED_PARAMETER(exception);
+#	endif
     return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
 }
+
+EXTERNAL uint32_t fiftyoneDegreesThrowUnsupportedStoredValueType(
+    const void *initial,
+    fiftyoneDegreesException *exception);
 
 static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Azimuth = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
@@ -96,6 +105,11 @@ static const fiftyoneDegreesCollectionKeyType CollectionKeyType_String = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
     sizeof(uint16_t),
     fiftyoneDegreesStringGetFinalSize,
+};
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Unsupported = {
+    FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_CUSTOM,
+    1,
+    fiftyoneDegreesThrowUnsupportedStoredValueType,
 };
 static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Value = {
     FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_VALUE,

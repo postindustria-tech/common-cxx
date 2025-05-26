@@ -34,6 +34,7 @@
 
 #include <stdint.h>
 #include "propertyValueType.h"
+#include "exceptions.h"
 
 /**
  * Passed a pointer to the first part of a variable size item and returns
@@ -42,7 +43,8 @@
  * @return size of the item in bytes
  */
 typedef uint32_t (*fiftyoneDegreesCollectionGetVariableSizeMethod)(
-	const void *initial);
+	const void *initial,
+	fiftyoneDegreesException *exception);
 
 /**
  * Location of the item within the Collection.

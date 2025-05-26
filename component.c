@@ -24,7 +24,12 @@
 #include "fiftyone.h"
 #include "collectionKeyTypes.h"
 
-uint32_t fiftyoneDegreesComponentGetFinalSize(const void *initial) {
+uint32_t fiftyoneDegreesComponentGetFinalSize(
+	const void *initial,
+    Exception * const exception) {
+#	ifdef _MSC_VER
+    UNREFERENCED_PARAMETER(exception);
+#	endif
 	Component *component = (Component*)initial;
 	int32_t trailing = (component->keyValuesCount - 1) * 
 		sizeof(fiftyoneDegreesComponentKeyValuePair);
@@ -131,7 +136,9 @@ void fiftyoneDegreesComponentInitList(
 				ListAdd(list, &item);
 
 				// Move to the next component in the collection.
-				offset += fiftyoneDegreesComponentGetFinalSize((void*)component);
+				offset += fiftyoneDegreesComponentGetFinalSize(
+					(void*)component,
+					exception);
 			}
 		}
 	}

@@ -568,7 +568,12 @@ public:
 	}
 };
 
-static uint32_t getIntArraySize(const void *initial) {
+static uint32_t getIntArraySize(
+	const void *initial,
+    fiftyoneDegreesException * const exception) {
+#	ifdef _MSC_VER
+    UNREFERENCED_PARAMETER(exception);
+#	endif
 	return (uint32_t)(sizeof(int32_t) * ((*(int32_t*)initial) + 1));
 }
 

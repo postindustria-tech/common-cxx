@@ -159,7 +159,9 @@ typedef bool(*fiftyoneDegreesProfileIterateValueIndexesMethod)(
  * @param initial pointer to profile "head"
  * @return full (with tail) struct size
  */
-EXTERNAL uint32_t fiftyoneDegreesProfileGetFinalSize(const void *initial);
+EXTERNAL uint32_t fiftyoneDegreesProfileGetFinalSize(
+	const void *initial,
+	fiftyoneDegreesException * const exception);
 
 /**
  * Gets the profile associated with the profileId or NULL if there is no

@@ -22,6 +22,15 @@
 
 #include "collectionKeyTypes.h"
 
+uint32_t fiftyoneDegreesThrowUnsupportedStoredValueType(
+    const void * const initial,
+    fiftyoneDegreesException * const exception) {
+#	ifdef _MSC_VER
+    UNREFERENCED_PARAMETER(initial);
+#	endif
+    FIFTYONE_DEGREES_EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_UNSUPPORTED_STORED_VALUE_TYPE);
+}
+
 fiftyoneDegreesCollectionKeyType fiftyoneDegreesGetCollectionKeyTypeForStoredValueType(
     const fiftyoneDegreesPropertyValueType storedValueType,
     fiftyoneDegreesException * const exception) {
@@ -44,8 +53,7 @@ fiftyoneDegreesCollectionKeyType fiftyoneDegreesGetCollectionKeyTypeForStoredVal
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB:
             return CollectionKeyType_WKB;
         default: {
-            FIFTYONE_DEGREES_EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_UNSUPPORTED_STORED_VALUE_TYPE);
-            return CollectionKeyType_String;
+            return CollectionKeyType_Unsupported;
         }
     }
 }

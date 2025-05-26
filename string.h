@@ -103,7 +103,9 @@ typedef struct fiftyone_degrees_string_t {
  * @param initial pointer to string "head"
  * @return full (with tail) struct size
  */
-EXTERNAL uint32_t fiftyoneDegreesStringGetFinalSize(const void *initial);
+EXTERNAL uint32_t fiftyoneDegreesStringGetFinalSize(
+	const void *initial,
+	fiftyoneDegreesException *exception);
 
 /**
  * Reads a string from the source file at the offset within the string

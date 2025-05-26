@@ -27,7 +27,12 @@
 
 MAP_TYPE(Collection)
 
-uint32_t fiftyoneDegreesProfileGetFinalSize(const void *initial) {
+uint32_t fiftyoneDegreesProfileGetFinalSize(
+	const void *initial,
+    fiftyoneDegreesException * const exception) {
+#	ifdef _MSC_VER
+    UNREFERENCED_PARAMETER(exception);
+#	endif
 	Profile *profile = (Profile*)initial;
 	return sizeof(Profile) +
 		(profile->valueCount * sizeof(uint32_t));

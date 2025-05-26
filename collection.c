@@ -474,10 +474,12 @@ static Collection* createFromFileToMemory(
 	// Set the getter to a method that will check for another collection
 	// if the memory collection does not contain the entry.
 	if (memory->collection->elementSize != 0) {
-		collection->get = getMemoryVariable;
+		collection->get = getMemoryFixed;
+		memory->collection->count = memory->collection->size /
+			memory->collection->elementSize;
 	}
 	else {
-		collection->get = getMemoryFixed;
+		collection->get = getMemoryVariable;
 	}
 	if (fiftyoneDegreesCollectionGetIsMemoryOnly()) {
 		collection->release = NULL;

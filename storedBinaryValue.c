@@ -63,7 +63,7 @@ const StoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
 
     const CollectionKey key = {
         offset,
-        GetCollectionKeyTypeForStoredValueType(storedValueType, exception),
+        *GetCollectionKeyTypeForStoredValueType(storedValueType, exception),
     };
     if (EXCEPTION_FAILED) {
         return NULL;

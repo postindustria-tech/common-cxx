@@ -76,12 +76,13 @@ TEST_P(CollectionOffsetTest, DirectWrite) {
     for (size_t i = 0; i < elementsCount; i++) {
         // prepare
         ItemBox item;
+        const CollectionKey key {
+            (uint32_t)i,
+            CollectionKeyType_Byte,
+        };
         auto const ptr = (const byte *)collection->get(
             collection.get(),
-            (CollectionKey){
-                (uint32_t)i,
-                CollectionKeyType_Byte,
-            },
+            key,
             *item,
             exception);
 
@@ -102,12 +103,13 @@ TEST_P(CollectionOffsetTest, DirectRead) {
     for (size_t i = 0; i < elementsCount; i++) {
         // prepare
         ItemBox item;
+        const CollectionKey key {
+            (uint32_t)i,
+            CollectionKeyType_Byte,
+        };
         auto const ptr = (byte *)collection->get(
             collection.get(),
-            (CollectionKey){
-                (uint32_t)i,
-                CollectionKeyType_Byte,
-            },
+            key,
             *item,
             exception);
 

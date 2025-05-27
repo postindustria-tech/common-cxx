@@ -127,7 +127,7 @@ static const fiftyoneDegreesCollectionKeyType CollectionKeyType_WKB_R = {
     getFinalByteArraySize,
 };
 
-EXTERNAL fiftyoneDegreesCollectionKeyType fiftyoneDegreesGetCollectionKeyTypeForStoredValueType(
+EXTERNAL const fiftyoneDegreesCollectionKeyType *fiftyoneDegreesGetCollectionKeyTypeForStoredValueType(
     fiftyoneDegreesPropertyValueType storedValueType,
     fiftyoneDegreesException *exception);
 

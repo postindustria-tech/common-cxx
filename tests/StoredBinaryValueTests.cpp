@@ -239,12 +239,13 @@ void StoredBinaryValues::TearDown() {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromMemory) {
     EXCEPTION_CREATE;
     ItemBox item;
+    const fiftyoneDegreesCollectionKey key {
+        offsets.string1,
+        CollectionKeyType_String,
+    };
     auto * const value = (String *)collection.memory->get(
         collection.memory.get(),
-        (CollectionKey){
-            offsets.string1,
-            CollectionKeyType_String,
-        },
+        key,
         *item,
         exception);
     ASSERT_EQ(dataStart + offsets.string1, (byte *)value);
@@ -432,12 +433,13 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromMemory) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFileLoadedNoCache) {
     EXCEPTION_CREATE;
     ItemBox item;
+    const fiftyoneDegreesCollectionKey key {
+        offsets.string1,
+        CollectionKeyType_String,
+    };
     auto * const value = (String *)collection.fileLoadedNoCache.ptr->get(
         collection.fileLoadedNoCache.ptr.get(),
-        (CollectionKey){
-            offsets.string1,
-            CollectionKeyType_String,
-        },
+        key,
         *item,
         exception);
     EXCEPTION_THROW;
@@ -645,12 +647,13 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromFileLoadedNoCache) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFileLoadedCache) {
     EXCEPTION_CREATE;
     ItemBox item;
+    const fiftyoneDegreesCollectionKey key {
+        offsets.string1,
+        CollectionKeyType_String,
+    };
     auto * const value = (String *)collection.fileLoadedCache.ptr->get(
         collection.fileLoadedCache.ptr.get(),
-        (CollectionKey){
-            offsets.string1,
-            CollectionKeyType_String,
-        },
+        key,
         *item,
         exception);
     EXCEPTION_THROW;
@@ -858,12 +861,13 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromFileLoadedCache) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFileCache) {
     EXCEPTION_CREATE;
     ItemBox item;
+    const fiftyoneDegreesCollectionKey key {
+        offsets.string1,
+        CollectionKeyType_String,
+    };
     auto * const value = (String *)collection.fileCache.ptr->get(
         collection.fileCache.ptr.get(),
-        (CollectionKey){
-            offsets.string1,
-            CollectionKeyType_String,
-        },
+        key,
         *item,
         exception);
     EXCEPTION_THROW;
@@ -1066,12 +1070,13 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromFileCache) {
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFileNoCache) {
     EXCEPTION_CREATE;
     ItemBox item;
+    const fiftyoneDegreesCollectionKey key {
+        offsets.string1,
+        CollectionKeyType_String,
+    };
     auto * const value = (String *)collection.fileNoCache.ptr->get(
         collection.fileNoCache.ptr.get(),
-        (CollectionKey){
-            offsets.string1,
-            CollectionKeyType_String,
-        },
+        key,
         *item,
         exception);
     EXCEPTION_THROW;

@@ -103,13 +103,14 @@ protected:
 		strcpy(jsName + name->size - 1, "js");
 		
 		for (uint32_t i = 0; i < stringState->count; i++) {
-			fiftyoneDegreesString* currentName = (fiftyoneDegreesString*)
+			const fiftyoneDegreesCollectionKey key {
+				stringState->offsets[i],
+				CollectionKeyType_String,
+			};
+			auto const currentName = (const fiftyoneDegreesString*)
 				stringState->collection->get(
 					stringState->collection,
-					(fiftyoneDegreesCollectionKey){
-						stringState->offsets[i],
-						CollectionKeyType_String,
-					},
+					key,
 					&item,
 					exception);
 			if (strcmp(&currentName->value, jsName) == 0) {

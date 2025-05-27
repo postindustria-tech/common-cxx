@@ -96,6 +96,7 @@ public:
 		fiftyoneDegreesException *exception) {
 #		ifdef _MSC_VER
 		UNREFERENCED_PARAMETER(key);
+		UNREFERENCED_PARAMETER(exception);
 #		endif
 		const uint32_t * const itemValue = (const uint32_t*)item->data.ptr;
 		const uint32_t * const stateValue = (const uint32_t*)state;
@@ -135,6 +136,7 @@ public:
 		fiftyoneDegreesException *exception) {
 #		ifdef _MSC_VER
 		UNREFERENCED_PARAMETER(key);
+		UNREFERENCED_PARAMETER(exception);
 #		endif
 		const char *itemString = FIFTYONE_DEGREES_STRING(item->data.ptr);
 		const char *targetString = (const char *)state;
@@ -200,12 +202,13 @@ public:
 		fiftyoneDegreesCollectionItem item;
 		fiftyoneDegreesDataReset(&item.data);
 		for (uint32_t i = 0; i < data->count; i++) {
+			const fiftyoneDegreesCollectionKey key {
+				data->map[i],
+				data->keyType,
+			};
 			collection->get(
 				collection,
-				(fiftyoneDegreesCollectionKey){
-					data->map[i],
-					data->keyType,
-				},
+				key,
 				&item,
 				exception);
 			FIFTYONE_DEGREES_EXCEPTION_THROW
@@ -228,20 +231,25 @@ public:
 			fiftyoneDegreesDataReset(&targetItem.data);
 
 			for (uint32_t i = 0; i < data->count; i++) {
+				const fiftyoneDegreesCollectionKey key {
+					data->map[i],
+					data->keyType,
+				};
 				auto const theValue = (const uint32_t *)collection->get(
 					collection,
-					(fiftyoneDegreesCollectionKey){
-						data->map[i],
-						data->keyType,
-					},
+					key,
 					&targetItem,
 					exception);
+#				ifdef _MSC_VER
+				UNREFERENCED_PARAMETER(theValue);
+#				endif
 				FIFTYONE_DEGREES_EXCEPTION_THROW;
+				const fiftyoneDegreesCollectionIndexOrOffset end = {data->count - 1};
 				const long index = fiftyoneDegreesCollectionBinarySearch(
 					collection,
 					&resultItem,
-					(fiftyoneDegreesCollectionIndexOrOffset){0},
-					(fiftyoneDegreesCollectionIndexOrOffset){data->count - 1},
+					fiftyoneDegreesCollectionIndexOrOffset_Zero,
+					end,
 					data->keyType,
 					targetItem.data.ptr,
 					data->itemComparer,
@@ -273,11 +281,12 @@ public:
 				(int)data->count + 3,
 			};
 			for (uint32_t i = 0; i < sizeof(DummyIDs) / sizeof(DummyIDs[0]); i++) {
+				const fiftyoneDegreesCollectionIndexOrOffset end = {data->count - 1};
 				EXPECT_EQ(-1, fiftyoneDegreesCollectionBinarySearch(
 					collection,
 					&resultItem,
-					(fiftyoneDegreesCollectionIndexOrOffset){0},
-					(fiftyoneDegreesCollectionIndexOrOffset){data->count - 1},
+					fiftyoneDegreesCollectionIndexOrOffset_Zero,
+					end,
 					data->keyType,
 					&(DummyIDs[i]),
 					data->itemComparer,
@@ -291,12 +300,13 @@ public:
 		FIFTYONE_DEGREES_EXCEPTION_CREATE
 		fiftyoneDegreesCollectionItem item;
 		fiftyoneDegreesDataReset(&item.data);
+		const fiftyoneDegreesCollectionKey key {
+			data->outOfRange(),
+			data->keyType,
+		};
 		EXPECT_EQ(collection->get(
 			collection,
-			(fiftyoneDegreesCollectionKey){
-				data->outOfRange(),
-				data->keyType,
-			},
+			key,
 			&item,
 			exception), nullptr) << "Returned pointer should always be "
 			"null if out of range";
@@ -319,13 +329,14 @@ public:
 		for (uint32_t i = 0; i < data->count; i++) {
 			uint32_t index = (uint32_t)(rand() % data->count);
 			ASSERT_LT(index, data->count) << "Random index must be less than "
-				"the count of available test data items";
+			"the count of available test data items";
+			const fiftyoneDegreesCollectionKey key {
+					data->map[index],
+				data->keyType,
+			};
 			EXPECT_NE(collection->get(
 				collection,
-				(fiftyoneDegreesCollectionKey){
-					data->map[index],
-					data->keyType,
-				},
+				key,
 				&item, 
 				exception), nullptr);
 			FIFTYONE_DEGREES_EXCEPTION_THROW
@@ -348,12 +359,13 @@ public:
 		while (list.count < list.capacity && i < data->count) {
 			fiftyoneDegreesCollectionItem item;
 			fiftyoneDegreesDataReset(&item.data);
+			const fiftyoneDegreesCollectionKey key {
+				data->map[i],
+				data->keyType,
+			};
 			EXPECT_NE(collection->get(
 				collection,
-				(fiftyoneDegreesCollectionKey){
-					data->map[i],
-					data->keyType,
-				},
+				key,
 				&item,
 				exception), nullptr);
 			FIFTYONE_DEGREES_EXCEPTION_THROW
@@ -682,17 +694,19 @@ TEST_F(CollectionTestFileVariableLimits, OnlyElementHeader) {
 	fiftyoneDegreesCollectionItem item;
 	fiftyoneDegreesDataReset(&item.data);
 	uint32_t *value;
+	const fiftyoneDegreesCollectionKeyType keyType {
+		FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_CUSTOM,
+		sizeof(int32_t),
+		getIntArraySize,
+	};
 	for (uint32_t i = 0; i < count; i++) {
+		const fiftyoneDegreesCollectionKey key {
+			offsets[i],
+			keyType,
+		};
 		value = (uint32_t*)collection->get(
 			collection,
-			(fiftyoneDegreesCollectionKey){
-				offsets[i],
-				(fiftyoneDegreesCollectionKeyType){
-					FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_CUSTOM,
-					sizeof(int32_t),
-					getIntArraySize,
-				},
-			},
+			key,
 			&item,
 			exception);
 		FIFTYONE_DEGREES_EXCEPTION_THROW

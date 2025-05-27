@@ -54,6 +54,9 @@ typedef union fiftyone_degrees_collection_intex_or_offset_t {
 	uint32_t offset;  /**< byte offset of the item from the start of collection. */
 } fiftyoneDegreesCollectionIndexOrOffset;
 
+static const fiftyoneDegreesCollectionIndexOrOffset
+	fiftyoneDegreesCollectionIndexOrOffset_Zero = { 0 };
+
 /**
  * Explains to a collection how to properly extract the requested value.
  */

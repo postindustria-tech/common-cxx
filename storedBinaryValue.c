@@ -30,17 +30,19 @@
 
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
+
 void* fiftyoneDegreesStoredBinaryValueRead(
     const CollectionFile * const file,
     const CollectionKey key,
     Data * const data,
     Exception * const exception) {
-    const size_t maxLength = 8;
-    if (key.keyType.initialBytesCount > maxLength) {
+#   define MAX_INITIAL_BUFFER_LENGTH 8
+    if (key.keyType.initialBytesCount > MAX_INITIAL_BUFFER_LENGTH) {
         EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
         return NULL;
     }
-    byte initial[maxLength];
+    byte initial[MAX_INITIAL_BUFFER_LENGTH];
+#   undef MAX_INITIAL_BUFFER_LENGTH
 
     return CollectionReadFileVariable(
         file,

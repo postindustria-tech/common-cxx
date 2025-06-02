@@ -34,7 +34,7 @@ MAP_TYPE(CollectionConfig)
  * Used by methods which retrieve values from a collection to set an exception.
  */
 #ifndef FIFTYONE_DEGREES_EXCEPTIONS_DISABLED
-#define GET_EXCEPTION_SET(s) \
+#define GET_CLEAR_ITEM \
 if (item->data.allocated > 0) { \
 	Free(item->data.ptr); \
 } \
@@ -42,11 +42,14 @@ item->data.ptr = NULL; \
 item->data.used = 0; \
 item->data.allocated = 0; \
 item->handle = NULL; \
-item->collection = NULL; \
+item->collection = NULL;
+#define GET_EXCEPTION_SET(s) \
+GET_CLEAR_ITEM \
 if (exception->status == NOT_SET) { \
 	EXCEPTION_SET(s); \
 }
 #else
+#define GET_CLEAR_ITEM
 #define GET_EXCEPTION_SET(s)
 #endif
 
@@ -246,6 +249,8 @@ static void* getFile(
 	if (EXCEPTION_OKAY && item->handle != NULL) {
 		item->collection = collection;
 		ptr = item->data.ptr;
+	} else {
+		GET_CLEAR_ITEM;
 	}
 
 	return ptr;

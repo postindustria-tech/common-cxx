@@ -214,7 +214,7 @@ const fiftyoneDegreesProperty* fiftyoneDegreesPropertyGetByName(
 				}
 
 				// Release the property name as this is not needed again.
-				COLLECTION_RELEASE(properties, &propertyNameItem);
+				COLLECTION_RELEASE(strings, &propertyNameItem);
 			}
 		}
 	}

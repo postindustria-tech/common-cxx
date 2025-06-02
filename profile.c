@@ -569,7 +569,7 @@ uint32_t fiftyoneDegreesProfileIterateProfilesForPropertyWithTypeAndValueAndOffs
 								profileValueIndex++;
 							}
 						}
-						COLLECTION_RELEASE(profileOffsets, &profileItem);
+						COLLECTION_RELEASE(profiles, &profileItem);
 					}
 					COLLECTION_RELEASE(profileOffsets, &offsetItem);
 				}

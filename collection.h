@@ -265,7 +265,7 @@ if (c != NULL) { c->freeCollection(c); }
  * @param i item to release
  */
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
-#define FIFTYONE_DEGREES_COLLECTION_RELEASE(c, i) { assert(c == (i)->collection); c->release(i); };
+#define FIFTYONE_DEGREES_COLLECTION_RELEASE(c, i) { assert(!((i)->collection) || (c == (i)->collection)); c->release(i); };
 #else
 #define FIFTYONE_DEGREES_COLLECTION_RELEASE(c, i)
 #endif

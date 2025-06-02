@@ -352,10 +352,12 @@ static void loaderCache(
 
 static Collection* createCollection(
 	size_t sizeOfState,
-	CollectionHeader *header) {
+	CollectionHeader *header,
+	const char * const typeName) {
 	Collection *collection = (Collection*)Malloc(sizeof(Collection));
 	if (collection != NULL) {
 		collection->state = Malloc(sizeOfState);
+		collection->typeName = typeName;
 		if (collection->state != NULL) {
 			collection->elementSize = header->count == 0 ?
 				0 : header->length / header->count;
@@ -402,7 +404,8 @@ static Collection* createFromFile(
 	// Allocate the memory for the collection and file implementation.
 	Collection *collection = createCollection(
 		sizeof(CollectionFile),
-		header);
+		header,
+		"CollectionFile");
 	CollectionFile *fileCollection = (CollectionFile*)collection->state;
 	fileCollection->collection = collection;
 	fileCollection->reader = reader;
@@ -435,7 +438,10 @@ static Collection* createFromFileToMemory(
 	Collection *source = createFromFile(file, reader, header, read);
 
 	// Allocate the memory for the collection and implementation.
-	Collection *collection = createCollection(sizeof(CollectionFile), header);
+	Collection *collection = createCollection(
+		sizeof(CollectionFile),
+		header,
+		"CollectionMemory");
 	CollectionMemory *memory = (CollectionMemory*)collection->state;
 	memory->memoryToFree = NULL;
 	memory->collection = collection;
@@ -504,7 +510,10 @@ static Collection* createFromFileCached(
 	CollectionFileRead read) {
 
 	// Allocate the memory for the collection and implementation.
-	Collection *collection = createCollection(sizeof(CollectionFile), header);
+	Collection *collection = createCollection(
+		sizeof(CollectionFile),
+		header,
+		"CollectionCache");
 	CollectionCache *cache = (CollectionCache*)collection->state;
 	cache->cache = NULL;
 
@@ -623,7 +632,8 @@ fiftyoneDegreesCollection* fiftyoneDegreesCollectionCreateFromMemory(
 	// Allocate the memory for the collection and implementation.
 	Collection *collection = createCollection(
 		sizeof(CollectionMemory),
-		&header);
+		&header,
+		"CollectionMemory");
 	CollectionMemory *memory = (CollectionMemory*)collection->state;
 
 	// Configure the fields for the collection.

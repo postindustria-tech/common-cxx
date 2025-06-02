@@ -418,6 +418,7 @@ typedef struct fiftyone_degrees_collection_t {
 	uint32_t elementSize; /**< The size of each entry, or 0 if variable length */
 	uint32_t size; /**< Number of bytes in the source data structure containing
 					  the collection's data */
+	const char *typeName; /**< Name of collection type (vtable). */
 } fiftyoneDegreesCollection;
 
 /**

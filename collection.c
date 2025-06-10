@@ -831,7 +831,11 @@ void* fiftyoneDegreesCollectionReadFileFixed(
 	fiftyoneDegreesException *exception) {
 	void *ptr = NULL;
 	FileHandle *handle = NULL;
-	uint32_t offset = key.indexOrOffset.index * file->collection->elementSize;
+	const uint32_t offset = key.indexOrOffset.index * file->collection->elementSize;
+	const uint32_t lengthToRead =
+		((key.keyType.initialBytesCount > file->collection->elementSize)
+			? key.keyType.initialBytesCount
+			: file->collection->elementSize);
 	
 	// Indicate that no data is being used at the start of the operation.
 	data->used = 0;
@@ -844,17 +848,17 @@ void* fiftyoneDegreesCollectionReadFileFixed(
 		if (handle != NULL && EXCEPTION_OKAY) {
 
 			// Ensure sufficient memory is allocated for the item being read.
-			if (DataMalloc(data, file->collection->elementSize) != NULL) {
+			if (DataMalloc(data, lengthToRead) != NULL) {
 
 				// Read the record from file to the cache node's data field.
 				if (fread(
 					data->ptr,
-					file->collection->elementSize,
+					lengthToRead,
 					1,
 					handle->file) == 1) {
 
 					// Set the data structure to indicate a successful read.
-					data->used = file->collection->elementSize;
+					data->used = lengthToRead;
 					ptr = data->ptr;
 				}
 				else {

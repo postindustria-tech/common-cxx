@@ -60,6 +60,14 @@ typedef enum e_fiftyone_degrees_property_value_type {
 	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT, /**< fiftyoneDegreesComponent */
 	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROPERTY, /**< fiftyoneDegreesProperty */
 	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROPERTY_TYPE_RECORD, /**< fiftyoneDegreesPropertyTypeRecord */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_IPV4_RANGE, /**< fiftyoneDegreesIpv4Range */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_IPV6_RANGE, /**< fiftyoneDegreesIpv6Range */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_OFFSET_PERCENTAGE, /**< offsetPercentage (in ipi.c) */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_GRAPH_DATA_CLUSTER, /**< Cluster (in graph.c) */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_GRAPH_DATA_SPAN, /**< Span (in graph.c) */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_GRAPH_DATA_SPAN_BYTES, /**< bytes of Span (in graph.c) */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_GRAPH_DATA_NODE_BYTES, /**< bytes of node (in graph.c) */
+	FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_GRAPH_INFO, /**< fiftyoneDegreesIpiCgInfo */
 } fiftyoneDegreesPropertyValueType;
 
 #endif

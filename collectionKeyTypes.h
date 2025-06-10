@@ -56,6 +56,11 @@ static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Azimuth = {
     sizeof(int16_t),
     NULL,
 };
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Byte = {
+    FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
+    sizeof(uint8_t),
+    NULL,
+};
 static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Component = {
     FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT,
     sizeof(fiftyoneDegreesComponent) - sizeof(fiftyoneDegreesComponentKeyValuePair),

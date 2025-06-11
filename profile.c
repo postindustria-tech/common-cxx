@@ -190,6 +190,7 @@ static uint32_t iterateValues(
 			EXCEPTION_OKAY) {
 			cont = callback(state, &valueItem);
 			count++;
+			COLLECTION_RELEASE(values, &valueItem);
 		}
 
 		// Move to the next value index pointer as this might relate to another

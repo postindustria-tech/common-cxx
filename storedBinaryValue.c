@@ -47,7 +47,12 @@ static uint32_t getFinalShortSize(void *initial) {
 #	endif
     return sizeof(int16_t);
 }
-
+static uint32_t getFinalByteSize(void* initial) {
+#	ifdef _MSC_VER
+    UNREFERENCED_PARAMETER(initial);
+#	endif
+    return sizeof(byte);
+}
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
 /**
@@ -124,6 +129,16 @@ void* fiftyoneDegreesStoredBinaryValueRead(
                 &length,
                 sizeof(length),
                 getFinalByteArraySize,
+                exception);
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE: {
+            return CollectionReadFileVariable(
+                file,
+                data,
+                offset,
+                &length,
+                0,
+                getFinalByteSize,
                 exception);
         }
         default: {

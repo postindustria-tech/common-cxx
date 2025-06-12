@@ -52,6 +52,7 @@ public:
         Offset shortValue;
         Offset floatValue;
         Offset intValue;
+        Offset byteValue;
     } offsets = {};
 
     struct FileProps {
@@ -103,6 +104,11 @@ static constexpr byte floatValue_rawValueBytes[] = {
     0xCE, 0x2E, 0x88, 0x04,
 };
 static constexpr float floatValue_rawValue = 3.201642965935704e-36f;
+
+static constexpr byte byteValue_rawValueBytes[] = {
+    0x2f
+};
+static constexpr byte byteValue_rawValue = 0x2f;
 
 static constexpr byte intValue_rawValueBytes[] = {
     0x65, 0x7A, 0x20, 0x52,
@@ -176,6 +182,7 @@ void StoredBinaryValues::SetUp() {
     add_value_to_buffer(shortValue)
     add_value_to_buffer(floatValue)
     add_value_to_buffer(intValue)
+    add_value_to_buffer(byteValue)
 #   undef add_value_to_buffer
 
     FileWrite(fileName, rawStringsBuffer.data(), rawStringsBuffer.size());
@@ -346,6 +353,22 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Float_FromMemory) {
         ASSERT_EQ(floatValue_rawValueBytes[i], ((byte *)value)[i]);
     }
     ASSERT_EQ(floatValue_rawValue, FLOAT_TO_NATIVE(value->floatValue));
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Byte_FromMemory) {
+    EXCEPTION_CREATE;
+    ItemBox item;
+    StoredBinaryValue* const value = StoredBinaryValueGet(
+        collection.memory.get(),
+        offsets.byteValue,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE,
+        *item,
+        exception);
+    ASSERT_EQ(rawStringsBuffer.data() + offsets.byteValue, (byte*)value);
+    for (size_t i = 0; i < sizeof(byteValue_rawValueBytes); i++) {
+        ASSERT_EQ(byteValue_rawValueBytes[i], ((byte*)value)[i]);
+    }
+    ASSERT_EQ(byteValue_rawValue, value->byteValue);
 }
 
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Integer_FromMemory) {
@@ -554,6 +577,24 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Float_FromFile) {
         ASSERT_EQ(floatValue_rawValueBytes[i], ((byte *)value)[i]);
     }
     ASSERT_EQ(floatValue_rawValue, FLOAT_TO_NATIVE(value->floatValue));
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Byte_FromFile) {
+    EXCEPTION_CREATE;
+    ItemBox item;
+    StoredBinaryValue* const value = StoredBinaryValueGet(
+        collection.file.get(),
+        offsets.byteValue,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE,
+        *item,
+        exception);
+    EXCEPTION_THROW;
+    ASSERT_NE(nullptr, value);
+    ASSERT_EQ(sizeof(byteValue_rawValueBytes), item->data.allocated);
+    for (size_t i = 0; i < sizeof(byteValue_rawValueBytes); i++) {
+        ASSERT_EQ(byteValue_rawValueBytes[i], ((byte*)value)[i]);
+    }
+    ASSERT_EQ(byteValue_rawValue, value->byteValue);
 }
 
 TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Integer_FromFile) {

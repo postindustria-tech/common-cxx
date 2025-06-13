@@ -140,6 +140,9 @@ int fiftyoneDegreesStoredBinaryValueToIntOrDefault(
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION: {
             return (int)toDeclination(value);
         }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE: {
+            return value->byteValue;
+        }
         default: {
             return defaultValue;
         }
@@ -166,6 +169,9 @@ double fiftyoneDegreesStoredBinaryValueToDoubleOrDefault(
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION: {
             return toDeclination(value);
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE: {
+            return value->byteValue;
         }
         default: {
             return defaultValue;
@@ -196,6 +202,9 @@ bool fiftyoneDegreesStoredBinaryValueToBoolOrDefault(
         }
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION: {
             return toDeclination(value) ? true : false;
+        }
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE: {
+            return value->byteValue;
         }
         default: {
             return defaultValue;

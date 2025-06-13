@@ -423,7 +423,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Byte_FromMemory) {
         FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE,
         *item,
         exception);
-    ASSERT_EQ(rawStringsBuffer.data() + offsets.byteValue, (byte*)value);
+    ASSERT_EQ(dataStart + offsets.byteValue, (byte*)value);
     for (size_t i = 0; i < sizeof(byteValue_rawValueBytes); i++) {
         ASSERT_EQ(byteValue_rawValueBytes[i], ((const byte *)value)[i]);
     }
@@ -655,7 +655,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Byte_FromFileLoadedNoCache) {
         exception);
     EXCEPTION_THROW;
     ASSERT_NE(nullptr, value);
-    ASSERT_EQ(sizeof(byteValue_rawValueBytes), item->data.allocated);
+    ASSERT_EQ(0, item->data.allocated);
     for (size_t i = 0; i < sizeof(byteValue_rawValueBytes); i++) {
         ASSERT_EQ(byteValue_rawValueBytes[i], ((const byte *)value)[i]);
     }
@@ -887,7 +887,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Byte_FromFileLoadedCache) {
         exception);
     EXCEPTION_THROW;
     ASSERT_NE(nullptr, value);
-    ASSERT_EQ(sizeof(byteValue_rawValueBytes), item->data.allocated);
+    ASSERT_EQ(0, item->data.allocated);
     for (size_t i = 0; i < sizeof(byteValue_rawValueBytes); i++) {
         ASSERT_EQ(byteValue_rawValueBytes[i], ((const byte *)value)[i]);
     }
@@ -1425,6 +1425,24 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_String_3_95) {
     EXPECT_EQ(3, result);
 }
 
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Byte_0) {
+    const byte rawByte = 0;
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)&rawByte,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE,
+        -1);
+    EXPECT_EQ(0, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Byte_7) {
+    const byte rawByte = 7;
+    const int result = StoredBinaryValueToIntOrDefault(
+        (const StoredBinaryValue *)&rawByte,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE,
+        -1);
+    EXPECT_EQ(7, result);
+}
+
 TEST_F(StoredBinaryValues, StoredBinaryValue_ToInt_Integer_0) {
     const char rawBytes[] = { 0, 0, 0, 0 };
     const int result = StoredBinaryValueToIntOrDefault(
@@ -1585,6 +1603,24 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_String_3_95) {
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
         -1);
     EXPECT_EQ(3.95, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Byte_0) {
+    const byte rawByte = 0;
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)&rawByte,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE,
+        -1);
+    EXPECT_EQ(0, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Byte_7) {
+    const byte rawByte = 7;
+    const double result = StoredBinaryValueToDoubleOrDefault(
+        (const StoredBinaryValue *)&rawByte,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE,
+        -1);
+    EXPECT_EQ(7, result);
 }
 
 TEST_F(StoredBinaryValues, StoredBinaryValue_ToDouble_Integer_0) {
@@ -1801,6 +1837,24 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Integer_0) {
         FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
         false);
     EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Byte_0) {
+    const byte rawByte = 0;
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)&rawByte,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE,
+        false);
+    EXPECT_EQ(false, result);
+}
+
+TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Byte_7) {
+    const byte rawByte = 7;
+    const byte result = StoredBinaryValueToBoolOrDefault(
+        (const StoredBinaryValue *)&rawByte,
+        FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE,
+        false);
+    EXPECT_EQ(true, result);
 }
 
 TEST_F(StoredBinaryValues, StoredBinaryValue_ToBool_Integer_Positive) {

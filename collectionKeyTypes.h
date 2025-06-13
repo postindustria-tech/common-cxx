@@ -60,7 +60,7 @@ static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Azimuth_raw = {
 };
 static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Azimuth = &CollectionKeyType_Azimuth_raw;
 static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Byte_raw = {
-    FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH, // FIXME: Use BYTE
+    FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE,
     sizeof(uint8_t),
     NULL,
 };

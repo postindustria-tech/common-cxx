@@ -358,6 +358,21 @@ TEST_F(Strings, StringBuilder_AddStringValue_Valid) {
         EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
         EXPECT_STRCASEEQ(builder->ptr, "point(17 892)");
     }
+    {
+        const byte byteValue = 42;
+        EXCEPTION_CLEAR;
+        StringBuilderInit(builder);
+        StringBuilderAddStringValue(
+            builder,
+            (const StoredBinaryValue *)&byteValue,
+            FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE,
+            0,
+            exception);
+        EXPECT_TRUE(*(builder->current - 1));
+        StringBuilderComplete(builder);
+        EXPECT_TRUE(EXCEPTION_OKAY) << ExceptionGetMessage(exception);
+        EXPECT_STRCASEEQ(builder->ptr, "42");
+    }
 }
 
 TEST_F(Strings, StringBuilder_AddStringValue_Invalid) {

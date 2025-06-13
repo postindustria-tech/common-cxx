@@ -50,6 +50,8 @@ const fiftyoneDegreesCollectionKeyType *fiftyoneDegreesGetCollectionKeyTypeForSt
             return CollectionKeyType_Declination;
         case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT:
             return CollectionKeyType_Float;
+        case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE:
+            return CollectionKeyType_Byte;
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS:
             return CollectionKeyType_IPAddress;
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R:

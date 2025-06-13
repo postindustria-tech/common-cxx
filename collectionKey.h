@@ -62,7 +62,7 @@ static const fiftyoneDegreesCollectionIndexOrOffset
  */
 typedef struct fiftyone_degrees_collection_key_type_t {
 	const fiftyoneDegreesPropertyValueType valueType;  /**< Size of known-length "head" of the item. */
-	const uint32_t initialBytesCount; /**< Size of known-length "head" of the item. */
+	uint32_t initialBytesCount; /**< Size of known-length "head" of the item. */
 	const fiftyoneDegreesCollectionGetVariableSizeMethod getFinalSizeMethod; /**< Size of unknown-length "tail" of the item. */
 } fiftyoneDegreesCollectionKeyType;
 

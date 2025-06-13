@@ -33,11 +33,11 @@
 
 void* fiftyoneDegreesStoredBinaryValueRead(
     const CollectionFile * const file,
-    const CollectionKey key,
+    const CollectionKey * const key,
     Data * const data,
     Exception * const exception) {
 #   define MAX_INITIAL_BUFFER_LENGTH 8
-    if (key.keyType->initialBytesCount > MAX_INITIAL_BUFFER_LENGTH) {
+    if (key->keyType->initialBytesCount > MAX_INITIAL_BUFFER_LENGTH) {
         EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_INSUFFICIENT_CAPACITY);
         return NULL;
     }
@@ -71,7 +71,7 @@ const StoredBinaryValue* fiftyoneDegreesStoredBinaryValueGet(
 
     const fiftyoneDegreesStoredBinaryValue * const result = strings->get(
         strings,
-        key,
+        &key,
         item,
         exception);
     return result;

@@ -330,7 +330,7 @@ typedef struct fiftyone_degrees_collection_item_t {
  */
 typedef void* (*fiftyoneDegreesCollectionGetMethod)(
 	const fiftyoneDegreesCollection *collection,
-	fiftyoneDegreesCollectionKey key,
+	const fiftyoneDegreesCollectionKey *key,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception);
 
@@ -346,7 +346,7 @@ typedef void* (*fiftyoneDegreesCollectionGetMethod)(
  */
 typedef void* (*fiftyoneDegreesCollectionFileRead)(
 	const fiftyoneDegreesCollectionFile *collection,
-	fiftyoneDegreesCollectionKey key,
+	const fiftyoneDegreesCollectionKey *key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception);
 
@@ -550,7 +550,7 @@ EXTERNAL fiftyoneDegreesFileHandle* fiftyoneDegreesCollectionReadFilePosition(
  */
 EXTERNAL void* fiftyoneDegreesCollectionReadFileFixed(
 	const fiftyoneDegreesCollectionFile *file,
-	fiftyoneDegreesCollectionKey key,
+	const fiftyoneDegreesCollectionKey *key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception);
 
@@ -588,7 +588,7 @@ fiftyoneDegreesCollectionHeaderFromFile(
 EXTERNAL void* fiftyoneDegreesCollectionReadFileVariable(
 	const fiftyoneDegreesCollectionFile *file,
 	fiftyoneDegreesData *data,
-	fiftyoneDegreesCollectionKey key,
+	const fiftyoneDegreesCollectionKey *key,
 	void *initial,
 	fiftyoneDegreesException *exception);
 

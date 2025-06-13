@@ -48,7 +48,7 @@ void* fiftyoneDegreesStringRead(
 	return CollectionReadFileVariable(
 		file,
 		data,
-		key,
+		&key,
 		&length,
 		exception);
 }
@@ -60,12 +60,13 @@ const fiftyoneDegreesString* fiftyoneDegreesStringGet(
 	uint32_t offset,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception) {
+	const CollectionKey stringKey = {
+		offset,
+		CollectionKeyType_String,
+	};
 	return (String*)strings->get(
 		strings,
-		(CollectionKey){
-			offset,
-			CollectionKeyType_String,
-		},
+		&stringKey,
 		item,
 		exception);
 }

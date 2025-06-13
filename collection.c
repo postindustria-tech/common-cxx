@@ -191,12 +191,12 @@ static void freeCacheCollection(Collection *collection) {
 #endif
 static void* getMemoryVariable(
 	const Collection *collection,
-	const CollectionKey key,
+	const CollectionKey * const key,
 	Item *item,
 	Exception *exception) {
 	CollectionMemory *memory = (CollectionMemory*)collection->state;
-	if (key.indexOrOffset.offset < collection->size) {
-		item->data.ptr = memory->firstByte + key.indexOrOffset.offset;
+	if (key->indexOrOffset.offset < collection->size) {
+		item->data.ptr = memory->firstByte + key->indexOrOffset.offset;
 		assert(item->data.ptr < memory->lastByte);
 		item->collection = collection;
 	}
@@ -208,12 +208,12 @@ static void* getMemoryVariable(
 
 static void* getMemoryFixed(
 	const Collection *collection,
-	const CollectionKey key,
+	const CollectionKey * const key,
 	Item *item,
 	Exception *exception) {
 	CollectionMemory *memory = (CollectionMemory*)collection->state;
-	if (key.indexOrOffset.index < collection->count) {
-		item->data.ptr = memory->firstByte + ((uint64_t)key.indexOrOffset.index * collection->elementSize);
+	if (key->indexOrOffset.index < collection->count) {
+		item->data.ptr = memory->firstByte + ((uint64_t)key->indexOrOffset.index * collection->elementSize);
 		assert(item->data.ptr < memory->lastByte);
 		item->collection = collection;
 	}
@@ -231,7 +231,7 @@ static void* getMemoryFixed(
 
 static void* getFile(
 	const Collection *collection,
-	fiftyoneDegreesCollectionKey key,
+	const fiftyoneDegreesCollectionKey * const key,
 	Item *item,
 	Exception *exception) {
 	CollectionFile *file = (CollectionFile*)collection->state;
@@ -269,7 +269,7 @@ static void* getFile(
  */
 static void* getFromCache(
 	const Collection *collection,
-	fiftyoneDegreesCollectionKey key,
+	const fiftyoneDegreesCollectionKey * const key,
 	Item *item,
 	Exception *exception) {
 	void *ptr = NULL;
@@ -280,7 +280,7 @@ static void* getFromCache(
 	// Get the node from the cache or the loader. This method doesn't need
 	// to know which.
 	CollectionCache *cache = (CollectionCache*)collection->state;
-	CacheNode *node = CacheGet(cache->cache, &key, exception);
+	CacheNode *node = CacheGet(cache->cache, key, exception);
 	
 	if (EXCEPTION_OKAY && node != NULL) {
 
@@ -327,7 +327,7 @@ static void loaderCache(
 	DataReset(&item.data);
 	if (collection->get(
 		collection,
-		*(const CollectionKey *)key,
+		(const CollectionKey *)key,
 		&item,
 		exception) != NULL &&
 		EXCEPTION_OKAY) {
@@ -826,22 +826,22 @@ fiftyoneDegreesFileHandle* fiftyoneDegreesCollectionReadFilePosition(
 
 void* fiftyoneDegreesCollectionReadFileFixed(
 	const fiftyoneDegreesCollectionFile *file,
-	CollectionKey key,
+	const CollectionKey *key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception) {
 	void *ptr = NULL;
 	FileHandle *handle = NULL;
-	const uint32_t offset = key.indexOrOffset.index * file->collection->elementSize;
+	const uint32_t offset = key->indexOrOffset.index * file->collection->elementSize;
 	const uint32_t lengthToRead =
-		((key.keyType->initialBytesCount > file->collection->elementSize)
-			? key.keyType->initialBytesCount
+		((key->keyType->initialBytesCount > file->collection->elementSize)
+			? key->keyType->initialBytesCount
 			: file->collection->elementSize);
 	
 	// Indicate that no data is being used at the start of the operation.
 	data->used = 0;
 
 	// If the index is outside the range of the collection then return NULL.
-	if (key.indexOrOffset.index < file->collection->count) {
+	if (key->indexOrOffset.index < file->collection->count) {
 
 		// Get the handle positioned at the start of the item to be read.
 		handle = CollectionReadFilePosition(file, offset, exception);
@@ -967,7 +967,7 @@ static void* readFileVariable(
 void* fiftyoneDegreesCollectionReadFileVariable(
 	const fiftyoneDegreesCollectionFile *fileCollection,
 	fiftyoneDegreesData *data,
-	fiftyoneDegreesCollectionKey key,
+	const fiftyoneDegreesCollectionKey * const key,
 	void *initial,
 	fiftyoneDegreesException *exception) {
 	void *ptr = NULL;
@@ -980,7 +980,7 @@ void* fiftyoneDegreesCollectionReadFileVariable(
 	data->used = 0;
 
 	// Check that the item offset is within the range available.
-	if (key.indexOrOffset.offset < fileCollection->collection->size) {
+	if (key->indexOrOffset.offset < fileCollection->collection->size) {
 
 		// Get the handle for the file operation.
 		handle = FileHandleGet(fileCollection->reader, exception);
@@ -993,10 +993,10 @@ void* fiftyoneDegreesCollectionReadFileVariable(
 				fileCollection,
 				handle,
 				data, 
-				key.indexOrOffset.offset,
+				key->indexOrOffset.offset,
 				initial,
-				key.keyType->initialBytesCount,
-				key.keyType->getFinalSizeMethod,
+				key->keyType->initialBytesCount,
+				key->keyType->getFinalSizeMethod,
 				exception);
 			FileHandleRelease(handle);
 		}
@@ -1020,12 +1020,13 @@ int32_t fiftyoneDegreesCollectionGetInteger32(
 	Item item;
 	int32_t value = 0;
 	DataReset(&item.data);
+	const CollectionKey itemKey = {
+		indexOrOffset,
+		CollectionKeyType_Integer,
+	};
 	if (collection->get(
 		collection,
-		(CollectionKey){
-			indexOrOffset,
-			CollectionKeyType_Integer,
-		},
+		&itemKey,
 		&item,
 		exception) != NULL) {
 		value = *((int32_t*)item.data.ptr);
@@ -1059,7 +1060,7 @@ long fiftyoneDegreesCollectionBinarySearch(
 		};
 
 		// Get the item from the collection checking for NULL or an error.
-		if (collection->get(collection, middleKey, item, exception) == NULL ||
+		if (collection->get(collection, &middleKey, item, exception) == NULL ||
 			EXCEPTION_OKAY == false) {
 			return 0;
 		}

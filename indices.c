@@ -69,7 +69,7 @@ static void addProfileValuesMethod(
 		EXCEPTION_OKAY;
 		i++) {
 		valueKey.indexOrOffset.offset = *(first + i);
-		value = values->get(values, valueKey, &valueItem, exception);
+		value = values->get(values, &valueKey, &valueItem, exception);
 		if (value != NULL && EXCEPTION_OKAY) {
 
 			// If the value doesn't relate to the next property index then 
@@ -122,14 +122,14 @@ static void iterateProfiles(
 		profileOffsetKey.indexOrOffset.offset = i;
 		profileOffset = profileOffsets->get(
 			profileOffsets,
-			profileOffsetKey,
+			&profileOffsetKey,
 			&profileOffsetItem,
 			exception);
 		if (profileOffset != NULL && EXCEPTION_OKAY) {
 			profileKey.indexOrOffset.offset = profileOffset->offset;
 			profile = profiles->get(
 				profiles,
-				profileKey,
+				&profileKey,
 				&profileItem,
 				exception);
 			if (profile != NULL && EXCEPTION_OKAY) {
@@ -156,12 +156,13 @@ static uint32_t getProfileId(
 	ProfileOffset* profileOffset; // The profile offset pointer
 	Item profileOffsetItem; // The profile offset memory
 	DataReset(&profileOffsetItem.data);
+	const CollectionKey profileOffsetKey = {
+		index,
+		CollectionKeyType_ProfileOffset,
+	};
 	profileOffset = profileOffsets->get(
 		profileOffsets,
-		(CollectionKey){
-			index,
-			CollectionKeyType_ProfileOffset,
-		},
+		&profileOffsetKey,
 		&profileOffsetItem,
 		exception);
 	if (profileOffset != NULL && EXCEPTION_OKAY) {

@@ -44,12 +44,13 @@ uint32_t fiftyoneDegreesComponentGetDefaultProfileId(
 	Item profileItem;
 	Profile *profile;
 	DataReset(&profileItem.data);
+	const CollectionKey profileKey = {
+		component->defaultProfileOffset,
+		CollectionKeyType_Profile,
+	};
 	profile = (Profile*)profiles->get(
 		profiles,
-		(CollectionKey){
-			component->defaultProfileOffset,
-			CollectionKeyType_Profile,
-		},
+		&profileKey,
 		&profileItem,
 		exception);
 	if (profile != NULL && EXCEPTION_OKAY) {
@@ -90,7 +91,7 @@ fiftyoneDegreesComponentGetKeyValuePair(
 
 void* fiftyoneDegreesComponentReadFromFile(
 	const fiftyoneDegreesCollectionFile *file,
-	CollectionKey key,
+	const CollectionKey *key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception) {
 	Component component = { 0, 0, 0, 0, { 0, 0 } };
@@ -123,12 +124,13 @@ void fiftyoneDegreesComponentInitList(
 			// Get the component and add it to the list.
 			DataReset(&item.data);
 			keyType.initialBytesCount = sizeof(Component) - sizeof(fiftyoneDegreesComponentKeyValuePair);
+			const CollectionKey componentKey = {
+				offset,
+				&keyType,
+			};
 			component = (Component*)components->get(
 				components,
-				(CollectionKey){
-					offset,
-					&keyType,
-				},
+				&componentKey,
 				&item,
 				exception);
 			if (component != NULL && EXCEPTION_OKAY) {

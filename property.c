@@ -104,12 +104,13 @@ PropertyValueType fiftyoneDegreesPropertyGetStoredTypeByIndex(
 
 	Item item;
 	DataReset(&item.data);
+	const CollectionKey recordKey = {
+		propertyOffset,
+		CollectionKeyType_PropertyTypeRecord,
+	};
 	const PropertyTypeRecord * const record = (PropertyTypeRecord*)propertyTypesCollection->get(
 		propertyTypesCollection,
-		(CollectionKey){
-			propertyOffset,
-			CollectionKeyType_PropertyTypeRecord,
-		},
+		&recordKey,
 		&item,
 		exception);
 	if (EXCEPTION_OKAY) {
@@ -160,12 +161,14 @@ fiftyoneDegreesProperty* fiftyoneDegreesPropertyGet(
 	uint32_t index,
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesException *exception) {
+
+	const CollectionKey propertyKey = {
+		index,
+		CollectionKeyType_Property,
+	};
 	return (fiftyoneDegreesProperty*)properties->get(
 		properties,
-		(CollectionKey){
-			index,
-			CollectionKeyType_Property,
-		},
+		&propertyKey,
 		item,
 		exception);
 }
@@ -185,12 +188,13 @@ const fiftyoneDegreesProperty* fiftyoneDegreesPropertyGetByName(
 	while (i < propertiesCount && property == NULL && EXCEPTION_OKAY) {
 		
 		// Get the property for this index.
+		const CollectionKey propertyKey = {
+			i++,
+			CollectionKeyType_Property,
+		};
 		property = (Property*)properties->get(
 			properties, 
-			(CollectionKey){
-				i++,
-				CollectionKeyType_Property,
-			},
+			&propertyKey,
 			item, 
 			exception);
 		if (property != NULL && EXCEPTION_OKAY) {
@@ -229,12 +233,13 @@ byte fiftyoneDegreesPropertyGetValueType(
 	Item item;
 	Property *property;
 	DataReset(&item.data);
+	const CollectionKey propertyKey = {
+		index,
+		CollectionKeyType_Property,
+	};
 	property = (Property*)properties->get(
 		properties,
-		(CollectionKey){
-			index,
-			CollectionKeyType_Property,
-		},
+		&propertyKey,
 		&item,
 		exception);
 	if (property != NULL && EXCEPTION_OKAY) {

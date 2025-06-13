@@ -124,12 +124,13 @@ const Value* fiftyoneDegreesValueGet(
 	uint32_t valueIndex,
 	CollectionItem *item,
 	Exception *exception) {
+	const CollectionKey valueKey = {
+		valueIndex,
+		CollectionKeyType_Value,
+	};
 	return (const Value*)values->get(
 		values,
-		(CollectionKey){
-			valueIndex,
-			CollectionKeyType_Value,
-		},
+		&valueKey,
 		item, 
 		exception);
 }

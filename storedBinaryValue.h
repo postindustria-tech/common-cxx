@@ -103,7 +103,7 @@ typedef union fiftyone_degrees_stored_binary_value_t {
  */
 EXTERNAL void* fiftyoneDegreesStoredBinaryValueRead(
  const fiftyoneDegreesCollectionFile *file,
- fiftyoneDegreesCollectionKey key,
+ const fiftyoneDegreesCollectionKey *key,
  fiftyoneDegreesData *data,
  fiftyoneDegreesException *exception);
 

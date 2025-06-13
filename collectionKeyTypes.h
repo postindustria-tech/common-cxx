@@ -51,86 +51,104 @@ EXTERNAL uint32_t fiftyoneDegreesThrowUnsupportedStoredValueType(
     const void *initial,
     fiftyoneDegreesException *exception);
 
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Azimuth = {
+
+
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Azimuth_raw = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
     sizeof(int16_t),
     NULL,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Byte = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Azimuth = &CollectionKeyType_Azimuth_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Byte_raw = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH,
     sizeof(uint8_t),
     NULL,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Component = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Byte = &CollectionKeyType_Byte_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Component_raw = {
     FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT,
     sizeof(fiftyoneDegreesComponent) - sizeof(fiftyoneDegreesComponentKeyValuePair),
     fiftyoneDegreesComponentGetFinalSize,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Declination = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Component = &CollectionKeyType_Component_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Declination_raw = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION,
     sizeof(int16_t),
     NULL,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Integer = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Declination = &CollectionKeyType_Declination_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Integer_raw = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER,
     sizeof(uint32_t),
     NULL,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_IPAddress = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Integer = &CollectionKeyType_Integer_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_IPAddress_raw = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
     sizeof(uint16_t),
     getFinalByteArraySize,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Float = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_IPAddress = &CollectionKeyType_IPAddress_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Float_raw = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT,
     sizeof(fiftyoneDegreesFloat),
     NULL,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Profile = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Float = &CollectionKeyType_Float_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Profile_raw = {
     FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE,
     sizeof(fiftyoneDegreesProfile),
     fiftyoneDegreesProfileGetFinalSize,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_ProfileOffset = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Profile = &CollectionKeyType_Profile_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_ProfileOffset_raw = {
     FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE_OFFSET,
     sizeof(fiftyoneDegreesProfileOffset),
     NULL,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Property = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_ProfileOffset = &CollectionKeyType_ProfileOffset_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Property_raw = {
     FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROPERTY,
     sizeof(fiftyoneDegreesProperty),
     NULL,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_PropertyTypeRecord = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Property = &CollectionKeyType_Property_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_PropertyTypeRecord_raw = {
     FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROPERTY_TYPE_RECORD,
     sizeof(fiftyoneDegreesPropertyTypeRecord),
     NULL,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_String = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_PropertyTypeRecord = &CollectionKeyType_PropertyTypeRecord_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_String_raw = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING,
     sizeof(uint16_t),
     fiftyoneDegreesStringGetFinalSize,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Unsupported = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_String = &CollectionKeyType_String_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Unsupported_raw = {
     FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_CUSTOM,
     1,
     fiftyoneDegreesThrowUnsupportedStoredValueType,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Value = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Unsupported = &CollectionKeyType_Unsupported_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Value_raw = {
     FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_VALUE,
     sizeof(fiftyoneDegreesValue),
     NULL,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_WKB = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Value = &CollectionKeyType_Value_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_WKB_raw = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB,
     sizeof(uint16_t),
     getFinalByteArraySize,
 };
-static const fiftyoneDegreesCollectionKeyType CollectionKeyType_WKB_R = {
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_WKB = &CollectionKeyType_WKB_raw;
+static const fiftyoneDegreesCollectionKeyType CollectionKeyType_WKB_R_raw = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R,
     sizeof(uint16_t),
     getFinalByteArraySize,
 };
+static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_WKB_R = &CollectionKeyType_WKB_R_raw;
 
 EXTERNAL const fiftyoneDegreesCollectionKeyType *fiftyoneDegreesGetCollectionKeyTypeForStoredValueType(
     fiftyoneDegreesPropertyValueType storedValueType,

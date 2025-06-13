@@ -71,7 +71,7 @@ typedef struct fiftyone_degrees_collection_key_type_t {
  */
 typedef struct fiftyone_degrees_collection_key_t {
 	fiftyoneDegreesCollectionIndexOrOffset indexOrOffset; /**< Where to look for the item. */
-	fiftyoneDegreesCollectionKeyType keyType;  /**< Not used if collection is fixed width. */
+	const fiftyoneDegreesCollectionKeyType *keyType;  /**< Not used if collection is fixed width. */
 } fiftyoneDegreesCollectionKey;
 
 /**

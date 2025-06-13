@@ -833,8 +833,8 @@ void* fiftyoneDegreesCollectionReadFileFixed(
 	FileHandle *handle = NULL;
 	const uint32_t offset = key.indexOrOffset.index * file->collection->elementSize;
 	const uint32_t lengthToRead =
-		((key.keyType.initialBytesCount > file->collection->elementSize)
-			? key.keyType.initialBytesCount
+		((key.keyType->initialBytesCount > file->collection->elementSize)
+			? key.keyType->initialBytesCount
 			: file->collection->elementSize);
 	
 	// Indicate that no data is being used at the start of the operation.
@@ -995,8 +995,8 @@ void* fiftyoneDegreesCollectionReadFileVariable(
 				data, 
 				key.indexOrOffset.offset,
 				initial,
-				key.keyType.initialBytesCount,
-				key.keyType.getFinalSizeMethod,
+				key.keyType->initialBytesCount,
+				key.keyType->getFinalSizeMethod,
 				exception);
 			FileHandleRelease(handle);
 		}
@@ -1039,7 +1039,7 @@ long fiftyoneDegreesCollectionBinarySearch(
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesCollectionIndexOrOffset lowerKey,
 	fiftyoneDegreesCollectionIndexOrOffset upperKey,
-	fiftyoneDegreesCollectionKeyType keyType,
+	const fiftyoneDegreesCollectionKeyType * const keyType,
 	void *state,
 	fiftyoneDegreesCollectionItemComparer comparer,
 	fiftyoneDegreesException *exception) {

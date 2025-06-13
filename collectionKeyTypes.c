@@ -41,23 +41,23 @@ const fiftyoneDegreesCollectionKeyType *fiftyoneDegreesGetCollectionKeyTypeForSt
 
     switch (storedValueType) {
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_STRING:
-            return &CollectionKeyType_String;
+            return CollectionKeyType_String;
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_INTEGER:
-            return &CollectionKeyType_Integer;
+            return CollectionKeyType_Integer;
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_AZIMUTH:
-            return &CollectionKeyType_Azimuth;
+            return CollectionKeyType_Azimuth;
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_DECLINATION:
-            return &CollectionKeyType_Declination;
+            return CollectionKeyType_Declination;
         case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_PRECISION_FLOAT:
-            return &CollectionKeyType_Float;
+            return CollectionKeyType_Float;
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS:
-            return &CollectionKeyType_IPAddress;
+            return CollectionKeyType_IPAddress;
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R:
-            return &CollectionKeyType_WKB_R;
+            return CollectionKeyType_WKB_R;
         case FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB:
-            return &CollectionKeyType_WKB;
+            return CollectionKeyType_WKB;
         default: {
-            return &CollectionKeyType_Unsupported;
+            return CollectionKeyType_Unsupported;
         }
     }
 }

@@ -117,15 +117,16 @@ void fiftyoneDegreesComponentInitList(
 
 			// Get the component and add it to the list.
 			DataReset(&item.data);
+			const CollectionKeyType keyType = {
+				FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT,
+				sizeof(Component) - sizeof(fiftyoneDegreesComponentKeyValuePair),
+				fiftyoneDegreesComponentGetFinalSize,
+			};
 			component = (Component*)components->get(
 				components,
 				(CollectionKey){
 					offset,
-					{
-						FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_COMPONENT,
-						sizeof(Component) - sizeof(fiftyoneDegreesComponentKeyValuePair),
-						fiftyoneDegreesComponentGetFinalSize,
-					},
+					&keyType,
 				},
 				&item,
 				exception);

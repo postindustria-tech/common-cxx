@@ -108,13 +108,14 @@ static void iterateProfiles(
 	Item profileOffsetItem; // The current profile offset memory
 	DataReset(&profileItem.data);
 	DataReset(&profileOffsetItem.data);
+	const CollectionKeyType keyType = {
+		FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE_OFFSET,
+		sizeof(ProfileOffset),
+		NULL,
+	};
 	CollectionKey profileOffsetKey = {
 		0,
-		{
-			FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_PROFILE_OFFSET,
-			sizeof(ProfileOffset),
-			NULL,
-		},
+		&keyType,
 	};
 	CollectionKey profileKey = {
 		0,

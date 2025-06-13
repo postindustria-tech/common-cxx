@@ -636,7 +636,7 @@ EXTERNAL long fiftyoneDegreesCollectionBinarySearch(
 	fiftyoneDegreesCollectionItem *item,
 	fiftyoneDegreesCollectionIndexOrOffset lowerKey,
 	fiftyoneDegreesCollectionIndexOrOffset upperKey,
-	fiftyoneDegreesCollectionKeyType keyType,
+	const fiftyoneDegreesCollectionKeyType *keyType,
 	void *state,
 	fiftyoneDegreesCollectionItemComparer comparer,
 	fiftyoneDegreesException *exception);

@@ -110,7 +110,7 @@ protected:
 			auto const currentName = (const fiftyoneDegreesString*)
 				stringState->collection->get(
 					stringState->collection,
-					key,
+					&key,
 					&item,
 					exception);
 			if (strcmp(&currentName->value, jsName) == 0) {

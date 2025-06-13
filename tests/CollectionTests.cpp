@@ -35,7 +35,7 @@ using namespace FiftyoneDegrees::Common;
 
 class CollectionTestData {
 public:
-	const fiftyoneDegreesCollectionKeyType &keyType;
+	const fiftyoneDegreesCollectionKeyType keyType;
 	CollectionTestData(
 		uint32_t count,
 		const fiftyoneDegreesCollectionKeyType &keyType): keyType(keyType), count(count) {
@@ -71,7 +71,7 @@ public:
 
 class CollectionTestDataFixed : public CollectionTestData {
 public:
-	CollectionTestDataFixed(uint32_t count) : CollectionTestData(count, CollectionKeyType_Integer) {
+	CollectionTestDataFixed(uint32_t count) : CollectionTestData(count, *CollectionKeyType_Integer) {
 		elementSize = sizeof(int);
 		size = (count * elementSize) + sizeof(uint32_t);
 		data = new byte[size];
@@ -106,7 +106,7 @@ public:
 
 class CollectionTestDataVariable : public CollectionTestData {
 public:
-	CollectionTestDataVariable(uint32_t count) : CollectionTestData(count, CollectionKeyType_String) {
+	CollectionTestDataVariable(uint32_t count) : CollectionTestData(count, *CollectionKeyType_String) {
 		size = sizeof(uint32_t);
 		for (uint32_t i = 0; i < count; i++) {
 			size += strlen(TEST_STRINGS[i]) + 1;
@@ -204,11 +204,11 @@ public:
 		for (uint32_t i = 0; i < data->count; i++) {
 			const fiftyoneDegreesCollectionKey key {
 				data->map[i],
-				data->keyType,
+				&data->keyType,
 			};
 			collection->get(
 				collection,
-				key,
+				&key,
 				&item,
 				exception);
 			FIFTYONE_DEGREES_EXCEPTION_THROW
@@ -233,11 +233,11 @@ public:
 			for (uint32_t i = 0; i < data->count; i++) {
 				const fiftyoneDegreesCollectionKey key {
 					data->map[i],
-					data->keyType,
+					&data->keyType,
 				};
 				auto const theValue = (const uint32_t *)collection->get(
 					collection,
-					key,
+					&key,
 					&targetItem,
 					exception);
 #				ifdef _MSC_VER
@@ -250,7 +250,7 @@ public:
 					&resultItem,
 					fiftyoneDegreesCollectionIndexOrOffset_Zero,
 					end,
-					data->keyType,
+					&data->keyType,
 					targetItem.data.ptr,
 					data->itemComparer,
 					exception);
@@ -287,7 +287,7 @@ public:
 					&resultItem,
 					fiftyoneDegreesCollectionIndexOrOffset_Zero,
 					end,
-					data->keyType,
+					&data->keyType,
 					&(DummyIDs[i]),
 					data->itemComparer,
 					exception));
@@ -302,11 +302,11 @@ public:
 		fiftyoneDegreesDataReset(&item.data);
 		const fiftyoneDegreesCollectionKey key {
 			data->outOfRange(),
-			data->keyType,
+			&data->keyType,
 		};
 		EXPECT_EQ(collection->get(
 			collection,
-			key,
+			&key,
 			&item,
 			exception), nullptr) << "Returned pointer should always be "
 			"null if out of range";
@@ -332,11 +332,11 @@ public:
 			"the count of available test data items";
 			const fiftyoneDegreesCollectionKey key {
 					data->map[index],
-				data->keyType,
+				&data->keyType,
 			};
 			EXPECT_NE(collection->get(
 				collection,
-				key,
+				&key,
 				&item, 
 				exception), nullptr);
 			FIFTYONE_DEGREES_EXCEPTION_THROW
@@ -361,11 +361,11 @@ public:
 			fiftyoneDegreesDataReset(&item.data);
 			const fiftyoneDegreesCollectionKey key {
 				data->map[i],
-				data->keyType,
+				&data->keyType,
 			};
 			EXPECT_NE(collection->get(
 				collection,
-				key,
+				&key,
 				&item,
 				exception), nullptr);
 			FIFTYONE_DEGREES_EXCEPTION_THROW
@@ -515,10 +515,10 @@ public:
 	}
 
 	static void* Read(
-		const fiftyoneDegreesCollectionFile *file,
-		fiftyoneDegreesCollectionKey key,
-		fiftyoneDegreesData *data,
-		fiftyoneDegreesException *exception) {
+		const fiftyoneDegreesCollectionFile * const file,
+		const fiftyoneDegreesCollectionKey * const key,
+		fiftyoneDegreesData * const data,
+		fiftyoneDegreesException * const exception) {
 		return fiftyoneDegreesCollectionReadFileFixed(file, key, data, exception);
 	}
 };
@@ -532,9 +532,9 @@ public:
 
 	static void* Read(
 		const fiftyoneDegreesCollectionFile *file,
-		fiftyoneDegreesCollectionKey key,
-		fiftyoneDegreesData *data,
-		fiftyoneDegreesException *exception) {
+		const fiftyoneDegreesCollectionKey * const key,
+		fiftyoneDegreesData * const data,
+		fiftyoneDegreesException * const exception) {
 		stringstream stream;
 		char c;
 		uint32_t length = 1;
@@ -543,7 +543,7 @@ public:
 		fiftyoneDegreesFileHandle *handle =
 			fiftyoneDegreesCollectionReadFilePosition(
 				file,
-				key.indexOrOffset.offset,
+				key->indexOrOffset.offset,
 				exception);
 		if (handle == NULL || FIFTYONE_DEGREES_EXCEPTION_FAILED) {
 			return NULL;
@@ -598,10 +598,10 @@ static uint32_t getIntArraySize(
 * structure.
 */
 void* intArrayRead(
-	const fiftyoneDegreesCollectionFile *file,
-	fiftyoneDegreesCollectionKey key,
-	fiftyoneDegreesData *data,
-	fiftyoneDegreesException *exception) {
+	const fiftyoneDegreesCollectionFile * const file,
+	const fiftyoneDegreesCollectionKey * const key,
+	fiftyoneDegreesData * const data,
+	fiftyoneDegreesException * const exception) {
 	uint32_t length;
 	return fiftyoneDegreesCollectionReadFileVariable(
 		file,
@@ -702,11 +702,11 @@ TEST_F(CollectionTestFileVariableLimits, OnlyElementHeader) {
 	for (uint32_t i = 0; i < count; i++) {
 		const fiftyoneDegreesCollectionKey key {
 			offsets[i],
-			keyType,
+			&keyType,
 		};
 		value = (uint32_t*)collection->get(
 			collection,
-			key,
+			&key,
 			&item,
 			exception);
 		FIFTYONE_DEGREES_EXCEPTION_THROW

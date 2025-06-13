@@ -23,6 +23,7 @@
 #include <gtest/gtest.h>
 #include <gtest/gtest-param-test.h>
 #include "TestUtils_Pointers.hpp"
+#include "../collectionKeyTypes.h"
 
 using BytesPtr = std::unique_ptr<byte[]>;
 static constexpr size_t elementsCount = 131;
@@ -62,12 +63,6 @@ void CollectionOffsetTest::rebuildCollection(const FileOffsetUnsigned offset) {
     this->collection = CollectionPtr(rawCollection, freeCollection);
 }
 
-static const CollectionKeyType CollectionKeyType_Byte = {
-    FIFTYONE_DEGREES_COLLECTION_ENTRY_TYPE_CUSTOM,
-    1,
-    nullptr,
-};
-
 TEST_P(CollectionOffsetTest, DirectWrite) {
     EXCEPTION_CREATE;
     const FileOffsetUnsigned offset = GetParam();
@@ -82,7 +77,7 @@ TEST_P(CollectionOffsetTest, DirectWrite) {
         };
         auto const ptr = (const byte *)collection->get(
             collection.get(),
-            key,
+            &key,
             *item,
             exception);
 
@@ -109,7 +104,7 @@ TEST_P(CollectionOffsetTest, DirectRead) {
         };
         auto const ptr = (byte *)collection->get(
             collection.get(),
-            key,
+            &key,
             *item,
             exception);
 

@@ -42,7 +42,7 @@ const fiftyoneDegreesString* getStringValue(
 		};
 		value = (String*)strings->collection->get(
 			strings->collection,
-			key,
+			&key,
 			item,
 			exception);
 		FIFTYONE_DEGREES_EXCEPTION_THROW
@@ -67,7 +67,7 @@ long getHeaderUniqueId(
 		};
 		strings->collection->get(
 			strings->collection,
-			key,
+			&key,
 			item,
 			exception);
 		FIFTYONE_DEGREES_EXCEPTION_THROW

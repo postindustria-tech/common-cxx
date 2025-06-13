@@ -245,7 +245,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromMemory) {
     };
     auto * const value = (String *)collection.memory->get(
         collection.memory.get(),
-        key,
+        &key,
         *item,
         exception);
     ASSERT_EQ(dataStart + offsets.string1, (byte *)value);
@@ -439,7 +439,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFileLoadedNo
     };
     auto * const value = (String *)collection.fileLoadedNoCache.ptr->get(
         collection.fileLoadedNoCache.ptr.get(),
-        key,
+        &key,
         *item,
         exception);
     EXCEPTION_THROW;
@@ -653,7 +653,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFileLoadedCa
     };
     auto * const value = (String *)collection.fileLoadedCache.ptr->get(
         collection.fileLoadedCache.ptr.get(),
-        key,
+        &key,
         *item,
         exception);
     EXCEPTION_THROW;
@@ -867,7 +867,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFileCache) {
     };
     auto * const value = (String *)collection.fileCache.ptr->get(
         collection.fileCache.ptr.get(),
-        key,
+        &key,
         *item,
         exception);
     EXCEPTION_THROW;
@@ -1076,7 +1076,7 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_String1_Direct_FromFileNoCache)
     };
     auto * const value = (String *)collection.fileNoCache.ptr->get(
         collection.fileNoCache.ptr.get(),
-        key,
+        &key,
         *item,
         exception);
     EXCEPTION_THROW;

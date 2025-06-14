@@ -312,6 +312,10 @@ StringBuilder* fiftyoneDegreesStringBuilderAddStringValue(
 			StringBuilderAddInteger(builder, value->intValue);
 			break;
 		}
+		case FIFTYONE_DEGREES_PROPERTY_VALUE_SINGLE_BYTE: {
+			StringBuilderAddInteger(builder, value->byteValue);
+			break;
+		}
 		default: {
 			EXCEPTION_SET(UNSUPPORTED_STORED_VALUE_TYPE);
 			break;

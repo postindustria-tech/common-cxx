@@ -119,7 +119,7 @@ EXTERNAL uint32_t fiftyoneDegreesStringGetFinalSize(
  */
 EXTERNAL void* fiftyoneDegreesStringRead(
 	const fiftyoneDegreesCollectionFile *file,
-	fiftyoneDegreesCollectionKey key,
+	const fiftyoneDegreesCollectionKey *key,
 	fiftyoneDegreesData *data,
 	fiftyoneDegreesException *exception);
 

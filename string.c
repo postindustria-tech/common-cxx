@@ -40,15 +40,15 @@ uint32_t fiftyoneDegreesStringGetFinalSize(
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
 void* fiftyoneDegreesStringRead(
-	const fiftyoneDegreesCollectionFile *file,
-	CollectionKey key,
-	fiftyoneDegreesData *data,
-	fiftyoneDegreesException *exception) {
+	const fiftyoneDegreesCollectionFile * const file,
+	const CollectionKey * const key,
+	fiftyoneDegreesData * const data,
+	fiftyoneDegreesException * const exception) {
 	int16_t length;
 	return CollectionReadFileVariable(
 		file,
 		data,
-		&key,
+		key,
 		&length,
 		exception);
 }

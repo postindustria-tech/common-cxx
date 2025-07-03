@@ -49,7 +49,7 @@ typedef uint32_t (*fiftyoneDegreesCollectionGetVariableSizeMethod)(
 /**
  * Location of the item within the Collection.
  */
-typedef union fiftyone_degrees_collection_intex_or_offset_t {
+typedef union fiftyone_degrees_collection_index_or_offset_t {
 	uint32_t index;  /**< index of the item in the collection. */
 	uint32_t offset;  /**< byte offset of the item from the start of collection. */
 } fiftyoneDegreesCollectionIndexOrOffset;

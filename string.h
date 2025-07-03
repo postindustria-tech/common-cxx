@@ -96,17 +96,21 @@ typedef struct fiftyone_degrees_string_t {
 } fiftyoneDegreesString;
 #pragma pack(pop)
 
-#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
-
 /**
  * Gets size of String with trailing characters.
  * @param initial pointer to string "head"
  * @return full (with tail) struct size
  */
+#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 EXTERNAL uint32_t fiftyoneDegreesStringGetFinalSize(
 	const void *initial,
 	fiftyoneDegreesException *exception);
+#else
+#define fiftyoneDegreesStringGetFinalSize NULL
+#endif
 
+
+#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 /**
  * Reads a string from the source file at the offset within the string
  * structure.

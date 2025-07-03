@@ -22,6 +22,7 @@
 
 #include "collectionKeyTypes.h"
 
+#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 uint32_t fiftyoneDegreesThrowUnsupportedStoredValueType(
     const void * const initial,
     fiftyoneDegreesException * const exception) {
@@ -31,6 +32,7 @@ uint32_t fiftyoneDegreesThrowUnsupportedStoredValueType(
     FIFTYONE_DEGREES_EXCEPTION_SET(FIFTYONE_DEGREES_STATUS_UNSUPPORTED_STORED_VALUE_TYPE);
     return 0;
 }
+#endif
 
 const fiftyoneDegreesCollectionKeyType *fiftyoneDegreesGetCollectionKeyTypeForStoredValueType(
     const fiftyoneDegreesPropertyValueType storedValueType,

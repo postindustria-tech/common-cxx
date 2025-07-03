@@ -26,6 +26,7 @@
 #include "TestUtils_Pointers.hpp"
 #include "../collectionKeyTypes.h"
 
+#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 static void releaseFilePool(FilePool * const ptr) {
     if (ptr) {
         FilePoolRelease(ptr);
@@ -34,10 +35,12 @@ static void releaseFilePool(FilePool * const ptr) {
 }
 using FilePoolPtr = std::unique_ptr<FilePool, decltype(&releaseFilePool)>;
 using FileHandlePtr = std::unique_ptr<FileHandle, decltype(&FileHandleRelease)>;
+#endif
 
 typedef uint32_t Offset;
 typedef std::vector<byte> ByteBuffer;
 
+#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 static constexpr uint16_t requiredCollectionConcurrency = 11;
 
 struct FileCollectionBox {
@@ -49,6 +52,7 @@ struct FileCollectionBox {
     FileHandlePtr handle { nullptr, FileHandleRelease };
     CollectionPtr ptr { nullptr, freeCollection };
 };
+#endif
 
 class StoredBinaryValues : public Base {
 public:
@@ -69,15 +73,18 @@ public:
         Offset byteValue;
     } offsets = {};
 
+#   ifndef FIFTYONE_DEGREES_MEMORY_ONLY
     struct FileProps {
         const uint16_t totalConcurrency = 2 * requiredCollectionConcurrency;
         FilePoolPtr pool { nullptr, releaseFilePool };
         CollectionHeader header = {};
     } file = {};
+#   endif
 
     CollectionHeader header = {};
     struct {
         CollectionPtr memory { nullptr, freeCollection };
+#       ifndef FIFTYONE_DEGREES_MEMORY_ONLY
         FileCollectionBox fileNoCache = {{ false, 0, requiredCollectionConcurrency }};
         FileCollectionBox fileCache = {
             {
@@ -87,6 +94,7 @@ public:
             }};
         FileCollectionBox fileLoadedNoCache = {{ true, 0, 0 }};
         FileCollectionBox fileLoadedCache = {{ true, requiredCollectionConcurrency, 0 }};
+#       endif
     } collection;
 };
 
@@ -151,6 +159,7 @@ static CollectionPtr buildMemoryCollection(
     return result;
 }
 
+#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 static constexpr char fileName[] = "StoredBinaryValueTests_Data.hex";
 
 static void prepareFileProps(StoredBinaryValues::FileProps &fileProps) {
@@ -191,6 +200,7 @@ static void buildFileCollection(
         StoredBinaryValueRead);
     outBox.ptr = {collection, freeCollection};
 }
+#endif
 
 void StoredBinaryValues::SetUp() {
     // add some junk into start to emulate file header
@@ -226,14 +236,18 @@ void StoredBinaryValues::SetUp() {
     }
 
     dataStart = rawStringsBuffer.data() + fileHeaderSize;
+#   ifndef FIFTYONE_DEGREES_MEMORY_ONLY
     FileWrite(fileName, rawStringsBuffer.data(), rawStringsBuffer.size());
+#   endif
 
     collection.memory = buildMemoryCollection(rawStringsBuffer, fileHeaderSize, header);
+#   ifndef FIFTYONE_DEGREES_MEMORY_ONLY
     prepareFileProps(file);
     buildFileCollection(file, header, collection.fileNoCache);
     buildFileCollection(file, header, collection.fileCache);
     buildFileCollection(file, header, collection.fileLoadedNoCache);
     buildFileCollection(file, header, collection.fileLoadedCache);
+#   endif
 }
 
 void StoredBinaryValues::TearDown() {
@@ -448,6 +462,9 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromMemory) {
     }
     ASSERT_EQ(intValue_rawValue, value->intValue);
 }
+
+
+#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 
 
 // ============== StoredBinaryValueGet (from file loaded no cache) ==============
@@ -1366,6 +1383,9 @@ TEST_F(StoredBinaryValues, StoredBinaryValue_Get_Object_FromFileNoCache) {
     ASSERT_EQ(UNSUPPORTED_STORED_VALUE_TYPE, exception->status);
     ASSERT_FALSE(value);
 }
+
+
+#endif
 
 
 // ============== StoredBinaryValueToIntOrDefault ==============

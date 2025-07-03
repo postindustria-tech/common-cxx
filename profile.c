@@ -27,6 +27,7 @@
 
 MAP_TYPE(Collection)
 
+#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 uint32_t fiftyoneDegreesProfileGetFinalSize(
 	const void *initial,
     fiftyoneDegreesException * const exception) {
@@ -37,6 +38,7 @@ uint32_t fiftyoneDegreesProfileGetFinalSize(
 	return sizeof(Profile) +
 		(profile->valueCount * sizeof(uint32_t));
 }
+#endif
 
 static Profile* getProfileByOffset(
 	Collection *profilesCollection,

@@ -99,7 +99,6 @@ typedef struct fiftyoneDegrees_component_t {
 EXTERNAL uint32_t fiftyoneDegreesComponentGetFinalSize(
 	const void *initial,
 	fiftyoneDegreesException *exception);
-
 /**
  * Returns the string name of the component using the item provided. The
  * collection item must be released when the caller is finished with the

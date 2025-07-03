@@ -38,7 +38,8 @@
 #include "exceptions.h"
 #include "profile.h"
 
-static uint32_t getFinalByteArraySize(
+#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
+static uint32_t fiftyoneDegreesGetFinalByteArraySize(
     const void *initial,
     fiftyoneDegreesException * const exception) {
 #	ifdef _MSC_VER
@@ -46,11 +47,17 @@ static uint32_t getFinalByteArraySize(
 #	endif
     return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
 }
+#else
+#define fiftyoneDegreesGetFinalByteArraySize NULL
+#endif
 
+#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 EXTERNAL uint32_t fiftyoneDegreesThrowUnsupportedStoredValueType(
     const void *initial,
     fiftyoneDegreesException *exception);
-
+#else
+#define fiftyoneDegreesThrowUnsupportedStoredValueType NULL
+#endif
 
 
 static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Azimuth_raw = {
@@ -86,7 +93,7 @@ static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Integer 
 static const fiftyoneDegreesCollectionKeyType CollectionKeyType_IPAddress_raw = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_IP_ADDRESS,
     sizeof(uint16_t),
-    getFinalByteArraySize,
+    fiftyoneDegreesGetFinalByteArraySize,
 };
 static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_IPAddress = &CollectionKeyType_IPAddress_raw;
 static const fiftyoneDegreesCollectionKeyType CollectionKeyType_Float_raw = {
@@ -140,13 +147,13 @@ static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_Value = 
 static const fiftyoneDegreesCollectionKeyType CollectionKeyType_WKB_raw = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB,
     sizeof(uint16_t),
-    getFinalByteArraySize,
+    fiftyoneDegreesGetFinalByteArraySize,
 };
 static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_WKB = &CollectionKeyType_WKB_raw;
 static const fiftyoneDegreesCollectionKeyType CollectionKeyType_WKB_R_raw = {
     FIFTYONE_DEGREES_PROPERTY_VALUE_TYPE_WKB_R,
     sizeof(uint16_t),
-    getFinalByteArraySize,
+    fiftyoneDegreesGetFinalByteArraySize,
 };
 static const fiftyoneDegreesCollectionKeyType * const CollectionKeyType_WKB_R = &CollectionKeyType_WKB_R_raw;
 

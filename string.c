@@ -28,6 +28,7 @@
 
 #include "collectionKeyTypes.h"
 
+#ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 uint32_t fiftyoneDegreesStringGetFinalSize(
 	const void *initial,
     Exception * const exception) {
@@ -36,6 +37,7 @@ uint32_t fiftyoneDegreesStringGetFinalSize(
 #	endif
 	return (uint32_t)(sizeof(int16_t) + (*(int16_t*)initial));
 }
+#endif
 
 #ifndef FIFTYONE_DEGREES_MEMORY_ONLY
 

@@ -25,7 +25,9 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+#include "TestUtils_Pointers.hpp"
 #include "../exceptions.h"
+#include "../fiftyone.h"
 #include "../file.h"
 #include "../snprintf.h"
 
@@ -200,6 +202,46 @@ TEST_F(File, PoolInit) {
 	int16_t concurrency = 4;
 	InitPool(concurrency);
 	fiftyoneDegreesFilePoolRelease(&pool);
+}
+
+TEST_F(File, PoolHandleUse) {
+	constexpr int16_t concurrency = 4;
+	const std::string s = "my-temp-data-29";
+	const size_t dataSize = s.size() + 1;
+
+	EXCEPTION_CREATE;
+	for (int i = 0; i < 1000; i++) {
+		const std::string tempFileName = (std::stringstream()
+			<< "tempFile_for_PoolHandleUse_" << i << ".txt").str();
+		auto const status = FileWrite(tempFileName.c_str(), s.c_str(), dataSize);
+		ASSERT_EQ(status, SUCCESS);
+		FilePoolPtr pool = { nullptr, releaseFilePool };
+		{
+			auto const rawPool = new FilePool();
+			FilePoolInit(
+				rawPool,
+				tempFileName.c_str(),
+				concurrency,
+				exception);
+			EXCEPTION_THROW;
+			pool = FilePoolPtr(rawPool, releaseFilePool);
+		}
+
+		constexpr size_t bufSize = 64;
+		for (int j = 0; j < 2 * concurrency; j++) {
+			auto const handle = FileHandlePtr(
+				FileHandleGet(pool.get(), exception),
+				FileHandleRelease);
+			EXCEPTION_THROW;
+			char buf[bufSize] = { 0 };
+			FileSeek(handle->file, 0, SEEK_SET);
+			auto const didRead = fread(buf, dataSize, 1, handle->file);
+			ASSERT_EQ(didRead, 1);
+			const std::string s2 = buf;
+			ASSERT_EQ(s, s2);
+		}
+		FileDelete(tempFileName.c_str());
+	}
 }
 
 TEST_F(File, TempCreateFileNameWithoutExtension) {

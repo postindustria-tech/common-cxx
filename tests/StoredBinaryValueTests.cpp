@@ -26,15 +26,6 @@
 #include "TestUtils_Pointers.hpp"
 #include "../collectionKeyTypes.h"
 
-static void releaseFilePool(FilePool * const ptr) {
-    if (ptr) {
-        FilePoolRelease(ptr);
-        delete ptr;
-    }
-}
-using FilePoolPtr = std::unique_ptr<FilePool, decltype(&releaseFilePool)>;
-using FileHandlePtr = std::unique_ptr<FileHandle, decltype(&FileHandleRelease)>;
-
 typedef uint32_t Offset;
 typedef std::vector<byte> ByteBuffer;
 

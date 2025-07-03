@@ -866,6 +866,7 @@ void* fiftyoneDegreesCollectionReadFileFixed(
 					// The read failed so free the memory allocated and set the
 					// status code.
 					Free(data->ptr);
+					DataReset(data);
 					EXCEPTION_SET(COLLECTION_FILE_READ_FAIL);
 				}
 			}
